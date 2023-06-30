@@ -1,0 +1,55 @@
+{
+  "name": "landromat",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "compile:clean": "rm -rf cache/* && rm -rf artifacts/* && rm -rf typechain-types/*",
+    "compile": "npx hardhat compile",
+    "test": "npx hardhat test",
+    "test:gas": "REPORT_GAS=true npx hardhat test",
+    "test:coverage": "REPORT_GAS=true npx hardhat coverage",
+    "contract:size": "npx hardhat size-contracts",
+    "lint": "npx hardhat check",
+    "start": "NODE_ENV=production node dist/index.js",
+    "deploy:hardhat": "npx hardhat run --network hardhat scripts/deploy.ts",
+    "deploy:local": "npx hardhat run --network local scripts/deploy.ts",
+    "deploy:polygon": "npx hardhat run --network polygon scripts/deploy.ts",
+    "deploy:mumbai": "npx hardhat run --network mumbai scripts/deploy.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-chai-matchers": "^2.0.1",
+    "@nomicfoundation/hardhat-ethers": "^3.0.3",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.8",
+    "@nomicfoundation/hardhat-toolbox": "^3.0.0",
+    "@nomiclabs/hardhat-etherscan": "^3.1.7",
+    "@nomiclabs/hardhat-solhint": "^3.0.1",
+    "@typechain/ethers-v6": "^0.4.0",
+    "@typechain/hardhat": "^8.0.0",
+    "@types/chai": "^4.3.5",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^20.3.2",
+    "ethers": "^6.6.2",
+    "hardhat": "^2.16.1",
+    "hardhat-contract-sizer": "^2.10.0",
+    "hardhat-gas-reporter": "^1.0.9",
+    "solhint-plugin-prettier": "^0.0.5",
+    "solidity-coverage": "^0.8.3",
+    "ts-node": "^10.9.1",
+    "typechain": "^8.2.0"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.9.2"
+  },
+  "contractSizer": {
+    "alphaSort": true,
+    "disambiguatePaths": false,
+    "runOnCompile": true,
+    "strict": true,
+    "only": [
+      ":ERC20$"
+    ]
+  }
+}
