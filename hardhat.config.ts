@@ -9,7 +9,7 @@ const devAccounts: HardhatNetworkAccountUserConfig[] =  STAGING_ACCOUNTS_PKEYS.m
 const config: HardhatUserConfig = {
   gasReporter: {
     enabled: process.env.REPORT_GAS === "true",
-  },
+  },  
   defaultNetwork: "hardhat",
   networks: {
     hardhat: {
