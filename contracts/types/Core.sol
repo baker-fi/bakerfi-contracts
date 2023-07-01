@@ -2,13 +2,18 @@
 pragma solidity ^0.8.18;
 
 struct ApprovalData {
-  address erc20Address;
-  address delegate;
-  uint256 amount;
+    address asset;
+    address delegate;
+    uint256 amount;
 }
 
 struct TransferData {
-  address erc20Address;
-  address to;
-  uint256 amount;
+    address asset;
+    address to;
+    uint256 amount;
+}
+
+struct InstructionCall {
+    bytes32 instruction;
+    bytes args;
 }
