@@ -1,5 +1,6 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
+import '@nomicfoundation/hardhat-ethers';
 import { STAGING_ACCOUNTS_PKEYS} from "./constants/test-accounts";
 import {HardhatNetworkAccountUserConfig} from "hardhat/types/config";
 

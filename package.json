@@ -44,7 +44,10 @@
     "typechain": "^8.2.0"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.9.2"
+    "@aave/core-v3": "^1.18.0",
+    "@openzeppelin/contracts": "^4.9.2",
+    "@sushiswap/bentobox-sdk": "^1.0.0-canary.13",
+    "@taikai/dappkit": "^2.3.1"
   },
   "contractSizer": {
     "alphaSort": true,
