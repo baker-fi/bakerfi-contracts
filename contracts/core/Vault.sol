@@ -10,6 +10,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 import {IERC4626} from "@openzeppelin/contracts/interfaces/IERC4626.sol";
 import {Rebase, RebaseLibrary} from "../libraries/BoringRebase.sol";
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "hardhat/console.sol";
 
 contract Vault is IERC4626, ERC20, Ownable, Pausable, ReentrancyGuard {
     using SafeMath for uint256;
@@ -179,7 +180,7 @@ contract Vault is IERC4626, ERC20, Ownable, Pausable, ReentrancyGuard {
             "Vault: cannot empty"
         );
         _burn(owner, shares);
-        IERC20(_asset).transferFrom(address(this), receiver, assets);
+        IERC20(_asset).transfer(receiver, assets);
         emit Withdraw(msg.sender, receiver, owner, assets, shares);
     }
 
@@ -205,7 +206,7 @@ contract Vault is IERC4626, ERC20, Ownable, Pausable, ReentrancyGuard {
         Rebase memory total = Rebase(_collateralTotal, totalSupply());
         assets = total.toElastic(shares, false);    
         _burn(owner, shares);
-        IERC20(_asset).transferFrom(address(this), receiver, assets);
+        IERC20(_asset).transfer(receiver, assets);
         _collateralTotal = total.elastic.sub(assets);
         emit Withdraw(msg.sender, receiver, owner, assets, shares);
     }

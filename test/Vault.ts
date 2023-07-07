@@ -41,7 +41,7 @@ describe("Vault", function () {
         return { vault, owner, otherAccount, anotherAccount,  erc20 };
     }
    
-    describe("Vault Initialization", function () {
+    describe("Vault Basic Functions", function () {
         it("The owner of the contract is provided account", async function () {
             const { owner, vault} = await loadFixture(deployVault);                    
             expect(await vault.owner()).to.equal(owner.address);
@@ -161,7 +161,18 @@ describe("Vault", function () {
             const { owner, otherAccount, vault, erc20} = await loadFixture(twoShareSholders);
             await expect(vault.withdraw(ethers.parseUnits("100000", 18), owner.address, owner.address))
                 .to.emit(vault, "Withdraw")
-                .withArgs(owner.address, owner.address, ethers.parseUnits("100000", 18), ethers.parseUnits("100000", 18));   
+                .withArgs(owner.address, owner.address,owner.address, ethers.parseUnits("100000", 18), ethers.parseUnits("100000", 18));   
+            expect(await vault.totalAssets()).to.equals(ethers.parseUnits("50000", 18));
+            expect(await vault.totalSupply()).to.equals(ethers.parseUnits("50000", 18));
+        });
+
+        it("When i Reddem all shares from user1 ", async function () {
+            const { owner, otherAccount, vault, erc20} = await loadFixture(twoShareSholders);
+            await expect(vault.redeem(ethers.parseUnits("100000", 18), owner.address, owner.address))
+                .to.emit(vault, "Withdraw")
+                .withArgs(owner.address, owner.address,owner.address, ethers.parseUnits("100000", 18), ethers.parseUnits("100000", 18));   
+            expect(await vault.totalAssets()).to.equals(ethers.parseUnits("50000", 18));
+            expect(await vault.totalSupply()).to.equals(ethers.parseUnits("50000", 18));
         });
       
 
