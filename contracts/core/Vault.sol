@@ -11,8 +11,10 @@ import {IERC4626} from "@openzeppelin/contracts/interfaces/IERC4626.sol";
 import {Rebase, RebaseLibrary} from "../libraries/BoringRebase.sol";
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {IStrategy} from "../interfaces/core/IStrategy.sol";
+import {StrategyManager} from "./StrategyManager.sol";
 
-contract Vault is IERC4626, ERC20, Ownable, Pausable, ReentrancyGuard {
+contract Vault is StrategyManager, IERC4626, ERC20 {
+    
     using SafeMath for uint256;
     using RebaseLibrary for Rebase;
 
@@ -23,27 +25,19 @@ contract Vault is IERC4626, ERC20, Ownable, Pausable, ReentrancyGuard {
     }
 
     uint256 private constant MINIMUM_SHARE_BALANCE = 1000; // To prevent the ratio going off
-    uint256 constant MAX_PERCENT = 10000;
-    uint64 private constant STRATEGY_DELAY = 1 weeks;
-    uint64 private constant MAX_TARGET_PERCENTAGE = 95000; // 95%
-    
-    IStrategy private _currentStrategy;
-    IStrategy private _pendingStrategy;
-    StrategyData private _strategyData;
-
 
     address private _asset;
     uint256 private _collateralTotal;
 
     modifier allowed(address receiver) {
-        require(receiver == msg.sender, "Vault: Invalid Receiver");    
+        require(receiver == msg.sender, "Vault: Invalid Receiver");
         require(receiver != address(this), "Vault: Invalid Receiver");
         require(receiver != address(0), "Vault: Invalid Receiver");
         _;
     }
 
-     modifier allowedOwner(address owner) {
-        require(owner == msg.sender, "Vault: Invalid Owner");    
+    modifier allowedOwner(address owner) {
+        require(owner == msg.sender, "Vault: Invalid Owner");
         require(owner != address(this), "Vault: Invalid Owner");
         require(owner != address(0), "Vault: Invalid Owner");
         _;
@@ -54,14 +48,11 @@ contract Vault is IERC4626, ERC20, Ownable, Pausable, ReentrancyGuard {
         address owner,
         string memory name,
         string memory symbol
-    ) IERC4626() ERC20(name, symbol) Ownable() Pausable() ReentrancyGuard() {
-        require(owner != address(0), "Invalid Owner Address");
-        _transferOwnership(owner);
+    ) IERC4626() StrategyManager(asset_, owner) ERC20(name, symbol) {
         _asset = asset_;
         _collateralTotal = 0;
     }
 
-    
     function collateral() public view returns (uint256) {
         return _collateralTotal;
     }
@@ -84,14 +75,13 @@ contract Vault is IERC4626, ERC20, Ownable, Pausable, ReentrancyGuard {
         totalManagedAssets = _collateralTotal;
     }
 
-        function toShare(
+    function toShare(
         uint256 amount,
         bool roundUp
     ) external view returns (uint256 share) {
         Rebase memory total = Rebase(_collateralTotal, totalSupply());
         share = total.toBase(amount, roundUp);
     }
-
 
     function convertToShares(
         uint256 assets
@@ -110,7 +100,9 @@ contract Vault is IERC4626, ERC20, Ownable, Pausable, ReentrancyGuard {
     function maxDeposit(
         address
     ) external view override returns (uint256 maxAssets) {
-        return IERC20(_asset).totalSupply() - IERC20(_asset).balanceOf(address(this));
+        return
+            IERC20(_asset).totalSupply() -
+            IERC20(_asset).balanceOf(address(this));
     }
 
     function previewDeposit(
@@ -130,7 +122,7 @@ contract Vault is IERC4626, ERC20, Ownable, Pausable, ReentrancyGuard {
         // Any deposit should lead to at least the minimum share balance, otherwise it's ignored (no amount taken)
         if (total.base.add(shares) < MINIMUM_SHARE_BALANCE) {
             return 0;
-        }      
+        }
         _mint(receiver, shares);
         _collateralTotal = total.elastic.add(assets);
         IERC20(_asset).transferFrom(msg.sender, address(this), assets);
@@ -141,7 +133,7 @@ contract Vault is IERC4626, ERC20, Ownable, Pausable, ReentrancyGuard {
         address receiver
     ) external view override returns (uint256 maxShares) {
         Rebase memory total = Rebase(_collateralTotal, totalSupply());
-        maxShares = total.toBase( IERC20(_asset).balanceOf(receiver), false);
+        maxShares = total.toBase(IERC20(_asset).balanceOf(receiver), false);
     }
 
     function previewMint(
@@ -159,7 +151,7 @@ contract Vault is IERC4626, ERC20, Ownable, Pausable, ReentrancyGuard {
         assets = total.toElastic(shares, true);
         if (total.base.add(shares) < MINIMUM_SHARE_BALANCE) {
             return 0;
-        }   
+        }
         _mint(receiver, shares);
         _collateralTotal = total.elastic.add(assets);
         IERC20(_asset).transferFrom(msg.sender, address(this), assets);
@@ -169,15 +161,15 @@ contract Vault is IERC4626, ERC20, Ownable, Pausable, ReentrancyGuard {
     function maxWithdraw(
         address owner
     ) external view override returns (uint256 maxAssets) {
-         Rebase memory total = Rebase(_collateralTotal, totalSupply());
-         maxAssets =  total.toElastic(balanceOf(owner), true);
+        Rebase memory total = Rebase(_collateralTotal, totalSupply());
+        maxAssets = total.toElastic(balanceOf(owner), true);
     }
 
     function previewWithdraw(
         uint256 assets
     ) external view override returns (uint256 shares) {
         Rebase memory total = Rebase(_collateralTotal, totalSupply());
-        shares = total.toBase(assets, true);  
+        shares = total.toBase(assets, true);
     }
 
     function withdraw(
@@ -188,7 +180,7 @@ contract Vault is IERC4626, ERC20, Ownable, Pausable, ReentrancyGuard {
         require(msg.sender == owner, "Withdrawer is not owner");
         Rebase memory total = Rebase(_collateralTotal, totalSupply());
         // value of the share paid could be lower than the amount paid due to rounding, in that case, add a share (Always round up)
-        shares = total.toBase(assets, true);        
+        shares = total.toBase(assets, true);
         _collateralTotal = total.elastic.sub(assets);
         require(
             total.base >= MINIMUM_SHARE_BALANCE || total.base == 0,
@@ -219,112 +211,18 @@ contract Vault is IERC4626, ERC20, Ownable, Pausable, ReentrancyGuard {
     ) external override allowedOwner(owner) returns (uint256 assets) {
         require(msg.sender == owner, "Withdrawer is not owner");
         Rebase memory total = Rebase(_collateralTotal, totalSupply());
-        assets = total.toElastic(shares, false);    
+        assets = total.toElastic(shares, false);
         _burn(owner, shares);
         IERC20(_asset).transfer(receiver, assets);
         _collateralTotal = total.elastic.sub(assets);
         emit Withdraw(msg.sender, receiver, owner, assets, shares);
     }
 
-
-    event StrategyTargetPercentage(uint256 targetPercentage);
-    event StrategyQueued(IStrategy indexed strategy);
-    event StrategySet(IStrategy indexed strategy);
-    event StrategyInvest( uint256 amount);
-    event StrategyDivest(uint256 amount);
-    event StrategyProfit(uint256 amount);
-    event StrategyLoss(uint256 amount);
-
-    /**
-     * Change the maximum amount of funds applied to farm
-     * @param targetPercentage Percentage of assets applied on the strategy
-     */
-    function setStrategyTargetPercentage(uint64 targetPercentage) public onlyOwner {
-        // Checks
-        require(targetPercentage <= MAX_TARGET_PERCENTAGE, "StrategyManager: Target too high");
-
-        // Effects
-        _strategyData.targetPercentage = targetPercentage;
-        emit StrategyTargetPercentage(targetPercentage);
+    function _getTotalAssets() public virtual override returns (uint256) {
+        return _collateralTotal;
     }
 
-
-    function setStrategy(IStrategy newStrategy) public onlyOwner {
-          // Strategy Queue to start, it could take 1 week to start
-          if (_strategyData.strategyStartDate == 0 || _pendingStrategy != newStrategy) {
-            _pendingStrategy = newStrategy;
-            _strategyData.strategyStartDate = block.timestamp + STRATEGY_DELAY;
-            emit StrategyQueued(newStrategy);
-          } else {
-            require(_strategyData.strategyStartDate != 0 && block.timestamp >= _strategyData.strategyStartDate, "StrategyManager: Too early");
-            // Exit the old strategy 
-            if (address(_currentStrategy) != address(0)) {
-                int256 balanceChange = _currentStrategy.exit(_strategyData.balance);
-                // Effects
-                if (balanceChange > 0) {
-                    uint256 add = uint256(balanceChange);
-                    _collateralTotal = _collateralTotal.add(add);
-                    emit StrategyProfit(add);
-                } else if (balanceChange < 0) {
-                    uint256 sub = uint256(-balanceChange);
-                    _collateralTotal = _collateralTotal.sub(sub);
-                    emit StrategyLoss(sub);
-                }
-                emit StrategyDivest(_strategyData.balance);
-            }
-            _currentStrategy = _pendingStrategy;
-            _strategyData.strategyStartDate = 0;
-            _strategyData.balance = 0;
-            _pendingStrategy = IStrategy(address(0));
-            emit StrategySet(newStrategy);
-        }
+    function _setTotalAssets(uint256 amount) public virtual override {
+        _collateralTotal = amount;
     }
-
-    function harvest(
-        bool balance,
-        uint256 maxChangeAmount) public
-    {
-        int256 balanceChange = _currentStrategy.harvest(_strategyData.balance, msg.sender);
-        if (balanceChange == 0 && !balance) {
-            return;
-        }
-
-        if (balanceChange > 0) {
-            uint256 add = uint256(balanceChange);
-            _collateralTotal = _collateralTotal.add(add);
-            emit StrategyProfit(add);
-        } else if (balanceChange < 0) {
-            uint256 sub = uint256(-balanceChange);
-            _collateralTotal = _collateralTotal.sub(sub);
-            emit StrategyLoss(sub);
-        }
-
-        if (balance) {
-            uint256 targetBalance = _collateralTotal.mul(_strategyData.targetPercentage) / MAX_TARGET_PERCENTAGE;
-            // if data.balance == targetBalance there is nothing to update
-            if (_strategyData.balance < targetBalance) {
-                uint256 amountOut = targetBalance.sub(_strategyData.balance);
-                if (maxChangeAmount != 0 && amountOut > maxChangeAmount) {
-                    amountOut = maxChangeAmount;
-                }
-                IERC20(_asset).transfer(address(_currentStrategy), amountOut);
-                _strategyData.balance = _strategyData.balance.add(amountOut);
-                _currentStrategy.farm(amountOut);
-                emit StrategyInvest(amountOut);
-            } else if (_strategyData.balance > targetBalance) {
-                uint256 amountIn = _strategyData.balance.sub(targetBalance);
-                if (maxChangeAmount != 0 && amountIn > maxChangeAmount) {
-                    amountIn = maxChangeAmount;
-                }
-
-                uint256 actualAmountIn = _currentStrategy.withdraw(amountIn);
-                _strategyData.balance = _strategyData.balance.sub(actualAmountIn);
-                emit StrategyDivest(actualAmountIn);
-            }
-        }
-
-    }
-
- 
-    
 }
