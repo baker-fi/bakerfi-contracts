@@ -10,13 +10,27 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 import {IERC4626} from "@openzeppelin/contracts/interfaces/IERC4626.sol";
 import {Rebase, RebaseLibrary} from "../libraries/BoringRebase.sol";
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "hardhat/console.sol";
+import {IStrategy} from "../interfaces/core/IStrategy.sol";
 
 contract Vault is IERC4626, ERC20, Ownable, Pausable, ReentrancyGuard {
     using SafeMath for uint256;
     using RebaseLibrary for Rebase;
 
+    struct StrategyData {
+        uint256 strategyStartDate;
+        uint256 targetPercentage;
+        uint256 balance; // the balance of the strategy deployed
+    }
+
     uint256 private constant MINIMUM_SHARE_BALANCE = 1000; // To prevent the ratio going off
+    uint256 constant MAX_PERCENT = 10000;
+    uint64 private constant STRATEGY_DELAY = 1 weeks;
+    uint64 private constant MAX_TARGET_PERCENTAGE = 95000; // 95%
+    
+    IStrategy private _currentStrategy;
+    IStrategy private _pendingStrategy;
+    StrategyData private _strategyData;
+
 
     address private _asset;
     uint256 private _collateralTotal;
@@ -47,6 +61,7 @@ contract Vault is IERC4626, ERC20, Ownable, Pausable, ReentrancyGuard {
         _collateralTotal = 0;
     }
 
+    
     function collateral() public view returns (uint256) {
         return _collateralTotal;
     }
@@ -210,4 +225,106 @@ contract Vault is IERC4626, ERC20, Ownable, Pausable, ReentrancyGuard {
         _collateralTotal = total.elastic.sub(assets);
         emit Withdraw(msg.sender, receiver, owner, assets, shares);
     }
+
+
+    event StrategyTargetPercentage(uint256 targetPercentage);
+    event StrategyQueued(IStrategy indexed strategy);
+    event StrategySet(IStrategy indexed strategy);
+    event StrategyInvest( uint256 amount);
+    event StrategyDivest(uint256 amount);
+    event StrategyProfit(uint256 amount);
+    event StrategyLoss(uint256 amount);
+
+    /**
+     * Change the maximum amount of funds applied to farm
+     * @param targetPercentage Percentage of assets applied on the strategy
+     */
+    function setStrategyTargetPercentage(uint64 targetPercentage) public onlyOwner {
+        // Checks
+        require(targetPercentage <= MAX_TARGET_PERCENTAGE, "StrategyManager: Target too high");
+
+        // Effects
+        _strategyData.targetPercentage = targetPercentage;
+        emit StrategyTargetPercentage(targetPercentage);
+    }
+
+
+    function setStrategy(IStrategy newStrategy) public onlyOwner {
+          // Strategy Queue to start, it could take 1 week to start
+          if (_strategyData.strategyStartDate == 0 || _pendingStrategy != newStrategy) {
+            _pendingStrategy = newStrategy;
+            _strategyData.strategyStartDate = block.timestamp + STRATEGY_DELAY;
+            emit StrategyQueued(newStrategy);
+          } else {
+            require(_strategyData.strategyStartDate != 0 && block.timestamp >= _strategyData.strategyStartDate, "StrategyManager: Too early");
+            // Exit the old strategy 
+            if (address(_currentStrategy) != address(0)) {
+                int256 balanceChange = _currentStrategy.exit(_strategyData.balance);
+                // Effects
+                if (balanceChange > 0) {
+                    uint256 add = uint256(balanceChange);
+                    _collateralTotal = _collateralTotal.add(add);
+                    emit StrategyProfit(add);
+                } else if (balanceChange < 0) {
+                    uint256 sub = uint256(-balanceChange);
+                    _collateralTotal = _collateralTotal.sub(sub);
+                    emit StrategyLoss(sub);
+                }
+                emit StrategyDivest(_strategyData.balance);
+            }
+            _currentStrategy = _pendingStrategy;
+            _strategyData.strategyStartDate = 0;
+            _strategyData.balance = 0;
+            _pendingStrategy = IStrategy(address(0));
+            emit StrategySet(newStrategy);
+        }
+    }
+
+    function harvest(
+        bool balance,
+        uint256 maxChangeAmount) public
+    {
+        int256 balanceChange = _currentStrategy.harvest(_strategyData.balance, msg.sender);
+        if (balanceChange == 0 && !balance) {
+            return;
+        }
+
+        if (balanceChange > 0) {
+            uint256 add = uint256(balanceChange);
+            _collateralTotal = _collateralTotal.add(add);
+            emit StrategyProfit(add);
+        } else if (balanceChange < 0) {
+            uint256 sub = uint256(-balanceChange);
+            _collateralTotal = _collateralTotal.sub(sub);
+            emit StrategyLoss(sub);
+        }
+
+        if (balance) {
+            uint256 targetBalance = _collateralTotal.mul(_strategyData.targetPercentage) / MAX_TARGET_PERCENTAGE;
+            // if data.balance == targetBalance there is nothing to update
+            if (_strategyData.balance < targetBalance) {
+                uint256 amountOut = targetBalance.sub(_strategyData.balance);
+                if (maxChangeAmount != 0 && amountOut > maxChangeAmount) {
+                    amountOut = maxChangeAmount;
+                }
+                IERC20(_asset).transfer(address(_currentStrategy), amountOut);
+                _strategyData.balance = _strategyData.balance.add(amountOut);
+                _currentStrategy.farm(amountOut);
+                emit StrategyInvest(amountOut);
+            } else if (_strategyData.balance > targetBalance) {
+                uint256 amountIn = _strategyData.balance.sub(targetBalance);
+                if (maxChangeAmount != 0 && amountIn > maxChangeAmount) {
+                    amountIn = maxChangeAmount;
+                }
+
+                uint256 actualAmountIn = _currentStrategy.withdraw(amountIn);
+                _strategyData.balance = _strategyData.balance.sub(actualAmountIn);
+                emit StrategyDivest(actualAmountIn);
+            }
+        }
+
+    }
+
+ 
+    
 }
