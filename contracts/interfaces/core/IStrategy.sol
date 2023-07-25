@@ -4,8 +4,7 @@ pragma solidity ^0.8.18;
 interface IStrategy {
     /// @notice Send the assets to the Strategy and call skim to invest them.
     /// @param amount The amount of tokens to invest.
-    function farm(uint256 amount) external;
-
+    function deploy(uint256 amount) external;
     /// @notice Harvest any profits made converted to the asset and pass them to the caller.
     /// @param balance The amount of tokens the caller thinks it has invested.
     /// @param sender The address of the initiator of this transaction. Can be used for reimbursements, etc.
