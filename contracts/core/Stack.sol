@@ -4,14 +4,13 @@ pragma solidity ^0.8.18;
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ServiceRegistry} from "./ServiceRegistry.sol";
 import {Lock} from "./Lock.sol";
+import { STACK_SERVICE } from "./Constants.sol";
 
-bytes32 constant EXECUTION_STACK_SERVICE = keccak256(bytes("ExecutionStack"));
-
-contract ExecutionStack is Lock {
+contract Stack is Lock {
     
     ServiceRegistry internal immutable   _registry;
     address private                      _initiator;
-    bytes32[] public                     _actions;
+    bytes32[] public                     _intructions;
     mapping(address => bytes32[]) public _returnValues;
     address[] public                     _valuesHolders;
 
@@ -23,8 +22,8 @@ contract ExecutionStack is Lock {
         _initiator = initiator;
     }
 
-    function setActions(bytes32[] memory actions) external {
-        _actions = actions;
+    function setInstructions(bytes32[] memory actions) external {
+        _intructions = actions;
     }
 
     function push(bytes32 value) external {
@@ -47,7 +46,7 @@ contract ExecutionStack is Lock {
      * @dev Clears storage in preparation for the next Operation
      */
     function clearStorage() external {
-        delete _actions;
+        delete _intructions;
         for (uint256 i = 0; i < _valuesHolders.length; i++) {
             delete _returnValues[_valuesHolders[i]];
         }
@@ -55,17 +54,17 @@ contract ExecutionStack is Lock {
     }
 }
 
-contract UseExecutionStack {
+contract UseStack {
     ServiceRegistry internal immutable _registry;
 
     constructor(address registry) {
         _registry = ServiceRegistry(registry);
     }
 
-    function stack() internal view returns (ExecutionStack) {
+    function stack() internal view returns (Stack) {
         return
-            ExecutionStack(
-                _registry.getServiceFromHash(EXECUTION_STACK_SERVICE)
+            Stack(
+                _registry.getServiceFromHash(STACK_SERVICE)
             );
     }
 }
@@ -73,7 +72,7 @@ contract UseExecutionStack {
 
 library Read {
   function read(
-    ExecutionStack _stack,
+    Stack _stack,
     bytes32 param,
     uint256 paramMapping,
     address who
@@ -86,7 +85,7 @@ library Read {
   }
 
   function readUint(
-    ExecutionStack _stack,
+    Stack _stack,
     bytes32 param,
     uint256 paramMapping,
     address who
@@ -96,7 +95,7 @@ library Read {
 }
 
 library Write {
-  function write(ExecutionStack _storage, bytes32 value) internal {
+  function write(Stack _storage, bytes32 value) internal {
     _storage.push(value);
   }
 }

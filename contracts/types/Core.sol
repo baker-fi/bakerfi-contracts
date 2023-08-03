@@ -14,6 +14,7 @@ struct TransferData {
 }
 
 struct InstructionCall {
-    bytes32 instruction;
-    bytes args;
+    bytes32 target;
+    bytes callData;
+    uint8[] paramsMap;
 }

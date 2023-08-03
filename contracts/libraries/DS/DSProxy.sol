@@ -24,10 +24,10 @@ contract DSProxy is DSAuth, DSNote {
       target = cache.write(_code);
     }
 
-    response = execute(target, _data);
+    response = executeTarget(target, _data);
   }
 
-  function execute(
+  function executeTarget(
     address _target,
     bytes memory _data
   ) public payable auth note returns (bytes memory response) {

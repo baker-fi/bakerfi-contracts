@@ -1,20 +1,18 @@
 
-
 import {Instruction} from "../../interfaces/core/Instruction.sol";
-
+import {Read, Stack, UseStack} from "../../core/Stack.sol";
 
 struct LidoWrapData {
     uint256 amount;
     address receiver;
 }
 
-
-contract LidoWrap is Instruction {
-
+contract LidoWrap is Instruction, UseStack {
     
-    function execute(bytes calldata data, bytes8[] memory replaceArgs) external payable override {
+    constructor(address registry) UseStack(registry) {}
+    
+    function run(bytes calldata data, uint8[] memory replaceArgs) external payable override {
         LidoWrapData memory inputData = parseInputs(data);       
-
     }
 
     function parseInputs(

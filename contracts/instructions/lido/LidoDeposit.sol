@@ -6,6 +6,7 @@ import {IStETH} from "../../interfaces/lido/IStETH.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import {Read, Stack, UseStack} from "../../core/Stack.sol";
 
 struct LidoDepositAndWrapData {
     uint256 amount;
@@ -16,7 +17,7 @@ struct LidoDepositAndWrapData {
  * @title SetApproval Action contract
  * @notice Transfer token from the calling contract to the destination address
  */
-contract LidoDeposit is Instruction {
+contract LidoDeposit is Instruction, UseStack {
     
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
@@ -27,11 +28,11 @@ contract LidoDeposit is Instruction {
 
     event Deposit(address sender,uint256 amount, uint256 shares);
 
-    constructor(IStETH stETH) {
+    constructor(IStETH stETH, address registry) UseStack(registry) {
         _stETH = stETH;
     }
     
-    function execute(bytes calldata data, bytes8[] memory replaceArgs) external payable override {
+    function run(bytes calldata data, uint8[] memory replaceArgs) external payable override {
         LidoDepositAndWrapData memory inputData = parseInputs(data);
         require(msg.value != 0 && inputData.amount == msg.value, "Invalid ETH value");
         require(inputData.receiver != address(this), "Invalid Receiver address");
