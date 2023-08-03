@@ -20,6 +20,14 @@ const config: HardhatUserConfig = {
   networks: {
     hardhat: {
       accounts: devAccounts,
+      mining: {
+        auto: true,
+        interval: 2000,
+      },
+      hardfork: 'london',
+      gas: 'auto',
+      initialBaseFeePerGas: 1000000000,
+      allowUnlimitedContractSize: true,
     },
     mainnet: {
       url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
@@ -45,6 +53,33 @@ const config: HardhatUserConfig = {
   },
   solidity: {
     compilers: [
+      {
+        version: '0.4.21',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 0,
+          },
+        },
+      },
+      {
+        version: '0.4.24',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 0,
+          },
+        },
+      },
+      {
+        version: '0.5.17',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 0,
+          },
+        },
+      },
       {
         version: "0.8.18",
         settings: {
