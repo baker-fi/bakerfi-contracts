@@ -46,6 +46,10 @@ contract ServiceRegistry is Ownable {
         return _services[keccak256(abi.encodePacked(serviceName))];
     }
 
+    function getServiceFromHash(bytes32  serviceHash) external view returns (address) {
+        return _services[serviceHash];
+    }
+
     function getServiceAddress(bytes32 serviceNameHash) external view returns (address) {
         return _services[serviceNameHash];
     }

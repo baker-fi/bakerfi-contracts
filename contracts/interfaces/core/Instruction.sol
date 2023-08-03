@@ -6,5 +6,5 @@ pragma solidity ^0.8.18;
  * @notice Provides a common interface for an execute method to all Action
  */
 interface Instruction {
-    function execute(bytes calldata args) external payable;
+    function execute(bytes calldata args, uint8[] memory replaceArgs) external payable;
 }

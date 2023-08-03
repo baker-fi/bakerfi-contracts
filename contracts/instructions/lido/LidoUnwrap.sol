@@ -9,7 +9,7 @@ struct LidoUnWrapData {
 contract LidoUnWrap is Instruction {
 
     
-    function execute(bytes calldata data) external payable override {
+    function execute(bytes calldata data, bytes8[] memory replaceArgs) external payable override {
         LidoUnWrapData memory inputData = parseInputs(data);       
 
     }

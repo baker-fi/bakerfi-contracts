@@ -6,26 +6,39 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {ApprovalData} from "../../types/Core.sol";
+import {Read, ExecutionStack, UseExecutionStack} from "../../core/ExecutionStack.sol";
 
 /**
  * @title SetApproval Action contract
  * @notice Transfer token from the calling contract to the destination address
  */
-contract SetApproval is Instruction {
+contract SetApproval is Instruction, UseExecutionStack {
+    
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
+    using Read for ExecutionStack;
 
     bytes32 public constant INSTRUCTION_NAME = keccak256(bytes("SetApproval"));
+    
+    constructor(address _registry) UseExecutionStack(_registry) {}
     
     /**
      * @dev
      * @param data Encoded calldata that conforms to the SetApprovalData struct
      */
-    function execute(bytes calldata data) external payable override {
+    function execute(bytes calldata data, uint8[] memory replaceArgs) external payable override {
+        
         ApprovalData memory approval = parseInputs(data);
+        
+        uint256 finalApprovalAmount = stack().readUint(
+            bytes32(approval.amount),
+            replaceArgs[2],
+            address(this)
+        );
+
         IERC20(approval.asset).safeApprove(
             approval.delegate,
-            approval.amount
+            finalApprovalAmount
         );
     }
 

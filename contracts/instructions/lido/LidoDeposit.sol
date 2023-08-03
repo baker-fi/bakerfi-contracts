@@ -31,7 +31,7 @@ contract LidoDeposit is Instruction {
         _stETH = stETH;
     }
     
-    function execute(bytes calldata data) external payable override {
+    function execute(bytes calldata data, bytes8[] memory replaceArgs) external payable override {
         LidoDepositAndWrapData memory inputData = parseInputs(data);
         require(msg.value != 0 && inputData.amount == msg.value, "Invalid ETH value");
         require(inputData.receiver != address(this), "Invalid Receiver address");
