@@ -18,3 +18,13 @@ struct InstructionCall {
     bytes callData;
     uint8[] paramsMap;
 }
+
+struct PullTokenData {
+  address asset;
+  address from;
+  uint256 amount;
+}
+
+struct ReturnFundsData {
+  address asset;
+}
