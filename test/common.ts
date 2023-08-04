@@ -104,3 +104,15 @@ export async function deployAction(contractName: string, ...args: any[]) {
     await contract.waitForDeployment();
     return contract;
 }
+
+
+
+export async function deployVirtualMachine(owner: string, serviceRegistry: string) {
+    const virtualMachine = await ethers.getContractFactory("VirtualMachine");
+    const contract = await virtualMachine.deploy(
+        owner,
+        serviceRegistry
+    );     
+    await contract.waitForDeployment();
+    return contract;
+}

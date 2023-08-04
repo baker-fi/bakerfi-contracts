@@ -16,7 +16,6 @@ struct TransferData {
 struct InstructionCall {
     bytes32 target;
     bytes callData;
-    uint8[] paramsMap;
 }
 
 struct PullTokenData {
@@ -30,7 +29,20 @@ struct ReturnFundsData {
   uint256 amount;
 }
 
-
 struct WrapEthData {
     uint256 amount;
+}
+
+enum FlashloanProvider {
+  DssFlash,
+  Balancer
+}
+
+struct FlashloanData {
+  uint256   amount;
+  address   asset;
+  bool      isProxyFlashloan;
+  bool      isDPMProxy;
+  FlashloanProvider provider;
+  InstructionCall[] calls;
 }

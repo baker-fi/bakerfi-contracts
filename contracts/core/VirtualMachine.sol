@@ -11,7 +11,7 @@ import {IInstructionRegistry} from "../interfaces/core/IInstructionRegistry.sol"
 import {ServiceRegistry} from "../core/ServiceRegistry.sol";
 import {STACK_SERVICE, DS_PROXY_REGISTRY} from "./Constants.sol";
 import {Stack} from "./Stack.sol";
-
+import "hardhat/console.sol";
 
 contract VirtualMachine is IVirtualMachine, Ownable, Pausable, ReentrancyGuard {
     
@@ -30,23 +30,17 @@ contract VirtualMachine is IVirtualMachine, Ownable, Pausable, ReentrancyGuard {
 
     function execute(InstructionCall[] calldata calls) external payable {   
         Stack stack = Stack(_registry.getServiceFromHash(STACK_SERVICE));
-        //DSProxyRegistry proxyRegistry = DSProxyRegistry(_registry.getServiceFromHash(DS_PROXY_REGISTRY));
-        //require(proxyRegistry.proxies[msg.sender] != address(0), "No DS Proxy found");
-        //DSProxy proxy = proxyRegistry.proxies[msg.sender];
-
         stack.lock();
         bytes32[] memory intructions = new bytes32[](calls.length);
         for (uint256 current = 0; current < calls.length; current++) {
             intructions[current] = calls[current].target;
         }
         stack.setInstructions(intructions);
-
         for (uint256 current = 0; current < calls.length; current++) {            
             address instructionAddress = _registry.getServiceFromHash(calls[current].target);
-            require(instructionAddress!= address(0));
-            Instruction target = Instruction(instructionAddress);
-            //proxy.execute();
-                  
+            require(instructionAddress!= address(0), "No target Instruction found");           
+            (bool success, bytes memory data) = instructionAddress.delegatecall(calls[current].callData);
+            require(success, "Failed to execute");
         }
         stack.clearStorage();
         stack.unlock();

@@ -9,17 +9,16 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract PullToken is Instruction, UseStack {
+    
     constructor(address registry) UseStack(registry) {}
 
     using SafeERC20 for IERC20;
 
     function run(
-        bytes calldata data,
+        bytes memory data,
         uint8[] memory
-    ) external payable override {
-        
+    ) external payable override {      
         PullTokenData memory pull = parseInputs(data);        
-        
         IERC20(pull.asset).safeTransferFrom(
             pull.from,
             address(this),
