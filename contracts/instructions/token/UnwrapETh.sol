@@ -11,8 +11,8 @@ contract UnwrapETH is Instruction, UseStack {
     using SafeMath for uint256;
     using Read for Stack;
 
-    address _wethAddress;
-    
+    address private immutable _wethAddress;
+
     constructor(
         address wethAddress,
         address registry
