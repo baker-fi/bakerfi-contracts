@@ -22,9 +22,18 @@ export async function deployBaseServices(owner: string) {
         ethers.keccak256(Buffer.from("StackService")),
         stackAddress
     );
-    return {erc20, proxyRegistry, proxyFactory, stack, serviceRegistry };
+
+    const weth = await deployWETH();
+    return {erc20, weth,  proxyRegistry, proxyFactory, stack, serviceRegistry };
 }
 
+export async function deployWETH(){
+
+    const WETH = await ethers.getContractFactory("WETH");     
+    const weth = await WETH.deploy();       
+    await weth.waitForDeployment();
+    return weth; 
+}
 
 export async function deployMockERC20(owner: string){
 

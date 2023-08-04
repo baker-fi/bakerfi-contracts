@@ -29,3 +29,8 @@ struct ReturnFundsData {
   address asset;
   uint256 amount;
 }
+
+
+struct WrapEthData {
+    uint256 amount;
+}
