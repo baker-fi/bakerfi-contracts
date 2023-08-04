@@ -7,6 +7,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {ApprovalData} from "../../types/Core.sol";
 import {Read, Stack, UseStack} from "../../core/Stack.sol";
+import "hardhat/console.sol";
 
 /**
  * @title SetApproval Action contract
