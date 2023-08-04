@@ -87,7 +87,7 @@ export async function deploySetApproval(serviceRegistry: string) {
     return setApproval;
 }
 
-export async function deployAction(contractName: string, serviceRegistry: string) {
+export async function deployAction(contractName: string, serviceRegistry?: string) {
     const factory = await ethers.getContractFactory(contractName);
     const contract = await factory.deploy(
         serviceRegistry

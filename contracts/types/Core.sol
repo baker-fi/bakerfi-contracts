@@ -27,4 +27,5 @@ struct PullTokenData {
 
 struct ReturnFundsData {
   address asset;
+  uint256 amount;
 }
