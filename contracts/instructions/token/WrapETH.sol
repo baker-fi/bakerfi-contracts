@@ -6,11 +6,12 @@ import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {IWETH} from "../../interfaces/tokens/IWETH.sol";
 import {WrapEthData} from "../../types/Core.sol";
 
+
 contract WrapETH is Instruction, UseStack {
     using SafeMath for uint256;
     using Read for Stack;
 
-    address _wethAddress;
+    address private immutable _wethAddress;
 
     constructor(
         address wethAddress,
@@ -23,11 +24,13 @@ contract WrapETH is Instruction, UseStack {
         bytes calldata data,
         uint8[] memory replaceArgs
     ) external payable override {
+
         WrapEthData memory wrapData = parseInputs(data);
         wrapData.amount = stack().readUint(bytes32(wrapData.amount), replaceArgs[0], address(this));
         if (wrapData.amount == type(uint256).max) {
             wrapData.amount = address(this).balance;
         }
+
         IWETH(_wethAddress).deposit{ value: wrapData.amount }();
     }
 
