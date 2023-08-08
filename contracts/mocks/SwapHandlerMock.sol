@@ -11,10 +11,10 @@ contract SwapHandlerMock is ISwapHandler {
     IERC20 _asset1;
 
     uint256 RATIO_PRECISION  = 10000;
-    uint256 RATIO = 5000;
+    uint256 RATIO = 10000;
 
     using SafeERC20 for IERC20;
-    
+
     constructor( 
         IERC20 asset0,
         IERC20 asset1
@@ -27,9 +27,9 @@ contract SwapHandlerMock is ISwapHandler {
         SwapParams calldata params
     ) external override returns (uint256 amountOut) {
 
-        require(params.underlyingIn == address(_asset0) || params.underlyingIn ==  address(_asset1) );
-        require(params.underlyingOut ==  address(_asset0) || params.underlyingOut ==  address(_asset1) );  
-        require(address(params.underlyingOut) != address(params.underlyingIn));       
+        require(params.underlyingIn == address(_asset0) || params.underlyingIn ==  address(_asset1), "Invalid Input Token" );
+        require(params.underlyingOut ==  address(_asset0) || params.underlyingOut ==  address(_asset1),  "Invalid Output Token" );  
+        require(address(params.underlyingOut) != address(params.underlyingIn), "Invalid Swapped Token");       
 
         if (params.mode == 0) {
             IERC20(params.underlyingIn).safeTransferFrom(msg.sender, address(this), params.amountIn);

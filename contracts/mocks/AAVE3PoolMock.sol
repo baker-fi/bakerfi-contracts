@@ -6,6 +6,7 @@ import {IPoolV3} from "../interfaces/aave/v3/IPoolV3.sol";
 import "../interfaces/aave/v3/DataTypes.sol";
 import "../interfaces/aave/v3/IPoolAddressesProvider.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "hardhat/console.sol";
 
 contract AaveV3PoolMock is IPoolV3, ERC20 {
     
@@ -45,7 +46,7 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
     ) external override {
         require(asset == address(_collateralToken), "Invalid Token for supply");
         require(amount > 0, "Amount must be greater than 0");
-        transferFrom(msg.sender, address(this), amount);
+        _collateralToken.transferFrom(msg.sender, address(this), amount);
         users[msg.sender].depositAmount= users[msg.sender].depositAmount + amount;
     }
 
@@ -157,8 +158,8 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
         totalCollateralBase = users[user].depositAmount;
         totalDebtBase = users[user].borrowedAmount;
         availableBorrowsBase = 0;
-        currentLiquidationThreshold = users[user].depositAmount * LOAN_TO_VALUE_PRECISION / LOAN_LIQUIDATION_THRESHOLD;
-        ltv =users[user].borrowedAmount * LOAN_TO_VALUE_PRECISION /(users[user].depositAmount * LOAN_LIQUIDATION_THRESHOLD);
+        currentLiquidationThreshold = users[user].depositAmount * LOAN_LIQUIDATION_THRESHOLD / LOAN_TO_VALUE_PRECISION;
+        ltv =users[user].borrowedAmount *  LOAN_TO_VALUE_PRECISION/(users[user].depositAmount );
         healthFactor = 1;
     }
 

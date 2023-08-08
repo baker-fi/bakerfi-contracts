@@ -20,24 +20,18 @@ describe.only("Vault", function () {
         const levarage = await Leverage.deploy();
         await levarage.waitForDeployment();
         const vault = await deployVault(owner.address, serviceRegistryAddress,await levarage.getAddress() );
-        console.log("Deployed vault", await vault.getAddress());
 
         // 1. Deploy Flash Lender 
         const flashLender = await deployFlashLender(serviceRegistry, weth);
-        console.log("Deployed Flash Lender", await flashLender.getAddress());
         
-
         // 2. Deploy stETH 
-        const { stETH, STETH_MAX_SUPPLY } = await deployStEth(owner);
-        console.log("Deployed stETH", await stETH.getAddress());
+        const { stETH, STETH_MAX_SUPPLY } = await deployStEth(serviceRegistry, owner);
    
         // 3. Deploy WETH -> stETH Swapper
         const { swapperAddress, swapper } = await deploySwapper(weth, stETH, serviceRegistry, STETH_MAX_SUPPLY);
-        console.log("Deployed swapper", await swapper.getAddress());
 
         // 4. Deploy AAVEv3 Mock Pool
         const aaveV3PoolMock = await deployAaveV3(stETH, weth, serviceRegistry, swapperAddress);
-        
         return {
           erc20,
           stETH,
@@ -63,6 +57,7 @@ describe.only("Vault", function () {
             serviceRegistry,
             otherAccount,
             vault,
+            aave3Pool,
         } = await loadFixture(deployFunction);
         
         const depositAmount =  ethers.parseUnits("10", 18);
@@ -73,10 +68,20 @@ describe.only("Vault", function () {
 
         expect(await vault.symbol()).to.equal("lndETH");
         expect(await vault.name()).to.equal("laundromat ETH");
-        expect(await vault.totalSupply()).to.equal( ethers.parseUnits("10", 18));
-        expect(await weth.balanceOf(await vault.getAddress())).to.equal(depositAmount);
-        expect(await vault.balanceOf(otherAccount.address)).to.equal(depositAmount);
-
+        
+        const {
+            totalCollateralBase,
+            totalDebtBase,
+            currentLiquidationThreshold,
+            ltv,
+        } = await aave3Pool.getUserAccountData(
+            vault.getAddress(),
+        );
+        expect(totalCollateralBase).to.equal(45705032704000000000n);
+        expect(totalDebtBase).to.equal(35740737736704000000n);
+        expect(currentLiquidationThreshold).to.equal(36564026163200000000n);
+        expect(ltv).to.equal(78198);
+        expect(await vault.totalAssets()).to.equal(9964294967296000000n);
       })
 
 })
@@ -92,7 +97,7 @@ async function deployAaveV3(stETH, weth, serviceRegistry, swapperAddress: string
     const aaveV3PoolAddress = await aaveV3PoolMock.getAddress();
     serviceRegistry.registerService(
         ethers.keccak256(Buffer.from("AAVE_V3")),
-        swapperAddress
+        aaveV3PoolAddress
     );
     // Deposit 10000 ETH on the pool to be borrowed
     await weth.deposit?.call("", { value: ethers.parseUnits("10000", 18) });
@@ -112,12 +117,11 @@ async function deploySwapper(weth, stETH, serviceRegistry, STETH_MAX_SUPPLY: big
         ethers.keccak256(Buffer.from("SwapHandler")),
         swapperAddress
     );
-    await stETH.transfer(STETH_MAX_SUPPLY, swapperAddress);
-    console.log(" swapper",STETH_MAX_SUPPLY, swapperAddress);
+    await stETH.transfer(swapperAddress, STETH_MAX_SUPPLY);
     return { swapperAddress, swapper };
 }
 
-async function deployStEth(owner) {
+async function deployStEth(serviceRegistry, owner) {
     const STETHMock = await ethers.getContractFactory("ERC20Mock");
     const STETH_MAX_SUPPLY = ethers.parseUnits("1000000000", 18);
     const STETH_TOKEN_NAME = "Staked ETH";
@@ -128,6 +132,10 @@ async function deployStEth(owner) {
         STETH_TOKEN_SYMBOL,
         STETH_MAX_SUPPLY,
         owner
+    );
+    serviceRegistry.registerService(
+        ethers.keccak256(Buffer.from("stETH")),
+        stETH.getAddress()
     );
     await stETH.waitForDeployment();
     return { stETH, STETH_MAX_SUPPLY };
@@ -144,7 +152,7 @@ async function deployFlashLender(serviceRegistry, weth) {
     );
     
     // Deposit on Flash Lender 10000 WETH 
-    await weth.deposit?.call("", { value: ethers.parseUnits("10000", 18) });
-    weth.transfer(flashLender, ethers.parseUnits("10000", 18));
+    await weth.deposit?.call("", { value: ethers.parseUnits("100000", 18) });
+    weth.transfer(flashLender, ethers.parseUnits("100000", 18));
     return flashLender;
 }

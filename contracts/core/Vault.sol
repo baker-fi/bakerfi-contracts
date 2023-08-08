@@ -16,9 +16,10 @@ import "@openzeppelin/contracts/interfaces/IERC3156FlashBorrower.sol";
 import "@openzeppelin/contracts/interfaces/IERC3156FlashLender.sol";
 import {Leverage} from "../libraries/Leverage.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-
+import "hardhat/console.sol";
 
 contract Vault is Ownable, Pausable, ERC20, IERC3156FlashBorrower {
+    
     using SafeMath for uint256;
     using RebaseLibrary for Rebase;
     using Leverage for uint256;
@@ -30,11 +31,11 @@ contract Vault is Ownable, Pausable, ERC20, IERC3156FlashBorrower {
 
     string constant NAME = "laundromat ETH";
     string constant SYMBOl = "lndETH";
-    bytes32 constant SUCCESS_MESSAGE = keccak256("Success");
+    bytes32 constant SUCCESS_MESSAGE = keccak256("ERC3156FlashBorrower.onFlashLoan");
     
     ServiceRegistry public immutable    _registry;
     uint256 private                     _ownedCollateral;
-    uint256 public immutable LOAN_TO_VALUE = 50000;
+    uint256 public immutable LOAN_TO_VALUE = 80000;
     
     event Deposit(address owner, address receiver, uint256 amount, uint256 shares);
    
@@ -57,6 +58,7 @@ contract Vault is Ownable, Pausable, ERC20, IERC3156FlashBorrower {
         // 2. Initiate a Flash Loan
         IERC3156FlashLender flashLender = IERC3156FlashLender(_registry.getServiceFromHash(FLASH_LENDER));
         uint256 leverage = Leverage.calculateLeverageRatio(msg.value, LOAN_TO_VALUE, 10);
+      
         uint256 loanAmount = leverage - msg.value;
         uint256 fee = flashLender.flashFee(address(weth), loanAmount);
 
@@ -66,7 +68,6 @@ contract Vault is Ownable, Pausable, ERC20, IERC3156FlashBorrower {
         );
 
         weth.approve(address(flashLender), loanAmount + fee + allowance );        
-
         require(flashLender.flashLoan(
             IERC3156FlashBorrower(this),
             address(weth), 
@@ -81,42 +82,53 @@ contract Vault is Ownable, Pausable, ERC20, IERC3156FlashBorrower {
     function onFlashLoan(address initiator, address token, uint256 amount, uint256 fee, bytes memory callData) external returns (bytes32 ) {   
         require(initiator == address(this), "FlashBorrower: Untrusted loan initiator");
         IWETH weth = IWETH(_registry.getServiceFromHash(WETH_CONTRACT));       
-        require(token == address(weth), "Invalid Tokens");
+        address stETH =_registry.getServiceFromHash(ST_ETH_CONTRACT);                  
+        require(token == address(weth), "Invalid INput");
+        require(stETH != address(0), "Invalid Output");        
         FlashLoanData memory data =  abi.decode(callData, (FlashLoanData));        
-        // Swap Total For stETH
-        
-        ISwapHandler swapHandler = ISwapHandler(_registry.getServiceFromHash(SWAP_HANDLER));               
-        address stETH =_registry.getServiceFromHash(ST_ETH_CONTRACT);       
-
-        ISwapHandler.SwapParams memory params = ISwapHandler.SwapParams(
-                address(weth),
-                stETH,
-                0,
-                data.originalAmount + amount,
-                0,
-                bytes("")
-        );
-
-        uint256 amountOut = swapHandler.executeSwap(params);
+        // Swap WETH -> stETH
+        uint256 amountOut = _swaptoken( address(weth), stETH, data.originalAmount + amount);
         uint256 amountToPayBack =  amount + fee;
+        // Deposit the accrue value Asset
+        supplyAndBorrow(stETH, amountOut, address(weth), amountToPayBack);
 
-        IPoolV3 aavePool = IPoolV3(_registry.getServiceFromHash(AAVE_V3));   
-        aavePool.deposit(stETH, amountOut, address(this), 0);
-        aavePool.borrow(address(weth), amountToPayBack ,  2, 0, address(this));
-        Rebase memory total = Rebase(_ownedCollateral, totalSupply());        
-        
+        Rebase memory total = Rebase(_ownedCollateral, totalSupply());      
         uint256 shares = total.toBase(amountOut, false);
-
         _mint(data.receiver, shares);                 
         _ownedCollateral = total.elastic.add(amountOut);
-
-       //emit Deposit(initiator, data.receiver, data.originalAmount, shares);
-
+        
+        emit Deposit(initiator, data.receiver, data.originalAmount, shares);
         return SUCCESS_MESSAGE;
     }
 
 
-    function totalAssets() external view returns (uint256 totalManagedAssets) {}
+    function supplyAndBorrow(address assetIn, uint256 amountIn, address assetOut, uint256 borrowOut ) private {
+        IPoolV3 aavePool = IPoolV3(_registry.getServiceFromHash(AAVE_V3));         
+        ERC20(assetIn).approve(address(aavePool), amountIn);        
+        aavePool.supply(assetIn, amountIn, address(this), 0);
+        aavePool.borrow(assetOut, borrowOut, 2, 0, address(this));
+    }
+
+    function _swaptoken(address assetIn,address assetOut, uint256 amountIn) private returns (uint256 amountOut) {
+        ISwapHandler swapHandler = ISwapHandler(_registry.getServiceFromHash(SWAP_HANDLER));                                   
+        ERC20(assetIn).approve(address(swapHandler), amountIn);
+        ISwapHandler.SwapParams memory params = ISwapHandler.SwapParams(
+                assetIn,
+                assetOut,
+                0,
+                amountIn,
+                0,
+                bytes("")
+        );
+        amountOut = swapHandler.executeSwap(params);
+    }
+
+
+    function totalAssets() external view returns (uint256 totalManagedAssets) {
+        IPoolV3 aavePool = IPoolV3(_registry.getServiceFromHash(AAVE_V3));  
+        (uint256 totalCollateralBase, uint256 totalDebtBase, uint256 _1, uint256 _2 ,uint256 _3, uint256 _4) = aavePool.getUserAccountData(address(this));
+        return totalCollateralBase - totalDebtBase;
+    }
 
     function convertToShares(uint256 assets) external view returns (uint256 shares) {
         Rebase memory total = Rebase(_ownedCollateral, totalSupply());
