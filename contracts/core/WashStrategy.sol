@@ -13,7 +13,6 @@ import {ICurvePool} from "../interfaces/curve/ICurvePool.sol";
 contract WashStrategy is IStrategy {
     using SafeMath for uint256;
 
-
     uint256 constant MAX_PERCENT = 10000;
     uint64 private constant STRATEGY_DELAY = 1 weeks;
     uint64 private constant BORROW_PERCENTAGE = 55000; 

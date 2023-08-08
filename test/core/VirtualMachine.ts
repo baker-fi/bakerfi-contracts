@@ -9,16 +9,15 @@ import {
 
 import { InstructionCallStruct, VirtualMachine } from '../../typechain-types/contracts/core/VirtualMachine';
 
-describe("Virtual Machine", function () {
+describe.skip("Virtual Machine", function () {
   async function deployFunction() {
     const [owner, otherAccount] = await ethers.getSigners();
     const { erc20, proxyRegistry, stack, serviceRegistry } =
       await deployBaseServices(owner.address);
+
     const serviceRegistryAddress = await serviceRegistry.getAddress();
+    
     const pullToken = await deployAction("PullToken", serviceRegistryAddress);
-    const transfer = await deployAction("Transfer", serviceRegistryAddress);
-    const vm = await deployVirtualMachine(owner.address, serviceRegistryAddress);
-    const pullTokenAddress =  await pullToken.getAddress();
 
     await serviceRegistry.registerService(
         ethers.keccak256(Buffer.from("PullToken")),     

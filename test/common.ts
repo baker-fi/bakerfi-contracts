@@ -24,6 +24,12 @@ export async function deployBaseServices(owner: string) {
     );
 
     const weth = await deployWETH();
+
+    await serviceRegistry.registerService(
+        ethers.keccak256(Buffer.from("WETH")),
+        await weth.getAddress()
+    );
+
     return {erc20, weth,  proxyRegistry, proxyFactory, stack, serviceRegistry };
 }
 
@@ -57,6 +63,13 @@ export async function deployDSProxyFactory() {
     const proxyFactory = await DSProxyFactory.deploy();        
     await proxyFactory.waitForDeployment();
     return proxyFactory;
+}
+
+export async function deployVault(owner: string, serviceRegistry: string) {
+    const Vault = await ethers.getContractFactory("Vault");
+    const vault = await Vault.deploy(owner, serviceRegistry);        
+    await vault.waitForDeployment();
+    return vault;
 }
 
 
