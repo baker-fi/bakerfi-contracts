@@ -3,9 +3,12 @@ pragma solidity ^0.8.18;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IPoolV3} from "../interfaces/aave/v3/IPoolV3.sol";
+import "../interfaces/aave/v3/DataTypes.sol";
+import "../interfaces/aave/v3/IPoolAddressesProvider.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract AaveV3PoolMock is IPoolV3, ERC20 {
+    
     struct UserInfo {
         uint256 depositAmount;
         uint256 borrowedAmount;
@@ -40,7 +43,7 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
         address onBehalfOf,
         uint16 referralCode
     ) external override {
-        require(asset == _collateralToken);
+        require(asset == address(_collateralToken), "Invalid Token for supply");
         require(amount > 0, "Amount must be greater than 0");
         transferFrom(msg.sender, address(this), amount);
         users[msg.sender].depositAmount= users[msg.sender].depositAmount + amount;
@@ -62,8 +65,8 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
         uint256 amount,
         address to
     ) external override returns (uint256) {
-        require(asset == _collateralToken);
-        require(asset == _collateralToken);
+        require(asset == address(_collateralToken));
+        require(asset == address(_collateralToken));
     }
 
     function borrow(

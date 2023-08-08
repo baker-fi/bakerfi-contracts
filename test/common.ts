@@ -65,8 +65,12 @@ export async function deployDSProxyFactory() {
     return proxyFactory;
 }
 
-export async function deployVault(owner: string, serviceRegistry: string) {
-    const Vault = await ethers.getContractFactory("Vault");
+export async function deployVault(owner: string, serviceRegistry: string, levarage: string) {
+    const Vault = await ethers.getContractFactory("Vault", {
+        libraries: {
+            Leverage: levarage,
+        }
+    });
     const vault = await Vault.deploy(owner, serviceRegistry);        
     await vault.waitForDeployment();
     return vault;
