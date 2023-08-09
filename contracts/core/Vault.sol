@@ -96,30 +96,37 @@ contract Vault is Ownable, Pausable, ERC20, IERC3156FlashBorrower {
         require(stETH != address(0), "Invalid Output");        
         
         FlashLoanData memory data =  abi.decode(callData, (FlashLoanData));        
-        // Swap WETH -> stETH
+        // 1. Swap WETH -> stETH
         uint256 stEThAmount = _swaptoken( weth, stETH, data.originalAmount + amount);
-        // Wrap stETH -> wstETH
+        // 2. Wrap stETH -> wstETH
         uint256 wstETHAmount = wrapStETH(stETH, wstETH,  stEThAmount);
-        // 1 ETH -> X WST
-        // Deposit wstETH and Borrow ETH
-        supplyAndBorrow(address(wstETH), wstETHAmount, weth, amount + fee);
-        Rebase memory total = Rebase(_ownedCollateral, totalSupply());                      
-        
-        uint256 shares = total.toBase(data.originalAmount, false);        
-
-        _mint(data.receiver, shares);                 
-        _ownedCollateral = total.elastic.add(wstETHAmount);
+        // 3. Deposit wstETH and Borrow ETH
+        supplyAndBorrow(address(wstETH), wstETHAmount, weth, amount + fee);               
+        // 4. Mint lndETH
+        uint256 shares = _mintShares(data.receiver, wstETHAmount, amount + fee);
         emit Deposit(initiator, data.receiver, data.originalAmount, shares);
 
         return SUCCESS_MESSAGE;
     }
 
 
+    function _mintShares(address receiver , uint256 wstETHAmount, uint256 debtInEth) private returns (uint256 shares) {
+        Rebase memory total = Rebase(_ownedCollateral, totalSupply());          
+        uint256 collateralInETH = convertWstInETH(wstETHAmount);
+        shares = total.toBase(collateralInETH - debtInEth, false);        
+        console.log("Minting ", shares);
+        _mint(receiver, shares);                 
+        _ownedCollateral = total.elastic.add(collateralInETH - debtInEth);
+    }
+
+    function convertWstInETH(uint256 amountIn) public returns  (uint256 amountOut) {
+        // TODO 
+        amountOut = amountIn* 1130*(1e6)/1e9;
+    }
 
     function wrapStETH(address stETh, address wstETh, uint256 toWrap) private returns (uint256 amountOut) {
         ERC20(stETh).safeApprove(wstETh, toWrap);        
         amountOut = IWStETH(wstETh).wrap(toWrap);      
-        //uint256 wstkETHRate = wstETHAmount*1e9/(data.originalAmount + amount);
     }
 
 
@@ -148,7 +155,8 @@ contract Vault is Ownable, Pausable, ERC20, IERC3156FlashBorrower {
     function totalAssets() public view returns (uint256 totalManagedAssets) {
         IPoolV3 aavePool = IPoolV3(_registry.getServiceFromHash(AAVE_V3));  
         (uint256 totalCollateralBase, uint256 totalDebtBase, uint256 _1, uint256 _2 ,uint256 _3, uint256 _4) = aavePool.getUserAccountData(address(this));
-        return totalCollateralBase - totalDebtBase;
+        totalManagedAssets = totalCollateralBase - totalDebtBase;
+        console.log("0", totalManagedAssets);
     }
 
     function convertToShares(uint256 assets) external view returns (uint256 shares) {

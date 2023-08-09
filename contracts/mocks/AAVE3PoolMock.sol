@@ -9,6 +9,7 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "hardhat/console.sol";
 
 contract AaveV3PoolMock is IPoolV3, ERC20 {
+
     
     struct UserInfo {
         uint256 depositAmount;
@@ -23,7 +24,7 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
     IERC20 public _collateralToken;
     IERC20 public _borrowedToken;
 
-    uint256 public collateralPerEth = 860*(1e6);
+    uint256 public collateralPerEth = 1130*(1e6);
     uint256 public borrowedPerETh= 999*(1e6);
     uint256 public pricePrecision = 1000*(1e6);
 
