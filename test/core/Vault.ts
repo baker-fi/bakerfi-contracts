@@ -26,12 +26,15 @@ describe.only("Vault", function () {
         
         // 2. Deploy stETH 
         const { stETH, STETH_MAX_SUPPLY } = await deployStEth(serviceRegistry, owner);
+
+        // 3. Deploy wstETH
+        const wstETH  = await deployWStEth(serviceRegistry, await stETH.getAddress());
    
-        // 3. Deploy WETH -> stETH Swapper
+        // 4. Deploy WETH -> stETH Swapper
         const { swapperAddress, swapper } = await deploySwapper(weth, stETH, serviceRegistry, STETH_MAX_SUPPLY);
 
-        // 4. Deploy AAVEv3 Mock Pool
-        const aaveV3PoolMock = await deployAaveV3(stETH, weth, serviceRegistry, swapperAddress);
+        // 5. Deploy AAVEv3 Mock Pool
+        const aaveV3PoolMock = await deployAaveV3(wstETH, weth, serviceRegistry, swapperAddress);
         return {
           erc20,
           stETH,
@@ -45,10 +48,10 @@ describe.only("Vault", function () {
           swapper,
           aave3Pool: aaveV3PoolMock, 
           flashLender,
+          wstETH,
         };
       }
     
-
       it("Test Deposit", async function (){ 
         const {
             owner,
@@ -140,6 +143,23 @@ async function deployStEth(serviceRegistry, owner) {
     await stETH.waitForDeployment();
     return { stETH, STETH_MAX_SUPPLY };
 }
+
+async function deployWStEth(serviceRegistry, stETHAddress) {
+    const WSTETHMock = await ethers.getContractFactory("WstETHMock");
+
+    const wstETH = await WSTETHMock.deploy(
+        stETHAddress,
+    );
+    serviceRegistry.registerService(
+        ethers.keccak256(Buffer.from("wstETH")),
+        wstETH.getAddress()
+    );
+    await wstETH.waitForDeployment();
+    return wstETH;
+}
+
+
+
 
 async function deployFlashLender(serviceRegistry, weth) {
     const MockFlashLender = await ethers.getContractFactory("MockFlashLender");

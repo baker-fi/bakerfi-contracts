@@ -23,6 +23,10 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
     IERC20 public _collateralToken;
     IERC20 public _borrowedToken;
 
+    uint256 public collateralPerEth = 860*(1e6);
+    uint256 public borrowedPerETh= 999*(1e6);
+    uint256 public pricePrecision = 1000*(1e6);
+
     constructor(IERC20 collateralToken, IERC20  borrowedToken)
         ERC20("Collateral ETH", "AWETH") {
         _collateralToken = collateralToken;
@@ -155,8 +159,8 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
             uint256 healthFactor
         )
     {
-        totalCollateralBase = users[user].depositAmount;
-        totalDebtBase = users[user].borrowedAmount;
+        totalCollateralBase = users[user].depositAmount * collateralPerEth / pricePrecision;
+        totalDebtBase = users[user].borrowedAmount * borrowedPerETh / pricePrecision;
         availableBorrowsBase = 0;
         currentLiquidationThreshold = users[user].depositAmount * LOAN_LIQUIDATION_THRESHOLD / LOAN_TO_VALUE_PRECISION;
         ltv =users[user].borrowedAmount *  LOAN_TO_VALUE_PRECISION/(users[user].depositAmount );

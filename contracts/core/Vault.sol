@@ -6,12 +6,12 @@ import {Pausable} from "@openzeppelin/contracts/security/Pausable.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Rebase, RebaseLibrary} from "../libraries/BoringRebase.sol";
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import {IERC4626} from "@openzeppelin/contracts/interfaces/IERC4626.sol";
 import {ServiceRegistry} from "../core/ServiceRegistry.sol";
 import {IWETH} from "../interfaces/tokens/IWETH.sol";
+import {IWStETH} from "../interfaces/lido/IWStETH.sol";
 import {IPoolV3} from "../interfaces/aave/v3/IPoolV3.sol";
 import {ISwapHandler} from "../interfaces/core/ISwapHandler.sol";
-import {WETH_CONTRACT, AAVE_V3, FLASH_LENDER, SWAP_HANDLER, ST_ETH_CONTRACT} from "./Constants.sol";
+import {WETH_CONTRACT, AAVE_V3, FLASH_LENDER, SWAP_HANDLER, ST_ETH_CONTRACT, WST_ETH_CONTRACT} from "./Constants.sol";
 import "@openzeppelin/contracts/interfaces/IERC3156FlashBorrower.sol";
 import "@openzeppelin/contracts/interfaces/IERC3156FlashLender.sol";
 import {Leverage} from "../libraries/Leverage.sol";
@@ -48,17 +48,24 @@ contract Vault is Ownable, Pausable, ERC20, IERC3156FlashBorrower {
         _ownedCollateral = 0;
     }
 
+    function maxDeposit(address receiver) external view returns (uint256 maxAssets) {
+        
+    }
+
+    function previewDeposit(uint256 assets) external view returns (uint256 shares) {
+
+    }
+
 
     function deposit(address receiver) external payable returns (uint256 shares) {
         require(msg.value != 0, "ZERO_DEPOSIT");     
-          // 1. Wrap Ethereum 
+        // 1. Wrap Ethereum 
         IWETH weth = IWETH(_registry.getServiceFromHash(WETH_CONTRACT));       
         weth.deposit{ value: msg.value }();
 
         // 2. Initiate a Flash Loan
         IERC3156FlashLender flashLender = IERC3156FlashLender(_registry.getServiceFromHash(FLASH_LENDER));
         uint256 leverage = Leverage.calculateLeverageRatio(msg.value, LOAN_TO_VALUE, 10);
-      
         uint256 loanAmount = leverage - msg.value;
         uint256 fee = flashLender.flashFee(address(weth), loanAmount);
 
@@ -81,24 +88,38 @@ contract Vault is Ownable, Pausable, ERC20, IERC3156FlashBorrower {
 
     function onFlashLoan(address initiator, address token, uint256 amount, uint256 fee, bytes memory callData) external returns (bytes32 ) {   
         require(initiator == address(this), "FlashBorrower: Untrusted loan initiator");
-        IWETH weth = IWETH(_registry.getServiceFromHash(WETH_CONTRACT));       
+        address weth = _registry.getServiceFromHash(WETH_CONTRACT);       
+        address wstETH = _registry.getServiceFromHash(WST_ETH_CONTRACT);
         address stETH =_registry.getServiceFromHash(ST_ETH_CONTRACT);                  
-        require(token == address(weth), "Invalid INput");
+
+        require(token == weth, "Invalid INput");
         require(stETH != address(0), "Invalid Output");        
+        
         FlashLoanData memory data =  abi.decode(callData, (FlashLoanData));        
         // Swap WETH -> stETH
-        uint256 amountOut = _swaptoken( address(weth), stETH, data.originalAmount + amount);
-        uint256 amountToPayBack =  amount + fee;
-        // Deposit the accrue value Asset
-        supplyAndBorrow(stETH, amountOut, address(weth), amountToPayBack);
-
-        Rebase memory total = Rebase(_ownedCollateral, totalSupply());      
-        uint256 shares = total.toBase(amountOut, false);
-        _mint(data.receiver, shares);                 
-        _ownedCollateral = total.elastic.add(amountOut);
+        uint256 stEThAmount = _swaptoken( weth, stETH, data.originalAmount + amount);
+        // Wrap stETH -> wstETH
+        uint256 wstETHAmount = wrapStETH(stETH, wstETH,  stEThAmount);
+        // 1 ETH -> X WST
+        // Deposit wstETH and Borrow ETH
+        supplyAndBorrow(address(wstETH), wstETHAmount, weth, amount + fee);
+        Rebase memory total = Rebase(_ownedCollateral, totalSupply());                      
         
+        uint256 shares = total.toBase(data.originalAmount, false);        
+
+        _mint(data.receiver, shares);                 
+        _ownedCollateral = total.elastic.add(wstETHAmount);
         emit Deposit(initiator, data.receiver, data.originalAmount, shares);
+
         return SUCCESS_MESSAGE;
+    }
+
+
+
+    function wrapStETH(address stETh, address wstETh, uint256 toWrap) private returns (uint256 amountOut) {
+        ERC20(stETh).safeApprove(wstETh, toWrap);        
+        amountOut = IWStETH(wstETh).wrap(toWrap);      
+        //uint256 wstkETHRate = wstETHAmount*1e9/(data.originalAmount + amount);
     }
 
 
@@ -124,7 +145,7 @@ contract Vault is Ownable, Pausable, ERC20, IERC3156FlashBorrower {
     }
 
 
-    function totalAssets() external view returns (uint256 totalManagedAssets) {
+    function totalAssets() public view returns (uint256 totalManagedAssets) {
         IPoolV3 aavePool = IPoolV3(_registry.getServiceFromHash(AAVE_V3));  
         (uint256 totalCollateralBase, uint256 totalDebtBase, uint256 _1, uint256 _2 ,uint256 _3, uint256 _4) = aavePool.getUserAccountData(address(this));
         return totalCollateralBase - totalDebtBase;
@@ -140,21 +161,14 @@ contract Vault is Ownable, Pausable, ERC20, IERC3156FlashBorrower {
         assets = total.toElastic(shares, false);
     }
 
-    function maxDeposit(address receiver) external view returns (uint256 maxAssets) {
-        
+    
+    function maxWithdraw(address owner) external view returns (uint256 maxAssets) {
+
     }
 
-    function previewDeposit(uint256 assets) external view returns (uint256 shares) {}
+    function previewWithdraw(uint256 assets) external view returns (uint256 shares) {
 
-    function maxMint(address receiver) external view returns (uint256 maxShares) {}
-
-    function previewMint(uint256 shares) external view returns (uint256 assets) {}
-
-    function mint(uint256 shares, address receiver) external payable returns (uint256 assets) {}
-
-    function maxWithdraw(address owner) external view returns (uint256 maxAssets) {}
-
-    function previewWithdraw(uint256 assets) external view returns (uint256 shares) {}
+    }
 
     function withdraw(
         uint256 assets,
@@ -162,13 +176,4 @@ contract Vault is Ownable, Pausable, ERC20, IERC3156FlashBorrower {
         address owner
     ) external returns (uint256 shares) {}
 
-    function maxRedeem(address owner) external view returns (uint256 maxShares) {}
-
-    function previewRedeem(uint256 shares) external view returns (uint256 assets) {}
-
-    function redeem(
-        uint256 shares,
-        address receiver,
-        address owner
-    ) external returns (uint256 assets) {}
 }
