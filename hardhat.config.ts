@@ -87,6 +87,7 @@ const config: HardhatUserConfig = {
             enabled: true,
             runs: 200,
           },
+          viaIR: true,
         },
       },
       {
@@ -94,8 +95,9 @@ const config: HardhatUserConfig = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 0,
+            runs: 200,
           },
+          viaIR: true,
         },
       },
     ],

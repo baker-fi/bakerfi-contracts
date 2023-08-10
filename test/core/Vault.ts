@@ -35,6 +35,10 @@ describe.only("Vault", function () {
 
         // 5. Deploy AAVEv3 Mock Pool
         const aaveV3PoolMock = await deployAaveV3(wstETH, weth, serviceRegistry, swapperAddress);
+        
+        // 6. Deploy wstETH/ETH Oracle 
+        await deployWSETHToETHOracle(serviceRegistry);
+
         return {
           erc20,
           stETH,
@@ -65,7 +69,7 @@ describe.only("Vault", function () {
         
         const depositAmount =  ethers.parseUnits("10", 18);
 
-        await vault.deposit(otherAccount.address, {
+        await vault.deposit(owner.address, {
             value: depositAmount,
         });
 
@@ -80,15 +84,16 @@ describe.only("Vault", function () {
         } = await aave3Pool.getUserAccountData(
             vault.getAddress(),
         );
-        console.log("totalCollateralBase = ", totalCollateralBase)
-        console.log("totalDebtBase = ", totalDebtBase)
-        console.log("ltv = ", ltv)
         
-       // expect(totalCollateralBase).to.equal(45705032704000000000n);
-        //expect(totalDebtBase).to.equal(35740737736704000000n);
-        expect(currentLiquidationThreshold).to.equal(36564026163200000000n);
-        expect(ltv).to.equal(78198);
-        expect(await vault.totalAssets()).to.equal(9964294967296000000n);
+        
+        expect(totalCollateralBase).to.equal(44864798769441616160n);
+        expect(totalDebtBase).to.equal(35704996998967296000n);
+        expect(currentLiquidationThreshold).to.equal(31762689394294949494n);
+        expect(ltv).to.equal(90019);
+        expect(await vault.totalAssets()).to.equal(9124061032737616160n);
+        expect(await vault.balanceOf(owner.address)).to.equal(9124061032737616160n);
+        expect(await vault.totalSupply()).to.equal(9124061032737616160n);
+        expect(await vault.tokenPerETh()).to.equal(ethers.parseUnits("1", 18));
       })
 
 })
@@ -163,6 +168,17 @@ async function deployWStEth(serviceRegistry, stETHAddress) {
 }
 
 
+
+async function deployWSETHToETHOracle(serviceRegistry) {
+    const WSETHToETH = await ethers.getContractFactory("WstETHToETHOracleMock");
+    const oracle = await WSETHToETH.deploy();
+    await oracle.waitForDeployment();
+    serviceRegistry.registerService(
+        ethers.keccak256(Buffer.from("wstETH/ETH Oracle")),
+        oracle.getAddress()
+    );
+    return oracle;
+}
 
 
 async function deployFlashLender(serviceRegistry, weth) {

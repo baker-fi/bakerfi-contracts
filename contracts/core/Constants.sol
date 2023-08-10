@@ -12,4 +12,5 @@ bytes32 constant SWAP_HANDLER = keccak256(bytes("SwapHandler"));
 bytes32 constant ST_ETH_CONTRACT = keccak256(bytes("stETH"));
 bytes32 constant WST_ETH_CONTRACT = keccak256(bytes("wstETH"));
 bytes32 constant AAVE_V3 = keccak256(bytes("AAVE_V3"));
+bytes32 constant WSTETH_ETH_ORACLE = keccak256(bytes("wstETH/ETH Oracle"));
 address constant ETH = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
