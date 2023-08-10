@@ -1,9 +1,11 @@
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.18;
 
-contract ServiceRegistry is Ownable {
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {IServiceRegistry} from "../interfaces/core/IServiceRegistry.sol";
+
+contract ServiceRegistry is Ownable, IServiceRegistry {
 
     event ServiceUnregistered(bytes32 nameHash);
     event ServiceRegistered(bytes32 nameHash, address service);
@@ -27,7 +29,7 @@ contract ServiceRegistry is Ownable {
         emit ServiceRegistered(serviceNameHash, serviceAddress);
     }
 
-    function unregisterServivce(bytes32 serviceNameHash) external onlyOwner {
+    function unregisterService(bytes32 serviceNameHash) external onlyOwner {
         require(
             _services[serviceNameHash] != address(0),
             "registry/service-does-not-exist"

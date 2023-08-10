@@ -29,6 +29,12 @@ const config: HardhatUserConfig = {
       initialBaseFeePerGas: 1000000000,
       allowUnlimitedContractSize: true,
     },
+    local: {
+      chainId: 1337,
+      hardfork: 'shanghai',
+      url: "http://localhost:8545",
+      accounts: STAGING_ACCOUNTS_PKEYS
+    },
     mainnet: {
       url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
       gasPrice: 120 * 1000000000,
