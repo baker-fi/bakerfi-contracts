@@ -49,16 +49,15 @@ contract LaundromatVault is Ownable, Pausable, ERC20, IERC3156FlashBorrower {
 
     string constant NAME = "laundromat ETH";
     string constant SYMBOl = "mateETH";
-    
+     // Maxinum loan to value used by the smart contract 
+    uint256 private LOAN_TO_VALUE = 80000;
+    uint256 public constant PERCENTAGE_PRECISION = 1e9;
     bytes32 constant SUCCESS_MESSAGE = keccak256("ERC3156FlashBorrower.onFlashLoan");
     
     // The System System register 
     ServiceRegistry public immutable    _registry;
     // Updated Value that belongs to the pool shareholders
-    uint256 private _ownedCollateralInEth;
-    // Maxinum loan to value used by the smart contract 
-    uint256 public immutable LOAN_TO_VALUE = 80000;
-    uint256 public constant PERCENTAGE_PRECISION = 1e9;
+    uint256 private                     _ownedCollateralInEth;
     
     event Deposit(address owner, address receiver, uint256 amount, uint256 shares);
     event Withdraw(address owner, uint256 amount, uint256 shares);
@@ -73,9 +72,9 @@ contract LaundromatVault is Ownable, Pausable, ERC20, IERC3156FlashBorrower {
         _ownedCollateralInEth = 0;
     }
 
-    function harvest() public  {
+    function harvest() public {}
 
-    }
+    receive() external payable {}
 
     function updateCollateralValue() public  {     
         if (_ownedCollateralInEth > 0 ) {
@@ -251,9 +250,5 @@ contract LaundromatVault is Ownable, Pausable, ERC20, IERC3156FlashBorrower {
         _burn(msg.sender, shares);
         emit Withdraw(msg.sender, wETHAmount, shares);
     }
-
-
-    receive() external payable {}
-
 
 }
