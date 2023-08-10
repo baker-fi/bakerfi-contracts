@@ -19,12 +19,11 @@ describe.only("Vault", function () {
     async function deployFunction() {
         const [owner, otherAccount] = await ethers.getSigners();
         const STETH_MAX_SUPPLY = ethers.parseUnits("1000000000", 18);
-        const FLASH_LENDER_DEPOSIT = ethers.parseUnits("100", 18);
-        const AAVE_DEPOSIT = ethers.parseUnits("1000", 18);
-        
+        const FLASH_LENDER_DEPOSIT = ethers.parseUnits("10000", 18);
+        const AAVE_DEPOSIT = ethers.parseUnits("10000", 18);
         const serviceRegistry = await deployServiceRegistry(owner.address);
         const serviceRegistryAddress = await serviceRegistry.getAddress();
-        const weth = await deployWETH();
+        const weth = await deployWETH(serviceRegistry);
         const levarage = await deployLeverageLibrary();
         const vault = await deployVault(owner.address, serviceRegistryAddress, await levarage.getAddress() );
         // 1. Deploy Flash Lender 

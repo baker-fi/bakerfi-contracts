@@ -92,7 +92,7 @@ contract LaundromatVault is Ownable, Pausable, ERC20, IERC3156FlashBorrower {
     }
 
     function deposit(address receiver) external payable returns (uint256 shares) {
-        require(msg.value != 0, "ZERO_DEPOSIT");     
+        require(msg.value != 0, "No Zero deposit Allower");     
         // 1. Wrap Ethereum 
         IWETH weth = IWETH(_registry.getServiceFromHash(WETH_CONTRACT));       
         weth.deposit{ value: msg.value }();

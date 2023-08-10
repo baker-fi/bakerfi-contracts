@@ -14,10 +14,15 @@ export async function deployFlashLender(serviceRegistry, weth, depositedAmount) 
     return flashLender;
   }
   
-  export async function deployWETH(){
+  export async function deployWETH(serviceRegistry){
     const WETH = await ethers.getContractFactory("WETH");     
     const weth = await WETH.deploy();       
     await weth.waitForDeployment();
+
+    await serviceRegistry.registerService(
+        ethers.keccak256(Buffer.from("WETH")),
+        await weth.getAddress()
+    );
     return weth; 
   }
   

@@ -37,7 +37,7 @@ async function main() {
   );
   console.log("Laundromat Vault =", await vault.getAddress());
   // 4. Deploy the WETH 
-  const weth = await deployWETH();
+  const weth = await deployWETH(serviceRegistry);
   console.log("WETH =", await weth.getAddress());
   // 5. Deploy the Vault attached to Leverage Lib
   const flashLender = await deployFlashLender(serviceRegistry, weth, FLASH_LENDER_DEPOSIT);
