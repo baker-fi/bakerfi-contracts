@@ -6,7 +6,6 @@ import {IPoolV3} from "../interfaces/aave/v3/IPoolV3.sol";
 import "../interfaces/aave/v3/DataTypes.sol";
 import "../interfaces/aave/v3/IPoolAddressesProvider.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "hardhat/console.sol";
 
 contract AaveV3PoolMock is IPoolV3, ERC20 {
 
@@ -24,8 +23,8 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
     IERC20 public _collateralToken;
     IERC20 public _borrowedToken;
 
-    uint256 public collateralPerEth = 1130*(1e6);
-    uint256 public borrowedPerETh= 999*(1e6);
+    uint256 public collateralPerEth = 1000*(1e6);
+    uint256 public borrowedPerETh= 1000*(1e6);
     uint256 public pricePrecision = 1000*(1e6);
 
     constructor(IERC20 collateralToken, IERC20  borrowedToken)
@@ -53,6 +52,7 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
         require(amount > 0, "Amount must be greater than 0");
         _collateralToken.transferFrom(msg.sender, address(this), amount);
         users[msg.sender].depositAmount= users[msg.sender].depositAmount + amount;
+        _mint(msg.sender, amount);
     }
 
     function supplyWithPermit(
@@ -73,6 +73,9 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
     ) external override returns (uint256) {
         require(asset == address(_collateralToken));
         require(asset == address(_collateralToken));
+        users[msg.sender].depositAmount-= amount;
+        (_collateralToken).transfer(msg.sender, amount);
+        _burn(msg.sender, amount);
     }
 
     function borrow(
@@ -93,8 +96,10 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
         uint256 interestRateMode,
         address onBehalfOf
     ) external override returns (uint256) {
-
+        users[msg.sender].borrowedAmount-= amount;
+        _borrowedToken.transfer(onBehalfOf, amount);
     }
+    
 
     function repayWithPermit(
         address asset,
@@ -111,7 +116,11 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
         address asset,
         uint256 amount,
         uint256 interestRateMode
-    ) external override returns (uint256) {}
+    ) external override returns (uint256) {
+        users[msg.sender].depositAmount-= amount;
+        users[msg.sender].borrowedAmount -= amount;
+        _burn(msg.sender, amount);
+    }
 
     function swapBorrowRateMode(address asset, uint256 interestRateMode) external override {}
 
@@ -204,7 +213,11 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
 
     function getReserveData(
         address asset
-    ) external view override returns (DataTypes.ReserveData memory) {}
+    ) external view override returns (DataTypes.ReserveData memory) {
+        DataTypes.ReserveData memory  output;
+        output.aTokenAddress = address(this);
+        return output;
+    }
 
     function finalizeTransfer(
         address asset,
