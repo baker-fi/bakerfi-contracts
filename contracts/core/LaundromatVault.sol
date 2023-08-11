@@ -80,6 +80,7 @@ contract LaundromatVault is Ownable, Pausable, ERC20  {
             PERCENTAGE_PRECISION
         );
         amount = _strategy.undeploy(withdrawAmount, receiver);    
+
         _burn(msg.sender, shares);
         emit Withdraw(msg.sender, amount, shares);
     }
@@ -116,5 +117,4 @@ contract LaundromatVault is Ownable, Pausable, ERC20  {
         return totalSupply().mul(1 ether).div(totalPosition());
     }
 
- 
 }

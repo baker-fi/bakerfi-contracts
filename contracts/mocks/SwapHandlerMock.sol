@@ -12,7 +12,7 @@ contract SwapHandlerMock is ISwapHandler {
 
     //
     uint256 RATIO_PRECISION  = 100000;
-    uint256 RATIO = 99000;
+    uint256 RATIO = 100000;
 
     using SafeERC20 for IERC20;
 

@@ -67,11 +67,7 @@ contract AAVEv3Strategy is IStrategy, IERC3156FlashBorrower {
         IPoolV3 aavePool = IPoolV3(_registry.getServiceFromHash(AAVE_V3));
         (
             uint256 totalCollateralBase,
-            uint256 totalDebtBase,
-            uint256 _1,
-            uint256 _2,
-            uint256 _3,
-            uint256 _4
+            uint256 totalDebtBase,,,,           
         ) = aavePool.getUserAccountData(address(this));
         totalCollateralInEth = totalCollateralBase;
         totalDebtInEth = totalDebtBase;
@@ -80,10 +76,6 @@ contract AAVEv3Strategy is IStrategy, IERC3156FlashBorrower {
     function totalAssets() public view returns (uint256 totalOwnedAssets) {
         (uint256 totalCollateralInEth, uint256 totalDebtInEth) = _getPosition();
         totalOwnedAssets = totalCollateralInEth - totalDebtInEth;
-    }
-
-    function deposit(address receiver) external payable returns (uint256 shares) {
-        require(msg.value != 0, "No Zero deposit Allower");
     }
 
     function deploy() external payable returns (uint256 deployedAmount) {
@@ -136,7 +128,7 @@ contract AAVEv3Strategy is IStrategy, IERC3156FlashBorrower {
         uint256 wstETHAmount = wrapStETH(stETH, wstETH, stEThAmount);
         // 3. Deposit wstETH and Borrow ETH
         supplyAndBorrow(address(wstETH), wstETHAmount, weth, amount + fee);
-      
+
         uint256 collateralInETH = convertWstInETH(wstETHAmount);
         _pendingAmount = collateralInETH - amount + fee;
         return SUCCESS_MESSAGE;
@@ -202,7 +194,7 @@ contract AAVEv3Strategy is IStrategy, IERC3156FlashBorrower {
         // 0 UpdateCollateral
         uint256 percentageToBurn = (amount).mul(PERCENTAGE_PRECISION).div(totalAssets());      
         (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition();
-        // 1. Pay Debt
+// 1. Pay Debt
         uint256 deltaDebt = (totalDebtBaseInEth).mul(percentageToBurn).div(PERCENTAGE_PRECISION);
         uint256 wstETHPaidInDebt = convertETHInWSt(deltaDebt);
         DataTypes.ReserveData memory reserve = aavePool.getReserveData(wstETH);
@@ -213,15 +205,15 @@ contract AAVEv3Strategy is IStrategy, IERC3156FlashBorrower {
             PERCENTAGE_PRECISION
         );
         uint256 deltaAssetInWSETH = convertETHInWSt(deltaCollateral)- wstETHPaidInDebt;
-        //console.log("deltaAssetInWSETH",deltaAssetInWSETH);
         aavePool.withdraw(wstETH, deltaAssetInWSETH, address(this));
+
         // 3. Unwrap wstETH -> stETH
         IERC20(wstETH).safeApprove(wstETH, deltaAssetInWSETH);
         uint256 stETHAmount = IWStETH(wstETH).unwrap(deltaAssetInWSETH);
         // 4. Swap stETH -> weth
         uint256 wETHAmount = _swaptoken(stETH, weth, stETHAmount);
         require(IERC20(weth).balanceOf(address(this)) >= wETHAmount, "No balance received");
-
+        // 1. Pay Debt
         // 5. Unwrap wETH
         IERC20(weth).safeApprove(weth, wETHAmount);
         IWETH(weth).withdraw(wETHAmount);

@@ -69,16 +69,16 @@ describe.only("Vault", function () {
 
         expect(await vault.symbol()).to.equal("matETH");
         expect(await vault.name()).to.equal("laundromat ETH");        
-        expect(await vault.balanceOf(owner.address)).to.equal(9195471098145616160n);
-        expect(await vault.totalCollateral()).to.equal(44864798769441616160n);
-        expect(await vault.totalDebt()).to.equal(35704996998967296000n);
-        expect(await vault.totalPosition()).to.equal(9159801770474320160n);        
-        expect(await vault.loanToValue()).to.equal(795835442);
-        expect(await vault.totalSupply()).to.equal(9195471098145616160n);
-        expect(await vault.tokenPerETh()).to.equal(1003894115676855847n);
+        expect(await vault.balanceOf(owner.address)).to.equal(9986343597383680000n);
+        expect(await vault.totalCollateral()).to.equal(45655671268679680000n);
+        expect(await vault.totalDebt()).to.equal(35740737736704000000n);
+        expect(await vault.totalPosition()).to.equal(9914933531975680000n);        
+        expect(await vault.loanToValue()).to.equal(782832378);
+        expect(await vault.totalSupply()).to.equal(9986343597383680000n);
+        expect(await vault.tokenPerETh()).to.equal(1007202273739677870n);
       });
 
-    it.only("Test Withdraw", async function (){ 
+    it("Test Withdraw", async function (){ 
         
         const {
             owner,
@@ -92,13 +92,13 @@ describe.only("Vault", function () {
         });
 
         await vault.withdraw( ethers.parseUnits("1", 18), owner.address);
-        expect(await vault.balanceOf(owner.address)).to.equal(8195471098145616160n);
-        expect(await vault.totalCollateral()).to.equal(39985788468075837499n);
-        expect(await vault.totalDebt()).to.equal(32272247941674310034n);
-        expect(await vault.totalPosition()).to.equal(7713540526401527465n);        
-        expect(await vault.loanToValue()).to.equal(807092949);
-        expect(await vault.totalSupply()).to.equal(8195471098145616160n);
-        expect(await vault.tokenPerETh()).to.equal(1062478516848982696);
+        expect(await vault.balanceOf(owner.address)).to.equal(8986343597383680000n);
+        expect(await vault.totalCollateral()).to.equal(41083860774421391323n);
+        expect(await vault.totalDebt()).to.equal(32161776452888843466n);
+        expect(await vault.totalPosition()).to.equal(8922084321532547857n);        
+        expect(await vault.loanToValue()).to.equal(782832378);
+        expect(await vault.totalSupply()).to.equal(8986343597383680000n);
+        expect(await vault.tokenPerETh()).to.equal(1007202271748995790n);
     })
 
 })
