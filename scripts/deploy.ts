@@ -10,6 +10,7 @@ import {
   deployWETH,
   deployWSETHToETHOracle,
   deployWStEth,
+  deployAAVEv3Strategy,
 } from "./common";
 
 /**
@@ -35,7 +36,9 @@ async function main() {
     await serviceRegistry.getAddress(),
     await leverageLib.getAddress() 
   );
-  console.log("Laundromat Vault =", await vault.getAddress());
+  const AAVEv3Strategy = await deployAAVEv3Strategy( 
+    await serviceRegistry.getAddress(), await leverageLib.getAddress() );
+  console.log("Laundromat Vault =", await vault.getAddress(), await AAVEv3Strategy.getAddress() );
   // 4. Deploy the WETH 
   const weth = await deployWETH(serviceRegistry);
   console.log("WETH =", await weth.getAddress());
