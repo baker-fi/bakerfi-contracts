@@ -12,6 +12,7 @@ import {
   deployWSETHToETHOracle,
   deployWETH,
   deployLeverageLibrary,
+  deployAAVEv3Strategy,
 } from "../../scripts/common";
 
 describe.only("Vault", function () {
@@ -25,7 +26,8 @@ describe.only("Vault", function () {
         const serviceRegistryAddress = await serviceRegistry.getAddress();
         const weth = await deployWETH(serviceRegistry);
         const levarage = await deployLeverageLibrary();
-        const vault = await deployVault(owner.address, serviceRegistryAddress, await levarage.getAddress() );
+        const AAVEv3Strategy = await deployAAVEv3Strategy(serviceRegistryAddress, await levarage.getAddress() );
+        const vault = await deployVault(owner.address, serviceRegistryAddress, await AAVEv3Strategy.getAddress() );
         // 1. Deploy Flash Lender 
         const flashLender = await deployFlashLender(serviceRegistry, weth, FLASH_LENDER_DEPOSIT);
         // 2. Deploy stETH 
@@ -61,20 +63,22 @@ describe.only("Vault", function () {
         } = await loadFixture(deployFunction);
         
         const depositAmount =  ethers.parseUnits("10", 18);
-
         await vault.deposit(owner.address, {
             value: depositAmount,
         });
 
-        expect(await vault.symbol()).to.equal("mateETH");
+        expect(await vault.symbol()).to.equal("matETH");
         expect(await vault.name()).to.equal("laundromat ETH");        
-        expect(await vault.totalAssets()).to.equal(9124061032737616160n);
-        expect(await vault.balanceOf(owner.address)).to.equal(9124061032737616160n);
-        expect(await vault.totalSupply()).to.equal(9124061032737616160n);
-        expect(await vault.tokenPerETh()).to.equal(ethers.parseUnits("1", 18));
+        expect(await vault.balanceOf(owner.address)).to.equal(9195471098145616160n);
+        expect(await vault.totalCollateral()).to.equal(44864798769441616160n);
+        expect(await vault.totalDebt()).to.equal(35704996998967296000n);
+        expect(await vault.totalPosition()).to.equal(9159801770474320160n);        
+        expect(await vault.loanToValue()).to.equal(795835442);
+        expect(await vault.totalSupply()).to.equal(9195471098145616160n);
+        expect(await vault.tokenPerETh()).to.equal(1003894115676855847n);
       });
 
-    it("Test Withdraw", async function (){ 
+    it.only("Test Withdraw", async function (){ 
         
         const {
             owner,
@@ -88,9 +92,13 @@ describe.only("Vault", function () {
         });
 
         await vault.withdraw( ethers.parseUnits("1", 18), owner.address);
-        expect(await vault.balanceOf(owner.address)).to.equal(9124061032737616160n);
-        expect(await vault.totalSupply()).to.equal(9124061032737616160n);
-        expect(await vault.totalAssets()).to.equal(9124061032737616160n);
+        expect(await vault.balanceOf(owner.address)).to.equal(8195471098145616160n);
+        expect(await vault.totalCollateral()).to.equal(39985788468075837499n);
+        expect(await vault.totalDebt()).to.equal(32272247941674310034n);
+        expect(await vault.totalPosition()).to.equal(7713540526401527465n);        
+        expect(await vault.loanToValue()).to.equal(807092949);
+        expect(await vault.totalSupply()).to.equal(8195471098145616160n);
+        expect(await vault.tokenPerETh()).to.equal(1062478516848982696);
     })
 
 })
