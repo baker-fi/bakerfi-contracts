@@ -158,8 +158,8 @@ contract AAVEv3Strategy is IStrategy, IERC3156FlashBorrower,
         address wstETh,
         uint256 toWrap
     ) private returns (uint256 amountOut) {
-        stETH().safeApprove(wstETh, toWrap);
-        amountOut = IWStETH(wstETh).wrap(toWrap);
+        stETH().safeApprove(wstETHA(), toWrap);
+        amountOut = IWStETH(wstETHA()).wrap(toWrap);
     }
 
     function supplyAndBorrow(
