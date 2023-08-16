@@ -25,9 +25,6 @@ describe.only("Vault", function () {
         const serviceRegistry = await deployServiceRegistry(owner.address);
         const serviceRegistryAddress = await serviceRegistry.getAddress();
         const weth = await deployWETH(serviceRegistry);
-        const levarage = await deployLeverageLibrary();
-        const AAVEv3Strategy = await deployAAVEv3Strategy(serviceRegistryAddress, await levarage.getAddress() );
-        const vault = await deployVault(owner.address, serviceRegistryAddress, await AAVEv3Strategy.getAddress() );
         // 1. Deploy Flash Lender 
         const flashLender = await deployFlashLender(serviceRegistry, weth, FLASH_LENDER_DEPOSIT);
         // 2. Deploy stETH 
@@ -38,8 +35,12 @@ describe.only("Vault", function () {
         const swapper = await deploySwapper(weth, stETH, serviceRegistry, STETH_MAX_SUPPLY);
         // 5. Deploy AAVEv3 Mock Pool
         const aave3Pool = await deployAaveV3(wstETH, weth, serviceRegistry, AAVE_DEPOSIT);
-        // 6. Deploy wstETH/ETH Oracle 
+        // 6. Deploy wstETH/ETH Oracle       
         await deployWSETHToETHOracle(serviceRegistry);
+        const levarage = await deployLeverageLibrary();        
+        const AAVEv3Strategy = await deployAAVEv3Strategy(serviceRegistryAddress, await levarage.getAddress() );               
+        const vault = await deployVault(owner.address, serviceRegistryAddress, await AAVEv3Strategy.getAddress() );
+
 
         return {
           stETH,

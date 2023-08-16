@@ -30,35 +30,36 @@ async function main() {
   console.log("Service Registry =", await serviceRegistry.getAddress());
   // 2. Deploy the Leverage Library
   const leverageLib = await deployLeverageLibrary();
-  // 3. Deploy the Vault attached to Leverage Lib
-  const vault = await deployVault(
-    owner.address, 
-    await serviceRegistry.getAddress(),
-    await leverageLib.getAddress() 
-  );
-  const AAVEv3Strategy = await deployAAVEv3Strategy( 
-    await serviceRegistry.getAddress(), await leverageLib.getAddress() );
-  console.log("Laundromat Vault =", await vault.getAddress(), await AAVEv3Strategy.getAddress() );
-  // 4. Deploy the WETH 
+  // 3. Deploy the WETH 
   const weth = await deployWETH(serviceRegistry);
   console.log("WETH =", await weth.getAddress());
-  // 5. Deploy the Vault attached to Leverage Lib
+  // 4. Deploy the Vault attached to Leverage Lib
   const flashLender = await deployFlashLender(serviceRegistry, weth, FLASH_LENDER_DEPOSIT);
   console.log("FlashLender Mock =", await flashLender.getAddress());
-  // 6. Deploy stETH ERC-20
+  // 5. Deploy stETH ERC-20
   const stETH = await deployStEth(serviceRegistry, owner, STETH_MAX_SUPPLY);
   console.log("stETH =", await stETH.getAddress());
-  // 7. Deploy wstETH ERC-20
+  // 6. Deploy wstETH ERC-20
   const wstETH  = await deployWStEth(serviceRegistry, await stETH.getAddress());
   console.log("wstETH =", await wstETH.getAddress());
-  // 8. Deploy wETH/stETH Swapper
+  // 7. Deploy wETH/stETH Swapper
   const swapper  = await deploySwapper(weth, stETH, serviceRegistry, STETH_MAX_SUPPLY);
   console.log("Swap Router Mock =", await swapper.getAddress());
-  // 9. Deploy AAVE Mock Service
+  // 8. Deploy AAVE Mock Service
   const aaveV3PoolMock = await deployAaveV3(wstETH, weth, serviceRegistry, AAVE_DEPOSIT); 
   console.log("AAVE v3 Mock =", await aaveV3PoolMock.getAddress());
-  // 10. Deploy wstETH/ETH Oracle 
+  // 9. Deploy wstETH/ETH Oracle 
   const oracle = await deployWSETHToETHOracle(serviceRegistry);
+  const AAVEv3Strategy = await deployAAVEv3Strategy( 
+    await serviceRegistry.getAddress(), await leverageLib.getAddress() );
+  // 10. Deploy the Vault attached to Leverage Lib
+    const vault = await deployVault(
+      owner.address, 
+      await serviceRegistry.getAddress(),
+      await leverageLib.getAddress() 
+    );
+  console.log("Laundromat Vault =", await vault.getAddress(), await AAVEv3Strategy.getAddress() );  
+
   console.log("WSETH/ETH Oracle =", await oracle.getAddress());
   console.log("---------------------------------------------------------------------------");
   console.log("💥 Laundromat Deployment Done 👏");
