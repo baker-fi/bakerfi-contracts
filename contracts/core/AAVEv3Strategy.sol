@@ -26,14 +26,15 @@ import {ISwapHandler} from "../interfaces/core/ISwapHandler.sol";
 import "../interfaces/aave/v3/DataTypes.sol";
 import {IStrategy} from "../interfaces/core/IStrategy.sol";
 import {Leverage} from "../libraries/Leverage.sol";
-import {UseWETH, UseStETH, UseWstETH, UseAAVEv3, UseServiceRegistry} from "./Hooks.sol";
+import {UseWETH, UseStETH, UseWstETH, UseAAVEv3, UseServiceRegistry, UseOracle} from "./Hooks.sol";
 
 contract AAVEv3Strategy is IStrategy, IERC3156FlashBorrower, 
     UseServiceRegistry,
     UseWETH, 
     UseStETH, 
     UseWstETH, 
-    UseAAVEv3 
+    UseAAVEv3,
+    UseOracle
     
 {
     uint256 private LOAN_TO_VALUE = 80000;
@@ -58,7 +59,8 @@ contract AAVEv3Strategy is IStrategy, IERC3156FlashBorrower,
         UseWETH(registry) 
         UseStETH(registry) 
         UseWstETH(registry) 
-        UseAAVEv3(registry)       
+        UseAAVEv3(registry)      
+        UseOracle(WSTETH_ETH_ORACLE, registry) 
     {      
     
     }
@@ -143,14 +145,12 @@ contract AAVEv3Strategy is IStrategy, IERC3156FlashBorrower,
         return SUCCESS_MESSAGE;
     }
 
-    function convertWstInETH(uint256 amountIn) public view returns (uint256 amountOut) {
-        IOracle oracle = IOracle(registerSvc().getServiceFromHash(WSTETH_ETH_ORACLE));
-        amountOut = (amountIn * oracle.getLatestPrice()) / (oracle.getPrecision());
+    function convertWstInETH(uint256 amountIn) public view returns (uint256 amountOut) {       
+        amountOut = (amountIn * oracle().getLatestPrice()) / ( oracle().getPrecision());
     }
 
-    function convertETHInWSt(uint256 amountIn) public view returns (uint256 amountOut) {
-        IOracle oracle = IOracle(registerSvc().getServiceFromHash(WSTETH_ETH_ORACLE));
-        amountOut = (amountIn * oracle.getPrecision()) / oracle.getLatestPrice();
+    function convertETHInWSt(uint256 amountIn) public view returns (uint256 amountOut) {        
+        amountOut = (amountIn * oracle().getPrecision()) /  oracle().getLatestPrice();
     }
 
     function wrapStETH(
@@ -216,7 +216,7 @@ contract AAVEv3Strategy is IStrategy, IERC3156FlashBorrower,
     }
 
     function _unwrapWstETH(uint256 deltaAssetInWSETH) internal returns (uint256 stETHAmount) {
-        IERC20(wstETHA())(.safeApprove(wstETHA(), deltaAssetInWSETH);
+        IERC20(wstETHA()).safeApprove(wstETHA(), deltaAssetInWSETH);
         stETHAmount = wstETH().unwrap(deltaAssetInWSETH);
     }
 

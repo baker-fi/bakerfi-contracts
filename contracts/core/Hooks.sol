@@ -11,6 +11,7 @@ import {
 } from "./Constants.sol";
 import {IWETH} from "../interfaces/tokens/IWETH.sol";
 import {IServiceRegistry} from "../interfaces/core/IServiceRegistry.sol";
+import {IOracle} from "../interfaces/core/IOracle.sol";
 import {IWStETH} from "../interfaces/lido/IWStETH.sol";
 import {IPoolV3} from "../interfaces/aave/v3/IPoolV3.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -27,10 +28,7 @@ abstract contract UseServiceRegistry {
     }
 }
 
-
-
 abstract contract UseWETH {
-  
 
   IWETH immutable _wETH;
 
@@ -95,5 +93,18 @@ abstract contract UseAAVEv3 {
 
   function aaveV3A() internal view returns (address) {
     return address(_aavev3);
+  }
+}
+
+abstract contract UseOracle {
+
+  IOracle immutable _oracle;
+    
+  constructor(bytes32 oracleName, ServiceRegistry registry) {
+     _oracle = IOracle(registry.getServiceFromHash(oracleName));
+  }
+
+   function oracle() internal view returns (IOracle) {
+    return _oracle;
   }
 }
