@@ -26,8 +26,16 @@ import {ISwapHandler} from "../interfaces/core/ISwapHandler.sol";
 import "../interfaces/aave/v3/DataTypes.sol";
 import {IStrategy} from "../interfaces/core/IStrategy.sol";
 import {Leverage} from "../libraries/Leverage.sol";
+import {UseWETH, UseStETH, UseWstETH, UseAAVEv3, UseServiceRegistry} from "./Hooks.sol";
 
-contract AAVEv3Strategy is IStrategy, IERC3156FlashBorrower {
+contract AAVEv3Strategy is IStrategy, IERC3156FlashBorrower, 
+    UseServiceRegistry,
+    UseWETH, 
+    UseStETH, 
+    UseWstETH, 
+    UseAAVEv3 
+    
+{
     uint256 private LOAN_TO_VALUE = 80000;
 
     struct FlashLoanData {
@@ -42,11 +50,17 @@ contract AAVEv3Strategy is IStrategy, IERC3156FlashBorrower {
     using Leverage for uint256;
     using SafeMath for uint256;
 
-    ServiceRegistry public immutable _registry;
+
     uint256 internal _pendingAmount = 0;
 
-    constructor(ServiceRegistry registry) {
-        _registry = registry;
+    constructor(ServiceRegistry registry) 
+        UseServiceRegistry(registry)
+        UseWETH(registry) 
+        UseStETH(registry) 
+        UseWstETH(registry) 
+        UseAAVEv3(registry)       
+    {      
+    
     }
 
     receive() external payable {}
@@ -64,11 +78,10 @@ contract AAVEv3Strategy is IStrategy, IERC3156FlashBorrower {
         view
         returns (uint256 totalCollateralInEth, uint256 totalDebtInEth)
     {
-        IPoolV3 aavePool = IPoolV3(_registry.getServiceFromHash(AAVE_V3));
         (
             uint256 totalCollateralBase,
             uint256 totalDebtBase,,,,           
-        ) = aavePool.getUserAccountData(address(this));
+        ) = aaveV3().getUserAccountData(address(this));
         totalCollateralInEth = totalCollateralBase;
         totalDebtInEth = totalDebtBase;
     }
@@ -81,22 +94,21 @@ contract AAVEv3Strategy is IStrategy, IERC3156FlashBorrower {
     function deploy() external payable returns (uint256 deployedAmount) {
         require(msg.value != 0, "No Zero deposit Allower");
         // 1. Wrap Ethereum
-        IWETH weth = IWETH(_registry.getServiceFromHash(WETH_CONTRACT));
-        weth.deposit{value: msg.value}();
+        wETH().deposit{value: msg.value}();
 
         // 2. Initiate a Flash Loan
         IERC3156FlashLender flashLender = IERC3156FlashLender(
-            _registry.getServiceFromHash(FLASH_LENDER)
+            registerSvc().getServiceFromHash(FLASH_LENDER)
         );
         uint256 leverage = Leverage.calculateLeverageRatio(msg.value, LOAN_TO_VALUE, 10);
         uint256 loanAmount = leverage - msg.value;
-        uint256 fee = flashLender.flashFee(address(weth), loanAmount);
-        uint256 allowance = weth.allowance(address(this), address(flashLender));
-        weth.approve(address(flashLender), loanAmount + fee + allowance);
+        uint256 fee = flashLender.flashFee(wETHA(), loanAmount);
+        uint256 allowance = wETH().allowance(address(this), address(flashLender));
+        wETH().approve(address(flashLender), loanAmount + fee + allowance);
         require(
             flashLender.flashLoan(
                 IERC3156FlashBorrower(this),
-                address(weth),
+                wETHA(),
                 loanAmount,
                 abi.encode(msg.value, msg.sender)
             ),
@@ -114,20 +126,17 @@ contract AAVEv3Strategy is IStrategy, IERC3156FlashBorrower {
         bytes memory callData
     ) external returns (bytes32) {
         require(initiator == address(this), "FlashBorrower: Untrusted loan initiator");
-        address weth = _registry.getServiceFromHash(WETH_CONTRACT);
-        address wstETH = _registry.getServiceFromHash(WST_ETH_CONTRACT);
-        address stETH = _registry.getServiceFromHash(ST_ETH_CONTRACT);
 
-        require(token == weth, "Invalid INput");
-        require(stETH != address(0), "Invalid Output");
+        require(token == wETHA(), "Invalid INput");
+        require(stETHA() != address(0), "Invalid Output");
 
         FlashLoanData memory data = abi.decode(callData, (FlashLoanData));
         // 1. Swap WETH -> stETH
-        uint256 stEThAmount = _swaptoken(weth, stETH, data.originalAmount + amount);
+        uint256 stEThAmount = _swaptoken(wETHA(), stETHA(), data.originalAmount + amount);
         // 2. Wrap stETH -> wstETH
-        uint256 wstETHAmount = wrapStETH(stETH, wstETH, stEThAmount);
+        uint256 wstETHAmount = wrapStETH(stETHA(), wstETHA(), stEThAmount);
         // 3. Deposit wstETH and Borrow ETH
-        supplyAndBorrow(address(wstETH), wstETHAmount, weth, amount + fee);
+        supplyAndBorrow(wstETHA(), wstETHAmount, wETHA(), amount + fee);
 
         uint256 collateralInETH = convertWstInETH(wstETHAmount);
         _pendingAmount = collateralInETH - amount + fee;
@@ -135,12 +144,12 @@ contract AAVEv3Strategy is IStrategy, IERC3156FlashBorrower {
     }
 
     function convertWstInETH(uint256 amountIn) public view returns (uint256 amountOut) {
-        IOracle oracle = IOracle(_registry.getServiceFromHash(WSTETH_ETH_ORACLE));
+        IOracle oracle = IOracle(registerSvc().getServiceFromHash(WSTETH_ETH_ORACLE));
         amountOut = (amountIn * oracle.getLatestPrice()) / (oracle.getPrecision());
     }
 
     function convertETHInWSt(uint256 amountIn) public view returns (uint256 amountOut) {
-        IOracle oracle = IOracle(_registry.getServiceFromHash(WSTETH_ETH_ORACLE));
+        IOracle oracle = IOracle(registerSvc().getServiceFromHash(WSTETH_ETH_ORACLE));
         amountOut = (amountIn * oracle.getPrecision()) / oracle.getLatestPrice();
     }
 
@@ -149,7 +158,7 @@ contract AAVEv3Strategy is IStrategy, IERC3156FlashBorrower {
         address wstETh,
         uint256 toWrap
     ) private returns (uint256 amountOut) {
-        IERC20(stETh).safeApprove(wstETh, toWrap);
+        stETH().safeApprove(wstETh, toWrap);
         amountOut = IWStETH(wstETh).wrap(toWrap);
     }
 
@@ -159,10 +168,9 @@ contract AAVEv3Strategy is IStrategy, IERC3156FlashBorrower {
         address assetOut,
         uint256 borrowOut
     ) private {
-        IPoolV3 aavePool = IPoolV3(_registry.getServiceFromHash(AAVE_V3));
-        IERC20(assetIn).approve(address(aavePool), amountIn);
-        aavePool.supply(assetIn, amountIn, address(this), 0);
-        aavePool.borrow(assetOut, borrowOut, 2, 0, address(this));
+        IERC20(assetIn).approve(aaveV3A(), amountIn);
+        aaveV3().supply(assetIn, amountIn, address(this), 0);
+        aaveV3().borrow(assetOut, borrowOut, 2, 0, address(this));
     }
 
     function _swaptoken(
@@ -170,7 +178,7 @@ contract AAVEv3Strategy is IStrategy, IERC3156FlashBorrower {
         address assetOut,
         uint256 amountIn
     ) private returns (uint256 amountOut) {
-        ISwapHandler swapHandler = ISwapHandler(_registry.getServiceFromHash(SWAP_HANDLER));
+        ISwapHandler swapHandler = ISwapHandler(registerSvc().getServiceFromHash(SWAP_HANDLER));
         IERC20(assetIn).approve(address(swapHandler), amountIn);
         ISwapHandler.SwapParams memory params = ISwapHandler.SwapParams(
             assetIn,
@@ -186,41 +194,49 @@ contract AAVEv3Strategy is IStrategy, IERC3156FlashBorrower {
     function undeploy(
         uint256 amount,
         address payable receiver
-    ) external returns (uint256 undeployedAmount) {
-        address wstETH = _registry.getServiceFromHash(WST_ETH_CONTRACT);
-        address stETH = _registry.getServiceFromHash(ST_ETH_CONTRACT);
-        address weth = _registry.getServiceFromHash(WETH_CONTRACT);
-        IPoolV3 aavePool = IPoolV3(_registry.getServiceFromHash(AAVE_V3));
-        // 0 UpdateCollateral
-        uint256 percentageToBurn = (amount).mul(PERCENTAGE_PRECISION).div(totalAssets());      
-        (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition();
-// 1. Pay Debt
-        uint256 deltaDebt = (totalDebtBaseInEth).mul(percentageToBurn).div(PERCENTAGE_PRECISION);
-        uint256 wstETHPaidInDebt = convertETHInWSt(deltaDebt);
-        DataTypes.ReserveData memory reserve = aavePool.getReserveData(wstETH);
-        IERC20(reserve.aTokenAddress).safeApprove(address(aavePool), wstETHPaidInDebt);
-        aavePool.repayWithATokens(wstETH, wstETHPaidInDebt, 2);
-        // 2. Withdraw from AAVE Pool
-        uint256 deltaCollateral = (totalCollateralBaseInEth).mul(percentageToBurn).div(
-            PERCENTAGE_PRECISION
-        );
-        uint256 deltaAssetInWSETH = convertETHInWSt(deltaCollateral)- wstETHPaidInDebt;
-        aavePool.withdraw(wstETH, deltaAssetInWSETH, address(this));
+    ) external returns (uint256 undeployedAmount) {          
 
+        uint256 percentageToBurn = (amount).mul(PERCENTAGE_PRECISION).div(totalAssets());      
+        uint256 deltaAssetInWSETH = _payDebtAndWithdraw(percentageToBurn);
         // 3. Unwrap wstETH -> stETH
-        IERC20(wstETH).safeApprove(wstETH, deltaAssetInWSETH);
-        uint256 stETHAmount = IWStETH(wstETH).unwrap(deltaAssetInWSETH);
+        uint256 stETHAmount = _unwrapWstETH(deltaAssetInWSETH);
         // 4. Swap stETH -> weth
-        uint256 wETHAmount = _swaptoken(stETH, weth, stETHAmount);
-        require(IERC20(weth).balanceOf(address(this)) >= wETHAmount, "No balance received");
-        // 1. Pay Debt
+        uint256 wETHAmount = _swaptoken(stETHA(), wETHA(), stETHAmount);
         // 5. Unwrap wETH
-        IERC20(weth).safeApprove(weth, wETHAmount);
-        IWETH(weth).withdraw(wETHAmount);
+        _unwrapWETH(wETHAmount);
         // 6. Withdraw ETh to User Wallet
         (bool success, ) = payable(receiver).call{value: wETHAmount}("");
         require(success, "Failed to Send ETH Back");
         undeployedAmount = wETHAmount;
+    }
+
+    function _unwrapWETH(uint256 wETHAmount) internal{ 
+        IERC20(wETHA()).safeApprove(wETHA(), wETHAmount);
+        wETH().withdraw(wETHAmount);
+    }
+
+    function _unwrapWstETH(uint256 deltaAssetInWSETH) internal returns (uint256 stETHAmount) {
+        IERC20(wstETHA())(.safeApprove(wstETHA(), deltaAssetInWSETH);
+        stETHAmount = wstETH().unwrap(deltaAssetInWSETH);
+    }
+
+    function _payDebtAndWithdraw(uint256 percentageToBurn) internal returns (uint256 deltaAssetInWSETH) {     
+        (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition();
+        
+        // 1. Pay Debt
+        uint256 deltaDebt = (totalDebtBaseInEth).mul(percentageToBurn).div(PERCENTAGE_PRECISION);
+        uint256 wstETHPaidInDebt = convertETHInWSt(deltaDebt);        
+        DataTypes.ReserveData memory reserve = aaveV3().getReserveData(wETHA());
+
+        IERC20(reserve.aTokenAddress).safeApprove(aaveV3A(), wstETHPaidInDebt);
+        aaveV3().repayWithATokens(wstETHA(), wstETHPaidInDebt, 2);
+        // 2. Withdraw from AAVE Pool
+        uint256 deltaCollateral = (totalCollateralBaseInEth).mul(percentageToBurn).div(
+            PERCENTAGE_PRECISION
+        );
+        deltaAssetInWSETH = convertETHInWSt(deltaCollateral)- wstETHPaidInDebt;
+        aaveV3().withdraw(wstETHA(), deltaAssetInWSETH, address(this));
+
     }
 
     function harvest() external override returns (uint256 amountAdded) {}
