@@ -42,15 +42,22 @@ export async function deployFlashLender(serviceRegistry, weth, depositedAmount) 
     return levarage;
   }
   
-  export async function deployVault(owner: string, serviceRegistry: string, levarage: string) {
-    const Vault = await ethers.getContractFactory("LaundromatVault", {
+  export async function deployVault(owner: string, serviceRegistry: string, strategy: string) {
+    const Vault = await ethers.getContractFactory("LaundromatVault");
+    const vault = await Vault.deploy(owner, serviceRegistry, strategy);        
+    await vault.waitForDeployment();
+    return vault;
+  }
+
+  export async function deployAAVEv3Strategy(serviceRegistry: string, levarage: string) {
+    const AAVEv3Strategy = await ethers.getContractFactory("AAVEv3Strategy", {
         libraries: {
             Leverage: levarage,
         }
     });
-    const vault = await Vault.deploy(owner, serviceRegistry);        
-    await vault.waitForDeployment();
-    return vault;
+    const strategy = await AAVEv3Strategy.deploy(serviceRegistry);        
+    await strategy.waitForDeployment();
+    return strategy;
   }
   
   

@@ -6,6 +6,7 @@ import {IPoolV3} from "../interfaces/aave/v3/IPoolV3.sol";
 import "../interfaces/aave/v3/DataTypes.sol";
 import "../interfaces/aave/v3/IPoolAddressesProvider.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "hardhat/console.sol";
 
 contract AaveV3PoolMock is IPoolV3, ERC20 {
 
@@ -23,7 +24,7 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
     IERC20 public _collateralToken;
     IERC20 public _borrowedToken;
 
-    uint256 public collateralPerEth = 1000*(1e6);
+    uint256 public collateralPerEth = 1130*(1e6);
     uint256 public borrowedPerETh= 1000*(1e6);
     uint256 public pricePrecision = 1000*(1e6);
 
@@ -74,7 +75,7 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
         require(asset == address(_collateralToken));
         require(asset == address(_collateralToken));
         users[msg.sender].depositAmount-= amount;
-        (_collateralToken).transfer(msg.sender, amount);
+        (_collateralToken).transfer(msg.sender, amount);      
         _burn(msg.sender, amount);
     }
 
@@ -96,7 +97,7 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
         uint256 interestRateMode,
         address onBehalfOf
     ) external override returns (uint256) {
-        users[msg.sender].borrowedAmount-= amount;
+        users[msg.sender].borrowedAmount-= amount*collateralPerEth/1e9;
         _borrowedToken.transfer(onBehalfOf, amount);
     }
     
@@ -118,7 +119,7 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
         uint256 interestRateMode
     ) external override returns (uint256) {
         users[msg.sender].depositAmount-= amount;
-        users[msg.sender].borrowedAmount -= amount;
+        users[msg.sender].borrowedAmount -= amount*collateralPerEth/1e9;
         _burn(msg.sender, amount);
     }
 
@@ -173,7 +174,11 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
         totalDebtBase = users[user].borrowedAmount * borrowedPerETh / pricePrecision;
         availableBorrowsBase = 0;
         currentLiquidationThreshold = users[user].depositAmount * LOAN_LIQUIDATION_THRESHOLD / LOAN_TO_VALUE_PRECISION;
-        ltv =users[user].borrowedAmount *  LOAN_TO_VALUE_PRECISION/(users[user].depositAmount );
+        if(users[user].depositAmount > 0) {
+            ltv  = users[user].borrowedAmount *  LOAN_TO_VALUE_PRECISION/(users[user].depositAmount );
+        } else {
+            ltv = 0;
+        }       
         healthFactor = 1;
     }
 
