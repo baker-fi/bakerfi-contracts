@@ -10,7 +10,7 @@ import {ServiceRegistry} from "../core/ServiceRegistry.sol";
 import {ISwapHandler} from "../interfaces/core/ISwapHandler.sol";
 import {IStrategy} from "../interfaces/core/IStrategy.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "hardhat/console.sol";
+import { PERCENTAGE_PRECISION } from "./Constants.sol";
 
 /**
  * Landromat Vault
@@ -34,7 +34,7 @@ contract LaundromatVault is Ownable, Pausable, ERC20  {
     
     string constant NAME = "laundromat ETH";
     string constant SYMBOl = "matETH";
-    uint256 public constant PERCENTAGE_PRECISION = 1e9;    
+
     
     
     // The System System register
