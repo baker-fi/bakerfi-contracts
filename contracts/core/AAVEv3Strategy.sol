@@ -232,7 +232,23 @@ contract AAVEv3Strategy is
         aaveV3().withdraw(wstETHA(), deltaAssetInWSETH, address(this));
     }
 
-    function harvest() external override returns (uint256 amountAdded) {}
-
-    function updatePositionInfo() external override {}
+    function harvest() external override {
+        (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition();
+        int256 balanceChange = int256(
+            int256(totalCollateralBaseInEth) - 
+            int256(totalDebtBaseInEth) - 
+            int256(_deployedAmount));
+        if (balanceChange == 0 ) {
+            return;
+        }
+        
+        if (balanceChange > 0 ) {
+             _deployedAmount.add(uint256(balanceChange));
+            emit StrategyLoss(uint256(balanceChange));
+        } else if ( balanceChange < 0 ) {
+            _deployedAmount.sub(uint256(-balanceChange));
+            emit StrategyProfit(uint256(-balanceChange));
+        }        
+    }
+}
 }

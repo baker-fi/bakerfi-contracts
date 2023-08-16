@@ -59,10 +59,6 @@ contract LaundromatVault is Ownable, Pausable, ERC20  {
     function harvest() public {}
 
     receive() external payable {}
-   
-    function updatePositionInfo() public {
-        _strategy.updatePositionInfo();
-    }
 
     function deposit(address receiver) external payable returns (uint256 shares) {
         require(msg.value != 0, "No Zero deposit Allower");
