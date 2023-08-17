@@ -11,6 +11,7 @@ import {ISwapHandler} from "../interfaces/core/ISwapHandler.sol";
 import {IStrategy} from "../interfaces/core/IStrategy.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { PERCENTAGE_PRECISION } from "./Constants.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 
 /**
  * Landromat Vault
@@ -27,7 +28,7 @@ import { PERCENTAGE_PRECISION } from "./Constants.sol";
  * @author Helder Vasconcelos
  * @notice
  */
-contract LaundromatVault is Ownable, Pausable, ERC20  {
+contract LaundromatVault is Ownable, Pausable, ERC20Permit  {
     using SafeMath for uint256;
     using RebaseLibrary for Rebase;
     using SafeERC20 for ERC20;
@@ -46,6 +47,7 @@ contract LaundromatVault is Ownable, Pausable, ERC20  {
         address owner, 
         ServiceRegistry registry, 
         IStrategy strategy) 
+        ERC20Permit(NAME)
         ERC20(NAME, SYMBOl) 
     {
         require(owner != address(0), "Invalid Owner Address");
