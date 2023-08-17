@@ -74,9 +74,8 @@ npx hardhat run --network <network-name> scripts/deploy.ts
 
 Replace <network-name> with the desired network from your configuration.
 
-### Development Server
+### Development Environment 
 To run a local development server, use the following command:
-
 ```
 npx hardhat node
 ```

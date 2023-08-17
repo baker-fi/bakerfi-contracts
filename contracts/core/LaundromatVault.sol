@@ -22,7 +22,6 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
  * - Harvest Function to collect fees from yield performance +-10%
  * - Balance Collateral/Debt to avoid AAVE liquidation
  * - Withdraw Fee 0.10%
- * - Support for Flash Loan Router
  *
  * @title Landromat Vault smart contract
  * @author Helder Vasconcelos

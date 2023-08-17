@@ -40,8 +40,6 @@ contract AAVEv3Strategy is
     UseSwapper,
     UseFlashLender
 {
-
-
     event StrategyProfit(uint256 amount);
     event StrategyLoss(uint256 amount);
 
@@ -125,6 +123,25 @@ contract AAVEv3Strategy is
         _pendingAmount = 0;
     }
 
+    function _converWETHinWSTETH(uint256 amount) internal returns ( uint256 wstETHAmount) {
+        // 1. Swap WETH -> stETH
+        uint256 stEThAmount = _swaptoken(wETHA(), stETHA(), amount);
+        // 2. Wrap stETH -> wstETH
+        wstETHAmount = _wrapStETH(stEThAmount);
+    }
+
+    function _converWETHinWSTETH_2(uint256 amount) internal returns ( uint256 wstETHAmount) {
+        // 1. Unwrap ETH to this account
+        wETH().withdraw(amount);
+        uint256 wStEthBalanceBefore = wstETH().balanceOf(address(this));
+        // 2. Stake and Wrap using the receive function
+        (bool sent, ) = payable(wstETHA()).call{value: amount}("");
+        require(sent, "Failed to send Ether");
+        uint256 wStEthBalanceAfter = wstETH().balanceOf(address(this));
+        // 2. Wrap stETH -> wstETH
+        wstETHAmount =  wStEthBalanceAfter.sub(wStEthBalanceBefore);
+    }
+
     function onFlashLoan(
         address initiator,
         address token,
@@ -137,10 +154,7 @@ contract AAVEv3Strategy is
         require(stETHA() != address(0), "Invalid Output");
 
         FlashLoanData memory data = abi.decode(callData, (FlashLoanData));
-        // 1. Swap WETH -> stETH
-        uint256 stEThAmount = _swaptoken(wETHA(), stETHA(), data.originalAmount + amount);
-        // 2. Wrap stETH -> wstETH
-        uint256 wstETHAmount = _wrapStETH(stEThAmount);
+        uint256 wstETHAmount = _converWETHinWSTETH(data.originalAmount + amount);
         // 3. Deposit wstETH and Borrow ETH
         supplyAndBorrow(wstETHA(), wstETHAmount, wETHA(), amount + fee);
 

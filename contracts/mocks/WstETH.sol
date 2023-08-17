@@ -23,6 +23,11 @@ contract WstETHMock is IWStETH, ERC20 {
     {
         _stETH = stETH;
     }
+
+   receive() external payable {
+        uint256 wstETHAmount = stEthPerToken() * msg.value / PRICE_PRECISION; 
+        _mint(msg.sender, wstETHAmount);
+    }
     
     function wrap(uint256 _stETHAmount) external returns (uint256) {
         require(_stETHAmount > 0, "wstETH: can't wrap zero stETH");
