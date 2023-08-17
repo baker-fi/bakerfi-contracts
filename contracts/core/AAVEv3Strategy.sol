@@ -40,6 +40,11 @@ contract AAVEv3Strategy is
     UseSwapper,
     UseFlashLender
 {
+
+
+    event StrategyProfit(uint256 amount);
+    event StrategyLoss(uint256 amount);
+
     uint256 private LOAN_TO_VALUE = 80000;
 
     struct FlashLoanData {
@@ -54,6 +59,7 @@ contract AAVEv3Strategy is
     using SafeMath for uint256;
 
     uint256 internal _pendingAmount = 0;
+    uint256 internal _deployedAmount = 0;
 
     constructor(
         ServiceRegistry registry
@@ -232,14 +238,14 @@ contract AAVEv3Strategy is
         aaveV3().withdraw(wstETHA(), deltaAssetInWSETH, address(this));
     }
 
-    function harvest() external override {
+    function harvest() external override returns(int256 balanceChange){
         (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition();
-        int256 balanceChange = int256(
+        balanceChange = int256(
             int256(totalCollateralBaseInEth) - 
             int256(totalDebtBaseInEth) - 
             int256(_deployedAmount));
         if (balanceChange == 0 ) {
-            return;
+            return 0;
         }
         
         if (balanceChange > 0 ) {
@@ -250,5 +256,4 @@ contract AAVEv3Strategy is
             emit StrategyProfit(uint256(-balanceChange));
         }        
     }
-}
 }

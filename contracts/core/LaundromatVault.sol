@@ -35,8 +35,6 @@ contract LaundromatVault is Ownable, Pausable, ERC20  {
     string constant NAME = "laundromat ETH";
     string constant SYMBOl = "matETH";
 
-    
-    
     // The System System register
     ServiceRegistry public immutable _registry;
     IStrategy private immutable      _strategy;

@@ -24,9 +24,9 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
     IERC20 public _collateralToken;
     IERC20 public _borrowedToken;
 
-    uint256 public collateralPerEth = 1130*(1e6);
-    uint256 public borrowedPerETh= 1000*(1e6);
-    uint256 public pricePrecision = 1000*(1e6);
+    uint256 private _collateralPerEth = 1130*(1e6);
+    uint256 private _borrowedPerETh= 1000*(1e6);
+    uint256 private _pricePrecision = 1000*(1e6);
 
     constructor(IERC20 collateralToken, IERC20  borrowedToken)
         ERC20("Collateral ETH", "AWETH") {
@@ -40,6 +40,23 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
         address onBehalfOf,
         uint16 referralCode
     ) external override {}
+
+    
+    function setCollateralPerEth(uint256 price) public {
+        _collateralPerEth = price;
+    }
+    
+    function setBorrowedPerEth(uint256 price) public {
+        _borrowedPerETh = price;        
+    }
+
+    function getCollateralPerEth() public view returns (uint256){
+        return _collateralPerEth;
+    }
+    
+    function getBorrowedPerEth() public view returns (uint256) {
+        return _borrowedPerETh;
+    }
 
     function backUnbacked(address asset, uint256 amount, uint256 fee) external override {}
 
@@ -97,7 +114,7 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
         uint256 interestRateMode,
         address onBehalfOf
     ) external override returns (uint256) {
-        users[msg.sender].borrowedAmount-= amount*collateralPerEth/1e9;
+        users[msg.sender].borrowedAmount-= amount*_collateralPerEth/1e9;
         _borrowedToken.transfer(onBehalfOf, amount);
     }
     
@@ -119,7 +136,7 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
         uint256 interestRateMode
     ) external override returns (uint256) {
         users[msg.sender].depositAmount-= amount;
-        users[msg.sender].borrowedAmount -= amount*collateralPerEth/1e9;
+        users[msg.sender].borrowedAmount -= amount*_collateralPerEth/1e9;
         _burn(msg.sender, amount);
     }
 
@@ -170,8 +187,8 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
             uint256 healthFactor
         )
     {
-        totalCollateralBase = users[user].depositAmount * collateralPerEth / pricePrecision;
-        totalDebtBase = users[user].borrowedAmount * borrowedPerETh / pricePrecision;
+        totalCollateralBase = users[user].depositAmount * _collateralPerEth / _pricePrecision;
+        totalDebtBase = users[user].borrowedAmount * _borrowedPerETh / _pricePrecision;
         availableBorrowsBase = 0;
         currentLiquidationThreshold = users[user].depositAmount * LOAN_LIQUIDATION_THRESHOLD / LOAN_TO_VALUE_PRECISION;
         if(users[user].depositAmount > 0) {
