@@ -101,6 +101,8 @@ describe.only("Vault", function () {
                   owner.address, 
                   ethers.parseUnits("10", 18), 
                   9986343597383680000n
+                ).to.changeEtherBalances(
+                  [owner.address], [ -ethers.parseUnits("10", 18)]
                 );
   });
 
@@ -143,7 +145,7 @@ describe.only("Vault", function () {
   });
 
 
-  it("Test Withdraw Event", async function () {    
+  it.only("Test Withdraw Event", async function () {    
     
     const { owner, vault } = await loadFixture(deployFunction);
     const depositAmount = ethers.parseUnits("10", 18);
@@ -157,8 +159,10 @@ describe.only("Vault", function () {
       .withArgs(
         owner.address, 
         4969613303000000000n, 
-        ethers.parseUnits("5", 18), 
-    );
+        ethers.parseUnits("5", 18),         
+    ).to.changeEtherBalances(
+      [owner.address], [ 4969613303000000000n]
+    );;
   })
 
 
@@ -184,7 +188,7 @@ describe.only("Vault", function () {
     ).to.be.revertedWith("No Enough balance to withdraw");
   });
 
-  it.only("Transfer Shares ", async function () { 
+  it("Transfer Shares ", async function () { 
     const { owner, vault, otherAccount } = await loadFixture(deployFunction);
     await vault.deposit(owner.address, {
       value: ethers.parseUnits("10", 18),
@@ -193,5 +197,6 @@ describe.only("Vault", function () {
     expect(vault.transfer(1000, otherAccount.address)).
       to.changeTokenBalances(vault, [owner.address, otherAccount.address], [-1000, 1000]);;
   });
+
 
 });

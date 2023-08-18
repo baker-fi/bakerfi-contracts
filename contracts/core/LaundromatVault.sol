@@ -55,7 +55,11 @@ contract LaundromatVault is Ownable, Pausable, ERC20Permit  {
         _strategy = strategy;
     }
 
-    function harvest() public {}
+    function harvest() external  {
+        if (totalPosition() > 0) {
+            _strategy.harvest();
+        }
+    }
 
     receive() external payable {}
 
