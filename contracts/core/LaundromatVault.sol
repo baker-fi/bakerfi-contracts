@@ -82,7 +82,11 @@ contract LaundromatVault is Ownable, Pausable, ERC20Permit  {
 
     function loanToValue() public view returns(uint256 ltv) {
         (uint256 totalCollateralInEth, uint256 totalDebtInEth) = _strategy.getPosition();
-        ltv = totalDebtInEth.mul(PERCENTAGE_PRECISION).div(totalCollateralInEth);
+        if(totalCollateralInEth == 0) {
+            ltv = 0;
+        } else {
+            ltv = totalDebtInEth.mul(PERCENTAGE_PRECISION).div(totalCollateralInEth);
+        }
     }
 
     function totalCollateral() public view returns(uint256 totalCollateralInEth) {
@@ -109,7 +113,11 @@ contract LaundromatVault is Ownable, Pausable, ERC20Permit  {
     }
 
     function tokenPerETh() public view returns (uint256) {
-        return totalSupply().mul(1 ether).div(totalPosition());
+        uint256 position = totalPosition();
+        if ( totalSupply() == 0 || position  == 0 ) {
+            return 0;
+        }
+        return totalSupply().mul(1 ether).div(position);
     }
 
 }

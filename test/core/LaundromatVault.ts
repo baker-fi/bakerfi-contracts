@@ -41,7 +41,6 @@ describe.only("Vault", function () {
         const AAVEv3Strategy = await deployAAVEv3Strategy(owner.address,serviceRegistryAddress, await levarage.getAddress() );               
         const vault = await deployVault(owner.address, serviceRegistryAddress, await AAVEv3Strategy.getAddress() );
 
-
         return {
           stETH,
           weth,
@@ -55,6 +54,21 @@ describe.only("Vault", function () {
           wstETH,
         };
       }
+
+      it("Test Initialized Vault", async function () { 
+          const {
+            owner,
+            vault,
+        } = await loadFixture(deployFunction);
+        expect(await vault.symbol()).to.equal("matETH");
+        expect(await vault.balanceOf(owner.address)).to.equal(0);
+        expect(await vault.totalSupply()).to.equal(0);
+        expect(await vault.totalCollateral()).to.equal(0);
+        expect(await vault.totalDebt()).to.equal(0);
+        expect(await vault.loanToValue()).to.equal(0);
+        expect(await vault.tokenPerETh()).to.equal(0);
+        expect(await vault.loanToValue()).to.equal(0);
+      });
     
       it("Test Deposit", async function (){ 
         
@@ -77,7 +91,8 @@ describe.only("Vault", function () {
         expect(await vault.loanToValue()).to.equal(782832378);
         expect(await vault.totalSupply()).to.equal(9986343597383680000n);
         expect(await vault.tokenPerETh()).to.equal(1007202273739677870n);
-      });
+    });
+
 
     it("Test Withdraw", async function (){ 
         

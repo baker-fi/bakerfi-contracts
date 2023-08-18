@@ -23,7 +23,7 @@ const config: HardhatUserConfig = {
   },  
   defaultNetwork: "hardhat",
   typechain: {
-    outDir: 'src',
+    outDir: 'src/types',
     target: 'ethers-v6',
     alwaysGenerateOverloads: false, // should overloads with full signatures like deposit(uint256) be generated always, even if there are no overloads?
     dontOverrideCompile: false // defaults to false
