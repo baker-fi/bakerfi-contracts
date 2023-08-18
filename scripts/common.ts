@@ -49,13 +49,13 @@ export async function deployFlashLender(serviceRegistry, weth, depositedAmount) 
     return vault;
   }
 
-  export async function deployAAVEv3Strategy(serviceRegistry: string, levarage: string) {
+  export async function deployAAVEv3Strategy(owner: string, serviceRegistry: string, levarage: string) {
     const AAVEv3Strategy = await ethers.getContractFactory("AAVEv3Strategy", {
         libraries: {
             Leverage: levarage,
         }
     });
-    const strategy = await AAVEv3Strategy.deploy(serviceRegistry);        
+    const strategy = await AAVEv3Strategy.deploy(owner, serviceRegistry);        
     await strategy.waitForDeployment();
     return strategy;
   }

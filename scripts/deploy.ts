@@ -50,15 +50,20 @@ async function main() {
   console.log("AAVE v3 Mock =", await aaveV3PoolMock.getAddress());
   // 9. Deploy wstETH/ETH Oracle 
   const oracle = await deployWSETHToETHOracle(serviceRegistry);
-  const AAVEv3Strategy = await deployAAVEv3Strategy( 
-    await serviceRegistry.getAddress(), await leverageLib.getAddress() );
+  const strategy = await deployAAVEv3Strategy( 
+    owner.address,
+    await serviceRegistry.getAddress(), 
+    await leverageLib.getAddress() 
+  );
   // 10. Deploy the Vault attached to Leverage Lib
     const vault = await deployVault(
       owner.address, 
       await serviceRegistry.getAddress(),
       await leverageLib.getAddress() 
     );
-  console.log("Laundromat Vault =", await vault.getAddress(), await AAVEv3Strategy.getAddress() );  
+  console.log("Laundromat Vault =", await vault.getAddress() );  
+  console.log("Laundromat Vault AAVEv3 Strategy =", await strategy.getAddress());
+  await strategy.transferOwnership(await vault.getAddress());
 
   console.log("WSETH/ETH Oracle =", await oracle.getAddress());
   console.log("---------------------------------------------------------------------------");

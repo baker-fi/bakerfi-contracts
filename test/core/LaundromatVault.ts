@@ -38,7 +38,7 @@ describe.only("Vault", function () {
         // 6. Deploy wstETH/ETH Oracle       
         await deployWSETHToETHOracle(serviceRegistry);
         const levarage = await deployLeverageLibrary();        
-        const AAVEv3Strategy = await deployAAVEv3Strategy(serviceRegistryAddress, await levarage.getAddress() );               
+        const AAVEv3Strategy = await deployAAVEv3Strategy(owner.address,serviceRegistryAddress, await levarage.getAddress() );               
         const vault = await deployVault(owner.address, serviceRegistryAddress, await AAVEv3Strategy.getAddress() );
 
 

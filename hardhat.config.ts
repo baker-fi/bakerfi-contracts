@@ -93,7 +93,7 @@ const config: HardhatUserConfig = {
             enabled: true,
             runs: 200,
           },
-          viaIR: true,
+
         },
       },
       {
@@ -103,7 +103,7 @@ const config: HardhatUserConfig = {
             enabled: true,
             runs: 200,
           },
-          viaIR: true,
+
         },
       },
     ],
