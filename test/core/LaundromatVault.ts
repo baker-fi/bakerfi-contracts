@@ -143,7 +143,7 @@ describe.only("Vault", function () {
   });
 
 
-  it.only("Test Withdraw Event", async function () {    
+  it("Test Withdraw Event", async function () {    
     
     const { owner, vault } = await loadFixture(deployFunction);
     const depositAmount = ethers.parseUnits("10", 18);
@@ -160,5 +160,38 @@ describe.only("Vault", function () {
         ethers.parseUnits("5", 18), 
     );
   })
+
+
+  it("Test Zero Deposit", async function () {    
+    const { owner, vault } = await loadFixture(deployFunction);
+    
+    await expect(vault.deposit(owner.address, {
+      value: ethers.parseUnits("0", 18),
+    }))
+    .to.be.revertedWith("Invalid Amount to be deposit");
+  });
+
+
+  it("Withdraw overbalance", async function () {    
+    const { owner, vault } = await loadFixture(deployFunction);
+
+    await vault.deposit(owner.address, {
+      value: ethers.parseUnits("10", 18),
+    });
+    
+    await expect(
+      vault.withdraw(ethers.parseUnits("20", 18),owner.address)
+    ).to.be.revertedWith("No Enough balance to withdraw");
+  });
+
+  it.only("Transfer Shares ", async function () { 
+    const { owner, vault, otherAccount } = await loadFixture(deployFunction);
+    await vault.deposit(owner.address, {
+      value: ethers.parseUnits("10", 18),
+    });
+    
+    expect(vault.transfer(1000, otherAccount.address)).
+      to.changeTokenBalances(vault, [owner.address, otherAccount.address], [-1000, 1000]);;
+  });
 
 });

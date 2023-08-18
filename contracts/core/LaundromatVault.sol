@@ -60,7 +60,7 @@ contract LaundromatVault is Ownable, Pausable, ERC20Permit  {
     receive() external payable {}
 
     function deposit(address receiver) external payable returns (uint256 shares) {
-        require(msg.value != 0, "No Zero deposit Allower");
+        require(msg.value > 0, "Invalid Amount to be deposit");
         Rebase memory total = Rebase(totalPosition(), totalSupply());     
         uint256 amount = _strategy.deploy{value: msg.value}();
         shares = total.toBase(amount, false);
