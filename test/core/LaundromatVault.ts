@@ -91,7 +91,7 @@ describe.only("Vault", function () {
     expect(await vault.loanToValue()).to.equal(0);
   });
 
-  it.only("Test Deposit Event", async function () {
+  it("Test Deposit Event", async function () {
     const { owner, vault } = await loadFixture(deployFunction);
     const depositAmount = ethers.parseUnits("10", 18);
     await expect(vault.deposit(owner.address, { value: depositAmount,}))
@@ -145,7 +145,7 @@ describe.only("Vault", function () {
   });
 
 
-  it.only("Test Withdraw Event", async function () {    
+  it("Test Withdraw Event", async function () {    
     
     const { owner, vault } = await loadFixture(deployFunction);
     const depositAmount = ethers.parseUnits("10", 18);

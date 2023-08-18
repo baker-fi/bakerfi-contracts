@@ -44,7 +44,7 @@ contract AAVEv3Strategy is
     event StrategyProfit(uint256 amount);
     event StrategyLoss(uint256 amount);
 
-    uint256 private LOAN_TO_VALUE = 80000;
+    uint256 private LOAN_TO_VALUE = 800*1e6;
 
     struct FlashLoanData {
         uint256 originalAmount;
@@ -62,8 +62,7 @@ contract AAVEv3Strategy is
 
     constructor(
         address owner, 
-        ServiceRegistry registry
-        
+        ServiceRegistry registry        
     )   Ownable()
         UseServiceRegistry(registry)
         UseWETH(registry)
@@ -219,8 +218,6 @@ contract AAVEv3Strategy is
             emit StrategyProfit(uint256(-balanceChange));
         }        
     }
-
-
 
     function _unwrapWETH(uint256 wETHAmount) internal {
         IERC20(wETHA()).safeApprove(wETHA(), wETHAmount);
