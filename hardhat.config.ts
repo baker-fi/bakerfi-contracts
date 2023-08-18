@@ -1,11 +1,16 @@
-import { HardhatUserConfig } from "hardhat/config";
+
 
 import "@nomicfoundation/hardhat-toolbox";
 import "hardhat-contract-sizer";
 import "solidity-coverage";
 import "@nomiclabs/hardhat-solhint";
 import "hardhat-gas-reporter";
+import '@typechain/hardhat'
+import '@nomicfoundation/hardhat-ethers'
+import '@nomicfoundation/hardhat-ethers'
+import '@nomicfoundation/hardhat-chai-matchers'
 
+import { HardhatUserConfig } from "hardhat/config";
 import { STAGING_ACCOUNTS_PKEYS} from "./constants/test-accounts";
 import {HardhatNetworkAccountUserConfig} from "hardhat/types/config";
 
@@ -17,6 +22,12 @@ const config: HardhatUserConfig = {
     enabled: process.env.REPORT_GAS === "true",
   },  
   defaultNetwork: "hardhat",
+  typechain: {
+    outDir: 'src',
+    target: 'ethers-v6',
+    alwaysGenerateOverloads: false, // should overloads with full signatures like deposit(uint256) be generated always, even if there are no overloads?
+    dontOverrideCompile: false // defaults to false
+  },
   networks: {
     hardhat: {
       accounts: devAccounts,
