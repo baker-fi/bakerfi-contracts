@@ -16,13 +16,15 @@
       "@interfaces/*": ["./src/interfaces/*"],      
     },   
   },
+  "include": [
+    "src"
+  ],
   "exclude": [
     "scripts",
     "sdk",
     "node_modules",
     "dist",
     "test",
-    "hardhat.config.ts",
-    "typechain-types",  
+    "hardhat.config.ts"
   ],
 }
