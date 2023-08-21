@@ -98,7 +98,53 @@ describe.only("AAVEv3Strategy", function () {
   
   });
 
- 
+
+  it.only("Test Profit", async function () {
+    const { owner, strategy, aave3Pool } = await loadFixture(deployFunction);
+    // Deploy 10 ETH
+    await strategy.deploy({
+        value: ethers.parseUnits("10", 18)
+    })
+    // Increment the Collateral value by 10%
+    await aave3Pool.setCollateralPerEth(
+        1130*(1e6)*1.1
+    );
+
+    expect(strategy.harvest()).to
+    .emit(strategy, "StrategyProfit")
+    .withArgs(
+        4969613303000000000n,   
+    ); 
+    expect(await strategy.getPosition()).to.deep.equal([ 
+        50221238395547648000n, 
+        35740737736704000000n
+    ]);
+    expect(await strategy.totalAssets()).to.equal(
+        14480500658843648000n
+    );
+  })
+
+
+  it.only("Test Loss", async function () {
+    const { owner, strategy, aave3Pool } = await loadFixture(deployFunction);   
+     // Deploy 10 ETH
+     await strategy.deploy({
+        value: ethers.parseUnits("10", 18)
+    })
+     // Increment the Collateral value by 10%
+     await aave3Pool.setCollateralPerEth(
+        1130*(1e6)*0.9
+    );
+    await strategy.harvest();
+
+    expect(await strategy.getPosition()).to.deep.equal([ 
+      28181159237165875200n, 
+      22831792832058163201n
+    ]);
+    expect(await strategy.totalAssets()).to.equal(
+      5349366405107711999n
+    );
+  })
 
 
 });

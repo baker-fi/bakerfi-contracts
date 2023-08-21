@@ -15,7 +15,7 @@ import {
   deployAAVEv3Strategy,
 } from "../../scripts/common";
 
-describe.only("Vault", function () {
+describe("Vault", function () {
   async function deployFunction() {
     const [owner, otherAccount] = await ethers.getSigners();
     const STETH_MAX_SUPPLY = ethers.parseUnits("1000000000", 18);
@@ -54,7 +54,7 @@ describe.only("Vault", function () {
     // 6. Deploy wstETH/ETH Oracle
     await deployWSETHToETHOracle(serviceRegistry);
     const levarage = await deployLeverageLibrary();
-    const AAVEv3Strategy = await deployAAVEv3Strategy(
+    const strategy = await deployAAVEv3Strategy(
       owner.address,
       serviceRegistryAddress,
       await levarage.getAddress()
@@ -62,9 +62,10 @@ describe.only("Vault", function () {
     const vault = await deployVault(
       owner.address,
       serviceRegistryAddress,
-      await AAVEv3Strategy.getAddress()
+      await strategy.getAddress()
     );
-
+    
+    await strategy.transferOwnership(await vault.getAddress());
     return {
       stETH,
       weth,

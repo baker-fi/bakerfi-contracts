@@ -27,6 +27,7 @@ import {
     UseOracle, 
     UseSwapper
 } from "./Hooks.sol";
+import "hardhat/console.sol";
 
 contract AAVEv3Strategy is
     Ownable,
@@ -57,8 +58,9 @@ contract AAVEv3Strategy is
     using Leverage for uint256;
     using SafeMath for uint256;
 
+
     uint256 internal _pendingAmount = 0;
-    uint256 internal _deployedAmount = 0;
+    uint256 private _deployedAmount = 0;
 
     constructor(
         address owner, 
@@ -99,7 +101,7 @@ contract AAVEv3Strategy is
     /**
      * Deploy new Capital on the pool making it productive on the Lido 
      */
-    function deploy() external payable returns (uint256 deployedAmount) {
+    function deploy() external payable onlyOwner returns (uint256 deployedAmount) {
         require(msg.value != 0, "No Zero deposit Allower");
         // 1. Wrap Ethereum
         wETH().deposit{value: msg.value}();
@@ -120,6 +122,7 @@ contract AAVEv3Strategy is
             "Failed to run Flash Loan"
         );
         deployedAmount = _pendingAmount;
+        _deployedAmount = _deployedAmount.add(deployedAmount);
         _pendingAmount = 0;
     }
 
@@ -190,33 +193,58 @@ contract AAVEv3Strategy is
     function undeploy(
         uint256 amount,
         address payable receiver
-    ) external returns (uint256 undeployedAmount) {
+    ) external onlyOwner returns (uint256 undeployedAmount) {
         undeployedAmount = _undeploy(amount,receiver);
+    }
+
+
+    function _adjustDebt(uint256 totalCollateralBaseInEth , uint256 totalDebtBaseInEth ) internal returns(uint256 deltaDebt) {
+        uint256 numerator = totalDebtBaseInEth - (LOAN_TO_VALUE.mul(totalCollateralBaseInEth).div(PERCENTAGE_PRECISION));
+        uint256 divisor = (PERCENTAGE_PRECISION-LOAN_TO_VALUE);        
+        deltaDebt = numerator.mul(PERCENTAGE_PRECISION).div(divisor);      
+        uint256 wstETHPaidInDebt = _convertETHInWSt(deltaDebt);
+        DataTypes.ReserveData memory reserve = aaveV3().getReserveData(wETHA());
+        IERC20(reserve.aTokenAddress).safeApprove(aaveV3A(), wstETHPaidInDebt);
+        aaveV3().repayWithATokens(wstETHA(), wstETHPaidInDebt, 2);  
     }
 
     /**
      * Harvest a profit when there is a difference between the amount the strategy
      * predicts that is deployed and the real value
      */
-    function harvest() external override returns(int256 balanceChange){
-        
+    function harvest() external override returns( int256 balanceChange){
         (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition();
-        balanceChange = int256(
-            int256(totalCollateralBaseInEth) - 
-            int256(totalDebtBaseInEth) - 
-            int256(_deployedAmount));
+        uint256 ltv = 0;
+        uint256 deltaDebt = 0;
         
-        if (balanceChange == 0 ) {
+        if( totalDebtBaseInEth > 0 ) {
+            ltv = totalDebtBaseInEth.mul(PERCENTAGE_PRECISION).div(totalCollateralBaseInEth);
+            if (ltv > LOAN_TO_VALUE && ltv < PERCENTAGE_PRECISION) {
+                // Pay Debt to rebalance the position
+                deltaDebt = _adjustDebt(totalCollateralBaseInEth, totalDebtBaseInEth);
+            }
+        }
+
+        uint256 newDeployedAmount = (totalCollateralBaseInEth
+            .sub(deltaDebt))
+            .sub(totalDebtBaseInEth.sub(deltaDebt));
+
+        require(deltaDebt< totalCollateralBaseInEth, "Invalid DeltaDeb Calculated");
+
+        if (newDeployedAmount == _deployedAmount ) {
             return 0;
         }
-        
-        if (balanceChange > 0 ) {
-             _deployedAmount.add(uint256(balanceChange));
-            emit StrategyLoss(uint256(balanceChange));
-        } else if ( balanceChange < 0 ) {
-            _deployedAmount.sub(uint256(-balanceChange));
-            emit StrategyProfit(uint256(-balanceChange));
+   
+        if (newDeployedAmount > _deployedAmount ) {
+            uint256 profit = newDeployedAmount - _deployedAmount;
+            emit StrategyProfit(profit);
+            balanceChange = int256(profit);
+        } else if ( newDeployedAmount < _deployedAmount ) {
+            uint256 loss = _deployedAmount - newDeployedAmount;
+            emit StrategyLoss(loss);
+            balanceChange = -int256(loss);
         }        
+        _deployedAmount= newDeployedAmount;
     }
 
     function _unwrapWETH(uint256 wETHAmount) internal {
@@ -242,7 +270,7 @@ contract AAVEv3Strategy is
     }
 
 
-        /**
+    /**
      * Pay the debt on loan position and removes some deployed capital in order to 
      * pay back to the deployer 
      * 
@@ -328,6 +356,7 @@ contract AAVEv3Strategy is
         (bool success, ) = payable(receiver).call{value: wETHAmount}("");
         require(success, "Failed to Send ETH Back");
         undeployedAmount = wETHAmount;
+        _deployedAmount = _deployedAmount.sub(wETHAmount);
     }
 
     function _convertWstInETH(uint256 amountIn) public view returns (uint256 amountOut) {
