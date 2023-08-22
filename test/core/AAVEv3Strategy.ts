@@ -15,7 +15,7 @@ import {
   deployAAVEv3Strategy,
 } from "../../scripts/common";
 
-describe.only("AAVEv3Strategy", function () {
+describe("AAVEv3Strategy", function () {
   async function deployFunction() {
     const [owner, otherAccount] = await ethers.getSigners();
     const STETH_MAX_SUPPLY = ethers.parseUnits("1000000000", 18);
@@ -52,7 +52,7 @@ describe.only("AAVEv3Strategy", function () {
       AAVE_DEPOSIT
     );
     // 6. Deploy wstETH/ETH Oracle
-    await deployWSETHToETHOracle(serviceRegistry);
+    const oracle  = await deployWSETHToETHOracle(serviceRegistry);
     const levarage = await deployLeverageLibrary();
     const strategy = await deployAAVEv3Strategy(
       owner.address,
@@ -70,7 +70,8 @@ describe.only("AAVEv3Strategy", function () {
       aave3Pool,
       flashLender,
       wstETH,
-      strategy
+      strategy,
+      oracle
     };
   }
 
@@ -99,7 +100,7 @@ describe.only("AAVEv3Strategy", function () {
   });
 
 
-  it.only("Test Profit", async function () {
+  it("Test Profit", async function () {
     const { owner, strategy, aave3Pool } = await loadFixture(deployFunction);
     // Deploy 10 ETH
     await strategy.deploy({
@@ -125,21 +126,25 @@ describe.only("AAVEv3Strategy", function () {
   })
 
 
-  it.only("Test Loss", async function () {
-    const { owner, strategy, aave3Pool } = await loadFixture(deployFunction);   
+  it("Test Loss", async function () {
+    const { owner, oracle, strategy, aave3Pool } = await loadFixture(deployFunction);   
      // Deploy 10 ETH
      await strategy.deploy({
         value: ethers.parseUnits("10", 18)
     })
      // Increment the Collateral value by 10%
-     await aave3Pool.setCollateralPerEth(
+    await aave3Pool.setCollateralPerEth(
         1130*(1e6)*0.9
+    );
+
+    await oracle.setLatestPrice(
+      1130*(1e6)*0.9
     );
     await strategy.harvest();
 
     expect(await strategy.getPosition()).to.deep.equal([ 
-      28181159237165875200n, 
-      22831792832058163201n
+      26746832025538560000n, 
+      21397465620430848001n
     ]);
     expect(await strategy.totalAssets()).to.equal(
       5349366405107711999n

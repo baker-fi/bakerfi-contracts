@@ -7,7 +7,7 @@ import {IWStETH} from "../interfaces/lido/IWStETH.sol";
 contract WstETHToETHOracleMock is IOracle {
 
 
-    uint256 internal immutable _exchangeRate = 1130*(1e6);
+    uint256 internal _exchangeRate = 1130*(1e6);
     uint256 internal immutable PRICE_PRECISION = 1e9;
  
 
@@ -18,6 +18,10 @@ contract WstETHToETHOracleMock is IOracle {
     //  WSETH/ETH
     function getLatestPrice() external override view returns (uint256) {
        return _exchangeRate;
+    }
+
+    function setLatestPrice(uint256 exchangeRate ) external {
+        _exchangeRate = exchangeRate;
     }
 
 }
