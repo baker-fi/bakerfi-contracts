@@ -21,8 +21,8 @@ async function main() {
   console.log("---------------------------------------------------------------------------");
   console.log("💥 Laundromat Deploying ....");
   const STETH_MAX_SUPPLY = ethers.parseUnits("1000000000", 18);
-  const FLASH_LENDER_DEPOSIT = ethers.parseUnits("100", 18);
-  const AAVE_DEPOSIT = ethers.parseUnits("1000", 18);
+  const FLASH_LENDER_DEPOSIT = ethers.parseUnits("10000", 18);
+  const AAVE_DEPOSIT = ethers.parseUnits("10000", 18);
 
   const [owner] = await ethers.getSigners();
   // 1. Deploy the Service Registry
@@ -59,7 +59,7 @@ async function main() {
     const vault = await deployVault(
       owner.address, 
       await serviceRegistry.getAddress(),
-      await leverageLib.getAddress() 
+      await strategy.getAddress() 
     );
   console.log("Laundromat Vault =", await vault.getAddress() );  
   console.log("Laundromat Vault AAVEv3 Strategy =", await strategy.getAddress());
