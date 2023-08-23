@@ -1,0 +1,2 @@
+export interface OwnershipTransferredEvent { returnValues: {'previousOwner': string;'newOwner': string;} }
+export interface SwapEvent { returnValues: {'assetIn': string;'assetOut': string;'assetInAmount': number;'assetOutAmount': number;} }
