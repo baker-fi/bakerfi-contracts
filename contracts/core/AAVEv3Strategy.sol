@@ -27,7 +27,6 @@ import {
     UseOracle, 
     UseSwapper
 } from "./Hooks.sol";
-import "hardhat/console.sol";
 
 contract AAVEv3Strategy is
     Ownable,
@@ -42,8 +41,8 @@ contract AAVEv3Strategy is
     UseSwapper,
     UseFlashLender
 {
-    event StrategyProfit(uint256 amount);
-    event StrategyLoss(uint256 amount);
+    event StrategyProfit(uint256 amount, uint256 deployedAmount);
+    event StrategyLoss(uint256 amount, uint256 deployedAmount);
 
     uint256 private LOAN_TO_VALUE = 800*1e6;
 
@@ -106,7 +105,7 @@ contract AAVEv3Strategy is
         // 1. Wrap Ethereum
         wETH().deposit{value: msg.value}();
 
-        // 2. Initiate a Flash Loan
+        // 2. Initiate a WETH Flash Loan
         uint256 leverage = Leverage.calculateLeverageRatio(msg.value, LOAN_TO_VALUE, 10);
         uint256 loanAmount = leverage - msg.value;
         uint256 fee = flashLender().flashFee(wETHA(), loanAmount);
@@ -212,7 +211,7 @@ contract AAVEv3Strategy is
      * Harvest a profit when there is a difference between the amount the strategy
      * predicts that is deployed and the real value
      */
-    function harvest() external override returns( int256 balanceChange){
+    function harvest() external override onlyOwner returns( int256 balanceChange){
         (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition();
         uint256 ltv = 0;
         uint256 deltaDebt = 0;
@@ -237,11 +236,11 @@ contract AAVEv3Strategy is
    
         if (newDeployedAmount > _deployedAmount ) {
             uint256 profit = newDeployedAmount - _deployedAmount;
-            emit StrategyProfit(profit);
+            emit StrategyProfit(profit, newDeployedAmount);
             balanceChange = int256(profit);
         } else if ( newDeployedAmount < _deployedAmount ) {
             uint256 loss = _deployedAmount - newDeployedAmount;
-            emit StrategyLoss(loss);
+            emit StrategyLoss(loss, newDeployedAmount);
             balanceChange = -int256(loss);
         }        
         _deployedAmount= newDeployedAmount;

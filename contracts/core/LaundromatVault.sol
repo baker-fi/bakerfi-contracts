@@ -20,7 +20,6 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
  *
  * TODO:
  * - Harvest Function to collect fees from yield performance +-10%
- * - Balance Collateral/Debt to avoid AAVE liquidation
  * - Withdraw Fee 0.10%
  *
  * @title Landromat Vault smart contract
@@ -39,9 +38,15 @@ contract LaundromatVault is Ownable, Pausable, ERC20Permit  {
     ServiceRegistry public immutable _registry;
     IStrategy private immutable      _strategy;
     
-    event Deposit( address depositor, address receiver,   uint256 amount, uint256 shares);
+    event Deposit(address depositor, address receiver,   uint256 amount, uint256 shares);
     event Withdraw(address owner, uint256 amount, uint256 shares);
 
+    /**
+     * Deploy The Vaults 
+     * @param owner The owner of this contract that is able to change the settings
+     * @param registry The Contract Registry address 
+     * @param strategy  The Strategy applied on this vault
+     */
     constructor(
         address owner, 
         ServiceRegistry registry, 
@@ -55,14 +60,26 @@ contract LaundromatVault is Ownable, Pausable, ERC20Permit  {
         _strategy = strategy;
     }
 
-    function harvest() external  {
+    /**
+     * Function to rebalance the strategy and prevent a liquidation 
+     */
+    function rebalance() external  {
         if (totalPosition() > 0) {
             _strategy.harvest();
         }
     }
 
+    /**
+     * Function to receive ETH Payments from the strategy 
+     */
     receive() external payable {}
 
+    /**
+     * Deposit msg.value ETH and leverage the position on the strategy
+     * a number of shares are going to received by the receiver
+     * 
+     * @param receiver The account that receives the shares minted 
+     */
     function deposit(address receiver) external payable returns (uint256 shares) {
         require(msg.value > 0, "Invalid Amount to be deposit");
         Rebase memory total = Rebase(totalPosition(), totalSupply());     
@@ -71,7 +88,11 @@ contract LaundromatVault is Ownable, Pausable, ERC20Permit  {
         _mint(receiver, shares);
         emit Deposit(msg.sender, receiver, msg.value, shares);        
     }
-
+    /**
+     * Burn shares and receive the ETH unrolled to a receiver
+     * @param shares The amount of shares (mateETH) to be burned
+     * @param receiver The account that is going to receive the assets
+     */
     function withdraw(uint256 shares, address payable receiver) external returns (uint256 amount) {
         require(balanceOf(msg.sender) >= shares, "No Enough balance to withdraw");
         uint256 percentageToBurn = shares.mul(PERCENTAGE_PRECISION).div(totalSupply());
@@ -84,6 +105,9 @@ contract LaundromatVault is Ownable, Pausable, ERC20Permit  {
         emit Withdraw(msg.sender, amount, shares);
     }
 
+    /**
+     * Percentage of borrowed per value provided
+     */
     function loanToValue() public view returns(uint256 ltv) {
         (uint256 totalCollateralInEth, uint256 totalDebtInEth) = _strategy.getPosition();
         if(totalCollateralInEth == 0) {
@@ -92,30 +116,48 @@ contract LaundromatVault is Ownable, Pausable, ERC20Permit  {
             ltv = totalDebtInEth.mul(PERCENTAGE_PRECISION).div(totalCollateralInEth);
         }
     }
-
+    /**
+     * Total Amount of assets controlled by strategy 
+     */
     function totalCollateral() public view returns(uint256 totalCollateralInEth) {
         (totalCollateralInEth, ) = _strategy.getPosition();
-    }
-    
+    }   
+
+    /**
+     * Totaal of liabilities on the strategy
+     */
     function totalDebt() public view returns(uint256 totalDebtInEth) {
         (,totalDebtInEth ) = _strategy.getPosition();
-    }
-    
+    }   
+
+    /**
+     * Total Assets that belong to the Share Holders
+     */
     function totalPosition() public view returns(uint256 amount) {
         (uint256 totalCollateralInEth, uint256 totalDebtInEth) = _strategy.getPosition();
         amount = totalCollateralInEth - totalDebtInEth;
     }
 
+    /**
+     * Convert an Ammount of Assets to shares
+     * @param assets The amount of assets to convert
+     */
     function convertToShares(uint256 assets) external view returns (uint256 shares) {
         Rebase memory total = Rebase(totalPosition(), totalSupply());
         shares = total.toBase(assets, false);
     }
-
+    /**
+     * Convert a number of shares to the ETH value
+     * @param shares The amount of shares to be converted
+     */
     function convertToAssets(uint256 shares) external view returns (uint256 assets) {
         Rebase memory total = Rebase(totalPosition(), totalSupply());
         assets = total.toElastic(shares, false);
     }
 
+    /**
+     * The Value of a share per 1ETH 
+     */
     function tokenPerETh() public view returns (uint256) {
         uint256 position = totalPosition();
         if ( totalSupply() == 0 || position  == 0 ) {
