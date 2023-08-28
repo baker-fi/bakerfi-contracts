@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import {ServiceRegistry} from "./ServiceRegistry.sol";
-import {WETH_CONTRACT, WSTETH_ETH_ORACLE, AAVE_V3, FLASH_LENDER, SWAP_HANDLER, ST_ETH_CONTRACT, WST_ETH_CONTRACT} from "./Constants.sol";
+import {WETH_CONTRACT, SETTINGS, WSTETH_ETH_ORACLE, AAVE_V3, FLASH_LENDER, SWAP_HANDLER, ST_ETH_CONTRACT, WST_ETH_CONTRACT} from "./Constants.sol";
 import {IWETH} from "../interfaces/tokens/IWETH.sol";
 import {IServiceRegistry} from "../interfaces/core/IServiceRegistry.sol";
 import {IOracle} from "../interfaces/core/IOracle.sol";
@@ -11,7 +11,7 @@ import {IPoolV3} from "../interfaces/aave/v3/IPoolV3.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ISwapHandler} from "../interfaces/core/ISwapHandler.sol";
 import "@openzeppelin/contracts/interfaces/IERC3156FlashLender.sol";
-
+import {ISettings} from "../interfaces/core/ISettings.sol";
 
 abstract contract UseServiceRegistry {
     ServiceRegistry private immutable _registry;
@@ -38,6 +38,18 @@ abstract contract UseWETH {
 
     function wETHA() internal view returns (address) {
         return address(_wETH);
+    }
+}
+
+abstract contract UseSettings {
+    ISettings immutable _settings;
+
+    constructor(ServiceRegistry registry) {
+        _settings = ISettings(registry.getServiceFromHash(SETTINGS));
+    }
+
+    function settings() internal view returns (ISettings) {
+        return _settings;
     }
 }
 
@@ -116,7 +128,6 @@ abstract contract UseSwapper {
         return address(_swapper);
     }
 }
-
 
 abstract contract UseFlashLender {
     IERC3156FlashLender immutable _fLender;

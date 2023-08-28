@@ -49,7 +49,11 @@ export async function deployFlashLender(serviceRegistry, weth, depositedAmount) 
     return vault;
   }
 
-  export async function deployAAVEv3Strategy(owner: string, serviceRegistry: string, levarage: string) {
+  export async function deployAAVEv3Strategy(
+    owner: string, 
+    serviceRegistry: string, 
+    levarage: string,
+  ) {
     const AAVEv3Strategy = await ethers.getContractFactory("AAVEv3Strategy", {
         libraries: {
             Leverage: levarage,
@@ -138,4 +142,15 @@ export async function deployFlashLender(serviceRegistry, weth, depositedAmount) 
         await oracle.getAddress()
     );
     return oracle;
+  }
+
+  export  async function deploySettings(owner: string, serviceRegistry) {
+    const Settings = await ethers.getContractFactory("Settings");
+    const settings = await Settings.deploy(owner);
+    await settings.waitForDeployment();
+    await serviceRegistry.registerService(
+        ethers.keccak256(Buffer.from("Settings")),
+        await settings.getAddress()
+    );
+    return settings;
   }

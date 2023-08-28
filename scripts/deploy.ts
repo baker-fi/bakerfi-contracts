@@ -11,6 +11,7 @@ import {
   deployWSETHToETHOracle,
   deployWStEth,
   deployAAVEv3Strategy,
+  deploySettings,
 } from "./common";
 
 /**
@@ -42,6 +43,8 @@ async function main() {
   // 6. Deploy wstETH ERC-20
   const wstETH  = await deployWStEth(serviceRegistry, await stETH.getAddress());
   console.log("wstETH =", await wstETH.getAddress());
+  const settings  = await deploySettings(owner.address, serviceRegistry);
+  console.log("feeSettings =", await settings.getAddress());
   // 7. Deploy wETH/stETH Swapper
   const swapper  = await deploySwapper(weth, stETH, serviceRegistry, STETH_MAX_SUPPLY);
   console.log("Swap Router Mock =", await swapper.getAddress());

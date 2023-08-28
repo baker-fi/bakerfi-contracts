@@ -18,3 +18,4 @@ address constant ETH = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
 uint256 constant PERCENTAGE_PRECISION = 1e9;    
 bytes32 constant UNISWAP_ROUTER = keccak256(bytes("Uniswap Router"));
 bytes32 constant BALANCER_VAULT = keccak256(bytes("Balancer Vault"));
+bytes32 constant SETTINGS = keccak256(bytes("Settings"));
