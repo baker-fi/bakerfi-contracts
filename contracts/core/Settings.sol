@@ -15,8 +15,8 @@ import { ISettings } from "../interfaces/core/ISettings.sol";
 
 contract Settings is Ownable {
 
-    uint256 private _withdrawalFee = 1 * 1e6; // 1%
-    uint256 private _performanceFee = 10 * 1e6; // 10%
+    uint256 private _withdrawalFee = 10 * 1e6; // 1%
+    uint256 private _performanceFee = 10* 1e6; // 1%
     address private _feeReceiver = address(0);
     uint256 private _loanToValue =  800 * 1e6; // 80%
     // The mininum amount of profit to unroll the profit to ETH 

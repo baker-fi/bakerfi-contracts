@@ -12,7 +12,7 @@ import {IStrategy} from "../interfaces/core/IStrategy.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {PERCENTAGE_PRECISION} from "./Constants.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
-
+import {UseSettings} from "./Hooks.sol";
 /**
  * Landromat Vault
  * This pool allows the user the leverage their yield position and exposure the user to
@@ -26,7 +26,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
  * @author Helder Vasconcelos
  * @notice
  */
-contract LaundromatVault is Ownable, Pausable, ERC20Permit {
+contract LaundromatVault is Ownable, Pausable, ERC20Permit, UseSettings {
     using SafeMath for uint256;
     using RebaseLibrary for Rebase;
     using SafeERC20 for ERC20;
@@ -55,7 +55,7 @@ contract LaundromatVault is Ownable, Pausable, ERC20Permit {
         address owner,
         ServiceRegistry registry,
         IStrategy strategy
-    ) ERC20Permit(NAME) ERC20(NAME, SYMBOl) {
+    ) ERC20Permit(NAME) ERC20(NAME, SYMBOl) UseSettings(registry) {
         require(owner != address(0), "Invalid Owner Address");
         _transferOwnership(owner);
         _registry = registry;
@@ -63,11 +63,29 @@ contract LaundromatVault is Ownable, Pausable, ERC20Permit {
     }
 
     /**
-     * Function to rebalance the strategy and prevent a liquidation
+     * Function to rebalance the strategy, prevent a liquidation and pay fees
+     * to protocol by minting shares to the fee receiver
      */
-    function rebalance() external {
-        if (totalPosition() > 0) {
-            _strategy.harvest();
+    function rebalance() external returns (int256 balanceChange)  {
+        uint256 currentPos = totalPosition();
+        if (currentPos > 0) {
+            balanceChange = _strategy.harvest();
+            uint256 newPos = totalPosition();
+            if (balanceChange > 0) {
+                if (
+                    settings().getFeeReceiver() != address(this) &&
+                    settings().getPerformanceFee() > 0
+                ) {                 
+                    uint256 feeInEth = uint256(balanceChange)
+                        .mul(settings().getPerformanceFee())   
+                        .div(PERCENTAGE_PRECISION);                
+                    uint256 percToTreasury = feeInEth.mul(PERCENTAGE_PRECISION).div(newPos);
+                    uint256 sharesToMint = percToTreasury.mul(totalSupply()).div(
+                        PERCENTAGE_PRECISION
+                    );
+                    _mint(settings().getFeeReceiver(), sharesToMint);
+                }
+            }
         }
     }
 
@@ -100,8 +118,18 @@ contract LaundromatVault is Ownable, Pausable, ERC20Permit {
         require(balanceOf(msg.sender) >= shares, "No Enough balance to withdraw");
         uint256 percentageToBurn = shares.mul(PERCENTAGE_PRECISION).div(totalSupply());
         uint256 withdrawAmount = (totalPosition()).mul(percentageToBurn).div(PERCENTAGE_PRECISION);
-        amount = _strategy.undeploy(withdrawAmount, receiver);
-
+        amount = _strategy.undeploy(withdrawAmount, payable(this));
+        // Withdraw ETh to Receiver and pay withdrawal Fees
+        if (settings().getWithdrawalFee() != 0  && settings().getFeeReceiver() != address(0)) {
+            uint256 fee = amount.mul(settings().getWithdrawalFee()).div(PERCENTAGE_PRECISION);
+            (bool success, ) = payable(receiver).call{value: amount - fee}("");
+            require(success, "Failed to Send ETH To Receiver");
+            (bool successFee, ) = payable(settings().getFeeReceiver()).call{value: fee}("");
+            require(successFee, "Failed to Send ETH to Fee Receiver");
+        } else {
+            (bool success, ) = payable(receiver).call{value: amount}("");
+            require(success, "Failed to Send ETH Back");
+        }
         _burn(msg.sender, shares);
         emit Withdraw(msg.sender, amount, shares);
     }
@@ -170,7 +198,7 @@ contract LaundromatVault is Ownable, Pausable, ERC20Permit {
     }
 
     function setWithdrawalFee(uint256 fee) external onlyOwner {
-        require(fee <  PERCENTAGE_PRECISION);
+        require(fee < PERCENTAGE_PRECISION);
         _withdrawalFee = fee;
     }
 
@@ -179,14 +207,13 @@ contract LaundromatVault is Ownable, Pausable, ERC20Permit {
     }
 
     function setPerformanceFee(uint256 fee) external onlyOwner {
-        require(fee <  PERCENTAGE_PRECISION);
+        require(fee < PERCENTAGE_PRECISION);
         _performanceFee = fee;
     }
 
     function getPerformanceFee() external view returns (uint256) {
         return _performanceFee;
     }
-
 
     function setFeeReceiver(address receiver) external onlyOwner {
         require(receiver != address(0));
@@ -196,7 +223,4 @@ contract LaundromatVault is Ownable, Pausable, ERC20Permit {
     function getFeeReceiver() external view returns (address) {
         return _feeReceiver;
     }
-
-  
-    
 }

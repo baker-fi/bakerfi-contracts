@@ -25,8 +25,7 @@ import {
     UseAAVEv3, 
     UseServiceRegistry, 
     UseOracle, 
-    UseSwapper,
-    UseSettings
+    UseSwapper
 } from "./Hooks.sol";
 
 contract AAVEv3Strategy is
@@ -40,8 +39,7 @@ contract AAVEv3Strategy is
     UseAAVEv3,
     UseOracle,
     UseSwapper,
-    UseFlashLender,
-    UseSettings
+    UseFlashLender
 {
     event StrategyProfit(uint256 amount, uint256 deployedAmount);
     event StrategyLoss(uint256 amount, uint256 deployedAmount);
@@ -75,7 +73,6 @@ contract AAVEv3Strategy is
         UseOracle(WSTETH_ETH_ORACLE, registry)
         UseSwapper(registry)
         UseFlashLender(registry)
-        UseSettings(registry)
     {
         require(owner != address(0), "Invalid Owner Address");
         _transferOwnership(owner);
@@ -354,18 +351,9 @@ contract AAVEv3Strategy is
         uint256 wETHAmount = _swaptoken(stETHA(), wETHA(), stETHAmount);
         // 3. Unwrap wETH
         _unwrapWETH(wETHAmount);          
-        // 4. Withdraw ETh to User and pay withdrawal Fees
-        if(settings().getWithdrawalFee() != 0 && settings().getFeeReceiver() != address(0)) {
-            uint256 fee = wETHAmount.mul(PERCENTAGE_PRECISION).div(settings().getWithdrawalFee());
-            // 4. Withdraw ETh to User Wallet
-            (bool success, ) = payable(receiver).call{value: wETHAmount - fee}("");
-            require(success, "Failed to Send ETH To Receiver");
-            (bool successFee, ) = payable(settings().getFeeReceiver()).call{value: fee}("");                
-            require(successFee, "Failed to Send ETH to Fee Receiver");
-        } else {                     
-            (bool success, ) = payable(receiver).call{value: wETHAmount}("");
-            require(success, "Failed to Send ETH Back");
-        }      
+        // 4. Withdraw ETh to Receiver             
+        (bool success, ) = payable(receiver).call{value: wETHAmount}("");
+        require(success, "Failed to Send ETH Back");
         undeployedAmount = wETHAmount;
         _deployedAmount = _deployedAmount.sub(wETHAmount);
     }
