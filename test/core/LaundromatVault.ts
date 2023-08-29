@@ -13,11 +13,12 @@ import {
   deployWETH,
   deployLeverageLibrary,
   deployAAVEv3Strategy,
+  deploySettings,
 } from "../../scripts/common";
 
 describe("Vault", function () {
   async function deployFunction() {
-    const [owner, otherAccount] = await ethers.getSigners();
+    const [owner, otherAccount, anotherAccount] = await ethers.getSigners();
     const STETH_MAX_SUPPLY = ethers.parseUnits("1000000000", 18);
     const FLASH_LENDER_DEPOSIT = ethers.parseUnits("10000", 18);
     const AAVE_DEPOSIT = ethers.parseUnits("10000", 18);
@@ -44,6 +45,12 @@ describe("Vault", function () {
       serviceRegistry,
       STETH_MAX_SUPPLY
     );
+
+    const settings = await deploySettings(   
+      owner.address,
+      serviceRegistry,
+    );
+
     // 5. Deploy AAVEv3 Mock Pool
     const aave3Pool = await deployAaveV3(
       wstETH,
@@ -71,12 +78,14 @@ describe("Vault", function () {
       weth,
       owner,
       otherAccount,
+      anotherAccount,
       serviceRegistry,
       vault,
       swapper,
       aave3Pool,
       flashLender,
       wstETH,
+      settings,
     };
   }
 
@@ -199,5 +208,56 @@ describe("Vault", function () {
       to.changeTokenBalances(vault, [owner.address, otherAccount.address], [-1000, 1000]);;
   });
 
+
+  it("Verify profit on Rebalance", async function () { 
+
+    const { owner, vault, otherAccount, aave3Pool, settings} = await loadFixture(deployFunction);
+    await vault.deposit(owner.address, {
+      value: ethers.parseUnits("10", 18),
+    });
+
+    expect(await vault.totalPosition()).to.equal(9914933531975680000n);
+    expect(await vault.totalCollateral()).to.equal(45655671268679680000n);
+    expect(await vault.totalDebt()).to.equal(35740737736704000000n);
+    // =~1% Increase in Value 
+    await aave3Pool.setCollateralPerEth(
+      (1142)*(1e6)
+    );
+
+    expect(await vault.totalPosition()).to.equal(10399772518899712000n);
+    expect(await vault.totalCollateral()).to.equal(46140510255603712000n);
+    expect(await vault.totalDebt()).to.equal(35740737736704000000n);
+    await settings.setFeeReceiver(otherAccount.address);
+    await expect(vault.rebalance())
+        .to.emit(vault, "Transfer")
+        .withArgs(
+          "0x0000000000000000000000000000000000000000",
+          otherAccount.address, 
+          3969931088329518n
+        );
+    expect(await vault.balanceOf(otherAccount.address))
+      .to.equal(3969931088329518n);
+  });
+
+
+  it("Test Withdraw With Fees", async function () {
+    const { owner, vault, settings, otherAccount, anotherAccount} = await loadFixture(deployFunction);
+    
+    const provider = ethers.provider;
+    const depositAmount = ethers.parseUnits("10", 18);
+    
+    await settings.setFeeReceiver(otherAccount.address);    
+    expect(await settings.getFeeReceiver()).to.equal(otherAccount.address);
+    await vault
+      .deposit(owner.address, {
+        value: depositAmount,
+      });
+
+    await vault
+      .withdraw(ethers.parseUnits("1", 18), owner.address);
+  
+    expect(await provider.getBalance(otherAccount.address)).to.equal(1000000009939226460000000n);
+
+  });
 
 });
