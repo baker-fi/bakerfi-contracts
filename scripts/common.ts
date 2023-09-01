@@ -154,3 +154,52 @@ export async function deployFlashLender(serviceRegistry, weth, depositedAmount) 
     );
     return settings;
   }
+
+
+  export async function deployMockERC20(
+    name: string,
+    symbol: string,
+    cap: bigint,
+    owner: string
+  ) {
+    const ERC20 = await ethers.getContractFactory("ERC20Mock");     
+    const erc20 = await ERC20.deploy(
+      name,
+      symbol,
+      cap,
+      owner,
+    );       
+    await erc20.waitForDeployment();  
+    return erc20; 
+  }
+
+  export async function deployUniV3RouterMock(tokenAContract, supplyA, tokenBContract, supplyB, serviceRegistry: any) {
+    const UniRouter = await ethers.getContractFactory("UniV3RouterMock");     
+    const uniRouter = await UniRouter.deploy(
+      await tokenAContract.getAddress(),
+      await tokenBContract.getAddress(),
+    );       
+    await uniRouter.waitForDeployment();  
+    const uniRouterAddress =  await uniRouter.getAddress();
+    await serviceRegistry.registerService(
+      ethers.keccak256(Buffer.from("Uniswap Router")),
+      uniRouterAddress
+    );
+    await tokenAContract.transfer(uniRouterAddress, supplyA);
+    await tokenBContract.transfer(uniRouterAddress, supplyB);    
+    return uniRouter; 
+  }
+  
+
+  export async function deployUniSwapper(owner: string, serviceRegistry: any) {
+    
+    const UniV3Swapper = await ethers.getContractFactory("UniV3Swapper");
+    const swapper = await UniV3Swapper.deploy(
+      serviceRegistry,
+      owner
+    );
+    await swapper.waitForDeployment();
+       
+   
+    return swapper;
+  }
