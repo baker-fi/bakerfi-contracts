@@ -16,7 +16,7 @@ import {
   deploySettings,
 } from "../../scripts/common";
 
-describe("Vault", function () {
+describe("Laundromat Vault", function () {
   async function deployFunction() {
     const [owner, otherAccount, anotherAccount] = await ethers.getSigners();
     const STETH_MAX_SUPPLY = ethers.parseUnits("1000000000", 18);
