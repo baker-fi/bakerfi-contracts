@@ -41,6 +41,22 @@ abstract contract UseWETH {
     }
 }
 
+abstract contract UseIERC20 {
+    IERC20 immutable _ierc20;
+
+    constructor(ServiceRegistry registry, bytes32 name) {
+        _ierc20 = IERC20(registry.getServiceFromHash(name));
+    }
+
+    function ierc20() internal view returns (IERC20) {
+        return _ierc20;
+    }
+
+    function ierc20A() internal view returns (address) {
+        return address(_ierc20);
+    }
+}
+
 abstract contract UseSettings {
     ISettings immutable _settings;
 

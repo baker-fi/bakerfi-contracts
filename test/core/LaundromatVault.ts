@@ -12,7 +12,7 @@ import {
   deployWSETHToETHOracle,
   deployWETH,
   deployLeverageLibrary,
-  deployAAVEv3Strategy,
+  deployWstAAVEv3Strategy,
   deploySettings,
 } from "../../scripts/common";
 
@@ -61,7 +61,7 @@ describe("Laundromat Vault", function () {
     // 6. Deploy wstETH/ETH Oracle
     await deployWSETHToETHOracle(serviceRegistry);
     const levarage = await deployLeverageLibrary();
-    const strategy = await deployAAVEv3Strategy(
+    const strategy = await deployWstAAVEv3Strategy(
       owner.address,
       serviceRegistryAddress,
       await levarage.getAddress()
