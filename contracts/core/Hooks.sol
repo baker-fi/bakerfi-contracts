@@ -48,11 +48,11 @@ contract UseIERC20 {
         _ierc20 = IERC20(registry.getServiceFromHash(name));
     }
 
-    function i() external view returns (IERC20) {
+    function ierc20() internal view returns (IERC20) {
         return _ierc20;
     }
 
-    function a() external view returns (address) {
+    function ierc20A() internal view returns (address) {
         return address(_ierc20);
     }
 }

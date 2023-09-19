@@ -36,6 +36,7 @@ abstract contract AAVEv3Strategy is
     IERC3156FlashBorrower,
     UseServiceRegistry,
     UseWETH,
+    UseIERC20,
     UseAAVEv3,
     UseSwapper,
     UseFlashLender,
@@ -60,7 +61,6 @@ abstract contract AAVEv3Strategy is
 
     uint256     internal _pendingAmount = 0;
     uint256     private _deployedAmount = 0;
-    UseIERC20   private _collateral;
 
     constructor(
         address owner, 
@@ -72,11 +72,11 @@ abstract contract AAVEv3Strategy is
         UseAAVEv3(registry)
         UseSwapper(registry)
         UseFlashLender(registry)
+        UseIERC20(registry, collateralIERC20)
         IWETHAdapter()
     {
         require(owner != address(0), "Invalid Owner Address");
         _transferOwnership(owner);
-        _collateral = new UseIERC20(registry, collateralIERC20);
     }
 
     receive() external payable {}
@@ -143,12 +143,12 @@ abstract contract AAVEv3Strategy is
     ) external returns (bytes32) {
         require(initiator == address(this), "FlashBorrower: Untrusted loan initiator");
         require(token == wETHA(), "Invalid Flash Loan Asset");
-        require(_collateral.a() != address(0), "Invalid Output");
+        require(ierc20A() != address(0), "Invalid Output");
 
         FlashLoanData memory data = abi.decode(callData, (FlashLoanData));
         uint256 colAmount = _swapFromWETH(data.originalAmount + amount);
         // 3. Deposit Collateral and Borrow ETH
-        supplyAndBorrow(_collateral.a(), colAmount, wETHA(), amount + fee);
+        supplyAndBorrow(ierc20A(), colAmount, wETHA(), amount + fee);
         uint256 collateralInETH = _toWETH(colAmount);
         _pendingAmount = collateralInETH - amount + fee;
         return SUCCESS_MESSAGE;
@@ -203,7 +203,7 @@ abstract contract AAVEv3Strategy is
         uint256 colPaidInDebt = _fromWETH(deltaDebt);
         DataTypes.ReserveData memory reserve = aaveV3().getReserveData(wETHA());
         IERC20(reserve.aTokenAddress).safeApprove(aaveV3A(), colPaidInDebt);
-        aaveV3().repayWithATokens(_collateral.a(), colPaidInDebt, 2);  
+        aaveV3().repayWithATokens(ierc20A(), colPaidInDebt, 2);  
     }
 
     /**
@@ -282,13 +282,13 @@ abstract contract AAVEv3Strategy is
         DataTypes.ReserveData memory reserve = aaveV3().getReserveData(wETHA());
 
         IERC20(reserve.aTokenAddress).safeApprove(aaveV3A(), collateralPaid);
-        aaveV3().repayWithATokens(_collateral.a(), collateralPaid, 2);
+        aaveV3().repayWithATokens(ierc20A(), collateralPaid, 2);
         // 2. Withdraw from AAVE Pool
         uint256 deltaCollateral = (totalCollateralBaseInEth).mul(percentageToBurn).div(
             PERCENTAGE_PRECISION
         );
         deltaAssetInWSETH = _fromWETH(deltaCollateral) - collateralPaid;        
-        aaveV3().withdraw(_collateral.a(), deltaAssetInWSETH, address(this));
+        aaveV3().withdraw(ierc20A(), deltaAssetInWSETH, address(this));
     }
 
     function _swaptoken(
