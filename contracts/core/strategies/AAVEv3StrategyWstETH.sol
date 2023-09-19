@@ -15,7 +15,7 @@ import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
  * @author 
  * @notice 
  */
-contract WSTAAVEv3Strategy is AAVEv3Strategy, UseWstETH, UseStETH, UseOracle {
+contract AAVEv3StrategyWstETH is AAVEv3Strategy, UseWstETH, UseStETH, UseOracle {
     
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
@@ -36,6 +36,18 @@ contract WSTAAVEv3Strategy is AAVEv3Strategy, UseWstETH, UseStETH, UseOracle {
         // 2. Wrap stETH -> wstETH
         return _wrapStETH(stEThAmount);
     }
+
+     /*function _swapFromWETH(uint256 amount) internal returns ( uint256 wstETHAmount) {
+        // 1. Unwrap ETH to this account
+        wETH().withdraw(amount);
+        uint256 wStEthBalanceBefore = wstETH().balanceOf(address(this));
+        // 2. Stake and Wrap using the receive function
+        (bool sent, ) = payable(wstETHA()).call{value: amount}("");
+        require(sent, "Failed to send Ether");
+        uint256 wStEthBalanceAfter = wstETH().balanceOf(address(this));
+        // 2. Wrap stETH -> wstETH
+        wstETHAmount =  wStEthBalanceAfter.sub(wStEthBalanceBefore);
+    }*/
 
     function _swapToWETH(uint256 amount) internal virtual override returns (uint256) {
         // 1. Unwrap wstETH -> stETH

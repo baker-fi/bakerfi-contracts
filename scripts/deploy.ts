@@ -3,7 +3,7 @@ import {
   deployLeverageLibrary,
   deployServiceRegistry,
   deployVault,
-  deployWstAAVEv3Strategy,
+  deployAAVEv3StrategyWstETH,
   deploySettings,
   deployUniSwapper,
   deploCbETHToETHOracle,
@@ -83,7 +83,7 @@ async function main() {
   );
   console.log("cbETH/ETH Oracle =", await oracle.getAddress());
 
-  const strategy = await deployWstAAVEv3Strategy( 
+  const strategy = await deployAAVEv3StrategyWstETH( 
     deployer.address,
     await serviceRegistry.getAddress(), 
     await leverageLib.getAddress() 
