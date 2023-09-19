@@ -4,20 +4,21 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/interfaces/IERC3156FlashBorrower.sol";
 import "@openzeppelin/contracts/interfaces/IERC3156FlashLender.sol";
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import {ServiceRegistry} from "../core/ServiceRegistry.sol";
-import {IWETHAdapter} from "../interfaces/core/IWETHAdapter.sol";
+import {ServiceRegistry} from "../../core/ServiceRegistry.sol";
+import {IWETHAdapter} from "../../interfaces/core/IWETHAdapter.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {WETH_CONTRACT, PERCENTAGE_PRECISION, WSTETH_ETH_ORACLE, AAVE_V3, FLASH_LENDER, SWAP_HANDLER, ST_ETH_CONTRACT, WST_ETH_CONTRACT} from "./Constants.sol";
-import {Rebase, RebaseLibrary} from "../libraries/BoringRebase.sol";
-import {IWETH} from "../interfaces/tokens/IWETH.sol";
-import {IOracle} from "../interfaces/core/IOracle.sol";
-import {IWStETH} from "../interfaces/lido/IWStETH.sol";
-import {IPoolV3} from "../interfaces/aave/v3/IPoolV3.sol";
-import {ISwapHandler} from "../interfaces/core/ISwapHandler.sol";
-import "../interfaces/aave/v3/DataTypes.sol";
-import {IStrategy} from "../interfaces/core/IStrategy.sol";
-import {Leverage} from "../libraries/Leverage.sol";
+import {
+    WETH_CONTRACT, PERCENTAGE_PRECISION, WSTETH_ETH_ORACLE, AAVE_V3, FLASH_LENDER, SWAP_HANDLER, ST_ETH_CONTRACT, WST_ETH_CONTRACT} from "../Constants.sol";
+import {Rebase, RebaseLibrary} from "../../libraries/BoringRebase.sol";
+import {IWETH} from "../../interfaces/tokens/IWETH.sol";
+import {IOracle} from "../../interfaces/core/IOracle.sol";
+import {IWStETH} from "../../interfaces/lido/IWStETH.sol";
+import {IPoolV3} from "../../interfaces/aave/v3/IPoolV3.sol";
+import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
+import "../../interfaces/aave/v3/DataTypes.sol";
+import {IStrategy} from "../../interfaces/core/IStrategy.sol";
+import {Leverage} from "../../libraries/Leverage.sol";
 import { 
     UseWETH, 
     UseStETH, 
@@ -27,7 +28,7 @@ import {
     UseServiceRegistry, 
     UseSwapper,
     UseIERC20
-} from "./Hooks.sol";
+} from "../Hooks.sol";
 
 abstract contract AAVEv3Strategy is
     Ownable,
@@ -36,7 +37,6 @@ abstract contract AAVEv3Strategy is
     UseServiceRegistry,
     UseWETH,
     UseAAVEv3,
-    UseIERC20,
     UseSwapper,
     UseFlashLender,
     IWETHAdapter
@@ -58,9 +58,9 @@ abstract contract AAVEv3Strategy is
     using SafeMath for uint256;
 
 
-    uint256 internal _pendingAmount = 0;
-    uint256 private _deployedAmount = 0;
-    UseIERC20 private _collateral;
+    uint256     internal _pendingAmount = 0;
+    uint256     private _deployedAmount = 0;
+    UseIERC20   private _collateral;
 
     constructor(
         address owner, 
@@ -70,13 +70,13 @@ abstract contract AAVEv3Strategy is
         UseServiceRegistry(registry)
         UseWETH(registry)
         UseAAVEv3(registry)
-        UseIERC20(registry, collateralIERC20)
         UseSwapper(registry)
         UseFlashLender(registry)
         IWETHAdapter()
     {
         require(owner != address(0), "Invalid Owner Address");
         _transferOwnership(owner);
+        _collateral = new UseIERC20(registry, collateralIERC20);
     }
 
     receive() external payable {}
@@ -143,12 +143,12 @@ abstract contract AAVEv3Strategy is
     ) external returns (bytes32) {
         require(initiator == address(this), "FlashBorrower: Untrusted loan initiator");
         require(token == wETHA(), "Invalid Flash Loan Asset");
-        require(ierc20A() != address(0), "Invalid Output");
+        require(_collateral.a() != address(0), "Invalid Output");
 
         FlashLoanData memory data = abi.decode(callData, (FlashLoanData));
         uint256 colAmount = _swapFromWETH(data.originalAmount + amount);
         // 3. Deposit Collateral and Borrow ETH
-        supplyAndBorrow(ierc20A(), colAmount, wETHA(), amount + fee);
+        supplyAndBorrow(_collateral.a(), colAmount, wETHA(), amount + fee);
         uint256 collateralInETH = _toWETH(colAmount);
         _pendingAmount = collateralInETH - amount + fee;
         return SUCCESS_MESSAGE;
@@ -203,7 +203,7 @@ abstract contract AAVEv3Strategy is
         uint256 colPaidInDebt = _fromWETH(deltaDebt);
         DataTypes.ReserveData memory reserve = aaveV3().getReserveData(wETHA());
         IERC20(reserve.aTokenAddress).safeApprove(aaveV3A(), colPaidInDebt);
-        aaveV3().repayWithATokens(ierc20A(), colPaidInDebt, 2);  
+        aaveV3().repayWithATokens(_collateral.a(), colPaidInDebt, 2);  
     }
 
     /**
@@ -282,33 +282,14 @@ abstract contract AAVEv3Strategy is
         DataTypes.ReserveData memory reserve = aaveV3().getReserveData(wETHA());
 
         IERC20(reserve.aTokenAddress).safeApprove(aaveV3A(), collateralPaid);
-        aaveV3().repayWithATokens(ierc20A(), collateralPaid, 2);
+        aaveV3().repayWithATokens(_collateral.a(), collateralPaid, 2);
         // 2. Withdraw from AAVE Pool
         uint256 deltaCollateral = (totalCollateralBaseInEth).mul(percentageToBurn).div(
             PERCENTAGE_PRECISION
         );
         deltaAssetInWSETH = _fromWETH(deltaCollateral) - collateralPaid;        
-        aaveV3().withdraw(ierc20A(), deltaAssetInWSETH, address(this));
+        aaveV3().withdraw(_collateral.a(), deltaAssetInWSETH, address(this));
     }
-
-    /*function _converWETHinWSTETH(uint256 amount) internal returns ( uint256 wstETHAmount) {
-        // 1. Swap WETH -> stETH
-        uint256 stEThAmount = _swaptoken(wETHA(), stETHA(), amount);
-        // 2. Wrap stETH -> wstETH
-        wstETHAmount = _wrapStETH(stEThAmount);
-    }*/
-
-   /* function _converWETHinWSTETH_2(uint256 amount) internal returns ( uint256 wstETHAmount) {
-        // 1. Unwrap ETH to this account
-        wETH().withdraw(amount);
-        uint256 wStEthBalanceBefore = wstETH().balanceOf(address(this));
-        // 2. Stake and Wrap using the receive function
-        (bool sent, ) = payable(wstETHA()).call{value: amount}("");
-        require(sent, "Failed to send Ether");
-        uint256 wStEthBalanceAfter = wstETH().balanceOf(address(this));
-        // 2. Wrap stETH -> wstETH
-        wstETHAmount =  wStEthBalanceAfter.sub(wStEthBalanceBefore);
-    }*/
 
     function _swaptoken(
         address assetIn,
