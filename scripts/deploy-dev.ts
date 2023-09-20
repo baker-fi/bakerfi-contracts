@@ -8,7 +8,7 @@ import {
   deploySwapper,
   deployVault,
   deployWETH,
-  deployWSETHToETHOracle,
+  deployOracleMock,
   deployWStEth,
   deployAAVEv3StrategyWstETH,
   deploySettings,
@@ -52,7 +52,7 @@ async function main() {
   const aaveV3PoolMock = await deployAaveV3(wstETH, weth, serviceRegistry, AAVE_DEPOSIT); 
   console.log("AAVE v3 Mock =", await aaveV3PoolMock.getAddress());
   // 9. Deploy wstETH/ETH Oracle 
-  const oracle = await deployWSETHToETHOracle(serviceRegistry);
+  const oracle = await deployOracleMock(serviceRegistry, "wstETH/ETH Oracle");
   const strategy = await deployAAVEv3StrategyWstETH( 
     owner.address,
     await serviceRegistry.getAddress(), 

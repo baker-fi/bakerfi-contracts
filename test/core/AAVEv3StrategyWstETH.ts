@@ -9,7 +9,7 @@ import {
   deploySwapper,
   deployAaveV3,
   deployFlashLender,
-  deployWSETHToETHOracle,
+  deployOracleMock,
   deployWETH,
   deployLeverageLibrary,
   deployAAVEv3StrategyWstETH,
@@ -52,7 +52,7 @@ describe("AAVEv3StrategyWstETH", function () {
       AAVE_DEPOSIT
     );
     // 6. Deploy wstETH/ETH Oracle
-    const oracle  = await deployWSETHToETHOracle(serviceRegistry);
+    const oracle  = await deployOracleMock(serviceRegistry, "wstETH/ETH Oracle");
     const levarage = await deployLeverageLibrary();
     const strategy = await deployAAVEv3StrategyWstETH(
       owner.address,

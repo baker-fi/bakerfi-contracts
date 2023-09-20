@@ -65,6 +65,30 @@ export async function deployFlashLender(serviceRegistry, weth, depositedAmount) 
   }
   
   
+
+  export async function deployAAVEv3StrategyAny(
+    owner: string, 
+    serviceRegistry: string, 
+    levarage: string,
+    collateral: string,
+    oracle: string 
+  ) {
+    const AAVEv3Strategy = await ethers.getContractFactory("AAVEv3StrategyAny", {
+        libraries: {
+            Leverage: levarage,
+        }
+    });
+    const strategy = await AAVEv3Strategy.deploy(
+      owner, 
+      serviceRegistry,
+      ethers.keccak256(Buffer.from(collateral)),
+      ethers.keccak256(Buffer.from(oracle))
+    );        
+    await strategy.waitForDeployment();
+    return strategy;
+  }
+  
+  
   export async function deployStEth(serviceRegistry, owner, maxSupply) {
     const STETHMock = await ethers.getContractFactory("ERC20Mock");
   
@@ -84,6 +108,30 @@ export async function deployFlashLender(serviceRegistry, weth, depositedAmount) 
     await stETH.waitForDeployment();
     return stETH;
   }
+
+
+
+  export async function deployCbETH(serviceRegistry, owner, maxSupply) {
+    const CBETHMock = await ethers.getContractFactory("ERC20Mock");
+  
+    const CBETH_TOKEN_NAME = "Coinbase ETH";
+    const CBETH_TOKEN_SYMBOL = "cbETH";
+  
+    const cbETH = await CBETHMock.deploy(
+        CBETH_TOKEN_SYMBOL,
+        CBETH_TOKEN_NAME,
+        maxSupply,
+        owner
+    );
+    await serviceRegistry.registerService(
+        ethers.keccak256(Buffer.from("cbETH")),
+        await cbETH.getAddress()
+    );
+    await cbETH.waitForDeployment();
+    return cbETH;
+  }
+
+
   
   
   export async function deployWStEth(serviceRegistry, stETHAddress) {
@@ -133,12 +181,12 @@ export async function deployFlashLender(serviceRegistry, weth, depositedAmount) 
   }
   
   
-  export  async function deployWSETHToETHOracle(serviceRegistry) {
-    const WSETHToETH = await ethers.getContractFactory("WstETHToETHOracleMock");
+  export  async function deployOracleMock(serviceRegistry, name) {
+    const WSETHToETH = await ethers.getContractFactory("OracleMock");
     const oracle = await WSETHToETH.deploy();
     await oracle.waitForDeployment();
     await serviceRegistry.registerService(
-        ethers.keccak256(Buffer.from("wstETH/ETH Oracle")),
+        ethers.keccak256(Buffer.from(name)),
         await oracle.getAddress()
     );
     return oracle;
@@ -153,6 +201,20 @@ export async function deployFlashLender(serviceRegistry, weth, depositedAmount) 
     await oracle.waitForDeployment();
     await serviceRegistry.registerService(
         ethers.keccak256(Buffer.from("cbETH/ETH Oracle")),
+        await oracle.getAddress()
+    );
+    return oracle;
+  }
+
+  export  async function deploWSTETHToETHOracle(serviceRegistry, chainLinkAddress, wstETHAddress) {
+    const WSETHToETH = await ethers.getContractFactory("WstETHToETHOracle");
+    const oracle = await WSETHToETH.deploy(
+      chainLinkAddress,
+      wstETHAddress,
+    );
+    await oracle.waitForDeployment();
+    await serviceRegistry.registerService(
+        ethers.keccak256(Buffer.from("wstETH/ETH Oracle")),
         await oracle.getAddress()
     );
     return oracle;

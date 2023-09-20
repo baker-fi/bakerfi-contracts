@@ -9,10 +9,8 @@ contract SwapHandlerMock is ISwapHandler {
     
     IERC20 _asset0;
     IERC20 _asset1;
-
-    //
-    uint256 RATIO_PRECISION  = 100000;
-    uint256 RATIO = 100000;
+    uint256 RATIO_PRECISION  = 1e9;
+    uint256 private _ratio = 1e9;
 
     using SafeERC20 for IERC20;
 
@@ -22,6 +20,10 @@ contract SwapHandlerMock is ISwapHandler {
         ) {
         _asset0 = asset0;
         _asset1 = asset1;        
+    }
+
+    function setRatio(uint256 ratio ) external {
+        _ratio = ratio;
     }
 
     function executeSwap(
@@ -34,12 +36,12 @@ contract SwapHandlerMock is ISwapHandler {
 
         if (params.mode == 0) {
             IERC20(params.underlyingIn).safeTransferFrom(msg.sender, address(this), params.amountIn);
-            amountOut = params.amountIn * RATIO_PRECISION / RATIO;
+            amountOut = params.amountIn * RATIO_PRECISION / _ratio;
             require(IERC20(params.underlyingOut).balanceOf(address(this))>= amountOut);
             IERC20(params.underlyingOut).safeTransfer(msg.sender, amountOut);
         } else {
             require(IERC20(params.underlyingOut).balanceOf(address(this))>= params.amountOut);
-            uint256 amountIn = params.amountOut / (RATIO_PRECISION / RATIO);
+            uint256 amountIn = params.amountOut / (RATIO_PRECISION / _ratio);
             IERC20(params.underlyingIn).safeTransferFrom(msg.sender, address(this), amountIn);           
             IERC20(params.underlyingOut).safeTransfer(msg.sender, params.amountOut);
         }
