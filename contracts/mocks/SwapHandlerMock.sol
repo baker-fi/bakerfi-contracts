@@ -36,7 +36,11 @@ contract SwapHandlerMock is ISwapHandler {
 
         if (params.mode == 0) {
             IERC20(params.underlyingIn).safeTransferFrom(msg.sender, address(this), params.amountIn);
-            amountOut = params.amountIn * RATIO_PRECISION / _ratio;
+            if ( params.underlyingIn == address(_asset0)) {
+                amountOut = params.amountIn * RATIO_PRECISION / _ratio;
+            } else {
+                amountOut = params.amountIn * _ratio / RATIO_PRECISION  ;
+            }           
             require(IERC20(params.underlyingOut).balanceOf(address(this))>= amountOut);
             IERC20(params.underlyingOut).safeTransfer(msg.sender, amountOut);
         } else {

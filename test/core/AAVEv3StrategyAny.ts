@@ -40,17 +40,17 @@ describe("AAVEv3StrategyAny", function () {
     );
 
     await swapper.setRatio(1130*(1e6));
-
     // 4. Deploy AAVEv3 Mock Pool
     const aave3Pool = await deployAaveV3(
-      weth,
       cbETH,    
+      weth,    
       serviceRegistry,
       AAVE_DEPOSIT
     );
     // 5. Deploy cbETH/ETH Oracle
     const oracle  = await deployOracleMock(serviceRegistry, "cbETH/ETH Oracle");
     const levarage = await deployLeverageLibrary();
+
     const strategy = await deployAAVEv3StrategyAny(
       owner.address,
       serviceRegistryAddress,
@@ -98,7 +98,6 @@ describe("AAVEv3StrategyAny", function () {
      await strategy.deploy({
         value: ethers.parseUnits("10", 18)
     });
-
     expect(await strategy.getPosition()).to.deep.equal([ 
         45705032703999999999n, 
         35740737736704000000n
@@ -113,7 +112,7 @@ describe("AAVEv3StrategyAny", function () {
     );
 
     const provider = ethers.provider;
-    expect(await provider.getBalance(receiver)).to.equal(45705032703999999999n);
+    expect(await provider.getBalance(receiver)).to.equal(4999999992797565943n);
   })
 
 

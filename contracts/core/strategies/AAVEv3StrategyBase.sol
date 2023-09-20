@@ -144,13 +144,12 @@ abstract contract AAVEv3StrategyBase is
         require(initiator == address(this), "FlashBorrower: Untrusted loan initiator");
         require(token == wETHA(), "Invalid Flash Loan Asset");
         require(ierc20A() != address(0), "Invalid Output");
-
         FlashLoanData memory data = abi.decode(callData, (FlashLoanData));
         uint256 colAmount = _swapFromWETH(data.originalAmount + amount);
         // 3. Deposit Collateral and Borrow ETH
         supplyAndBorrow(ierc20A(), colAmount, wETHA(), amount + fee);
         uint256 collateralInETH = _toWETH(colAmount);
-        _pendingAmount = collateralInETH - amount + fee;
+        _pendingAmount = collateralInETH - amount + fee;       
         return SUCCESS_MESSAGE;
     }
 
@@ -272,19 +271,17 @@ abstract contract AAVEv3StrategyBase is
         uint256 percentageToBurn
     ) internal returns (uint256 returnedCollateral) {
         (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition();
-
         // 1. Pay Debt
         uint256 deltaDebt = (totalDebtBaseInEth).mul(percentageToBurn).div(PERCENTAGE_PRECISION);
         uint256 collateralPaid = _fromWETH(deltaDebt);
         DataTypes.ReserveData memory reserve = aaveV3().getReserveData(wETHA());
-
         IERC20(reserve.aTokenAddress).safeApprove(aaveV3A(), collateralPaid);
         aaveV3().repayWithATokens(ierc20A(), collateralPaid, 2);
         // 2. Withdraw from AAVE Pool
         uint256 deltaCollateral = (totalCollateralBaseInEth).mul(percentageToBurn).div(
             PERCENTAGE_PRECISION
         );
-        returnedCollateral = _fromWETH(deltaCollateral) - collateralPaid;        
+        returnedCollateral = _fromWETH(deltaCollateral) - collateralPaid;             
         aaveV3().withdraw(ierc20A(), returnedCollateral, address(this));
     }
 

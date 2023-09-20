@@ -147,11 +147,11 @@ export async function deployFlashLender(serviceRegistry, weth, depositedAmount) 
     return wstETH;
   }
   
-  export async function deploySwapper(weth, stETH, serviceRegistry, STETH_MAX_SUPPLY: bigint) {
+  export async function deploySwapper(weth, ierc20, serviceRegistry, maxSupply: bigint) {
     const SwapHandlerMock = await ethers.getContractFactory("SwapHandlerMock");
     const swapper = await SwapHandlerMock.deploy(
         await weth.getAddress(),
-        await stETH.getAddress()
+        await ierc20.getAddress()
     );
     await swapper.waitForDeployment();
     const swapperAddress = await swapper.getAddress();
@@ -159,7 +159,7 @@ export async function deployFlashLender(serviceRegistry, weth, depositedAmount) 
         ethers.keccak256(Buffer.from("SwapHandler")),
         swapperAddress
     );
-    await stETH.transfer(swapperAddress, STETH_MAX_SUPPLY);
+    await ierc20.transfer(swapperAddress, maxSupply); 
     return swapper;
   }
   
