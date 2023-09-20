@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import {ServiceRegistry} from "./ServiceRegistry.sol";
-import {WETH_CONTRACT, SETTINGS, WSTETH_ETH_ORACLE, AAVE_V3, FLASH_LENDER, SWAP_HANDLER, ST_ETH_CONTRACT, WST_ETH_CONTRACT} from "./Constants.sol";
+import {WETH_CONTRACT,PERCENTAGE_PRECISION, SETTINGS, WSTETH_ETH_ORACLE, AAVE_V3, FLASH_LENDER, SWAP_HANDLER, ST_ETH_CONTRACT, WST_ETH_CONTRACT} from "./Constants.sol";
 import {IWETH} from "../interfaces/tokens/IWETH.sol";
 import {IServiceRegistry} from "../interfaces/core/IServiceRegistry.sol";
 import {IOracle} from "../interfaces/core/IOracle.sol";
@@ -13,6 +13,8 @@ import {ISwapHandler} from "../interfaces/core/ISwapHandler.sol";
 import "@openzeppelin/contracts/interfaces/IERC3156FlashLender.sol";
 import {ISettings} from "../interfaces/core/ISettings.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "../interfaces/aave/v3/DataTypes.sol";
+import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 abstract contract UseServiceRegistry {
     ServiceRegistry private immutable _registry;
@@ -109,8 +111,12 @@ abstract contract UseWstETH {
 }
 
 abstract contract UseAAVEv3 {
-    IPoolV3 immutable _aavev3;
+    
+    using SafeERC20 for IERC20;
+    using SafeMath for uint256;
 
+    IPoolV3 immutable _aavev3;
+    
     constructor(ServiceRegistry registry) {
         _aavev3 = IPoolV3(registry.getServiceFromHash(AAVE_V3));
     }
@@ -133,6 +139,16 @@ abstract contract UseAAVEv3 {
         aaveV3().supply(assetIn, amountIn, address(this), 0);
         aaveV3().borrow(assetOut, borrowOut, 2, 0, address(this));
     }
+
+    function repayWithAToken(
+         address assetIn,
+         uint256 amount
+    ) internal {
+        DataTypes.ReserveData memory reserve = aaveV3().getReserveData(assetIn);
+        IERC20(reserve.aTokenAddress).safeApprove(aaveV3A(), amount);
+        aaveV3().repayWithATokens(assetIn, amount, 2);      
+    }
+
 }
 
 abstract contract UseOracle {
