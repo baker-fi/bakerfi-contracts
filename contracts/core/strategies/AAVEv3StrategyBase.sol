@@ -154,26 +154,6 @@ abstract contract AAVEv3StrategyBase is
     }
 
     /**
-     * Supply Capital to the AAVE protocol and make a loan based on the collateral  
-     * provided
-     * 
-     * @param assetIn The asset provided as collateral
-     * @param amountIn The amount provided as collateral
-     * @param assetOut The asset requested for the loan
-     * @param borrowOut The amount borrowd
-     */
-    function supplyAndBorrow(
-        address assetIn,
-        uint256 amountIn,
-        address assetOut,
-        uint256 borrowOut
-    ) private {
-        IERC20(assetIn).approve(aaveV3A(), amountIn);
-        aaveV3().supply(assetIn, amountIn, address(this), 0);
-        aaveV3().borrow(assetOut, borrowOut, 2, 0, address(this));
-    }
-
-    /**
      * Exit the full position and move the funds to the owner 
      */
     function exit() external override onlyOwner returns(uint256 undeployedAmount) {
@@ -193,7 +173,6 @@ abstract contract AAVEv3StrategyBase is
     ) external onlyOwner returns (uint256 undeployedAmount) {
         undeployedAmount = _undeploy(amount,receiver);
     }
-
 
     function _adjustDebt(uint256 totalCollateralBaseInEth , uint256 totalDebtBaseInEth ) internal returns(uint256 deltaDebt) {
         uint256 numerator = totalDebtBaseInEth - (LOAN_TO_VALUE.mul(totalCollateralBaseInEth).div(PERCENTAGE_PRECISION));
@@ -285,22 +264,6 @@ abstract contract AAVEv3StrategyBase is
         aaveV3().withdraw(ierc20A(), returnedCollateral, address(this));
     }
 
-    function _swaptoken(
-        address assetIn,
-        address assetOut,
-        uint256 amountIn
-    ) internal returns (uint256 amountOut) {
-        IERC20(assetIn).approve(swapperA(), amountIn);
-        ISwapHandler.SwapParams memory params = ISwapHandler.SwapParams(
-            assetIn,
-            assetOut,
-            0,
-            amountIn,
-            0,
-            bytes("")
-        );
-        amountOut = swapper().executeSwap(params);
-    }
 
     /**
      * Undeploy an amount from the current position returning ETH to the 

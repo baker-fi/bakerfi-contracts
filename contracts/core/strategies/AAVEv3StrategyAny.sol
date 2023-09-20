@@ -34,12 +34,12 @@ contract AAVEv3StrategyAny is AAVEv3StrategyBase, UseOracle {
 
     function _swapFromWETH(uint256 amount) internal virtual override returns (uint256) {
         // 1. Swap WETH -> cbETH  
-        return _swaptoken(wETHA(), ierc20A(), amount);
+        return swaptoken(wETHA(), ierc20A(), amount);
     } 
 
     function _swapToWETH(uint256 amount) internal virtual override returns (uint256) {
         // 1.Swap cbETH -> WETH
-        return _swaptoken(ierc20A(), wETHA(), amount);
+        return swaptoken(ierc20A(), wETHA(), amount);
     }
 
     function _toWETH(uint256 amountIn) internal virtual override returns (uint256 amountOut) {

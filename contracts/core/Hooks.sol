@@ -122,6 +122,17 @@ abstract contract UseAAVEv3 {
     function aaveV3A() internal view returns (address) {
         return address(_aavev3);
     }
+
+    function supplyAndBorrow(
+        address assetIn,
+        uint256 amountIn,
+        address assetOut,
+        uint256 borrowOut
+    ) internal {
+        IERC20(assetIn).approve(aaveV3A(), amountIn);
+        aaveV3().supply(assetIn, amountIn, address(this), 0);
+        aaveV3().borrow(assetOut, borrowOut, 2, 0, address(this));
+    }
 }
 
 abstract contract UseOracle {
@@ -149,6 +160,23 @@ abstract contract UseSwapper {
 
     function swapperA() internal view returns (address) {
         return address(_swapper);
+    }
+
+    function swaptoken(
+        address assetIn,
+        address assetOut,
+        uint256 amountIn
+    ) internal returns (uint256 amountOut) {
+        IERC20(assetIn).approve(swapperA(), amountIn);
+        ISwapHandler.SwapParams memory params = ISwapHandler.SwapParams(
+            assetIn,
+            assetOut,
+            0,
+            amountIn,
+            0,
+            bytes("")
+        );
+        amountOut = swapper().executeSwap(params);
     }
 }
 

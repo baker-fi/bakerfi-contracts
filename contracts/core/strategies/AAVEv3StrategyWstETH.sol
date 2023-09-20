@@ -32,7 +32,7 @@ contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH, UseOra
 
     function _swapFromWETH(uint256 amount) internal virtual override returns (uint256) {
         // 1. Swap WETH -> stETH
-        uint256 stEThAmount = _swaptoken(wETHA(), stETHA(), amount);
+        uint256 stEThAmount = swaptoken(wETHA(), stETHA(), amount);
         // 2. Wrap stETH -> wstETH
         return _wrapStETH(stEThAmount);
     }
@@ -53,7 +53,7 @@ contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH, UseOra
         // 1. Unwrap wstETH -> stETH
         uint256 stETHAmount = _unwrapWstETH(amount);
         // 2. Swap stETH -> weth
-        return _swaptoken(stETHA(), wETHA(), stETHAmount);
+        return swaptoken(stETHA(), wETHA(), stETHAmount);
     }
 
     function _unwrapWstETH(uint256 deltaAssetInWSETH) internal returns (uint256 stETHAmount) {
