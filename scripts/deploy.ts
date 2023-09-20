@@ -1,78 +1,105 @@
-import { ethers } from "hardhat";
+import hre from "hardhat";
 import {
-  deployAaveV3,
-  deployFlashLender,
   deployLeverageLibrary,
   deployServiceRegistry,
-  deployStEth,
-  deploySwapper,
   deployVault,
-  deployWETH,
-  deployWSETHToETHOracle,
-  deployWStEth,
-  deployAAVEv3Strategy,
+  deployAAVEv3StrategyWstETH,
   deploySettings,
+  deployUniSwapper,
+  deploCbETHToETHOracle,
 } from "./common";
 
+import BaseConfig from "./config";
+
 /**
- * Deploy the Basic System for testing 
+ * Deploy the Basic System for testing
  */
 async function main() {
   // Max Staked ETH available
-  console.log("---------------------------------------------------------------------------");
+  console.log(
+    "---------------------------------------------------------------------------"
+  );
   console.log("💥 Laundromat Deploying ....");
-  const STETH_MAX_SUPPLY = ethers.parseUnits("1000000000", 18);
-  const FLASH_LENDER_DEPOSIT = ethers.parseUnits("10000", 18);
-  const AAVE_DEPOSIT = ethers.parseUnits("10000", 18);
 
-  const [owner] = await ethers.getSigners();
-  // 1. Deploy the Service Registry
-  const serviceRegistry = await deployServiceRegistry(owner.address);
+  const networkName = hre.network.name;
+  const chainId = hre.network.config.chainId;
+  console.log("Network name=", networkName);
+  console.log("Network chain id=", chainId);
+  const config = BaseConfig[networkName];
+
+  const [deployer] = await hre.ethers.getSigners();
+  const serviceRegistry = await deployServiceRegistry(deployer.address);
+
+  // 1. Deployed Service Registry
   console.log("Service Registry =", await serviceRegistry.getAddress());
+
   // 2. Deploy the Leverage Library
   const leverageLib = await deployLeverageLibrary();
-  // 3. Deploy the WETH 
-  const weth = await deployWETH(serviceRegistry);
-  console.log("WETH =", await weth.getAddress());
-  // 4. Deploy the Vault attached to Leverage Lib
-  const flashLender = await deployFlashLender(serviceRegistry, weth, FLASH_LENDER_DEPOSIT);
-  console.log("FlashLender Mock =", await flashLender.getAddress());
-  // 5. Deploy stETH ERC-20
-  const stETH = await deployStEth(serviceRegistry, owner, STETH_MAX_SUPPLY);
-  console.log("stETH =", await stETH.getAddress());
-  // 6. Deploy wstETH ERC-20
-  const wstETH  = await deployWStEth(serviceRegistry, await stETH.getAddress());
-  console.log("wstETH =", await wstETH.getAddress());
-  const settings  = await deploySettings(owner.address, serviceRegistry);
-  console.log("feeSettings =", await settings.getAddress());
-  // 7. Deploy wETH/stETH Swapper
-  const swapper  = await deploySwapper(weth, stETH, serviceRegistry, STETH_MAX_SUPPLY);
-  console.log("Swap Router Mock =", await swapper.getAddress());
-  // 8. Deploy AAVE Mock Service
-  const aaveV3PoolMock = await deployAaveV3(wstETH, weth, serviceRegistry, AAVE_DEPOSIT); 
-  console.log("AAVE v3 Mock =", await aaveV3PoolMock.getAddress());
-  // 9. Deploy wstETH/ETH Oracle 
-  const oracle = await deployWSETHToETHOracle(serviceRegistry);
-  const strategy = await deployAAVEv3Strategy( 
-    owner.address,
+
+  // 3. Register WETH
+  await serviceRegistry.registerService(
+    hre.ethers.keccak256(Buffer.from("WETH")),
+    config.weth
+  );
+  console.log(`WETH =`, config.weth);
+
+  // 4. Deploy Settings
+  const settings = await deploySettings(deployer.address, serviceRegistry);
+  console.log("Settings  =", await settings.getAddress());
+
+  // 5. Register UniswapV3 Universal Router
+  await serviceRegistry.registerService(
+    hre.ethers.keccak256(Buffer.from("Uniswap Router")),
+    config.uniswapRouter
+  );
+  console.log("Uniswap V3 Router  =", config.uniswapRouter);
+
+  // 6. Deploy the Landromat Uniswap Router Adapter
+  const swapper = await deployUniSwapper(
+    deployer.address,
+    await serviceRegistry.getAddress()
+  );
+  console.log("Uniswap V3 Adapter =", await swapper.getAddress());
+
+  // 7. Register AAVE V3 Pool
+  await serviceRegistry.registerService(
+    hre.ethers.keccak256(Buffer.from("AAVE_V3")),
+    config.AAVEPool,
+  );
+  console.log("AAVE V3 Pool  =", config.AAVEPool);
+
+   // 7. Register CbETH Address
+   await serviceRegistry.registerService(
+    hre.ethers.keccak256(Buffer.from("cbETH")),
+    config.cbETH,
+  );
+  
+  console.log("CbETH =", config.cbETH);
+
+  // 7. cbETH/ETH Oracle 
+  const oracle = await deploCbETHToETHOracle(   
+    serviceRegistry,
+    config.OracleCbETHToETH
+  );
+  console.log("cbETH/ETH Oracle =", await oracle.getAddress());
+
+  const strategy = await deployAAVEv3StrategyWstETH( 
+    deployer.address,
     await serviceRegistry.getAddress(), 
     await leverageLib.getAddress() 
   );
+
+  console.log("AAVEv3Strategy =", await strategy.getAddress());
   // 10. Deploy the Vault attached to Leverage Lib
-    const vault = await deployVault(
-      owner.address, 
+  const vault = await deployVault(
+        deployer.address, 
       await serviceRegistry.getAddress(),
       await strategy.getAddress() 
-    );
-  console.log("Laundromat Vault =", await vault.getAddress() );  
-  console.log("Laundromat Vault AAVEv3 Strategy =", await strategy.getAddress());
-  await strategy.transferOwnership(await vault.getAddress());
-
-  console.log("WSETH/ETH Oracle =", await oracle.getAddress());
+  );
+  console.log("Vault =", await vault.getAddress());
   console.log("---------------------------------------------------------------------------");
   console.log("💥 Laundromat Deployment Done 👏");
 }
-
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.

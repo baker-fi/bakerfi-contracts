@@ -44,7 +44,7 @@ const config: HardhatUserConfig = {
       chainId: 1337,
       hardfork: 'shanghai',
       url: "http://localhost:8545",
-      accounts: STAGING_ACCOUNTS_PKEYS
+      accounts: STAGING_ACCOUNTS_PKEYS,      
     },
     mainnet: {
       url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
@@ -67,6 +67,12 @@ const config: HardhatUserConfig = {
       gasMultiplier: 2,
       accounts: STAGING_ACCOUNTS_PKEYS
     },
+    base_devnet: {
+      url: "https://rpc.vnet.tenderly.co/devnet/base-development/a101a8e3-80ea-4446-8f10-2135832be8e8",
+      chainId: 8453,
+      gasMultiplier: 2,
+      accounts: STAGING_ACCOUNTS_PKEYS
+    }
   },
   solidity: {
     compilers: [

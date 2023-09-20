@@ -9,10 +9,10 @@ import {
   deploySwapper,
   deployAaveV3,
   deployFlashLender,
-  deployWSETHToETHOracle,
+  deployOracleMock,
   deployWETH,
   deployLeverageLibrary,
-  deployAAVEv3Strategy,
+  deployAAVEv3StrategyWstETH,
   deploySettings,
 } from "../../scripts/common";
 
@@ -59,9 +59,9 @@ describe("Laundromat Vault", function () {
       AAVE_DEPOSIT
     );
     // 6. Deploy wstETH/ETH Oracle
-    await deployWSETHToETHOracle(serviceRegistry);
+    await deployOracleMock(serviceRegistry, "wstETH/ETH Oracle");
     const levarage = await deployLeverageLibrary();
-    const strategy = await deployAAVEv3Strategy(
+    const strategy = await deployAAVEv3StrategyWstETH(
       owner.address,
       serviceRegistryAddress,
       await levarage.getAddress()

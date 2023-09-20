@@ -13,6 +13,7 @@ import { PERCENTAGE_PRECISION } from "./Constants.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ISettings } from "../interfaces/core/ISettings.sol";
 
+
 contract Settings is Ownable {
 
     uint256 private _withdrawalFee = 10 * 1e6; // 1%

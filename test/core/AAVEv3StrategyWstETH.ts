@@ -9,13 +9,13 @@ import {
   deploySwapper,
   deployAaveV3,
   deployFlashLender,
-  deployWSETHToETHOracle,
+  deployOracleMock,
   deployWETH,
   deployLeverageLibrary,
-  deployAAVEv3Strategy,
+  deployAAVEv3StrategyWstETH,
 } from "../../scripts/common";
 
-describe("AAVEv3Strategy", function () {
+describe("AAVEv3StrategyWstETH", function () {
   async function deployFunction() {
     const [owner, otherAccount] = await ethers.getSigners();
     const STETH_MAX_SUPPLY = ethers.parseUnits("1000000000", 18);
@@ -52,9 +52,9 @@ describe("AAVEv3Strategy", function () {
       AAVE_DEPOSIT
     );
     // 6. Deploy wstETH/ETH Oracle
-    const oracle  = await deployWSETHToETHOracle(serviceRegistry);
+    const oracle  = await deployOracleMock(serviceRegistry, "wstETH/ETH Oracle");
     const levarage = await deployLeverageLibrary();
-    const strategy = await deployAAVEv3Strategy(
+    const strategy = await deployAAVEv3StrategyWstETH(
       owner.address,
       serviceRegistryAddress,
       await levarage.getAddress()
