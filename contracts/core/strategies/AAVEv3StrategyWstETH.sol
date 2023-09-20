@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import {AAVEv3Strategy} from "./AAVEv3Strategy.sol";
+import {AAVEv3StrategyBase} from "./AAVEv3StrategyBase.sol";
 import {WST_ETH_CONTRACT, WSTETH_ETH_ORACLE} from "../Constants.sol";
 import {ServiceRegistry} from "../../core/ServiceRegistry.sol";
 import {UseWETH, UseStETH, UseWstETH, UseServiceRegistry, UseOracle, UseIERC20} from "../Hooks.sol";
@@ -15,7 +15,7 @@ import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
  * @author 
  * @notice 
  */
-contract AAVEv3StrategyWstETH is AAVEv3Strategy, UseWstETH, UseStETH, UseOracle {
+contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH, UseOracle {
     
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
@@ -24,7 +24,7 @@ contract AAVEv3StrategyWstETH is AAVEv3Strategy, UseWstETH, UseStETH, UseOracle 
         address owner,
         ServiceRegistry registry
     )
-        AAVEv3Strategy(owner, registry, WST_ETH_CONTRACT)
+        AAVEv3StrategyBase(owner, registry, WST_ETH_CONTRACT)
         UseWstETH(registry)
         UseStETH(registry)
         UseOracle(WSTETH_ETH_ORACLE, registry)

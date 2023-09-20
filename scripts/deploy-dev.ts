@@ -10,7 +10,7 @@ import {
   deployWETH,
   deployWSETHToETHOracle,
   deployWStEth,
-  deployWstAAVEv3Strategy,
+  deployAAVEv3StrategyWstETH,
   deploySettings,
 } from "./common";
 
@@ -53,7 +53,7 @@ async function main() {
   console.log("AAVE v3 Mock =", await aaveV3PoolMock.getAddress());
   // 9. Deploy wstETH/ETH Oracle 
   const oracle = await deployWSETHToETHOracle(serviceRegistry);
-  const strategy = await deployWstAAVEv3Strategy( 
+  const strategy = await deployAAVEv3StrategyWstETH( 
     owner.address,
     await serviceRegistry.getAddress(), 
     await leverageLib.getAddress() 

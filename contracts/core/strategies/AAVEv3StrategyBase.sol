@@ -30,7 +30,7 @@ import {
     UseIERC20
 } from "../Hooks.sol";
 
-abstract contract AAVEv3Strategy is
+abstract contract AAVEv3StrategyBase is
     Ownable,
     IStrategy,
     IERC3156FlashBorrower,
@@ -245,10 +245,7 @@ abstract contract AAVEv3Strategy is
         _deployedAmount= newDeployedAmount;
     }
 
-    function _unwrapWETH(uint256 wETHAmount) internal {
-        IERC20(wETHA()).safeApprove(wETHA(), wETHAmount);
-        wETH().withdraw(wETHAmount);
-    }
+
 
 
     function _getPosition()
@@ -273,7 +270,7 @@ abstract contract AAVEv3Strategy is
      */
     function _payDebtAndWithdraw(
         uint256 percentageToBurn
-    ) internal returns (uint256 deltaAssetInWSETH) {
+    ) internal returns (uint256 returnedCollateral) {
         (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition();
 
         // 1. Pay Debt
@@ -287,8 +284,8 @@ abstract contract AAVEv3Strategy is
         uint256 deltaCollateral = (totalCollateralBaseInEth).mul(percentageToBurn).div(
             PERCENTAGE_PRECISION
         );
-        deltaAssetInWSETH = _fromWETH(deltaCollateral) - collateralPaid;        
-        aaveV3().withdraw(ierc20A(), deltaAssetInWSETH, address(this));
+        returnedCollateral = _fromWETH(deltaCollateral) - collateralPaid;        
+        aaveV3().withdraw(ierc20A(), returnedCollateral, address(this));
     }
 
     function _swaptoken(
@@ -320,10 +317,12 @@ abstract contract AAVEv3Strategy is
         address payable receiver
     ) private returns (uint256 undeployedAmount) {
         uint256 percentageToBurn = (amount).mul(PERCENTAGE_PRECISION).div(totalAssets());
-        uint256 deltaAssetInWSETH = _payDebtAndWithdraw(percentageToBurn);
-        uint256 wETHAmount = _swapToWETH(deltaAssetInWSETH);
+        // 1. Rebalance Collateral Balance and Debt and return Collateral 
+        uint256 returnedCollateral = _payDebtAndWithdraw(percentageToBurn);
+        // 2. Convert Collateral to WETH
+        uint256 wETHAmount = _swapToWETH(returnedCollateral);
         // 3. Unwrap wETH
-        _unwrapWETH(wETHAmount);          
+        unwrapWETH(wETHAmount);          
         // 4. Withdraw ETh to Receiver             
         (bool success, ) = payable(receiver).call{value: wETHAmount}("");
         require(success, "Failed to Send ETH Back");

@@ -12,6 +12,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ISwapHandler} from "../interfaces/core/ISwapHandler.sol";
 import "@openzeppelin/contracts/interfaces/IERC3156FlashLender.sol";
 import {ISettings} from "../interfaces/core/ISettings.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 abstract contract UseServiceRegistry {
     ServiceRegistry private immutable _registry;
@@ -27,6 +28,7 @@ abstract contract UseServiceRegistry {
 
 abstract contract UseWETH {
     IWETH immutable _wETH;
+    using SafeERC20 for IERC20;
 
     constructor(ServiceRegistry registry) {
         _wETH = IWETH(registry.getServiceFromHash(WETH_CONTRACT));
@@ -38,6 +40,11 @@ abstract contract UseWETH {
 
     function wETHA() internal view returns (address) {
         return address(_wETH);
+    }
+
+    function unwrapWETH(uint256 wETHAmount) internal {
+        IERC20(address(_wETH)).safeApprove(address(_wETH), wETHAmount);
+        wETH().withdraw(wETHAmount);
     }
 }
 
