@@ -96,9 +96,13 @@ abstract contract UseStETH {
 
 abstract contract UseWstETH {
     IWStETH immutable _wstETH;
+    IERC20 immutable _stETHToken;
+    
+    using SafeERC20 for IERC20;
 
     constructor(ServiceRegistry registry) {
         _wstETH = IWStETH(registry.getServiceFromHash(WST_ETH_CONTRACT));
+        _stETHToken = IERC20(registry.getServiceFromHash(ST_ETH_CONTRACT));
     }
 
     function wstETH() internal view returns (IWStETH) {
@@ -107,6 +111,16 @@ abstract contract UseWstETH {
 
     function wstETHA() internal view returns (address) {
         return address(_wstETH);
+    }
+
+    function unwrapWstETH(uint256 amount) internal returns (uint256 stETHAmount) {
+        IERC20(wstETHA()).safeApprove(wstETHA(), amount);
+        stETHAmount = wstETH().unwrap(amount);
+    }
+
+    function wrapWstETH(uint256 amount) internal returns (uint256 amountOut) {
+        _stETHToken.safeApprove(wstETHA(), amount);
+        amountOut = IWStETH(wstETHA()).wrap(amount);
     }
 }
 

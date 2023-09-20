@@ -44,20 +44,11 @@ contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH, UseOra
 
     function _swapToWETH(uint256 amount) internal virtual override returns (uint256) {
         // 1. Unwrap wstETH -> stETH
-        uint256 stETHAmount = _unwrapWstETH(amount);
+        uint256 stETHAmount = unwrapWstETH(amount);
         // 2. Swap stETH -> weth
         return swaptoken(stETHA(), wETHA(), stETHAmount);
     }
 
-    function _unwrapWstETH(uint256 deltaAssetInWSETH) internal returns (uint256 stETHAmount) {
-        IERC20(wstETHA()).safeApprove(wstETHA(), deltaAssetInWSETH);
-        stETHAmount = wstETH().unwrap(deltaAssetInWSETH);
-    }
-
-    function _wrapStETH(uint256 toWrap) internal returns (uint256 amountOut) {
-        stETH().safeApprove(wstETHA(), toWrap);
-        amountOut = IWStETH(wstETHA()).wrap(toWrap);
-    }
 
     function _toWETH(uint256 amountIn) internal virtual override returns (uint256 amountOut) {
         amountOut = amountIn.mul(oracle().getLatestPrice()).div(oracle().getPrecision());
