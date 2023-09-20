@@ -9,7 +9,6 @@ import {IWStETH} from "../interfaces/lido/IWStETH.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-
 contract WstETHMock is IWStETH, ERC20 { 
 
     IERC20 _stETH;

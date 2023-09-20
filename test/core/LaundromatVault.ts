@@ -19,7 +19,8 @@ import {
 describe("Laundromat Vault", function () {
   async function deployFunction() {
     const [owner, otherAccount, anotherAccount] = await ethers.getSigners();
-    const STETH_MAX_SUPPLY = ethers.parseUnits("1000000000", 18);
+    const STETH_MAX_SUPPLY = ethers.parseUnits("1000010000", 18);
+    const STETH_TO_WRAPPER = ethers.parseUnits("10000", 18);
     const FLASH_LENDER_DEPOSIT = ethers.parseUnits("10000", 18);
     const AAVE_DEPOSIT = ethers.parseUnits("10000", 18);
     const serviceRegistry = await deployServiceRegistry(owner.address);
@@ -38,19 +39,23 @@ describe("Laundromat Vault", function () {
       serviceRegistry,
       await stETH.getAddress()
     );
+    await stETH.transfer(await wstETH.getAddress(), STETH_TO_WRAPPER);
     // 4. Deploy WETH -> stETH Swapper
     const swapper = await deploySwapper(
       weth,
       stETH,
       serviceRegistry,
-      STETH_MAX_SUPPLY
+      ethers.parseUnits("1000000000", 18)
     );
 
     const settings = await deploySettings(   
       owner.address,
       serviceRegistry,
     );
-
+   // await stETH.transfer(await wstETH.getAddress(), STETH_TO_WRAPPER);
+        // Deposit some WETH on Swapper
+    await weth.deposit?.call("", { value: ethers.parseUnits("10000", 18) });
+    await weth.transfer( await swapper.getAddress(), ethers.parseUnits("10000", 18));
     // 5. Deploy AAVEv3 Mock Pool
     const aave3Pool = await deployAaveV3(
       wstETH,

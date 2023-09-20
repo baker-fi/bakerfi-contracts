@@ -30,14 +30,7 @@ contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH, UseOra
         UseOracle(WSTETH_ETH_ORACLE, registry)
     {}
 
-    function _swapFromWETH(uint256 amount) internal virtual override returns (uint256) {
-        // 1. Swap WETH -> stETH
-        uint256 stEThAmount = swaptoken(wETHA(), stETHA(), amount);
-        // 2. Wrap stETH -> wstETH
-        return _wrapStETH(stEThAmount);
-    }
-
-     /*function _swapFromWETH(uint256 amount) internal returns ( uint256 wstETHAmount) {
+    function _swapFromWETH(uint256 amount)  internal virtual override returns (uint256) {
         // 1. Unwrap ETH to this account
         wETH().withdraw(amount);
         uint256 wStEthBalanceBefore = wstETH().balanceOf(address(this));
@@ -46,8 +39,8 @@ contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH, UseOra
         require(sent, "Failed to send Ether");
         uint256 wStEthBalanceAfter = wstETH().balanceOf(address(this));
         // 2. Wrap stETH -> wstETH
-        wstETHAmount =  wStEthBalanceAfter.sub(wStEthBalanceBefore);
-    }*/
+        return wStEthBalanceAfter.sub(wStEthBalanceBefore);
+    }
 
     function _swapToWETH(uint256 amount) internal virtual override returns (uint256) {
         // 1. Unwrap wstETH -> stETH
@@ -74,3 +67,4 @@ contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH, UseOra
         amountOut = amountIn.mul(oracle().getPrecision()).div(oracle().getLatestPrice());
     }
 }
+
