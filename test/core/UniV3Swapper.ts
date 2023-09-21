@@ -48,7 +48,7 @@ describe("Laundromat Swapper", function () {
     // Deploy Swapper Adapter
     const swapper = await deployUniSwapper(
       await owner.getAddress(),
-      await serviceRegistry.getAddress(),
+      serviceRegistry,
     );
 
     await weth.transfer(otherAccount.address, ethers.parseUnits("1000", 18))

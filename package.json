@@ -52,7 +52,8 @@
     "@aave/core-v3": "^1.18.0",
     "@openzeppelin/contracts": "^4.9.2",
     "@sushiswap/bentobox-sdk": "^1.0.0-canary.13",
-    "@taikai/dappkit": "^2.3.1"
+    "@taikai/dappkit": "^2.3.1",
+    "commander": "^11.0.0"
   },
   "contractSizer": {
     "alphaSort": true,

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import {ServiceRegistry} from "./ServiceRegistry.sol";
-import {WETH_CONTRACT,PERCENTAGE_PRECISION, SETTINGS, WSTETH_ETH_ORACLE, AAVE_V3, FLASH_LENDER, SWAP_HANDLER, ST_ETH_CONTRACT, WST_ETH_CONTRACT} from "./Constants.sol";
+import {WETH_CONTRACT,PERCENTAGE_PRECISION,SWAPPER_HANDLER, SETTINGS, WSTETH_ETH_ORACLE, AAVE_V3, FLASH_LENDER, ST_ETH_CONTRACT, WST_ETH_CONTRACT} from "./Constants.sol";
 import {IWETH} from "../interfaces/tokens/IWETH.sol";
 import {IServiceRegistry} from "../interfaces/core/IServiceRegistry.sol";
 import {IOracle} from "../interfaces/core/IOracle.sol";
@@ -181,7 +181,7 @@ abstract contract UseSwapper {
     ISwapHandler immutable _swapper;
 
     constructor(ServiceRegistry registry) {
-        _swapper = ISwapHandler(registry.getServiceFromHash(SWAP_HANDLER));
+        _swapper = ISwapHandler(registry.getServiceFromHash(SWAPPER_HANDLER));
     }
 
     function swapper() internal view returns (ISwapHandler) {

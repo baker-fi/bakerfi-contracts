@@ -8,7 +8,7 @@ import {ServiceRegistry} from "../../core/ServiceRegistry.sol";
 import {IWETHAdapter} from "../../interfaces/core/IWETHAdapter.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {WETH_CONTRACT, PERCENTAGE_PRECISION, WSTETH_ETH_ORACLE, AAVE_V3, FLASH_LENDER, SWAP_HANDLER, ST_ETH_CONTRACT, WST_ETH_CONTRACT} from "../Constants.sol";
+import {WETH_CONTRACT, PERCENTAGE_PRECISION, WSTETH_ETH_ORACLE, AAVE_V3, FLASH_LENDER, ST_ETH_CONTRACT, WST_ETH_CONTRACT} from "../Constants.sol";
 import {Rebase, RebaseLibrary} from "../../libraries/BoringRebase.sol";
 import {IWETH} from "../../interfaces/tokens/IWETH.sol";
 import {IOracle} from "../../interfaces/core/IOracle.sol";

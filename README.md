@@ -105,6 +105,17 @@ Laundromat Vault AAVEv3 Strategy = 0xC5Dfa3ebaDD8cf122b2b086e3aC28492Da76a0eE
 WSETH/ETH Oracle = 0xE8F362bF1E066547113981FdaC7c1dDC6949a7Ac
 ```
 
+
+### Development CLI Commands 
+
+#### Get the Network Deployment Addresses 
+```
+#HARDHAT_NETWORK=base_devnet npx ts-node --files scripts/cli.ts  contracts <serviceRegistryAddress>
+HARDHAT_NETWORK=base_devnet npx ts-node --files scripts/cli.ts  contracts 0xE8A1e868E4736669b73B9E26BE22129bD6B4E83d
+```
+
+
+
 ### Interacting with Contracts
 You can interact with the deployed contracts using the Hardhat console. Start the console with the following command:
 

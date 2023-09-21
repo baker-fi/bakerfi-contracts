@@ -46,21 +46,21 @@ async function main() {
 
   // 4. Deploy Settings
   const settings = await deploySettings(deployer.address, serviceRegistry);
-  console.log("Settings  =", await settings.getAddress());
+  console.log("Settings =", await settings.getAddress());
 
   // 5. Register UniswapV3 Universal Router
   await serviceRegistry.registerService(
     hre.ethers.keccak256(Buffer.from("Uniswap Router")),
     config.uniswapRouter
   );
-  console.log("Uniswap V3 Router  =", config.uniswapRouter);
+  console.log("Uniswap V3 Router =", config.uniswapRouter);
 
   // 6. Deploy the Landromat Uniswap Router Adapter
   const swapper = await deployUniSwapper(
     deployer.address,
-    await serviceRegistry.getAddress()
+    serviceRegistry
   );
-  console.log("Uniswap V3 Adapter =", await swapper.getAddress());
+  console.log("Uniswap V3 Adapter = ", await swapper.getAddress());
 
   // 7. Register AAVE V3 Pool
   await serviceRegistry.registerService(
@@ -97,7 +97,7 @@ async function main() {
 async function deployFlashLendInfra(serviceRegistry, config: any) {
   await serviceRegistry.registerService(
     hre.ethers.keccak256(Buffer.from("Balancer Vault")),
-    config.weth
+    config.balancerVault
   );
   const flashLender = await deployBalancerFL(
     serviceRegistry
@@ -145,8 +145,6 @@ async function deployCollateralOracle(config: any, serviceRegistry) {
   console.log("Oracle =", await oracle.getAddress());
   return oracle;
 }
-
-
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.

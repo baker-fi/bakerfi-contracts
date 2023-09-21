@@ -156,7 +156,7 @@ export async function deployFlashLender(serviceRegistry, weth, depositedAmount) 
     await swapper.waitForDeployment();
     const swapperAddress = await swapper.getAddress();
     await serviceRegistry.registerService(
-        ethers.keccak256(Buffer.from("SwapHandler")),
+        ethers.keccak256(Buffer.from("Swapper Handler")),
         swapperAddress
     );
     await ierc20.transfer(swapperAddress, maxSupply); 
@@ -270,15 +270,16 @@ export async function deployFlashLender(serviceRegistry, weth, depositedAmount) 
   
 
   export async function deployUniSwapper(owner: string, serviceRegistry: any) {
-    
     const UniV3Swapper = await ethers.getContractFactory("UniV3Swapper");
     const swapper = await UniV3Swapper.deploy(
-      serviceRegistry,
+      await serviceRegistry.getAddress(),
       owner
     );
     await swapper.waitForDeployment();
-       
-   
+    await serviceRegistry.registerService(
+      ethers.keccak256(Buffer.from("Swapper Handler")),
+      await swapper.getAddress()
+    );
     return swapper;
   }
 
