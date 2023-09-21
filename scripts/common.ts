@@ -194,8 +194,8 @@ export async function deployFlashLender(serviceRegistry, weth, depositedAmount) 
 
 
   export  async function deploCbETHToETHOracle(serviceRegistry, chainLinkAddress) {
-    const WSETHToETH = await ethers.getContractFactory("cbETHToETHOracle");
-    const oracle = await WSETHToETH.deploy(
+    const oracleContract = await ethers.getContractFactory("cbETHToETHOracle");
+    const oracle = await oracleContract.deploy(
       chainLinkAddress
     );
     await oracle.waitForDeployment();

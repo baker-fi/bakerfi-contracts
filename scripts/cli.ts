@@ -12,7 +12,13 @@ async function main() {
         .command('contracts')
         .argument('<serviceRegistry>', 'Service Registry Contract Address')
         .description('Print the addresses of all the contracts')
-        .action(contracts);
+        .action(contracts)
+    
+    program.command('price')
+        .argument('<serviceRegistry>', 'Service Registry Contract Address')
+        .description('Get the price of the collateral in ETH')
+        .action(price);
+
     program.parse();    
     const networkName = hre.network.name;
     console.log("Network = ", networkName);    
@@ -38,8 +44,16 @@ async function contracts(registerAddress: any) {
         const address = await registry.getService(contractKey);
         console.log(`${contractKey} = ${address}`)
     }
-
 }
+
+async function price(registerAddress: any) {
+    const registry = await hre.ethers.getContractAt("ServiceRegistry",  registerAddress);
+    const oracleAddress = await registry.getService("cbETH/ETH Oracle");
+    console.log("bETH/ETH Oracle =", oracleAddress);
+    const oracle = await hre.ethers.getContractAt("cbETHToETHOracle",  oracleAddress);
+    console.log("cbETH/ETH =", await oracle.getLatestPrice());
+}
+
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.

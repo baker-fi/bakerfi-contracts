@@ -6,7 +6,7 @@ export default {
         cbETH: "0x2ae3f1ec7f1f5012cfeab0185bfc7aa3cf0dec22", // Validated
         oracle: {
             type: "cbETH",
-            chainLink: "0xf017fcb346a1885194689ba23eff2fe6fa5c483b",
+            chainLink: "0x806b4ac04501c29769051e42783cf04dce41440b",
         },
         strategy: "base",        
         AAVEPool: "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5", // Validated       
