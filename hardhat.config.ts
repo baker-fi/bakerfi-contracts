@@ -68,7 +68,7 @@ const config: HardhatUserConfig = {
       accounts: STAGING_ACCOUNTS_PKEYS
     },
     base_devnet: {
-      url: "https://rpc.vnet.tenderly.co/devnet/base-development/a101a8e3-80ea-4446-8f10-2135832be8e8",
+      url: "https://rpc.vnet.tenderly.co/devnet/base-development/ae405a11-7e30-4e3a-88a7-2594bda94299",
       chainId: 8453,
       gasMultiplier: 2,
       accounts: STAGING_ACCOUNTS_PKEYS

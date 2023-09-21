@@ -18,7 +18,7 @@ import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
 import "../../interfaces/aave/v3/DataTypes.sol";
 import {IStrategy} from "../../interfaces/core/IStrategy.sol";
 import {Leverage} from "../../libraries/Leverage.sol";
-import {UseWETH, UseStETH, UseFlashLender, UseWstETH, UseAAVEv3, UseServiceRegistry, UseSwapper, UseIERC20} from "../Hooks.sol";
+import {UseOracle, UseWETH, UseStETH, UseFlashLender, UseWstETH, UseAAVEv3, UseServiceRegistry, UseSwapper, UseIERC20} from "../Hooks.sol";
 
 abstract contract AAVEv3StrategyBase is
     Ownable,
@@ -30,7 +30,7 @@ abstract contract AAVEv3StrategyBase is
     UseAAVEv3,
     UseSwapper,
     UseFlashLender,
-    IWETHAdapter
+    UseOracle    
 {
     event StrategyProfit(uint256 amount, uint256 deployedAmount);
     event StrategyLoss(uint256 amount, uint256 deployedAmount);
@@ -54,16 +54,17 @@ abstract contract AAVEv3StrategyBase is
     constructor(
         address owner,
         ServiceRegistry registry,
-        bytes32 collateralIERC20
+        bytes32 collateralIERC20,
+        bytes32 oracle
     )
         Ownable()
         UseServiceRegistry(registry)
         UseWETH(registry)
+        UseIERC20(registry, collateralIERC20)
         UseAAVEv3(registry)
         UseSwapper(registry)
-        UseFlashLender(registry)
-        UseIERC20(registry, collateralIERC20)
-        IWETHAdapter()
+        UseFlashLender(registry)       
+        UseOracle(registry, oracle)
     {
         require(owner != address(0), "Invalid Owner Address");
         _transferOwnership(owner);
@@ -135,7 +136,7 @@ abstract contract AAVEv3StrategyBase is
         require(token == wETHA(), "Invalid Flash Loan Asset");
         require(ierc20A() != address(0), "Invalid Output");
         FlashLoanData memory data = abi.decode(callData, (FlashLoanData));
-        uint256 colAmount = _swapFromWETH(data.originalAmount + amount);
+        uint256 colAmount = _convertFromWETH(data.originalAmount + amount);
         // 3. Deposit Collateral and Borrow ETH
         supplyAndBorrow(ierc20A(), colAmount, wETHA(), amount + fee);
         uint256 collateralInETH = _toWETH(colAmount);
@@ -265,7 +266,7 @@ abstract contract AAVEv3StrategyBase is
         // 1. Rebalance Collateral Balance and Debt and return Collateral
         uint256 returnedCollateral = _payDebtAndWithdraw(percentageToBurn);
         // 2. Convert Collateral to WETH
-        uint256 wETHAmount = _swapToWETH(returnedCollateral);
+        uint256 wETHAmount = _convertToWETH(returnedCollateral);
         // 3. Unwrap wETH
         unwrapWETH(wETHAmount);
         // 4. Withdraw ETh to Receiver
@@ -275,11 +276,15 @@ abstract contract AAVEv3StrategyBase is
         _deployedAmount = _deployedAmount.sub(wETHAmount);
     }
 
-    function _swapFromWETH(uint256 amount) internal virtual override returns (uint256);
+    function _convertFromWETH(uint256 amount) internal virtual returns (uint256);
 
-    function _swapToWETH(uint256 amount) internal virtual override returns (uint256);
+    function _convertToWETH(uint256 amount) internal virtual returns (uint256);
+    
+    function _toWETH(uint256 amountIn) internal view  returns (uint256 amountOut) {
+        amountOut = amountIn.mul(oracle().getLatestPrice()).div(oracle().getPrecision());
+    }
 
-    function _toWETH(uint256 amount) internal virtual override returns (uint256);
-
-    function _fromWETH(uint256 amount) internal virtual override returns (uint256);
+    function _fromWETH(uint256 amountIn) internal view returns (uint256 amountOut) {
+        amountOut = amountIn.mul(oracle().getPrecision()).div(oracle().getLatestPrice());
+    }
 }

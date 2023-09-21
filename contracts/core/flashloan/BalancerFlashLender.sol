@@ -14,7 +14,7 @@ import "@openzeppelin/contracts/interfaces/IERC3156FlashBorrower.sol";
  *  Balancer Flash Loan Adapter
  *
  * */
-contract BalanceFlashLender is IERC3156FlashLender {
+contract BalancerFlashLender is IERC3156FlashLender {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 

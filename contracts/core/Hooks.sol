@@ -168,7 +168,7 @@ abstract contract UseAAVEv3 {
 abstract contract UseOracle {
     IOracle immutable _oracle;
 
-    constructor(bytes32 oracleName, ServiceRegistry registry) {
+    constructor(ServiceRegistry registry, bytes32 oracleName ) {
         _oracle = IOracle(registry.getServiceFromHash(oracleName));
     }
 

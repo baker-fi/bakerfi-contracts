@@ -15,7 +15,7 @@ import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
  * @author 
  * @notice 
  */
-contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH, UseOracle {
+contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH { 
     
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
@@ -24,13 +24,12 @@ contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH, UseOra
         address owner,
         ServiceRegistry registry
     )
-        AAVEv3StrategyBase(owner, registry, WST_ETH_CONTRACT)
+        AAVEv3StrategyBase(owner, registry, WST_ETH_CONTRACT, WSTETH_ETH_ORACLE)
         UseWstETH(registry)
         UseStETH(registry)
-        UseOracle(WSTETH_ETH_ORACLE, registry)
     {}
 
-    function _swapFromWETH(uint256 amount)  internal virtual override returns (uint256) {
+    function _convertFromWETH(uint256 amount)  internal virtual override returns (uint256) {
         // 1. Unwrap ETH to this account
         wETH().withdraw(amount);
         uint256 wStEthBalanceBefore = wstETH().balanceOf(address(this));
@@ -38,24 +37,15 @@ contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH, UseOra
         (bool sent, ) = payable(wstETHA()).call{value: amount}("");
         require(sent, "Failed to send Ether");
         uint256 wStEthBalanceAfter = wstETH().balanceOf(address(this));
-        // 2. Wrap stETH -> wstETH
+        // 3. Wrap stETH -> wstETH
         return wStEthBalanceAfter.sub(wStEthBalanceBefore);
     }
 
-    function _swapToWETH(uint256 amount) internal virtual override returns (uint256) {
+    function _convertToWETH(uint256 amount) internal virtual override returns (uint256) {
         // 1. Unwrap wstETH -> stETH
         uint256 stETHAmount = unwrapWstETH(amount);
         // 2. Swap stETH -> weth
         return swaptoken(stETHA(), wETHA(), stETHAmount);
-    }
-
-
-    function _toWETH(uint256 amountIn) internal virtual override returns (uint256 amountOut) {
-        amountOut = amountIn.mul(oracle().getLatestPrice()).div(oracle().getPrecision());
-    }
-
-    function _fromWETH(uint256 amountIn) internal virtual override returns (uint256 amountOut) {
-        amountOut = amountIn.mul(oracle().getPrecision()).div(oracle().getLatestPrice());
     }
 }
 

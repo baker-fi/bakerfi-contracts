@@ -4,9 +4,11 @@ import {
   deployServiceRegistry,
   deployVault,
   deployAAVEv3StrategyWstETH,
+  deployAAVEv3StrategyAny,
   deploySettings,
   deployUniSwapper,
   deploCbETHToETHOracle,
+  deployBalancerFL,
 } from "./common";
 
 import BaseConfig from "./config";
@@ -15,7 +17,6 @@ import BaseConfig from "./config";
  * Deploy the Basic System for testing
  */
 async function main() {
-  // Max Staked ETH available
   console.log(
     "---------------------------------------------------------------------------"
   );
@@ -23,8 +24,8 @@ async function main() {
 
   const networkName = hre.network.name;
   const chainId = hre.network.config.chainId;
-  console.log("Network name=", networkName);
-  console.log("Network chain id=", chainId);
+  console.log("Network name = ", networkName);
+  console.log("Network chain id =", chainId);
   const config = BaseConfig[networkName];
 
   const [deployer] = await hre.ethers.getSigners();
@@ -68,28 +69,20 @@ async function main() {
   );
   console.log("AAVE V3 Pool  =", config.AAVEPool);
 
-   // 7. Register CbETH Address
-   await serviceRegistry.registerService(
+  if ( config.cbETH ) {
+    // Register CbETH ERC20 Address
+    await serviceRegistry.registerService(
     hre.ethers.keccak256(Buffer.from("cbETH")),
     config.cbETH,
-  );
-  
-  console.log("CbETH =", config.cbETH);
+    );
+    console.log("CbETH =", config.cbETH);
+  }
+  await deployCollateralOracle(config, serviceRegistry);
 
-  // 7. cbETH/ETH Oracle 
-  const oracle = await deploCbETHToETHOracle(   
-    serviceRegistry,
-    config.OracleCbETHToETH
-  );
-  console.log("cbETH/ETH Oracle =", await oracle.getAddress());
+  // Flash Lender Adapter
+  await deployFlashLendInfra(serviceRegistry, config);
 
-  const strategy = await deployAAVEv3StrategyWstETH( 
-    deployer.address,
-    await serviceRegistry.getAddress(), 
-    await leverageLib.getAddress() 
-  );
-
-  console.log("AAVEv3Strategy =", await strategy.getAddress());
+  const strategy = await deployStrategy(config, deployer, serviceRegistry, leverageLib);
   // 10. Deploy the Vault attached to Leverage Lib
   const vault = await deployVault(
         deployer.address, 
@@ -98,8 +91,62 @@ async function main() {
   );
   console.log("Vault =", await vault.getAddress());
   console.log("---------------------------------------------------------------------------");
-  console.log("💥 Laundromat Deployment Done 👏");
+  console.log(`💥 Laundromat Deployment Done on  ${networkName} 👏`);
 }
+
+async function deployFlashLendInfra(serviceRegistry, config: any) {
+  await serviceRegistry.registerService(
+    hre.ethers.keccak256(Buffer.from("Balancer Vault")),
+    config.weth
+  );
+  const flashLender = await deployBalancerFL(
+    serviceRegistry
+  );
+  console.log(`Balancer Flash Lender Adapter =`, await flashLender.getAddress());
+}
+
+async function deployStrategy(config: any, deployer, serviceRegistry, leverageLib) {
+  let strategy;
+  switch (config.strategy) {
+    case "base":
+        strategy = await deployAAVEv3StrategyAny(
+        deployer.address,
+        await serviceRegistry.getAddress(),
+        await leverageLib.getAddress(),
+        hre.ethers.keccak256(Buffer.from("cbETH")),
+        hre.ethers.keccak256(Buffer.from("cbETH/ETH Oracle"))
+      );     
+      break;
+    default:
+      break;
+  }
+  console.log("AAVEv3Strategy =", await strategy.getAddress());
+  return strategy;
+}
+
+/**
+ * 
+ * @param config 
+ * @param serviceRegistry 
+ * @returns 
+ */
+async function deployCollateralOracle(config: any, serviceRegistry) {
+  let oracle;
+  switch (config.oracle.type) {
+    case "cbETH":
+      oracle = await deploCbETHToETHOracle(
+        serviceRegistry,
+        config.oracle.chainLink
+      );
+      break;
+    default:
+      break;
+  }
+  console.log("Oracle =", await oracle.getAddress());
+  return oracle;
+}
+
+
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.

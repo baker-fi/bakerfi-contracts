@@ -281,3 +281,18 @@ export async function deployFlashLender(serviceRegistry, weth, depositedAmount) 
    
     return swapper;
   }
+
+
+  export async function deployBalancerFL(serviceRegistry: any) {
+    
+    const FlashLender = await ethers.getContractFactory("BalancerFlashLender");
+    const fl = await FlashLender.deploy(
+      await serviceRegistry.getAddress(),
+    );
+    await fl.waitForDeployment();       
+    await serviceRegistry.registerService(
+      ethers.keccak256(Buffer.from("FlashLender")),
+      await fl.getAddress()
+    );
+    return fl;
+  }
