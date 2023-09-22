@@ -1,6 +1,6 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
-import { ethers } from "hardhat";
+import { ethers, network} from "hardhat";
 import {
   deployServiceRegistry,
   deployVault,
@@ -15,7 +15,10 @@ import {
   deployAAVEv3StrategyWstETH,
 } from "../../scripts/common";
 
-describe("AAVEv3StrategyWstETH", function () {
+import { describeif } from "../common";
+
+
+describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
   async function deployFunction() {
     const [owner, otherAccount] = await ethers.getSigners();
     const STETH_MAX_SUPPLY = ethers.parseUnits("1000000000", 18);

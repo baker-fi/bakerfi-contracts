@@ -1,6 +1,6 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
-import { ethers } from "hardhat";
+import { ethers, network } from "hardhat";
 import {
   deployServiceRegistry,
   deployVault,
@@ -16,7 +16,9 @@ import {
   deploySettings,
 } from "../../scripts/common";
 
-describe("Laundromat Vault", function () {
+import { describeif } from "../common";
+
+describeif(network.name === "hardhat")("Laundromat Vault", function () {
   async function deployFunction() {
     const [owner, otherAccount, anotherAccount] = await ethers.getSigners();
     const STETH_MAX_SUPPLY = ethers.parseUnits("1000010000", 18);

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
+pragma experimental ABIEncoderV2;
 
 bytes32 constant FLASH_LENDER = keccak256(bytes("FlashLender"));
 bytes32 constant WETH_CONTRACT = keccak256(bytes("WETH"));

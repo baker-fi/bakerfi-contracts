@@ -2,12 +2,12 @@
 
 pragma solidity ^0.8.18;
 
-import "./IERC20.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 interface IWETH {
-    function allowance(address, address) external returns (uint256);
+    function allowance(address, address) external view returns (uint256);
 
-    function balanceOf(address) external returns (uint256);
+    function balanceOf(address) external view returns (uint256);
 
     function approve(address, uint256) external;
 

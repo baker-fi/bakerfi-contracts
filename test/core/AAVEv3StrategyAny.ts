@@ -1,6 +1,6 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
-import { ethers } from "hardhat";
+import { ethers, network } from "hardhat";
 import {
   deployServiceRegistry,
   deployVault,
@@ -14,7 +14,9 @@ import {
   deployAAVEv3StrategyAny,
 } from "../../scripts/common";
 
-describe("AAVEv3StrategyAny", function () {
+import { describeif } from "../common";
+
+describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
   async function deployFunction() {
     const [owner, otherAccount] = await ethers.getSigners();
     const CBETH_MAX_SUPPLY = ethers.parseUnits("1000000000", 18);

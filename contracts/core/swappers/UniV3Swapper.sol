@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
+pragma experimental ABIEncoderV2;
 
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {ServiceRegistry} from "../../core/ServiceRegistry.sol";
@@ -8,7 +9,7 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
 import {UseServiceRegistry} from "../Hooks.sol";
-import {ISwapRouter} from "../../interfaces/uniswap/v3/ISwapRouter.sol";
+import {IV3SwapRouter} from "../../interfaces/uniswap/v3/ISwapRouter.sol";
 import {UNISWAP_ROUTER} from "../Constants.sol";
 
 contract UniV3Swapper is Ownable, ISwapHandler, UseServiceRegistry {
@@ -16,6 +17,8 @@ contract UniV3Swapper is Ownable, ISwapHandler, UseServiceRegistry {
     error SwapFailed();
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
+
+    IV3SwapRouter private _uniRouter;
     
     event Swap(address indexed assetIn, address assetOut,  uint256 assetInAmount, uint256 assetOutAmount);
 
@@ -27,6 +30,7 @@ contract UniV3Swapper is Ownable, ISwapHandler, UseServiceRegistry {
     ) Ownable() ISwapHandler() UseServiceRegistry(registry) {
         require(owner != address(0), "Invalid Owner Address");
         _transferOwnership(owner);
+        _uniRouter = IV3SwapRouter(registerSvc().getServiceFromHash(UNISWAP_ROUTER));
     }
 
     function getFeeTier(address fromToken, address toToken) public view returns (uint24) {
@@ -50,7 +54,7 @@ contract UniV3Swapper is Ownable, ISwapHandler, UseServiceRegistry {
         require(params.underlyingOut != address(0), "Invalid Input Asset");
         uint24 fee = getFeeTier(params.underlyingIn, params.underlyingOut);
         require(fee > 0, "Invalid Fee Tier to Swap");
-        ISwapRouter uniRouter = ISwapRouter(registerSvc().getServiceFromHash(UNISWAP_ROUTER));
+  
 
         // Exact Input
         if (params.mode == 0) {
@@ -61,16 +65,16 @@ contract UniV3Swapper is Ownable, ISwapHandler, UseServiceRegistry {
                 params.amountIn
             );
             // Approve the router to spend DAI.
-            IERC20(params.underlyingIn).safeApprove(address(uniRouter), params.amountIn);
-            amountOut = uniRouter.exactInputSingle(
-                ISwapRouter.ExactInputSingleParams({
+            IERC20(params.underlyingIn).safeApprove(address(_uniRouter), params.amountIn);
+            amountOut = _uniRouter.exactInputSingle(
+                IV3SwapRouter.ExactInputSingleParams({
                     tokenIn: params.underlyingIn,
                     tokenOut: params.underlyingOut,
                     amountIn: params.amountIn,
                     amountOutMinimum: 0,
                     fee: fee,
                     recipient: msg.sender,
-                    deadline: block.timestamp,
+                   // deadline: block.timestamp,
                     sqrtPriceLimitX96: 0
                 })
             );
@@ -87,22 +91,21 @@ contract UniV3Swapper is Ownable, ISwapHandler, UseServiceRegistry {
                 address(this),
                 params.amountIn
             );
-            IERC20(params.underlyingIn).safeApprove(address(uniRouter), params.amountIn);
+            IERC20(params.underlyingIn).safeApprove(address(_uniRouter), params.amountIn);
             // Executes the swap returning the amountIn needed to spend to receive the desired amountOut.
-            uint256 amountIn = uniRouter.exactOutputSingle(
-                ISwapRouter.ExactOutputSingleParams({
+            uint256 amountIn = _uniRouter.exactOutputSingle(
+                IV3SwapRouter.ExactOutputSingleParams({
                     tokenIn: params.underlyingIn,
                     tokenOut: params.underlyingOut,
                     fee: fee,
                     recipient: msg.sender,
-                    deadline: block.timestamp,
                     amountOut: params.amountOut,
                     amountInMaximum: params.amountIn,
                     sqrtPriceLimitX96: 0
                 })
             );
             if (amountIn < params.amountIn) {
-                IERC20(params.underlyingIn).safeApprove(address(uniRouter), 0);
+                IERC20(params.underlyingIn).safeApprove(address(_uniRouter), 0);
                 IERC20(params.underlyingIn).safeTransfer(msg.sender, params.amountIn - amountIn);
             }
             emit Swap( params.underlyingIn, params.underlyingOut, amountIn, params.amountOut);

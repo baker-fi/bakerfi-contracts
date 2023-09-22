@@ -1,10 +1,10 @@
 
-import {ISwapRouter} from "../interfaces/uniswap/v3/ISwapRouter.sol";
+import {IV3SwapRouter} from "../interfaces/uniswap/v3/ISwapRouter.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-contract UniV3RouterMock is ISwapRouter {
+contract UniV3RouterMock is IV3SwapRouter {
     
     IERC20 _asset0;
     IERC20 _asset1;

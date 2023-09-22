@@ -1,6 +1,6 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
-import { ethers } from "hardhat";
+import { ethers, network} from "hardhat";
 import { 
   deployMockERC20, 
   deployUniV3RouterMock, 
@@ -8,7 +8,11 @@ import {
   deployUniSwapper
 } from "../../scripts/common";
 
-describe("Laundromat Swapper", function () {
+import BaseConfig from "../../scripts/config";
+import { ISwapHandler } from '../../src/typechain/contracts/interfaces/core/ISwapHandler';
+import { describeif } from "../common";
+
+describeif(network.name === "hardhat")("Laundromat Swapper", function () {
   
   async function deployFunction() {
     // ETH Token
@@ -165,5 +169,116 @@ describe("Laundromat Swapper", function () {
         }
     )).to.be.revertedWith("Invalid Fee Tier to Swap");
   });
-
 });
+
+
+
+describeif(network.name === "base_devnet")("UniSwapper with Real Router", () => {
+  
+  async function deployFunction() {
+    // ETH Token
+    const [owner, otherAccount] = await ethers.getSigners();    
+    const serviceRegistry = await deployServiceRegistry(owner.address);
+    const networkName = network.name;
+    const config = BaseConfig[networkName];
+
+    await serviceRegistry.registerService(
+      ethers.keccak256(Buffer.from("Uniswap Router")),
+      config.uniswapRouter
+    );
+
+    // Deploy Swapper Adapter
+    const swapper = await deployUniSwapper(
+        await owner.getAddress(),
+        serviceRegistry,
+    );
+  
+    const weth = await ethers.getContractAt("IWETH",  config.weth);
+    const cbETH = await ethers.getContractAt("IERC20",  config.cbETH);
+
+    await serviceRegistry.registerService(
+      ethers.keccak256(Buffer.from("cbETH")),
+      config.cbETH
+    );
+
+    await serviceRegistry.registerService(
+      ethers.keccak256(Buffer.from("WETH")),
+      config.weth
+    );
+
+    // Add the ETH/CBV
+    await swapper.addFeeTier(config.weth,  config.cbETH, 500);
+    return { owner, otherAccount, weth, cbETH, swapper, config};    
+
+  }
+  
+  it("Swap ETH for cbETH", async function () {
+    const { weth, owner, cbETH, swapper, config } = await loadFixture(deployFunction);    
+    const swapAmount = ethers.parseUnits("10", 18); 
+        
+    await weth.deposit({
+      value: swapAmount
+    });
+
+    const balance = await weth.balanceOf(owner.address);        
+    // Approve the Swapper Handler to move funds on my behalf 
+    await weth.approve(await swapper.getAddress(), ethers.parseUnits("100", 18));
+    await cbETH.approve(await swapper.getAddress(), ethers.parseUnits("100", 18));
+
+    const params: ISwapHandler.SwapParamsStruct = {
+      underlyingIn: config.weth,
+      underlyingOut: config.cbETH,
+      mode: 0,         
+      amountIn: ethers.parseUnits("10", 18),  
+      amountOut: 0,
+      payload: "0x"
+    };
+    const balanceBefore = await cbETH.balanceOf(owner.address);
+    // Execute the Swap 
+    await swapper.executeSwap(params);    
+    expect(balance).to.equal(swapAmount);    
+    expect(await cbETH.balanceOf(owner.address)).to.greaterThan(balanceBefore);
+
+  });
+
+
+  it("Swap cbETH -> WETH", async function () {
+    const { weth, owner, cbETH, swapper, config } = await loadFixture(deployFunction);    
+    const swapAmount = ethers.parseUnits("10", 18); 
+        
+    await weth.deposit({
+      value: swapAmount
+    });
+
+    const balance = await weth.balanceOf(owner.address);        
+    // Approve the Swapper Handler to move funds on my behalf 
+    await weth.approve(await swapper.getAddress(), ethers.parseUnits("100", 18));
+    await cbETH.approve(await swapper.getAddress(), ethers.parseUnits("100", 18));
+
+    const params: ISwapHandler.SwapParamsStruct = {
+      underlyingIn: config.weth,
+      underlyingOut: config.cbETH,
+      mode: 0,         
+      amountIn: ethers.parseUnits("10", 18),  
+      amountOut: 0,
+      payload: "0x"
+    };
+
+    // Execute the Swap 
+    await swapper.executeSwap(params);    
+    const cbETHBalance = await cbETH.balanceOf(owner.address);
+    const params2: ISwapHandler.SwapParamsStruct = {
+      underlyingIn: config.cbETH,
+      underlyingOut: config.weth,
+      mode: 0,         
+      amountIn: cbETHBalance,  
+      amountOut: 0,
+      payload: "0x"
+    };
+    const balanceBefore = await weth.balanceOf(owner.address);        
+    await swapper.executeSwap(params2);    
+    expect(await weth.balanceOf(owner.address)).to.greaterThan(balanceBefore);
+
+  });
+
+})
