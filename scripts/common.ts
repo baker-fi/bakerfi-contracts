@@ -297,3 +297,12 @@ export async function deployFlashLender(serviceRegistry, weth, depositedAmount) 
     );
     return fl;
   }
+
+  export async function deployFlashBorrowerMock(serviceRegistry) {
+    const Borrower = await ethers.getContractFactory("FlashBorrowerMock");
+    const borrower = await Borrower.deploy(await serviceRegistry.getAddress());
+    await borrower.waitForDeployment();   
+    return  borrower;   
+;
+;
+  }

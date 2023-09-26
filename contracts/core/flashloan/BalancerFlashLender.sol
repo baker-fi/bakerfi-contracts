@@ -80,7 +80,7 @@ contract BalancerFlashLender is IERC3156FlashLender {
             "FlashBorrower: Callback failed"
         );
         // Verify that this contract is able to pay the debt
-        require(IERC20(asset).allowance(address(borrower), address(this)) >= fee + amount);
+        require(IERC20(asset).allowance(address(borrower), address(this)) >= fee + amount, "No allowance to pay debt");
         // Return the loan + fee to the vault
         IERC20(asset).safeTransferFrom(address(borrower), address(_balancerVault), amount + fee);
     }

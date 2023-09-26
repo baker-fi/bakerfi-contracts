@@ -17,6 +17,8 @@ contract MockFlashLender is IERC3156FlashLender {
     bytes32 public constant CALLBACK_SUCCESS = keccak256("ERC3156FlashBorrower.onFlashLoan");
     
 
+    IERC3156FlashLender _flashLender;
+
     constructor(IERC20 asset) {
         _asset = asset;
     }
