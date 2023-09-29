@@ -50,14 +50,10 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
       serviceRegistry,
       DEPOSIT_ST_ETH_SUPPLY
     );
-
     
     await stETH.approve(await wstETH.getAddress(), WRAP_ST_ETH_DEPOSIT);
     await wstETH.wrap(WRAP_ST_ETH_DEPOSIT);
-
-    const balance = await wstETH.balanceOf(owner.address);
-
-    
+    const balance = await wstETH.balanceOf(owner.address);    
     await weth.deposit?.call("", { value:  ethers.parseUnits("100", 18) });
     await weth.transfer(await swapper.getAddress(), ethers.parseUnits("100", 18) );
     

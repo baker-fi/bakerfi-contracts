@@ -78,6 +78,9 @@ abstract contract UseSettings {
     function settings() internal view returns (ISettings) {
         return _settings;
     }
+    function settingsA() internal view returns (address) {
+        return address(_settings);
+    }
 }
 
 abstract contract UseStETH {

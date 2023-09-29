@@ -106,11 +106,16 @@ abstract contract AAVEv3StrategyBase is
         UseUniQuoter(registry)
     {
         _collateralOracle = IOracle(registry.getServiceFromHash(collateralOracle));
-        _ethUSDOracle = IOracle(registry.getServiceFromHash(ETH_USD_ORACLE));        
+        _ethUSDOracle = IOracle(registry.getServiceFromHash(ETH_USD_ORACLE));   
+        require(owner != address(0), "Invalid Owner Address");     
         require(address(_ethUSDOracle)!= address(0), "Invalid ETH/USD Oracle");
-        require(address(_collateralOracle)!= address(0), "Invalid cbETH/ETH Oracle");
-        require(ierc20A() != address(0), "Invalid Output");        
-        require(owner != address(0), "Invalid Owner Address");
+        require(address(_collateralOracle)!= address(0), "Invalid <Collateral>/ETH Oracle");        
+        require(ierc20A() != address(0), "Invalid Collateral ERC-20 Contract");    
+        require(aaveV3A() != address(0), "Invalid AAVE Contract");        
+        require(wETHA() != address(0), "Invalid WETH Contract");                
+        require(swapperA() != address(0), "Invalid Swapper Handler Contract");                        
+        require(flashLenderA() != address(0), "Invalid Flash Lender Contract");                                
+        require(uniQuoterA() != address(0), "Invalid Uniswap Quoter Contract");                                        
         _transferOwnership(owner);
     }
 

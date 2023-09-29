@@ -12,6 +12,7 @@ import {
   deployWETH,
   deployLeverageLibrary,
   deployAAVEv3StrategyAny,
+  deployQuoterV2Mock,
 } from "../../scripts/common";
 
 import { describeif } from "../common";
@@ -54,7 +55,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
     const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");    
     await ethOracle.setLatestPrice(ethers.parseUnits("1", 18));
     const levarage = await deployLeverageLibrary();
-
+    await deployQuoterV2Mock(serviceRegistry);
     const strategy = await deployAAVEv3StrategyAny(
       owner.address,
       serviceRegistryAddress,

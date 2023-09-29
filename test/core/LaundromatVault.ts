@@ -14,6 +14,7 @@ import {
   deployLeverageLibrary,
   deployAAVEv3StrategyWstETH,
   deploySettings,
+  deployQuoterV2Mock,
 } from "../../scripts/common";
 
 import { describeif } from "../common";
@@ -68,7 +69,7 @@ describeif(network.name === "hardhat")("Laundromat Vault", function () {
     );
     // 6. Deploy wstETH/ETH Oracle
     await deployOracleMock(serviceRegistry, "wstETH/ETH Oracle");
-
+    await deployQuoterV2Mock(serviceRegistry);
 
     const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");    
     await ethOracle.setLatestPrice(ethers.parseUnits("1", 18));

@@ -59,6 +59,7 @@ contract LaundromatVault is Ownable, Pausable, ERC20Permit, UseSettings {
         IStrategy strategy
     ) ERC20Permit(NAME) ERC20(NAME, SYMBOl) UseSettings(registry) {
         require(owner != address(0), "Invalid Owner Address");
+        require(settingsA() != address(0), "Invalid Settings Contract");        
         _transferOwnership(owner);
         _registry = registry;
         _strategy = strategy;
