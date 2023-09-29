@@ -7,8 +7,7 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 
 contract SwapHandlerMock is ISwapHandler {
     
-    IERC20 _asset0;
-    IERC20 _asset1;
+    mapping(address => address) _pairs;
     uint256 RATIO_PRECISION  = 1e9;
     uint256 private _ratio = 1e9;
 
@@ -18,8 +17,11 @@ contract SwapHandlerMock is ISwapHandler {
         IERC20 asset0,
         IERC20 asset1
         ) {
-        _asset0 = asset0;
-        _asset1 = asset1;        
+        _pairs[address(asset0)]  = address(asset1);
+    }
+
+    function addPair(address token0, address token1) external {
+        _pairs[token0] = token1;
     }
 
     function setRatio(uint256 ratio ) external {
@@ -30,21 +32,24 @@ contract SwapHandlerMock is ISwapHandler {
         SwapParams calldata params
     ) external override returns (uint256 amountOut) {
 
-        require(params.underlyingIn == address(_asset0) || params.underlyingIn ==  address(_asset1), "Invalid Input Token" );
-        require(params.underlyingOut ==  address(_asset0) || params.underlyingOut ==  address(_asset1),  "Invalid Output Token" );  
-        require(address(params.underlyingOut) != address(params.underlyingIn), "Invalid Swapped Token");       
+        require(
+            _pairs[params.underlyingIn] == params.underlyingOut || 
+            _pairs[params.underlyingOut] ==  params.underlyingIn, 
+            "Invalid Pair" 
+        );
 
         if (params.mode == 0) {
-            IERC20(params.underlyingIn).safeTransferFrom(msg.sender, address(this), params.amountIn);
-            if ( params.underlyingIn == address(_asset0)) {
+            IERC20(params.underlyingIn).safeTransferFrom(msg.sender, address(this), params.amountIn);        
+            if ( params.underlyingOut == _pairs[params.underlyingIn]) {
                 amountOut = params.amountIn * RATIO_PRECISION / _ratio;
             } else {
                 amountOut = params.amountIn * _ratio / RATIO_PRECISION  ;
             }        
             require(IERC20(params.underlyingOut).balanceOf(address(this))>= amountOut);
             IERC20(params.underlyingOut).safeTransfer(msg.sender, amountOut);
-        } else {
-            require(IERC20(params.underlyingOut).balanceOf(address(this))>= params.amountOut);
+        } else { 
+            require(IERC20(params.underlyingIn).balanceOf(msg.sender)>= params.amountIn);
+            require(IERC20(params.underlyingOut).balanceOf(address(this))>=  params.amountOut);       
             uint256 amountIn = params.amountOut / (RATIO_PRECISION / _ratio);
             IERC20(params.underlyingIn).safeTransferFrom(msg.sender, address(this), amountIn);           
             IERC20(params.underlyingOut).safeTransfer(msg.sender, params.amountOut);

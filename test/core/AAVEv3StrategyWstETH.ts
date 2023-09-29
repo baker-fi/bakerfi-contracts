@@ -13,6 +13,7 @@ import {
   deployWETH,
   deployLeverageLibrary,
   deployAAVEv3StrategyWstETH,
+  deployQuoterV2Mock,
 } from "../../scripts/common";
 
 import { describeif } from "../common";
@@ -22,6 +23,8 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
   async function deployFunction() {
     const [owner, otherAccount] = await ethers.getSigners();
     const STETH_MAX_SUPPLY = ethers.parseUnits("1000000000", 18);
+    const DEPOSIT_ST_ETH_SUPPLY = ethers.parseUnits("10000000", 18);
+    const WRAP_ST_ETH_DEPOSIT = ethers.parseUnits("10000000", 18);
     const FLASH_LENDER_DEPOSIT = ethers.parseUnits("10000", 18);
     const AAVE_DEPOSIT = ethers.parseUnits("10000", 18);
     const serviceRegistry = await deployServiceRegistry(owner.address);
@@ -45,8 +48,24 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
       weth,
       stETH,
       serviceRegistry,
-      STETH_MAX_SUPPLY
+      DEPOSIT_ST_ETH_SUPPLY
     );
+
+    
+    await stETH.approve(await wstETH.getAddress(), WRAP_ST_ETH_DEPOSIT);
+    await wstETH.wrap(WRAP_ST_ETH_DEPOSIT);
+
+    const balance = await wstETH.balanceOf(owner.address);
+
+    
+    await weth.deposit?.call("", { value:  ethers.parseUnits("100", 18) });
+    await weth.transfer(await swapper.getAddress(), ethers.parseUnits("100", 18) );
+    
+    await swapper.addPair(
+      await weth.getAddress(),
+      await wstETH.getAddress()
+    );
+
     // 5. Deploy AAVEv3 Mock Pool
     const aave3Pool = await deployAaveV3(
       wstETH,
@@ -54,8 +73,13 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
       serviceRegistry,
       AAVE_DEPOSIT
     );
+
+    await deployQuoterV2Mock(serviceRegistry);
     // 6. Deploy wstETH/ETH Oracle
     const oracle  = await deployOracleMock(serviceRegistry, "wstETH/ETH Oracle");
+    const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");    
+    await ethOracle.setLatestPrice(ethers.parseUnits("1", 18));
+
     const levarage = await deployLeverageLibrary();
     const strategy = await deployAAVEv3StrategyWstETH(
       owner.address,
@@ -93,11 +117,11 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
         [owner.address], [ ethers.parseUnits("10", 18)]
     );;
     expect(await strategy.getPosition()).to.deep.equal([ 
-        45655671268679680000n, 
-        35740737736704000000n
+        45655671260000000000n, 
+        35740737730000000000n
     ]);
     expect(await strategy.totalAssets()).to.equal(
-        9914933531975680000n
+        9914933530000000000n
     );
   
   });
@@ -120,11 +144,11 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
         4969613303000000000n,   
     ); 
     expect(await strategy.getPosition()).to.deep.equal([ 
-        50221238395547648000n, 
-        35740737736704000000n
+        50221238390000000000n, 
+        35740737730000000000n
     ]);
     expect(await strategy.totalAssets()).to.equal(
-        14480500658843648000n
+        14480500660000000000n
     );
   })
 
@@ -146,11 +170,11 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
     await strategy.harvest();
 
     expect(await strategy.getPosition()).to.deep.equal([ 
-      26746832025538560000n, 
-      21397465620430848001n
+      26488409310000000000n, 
+      21153630020000000000n
     ]);
     expect(await strategy.totalAssets()).to.equal(
-      5349366405107711999n
+      5334779290000000000n
     );
   })
 

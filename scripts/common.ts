@@ -193,6 +193,20 @@ export async function deployFlashLender(serviceRegistry, weth, depositedAmount) 
   }
 
 
+
+  export  async function deployETHOracle(serviceRegistry, chainLinkAddress) {
+    const oracleContract = await ethers.getContractFactory("ETHOracle");
+    const oracle = await oracleContract.deploy(
+      chainLinkAddress
+    );
+    await oracle.waitForDeployment();
+    await serviceRegistry.registerService(
+        ethers.keccak256(Buffer.from("ETH/USD Oracle")),
+        await oracle.getAddress()
+    );
+    return oracle;
+  }
+
   export  async function deploCbETHToETHOracle(serviceRegistry, chainLinkAddress) {
     const oracleContract = await ethers.getContractFactory("cbETHToETHOracle");
     const oracle = await oracleContract.deploy(
@@ -305,4 +319,17 @@ export async function deployFlashLender(serviceRegistry, weth, depositedAmount) 
     return  borrower;   
 ;
 ;
+  }
+
+
+
+  export async function deployQuoterV2Mock(serviceRegistry: any) {
+    const QuoterMock = await ethers.getContractFactory("QuoterV2Mock");
+    const quoter = await QuoterMock.deploy();
+    await quoter.waitForDeployment();
+    await serviceRegistry.registerService(
+      ethers.keccak256(Buffer.from("Uniswap Quoter")),
+      await quoter.getAddress()
+    );
+    return quoter;
   }

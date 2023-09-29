@@ -55,7 +55,8 @@ describeif(network.name === "hardhat")("Laundromat Vault", function () {
       serviceRegistry,
     );
    // await stETH.transfer(await wstETH.getAddress(), STETH_TO_WRAPPER);
-        // Deposit some WETH on Swapper
+    
+   // Deposit some WETH on Swapper
     await weth.deposit?.call("", { value: ethers.parseUnits("10000", 18) });
     await weth.transfer( await swapper.getAddress(), ethers.parseUnits("10000", 18));
     // 5. Deploy AAVEv3 Mock Pool
@@ -67,6 +68,11 @@ describeif(network.name === "hardhat")("Laundromat Vault", function () {
     );
     // 6. Deploy wstETH/ETH Oracle
     await deployOracleMock(serviceRegistry, "wstETH/ETH Oracle");
+
+
+    const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");    
+    await ethOracle.setLatestPrice(ethers.parseUnits("1", 18));
+
     const levarage = await deployLeverageLibrary();
     const strategy = await deployAAVEv3StrategyWstETH(
       owner.address,
@@ -134,12 +140,12 @@ describeif(network.name === "hardhat")("Laundromat Vault", function () {
     expect(await vault.symbol()).to.equal("matETH");
     expect(await vault.name()).to.equal("laundromat ETH");
     expect(await vault.balanceOf(owner.address)).to.equal(9986343597383680000n);
-    expect(await vault.totalCollateral()).to.equal(45655671268679680000n);
-    expect(await vault.totalDebt()).to.equal(35740737736704000000n);
-    expect(await vault.totalPosition()).to.equal(9914933531975680000n);
+    expect(await vault.totalCollateral()).to.equal(45655671260000000000n);
+    expect(await vault.totalDebt()).to.equal(35740737730000000000n);
+    expect(await vault.totalPosition()).to.equal(9914933530000000000n);
     expect(await vault.loanToValue()).to.equal(782832378);
     expect(await vault.totalSupply()).to.equal(9986343597383680000n);
-    expect(await vault.tokenPerETh()).to.equal(1007202273739677870n);
+    expect(await vault.tokenPerETh()).to.equal(1007202273940376078n);
   });
 
   it("Test Withdraw", async function () {
@@ -153,12 +159,12 @@ describeif(network.name === "hardhat")("Laundromat Vault", function () {
 
     await vault.withdraw(ethers.parseUnits("1", 18), owner.address);
     expect(await vault.balanceOf(owner.address)).to.equal(8986343597383680000n);
-    expect(await vault.totalCollateral()).to.equal(41083860774421391323n);
-    expect(await vault.totalDebt()).to.equal(32161776452888843466n);
-    expect(await vault.totalPosition()).to.equal(8922084321532547857n);
-    expect(await vault.loanToValue()).to.equal(782832378);
+    expect(await vault.totalCollateral()).to.equal(41083860720000000000n);
+    expect(await vault.totalDebt()).to.equal(31696511440000000000n);
+    expect(await vault.totalPosition()).to.equal(9387349280000000000n);
+    expect(await vault.loanToValue()).to.equal(771507615n);
     expect(await vault.totalSupply()).to.equal(8986343597383680000n);
-    expect(await vault.tokenPerETh()).to.equal(1007202271748995790n);
+    expect(await vault.tokenPerETh()).to.equal(957282330649965972n);
   });
 
 
@@ -178,7 +184,7 @@ describeif(network.name === "hardhat")("Laundromat Vault", function () {
         4969613303000000000n, 
         ethers.parseUnits("5", 18),         
     ).to.changeEtherBalances(
-      [owner.address], [ 4969613303000000000n]
+      [owner.address], [ 4971065791653254210n]
     );;
   })
 
@@ -223,17 +229,17 @@ describeif(network.name === "hardhat")("Laundromat Vault", function () {
       value: ethers.parseUnits("10", 18),
     });
 
-    expect(await vault.totalPosition()).to.equal(9914933531975680000n);
-    expect(await vault.totalCollateral()).to.equal(45655671268679680000n);
-    expect(await vault.totalDebt()).to.equal(35740737736704000000n);
+    expect(await vault.totalPosition()).to.equal(9914933530000000000n);
+    expect(await vault.totalCollateral()).to.equal(45655671260000000000n);
+    expect(await vault.totalDebt()).to.equal(35740737730000000000n);
     // =~1% Increase in Value 
     await aave3Pool.setCollateralPerEth(
       (1142)*(1e6)
     );
 
-    expect(await vault.totalPosition()).to.equal(10399772518899712000n);
-    expect(await vault.totalCollateral()).to.equal(46140510255603712000n);
-    expect(await vault.totalDebt()).to.equal(35740737736704000000n);
+    expect(await vault.totalPosition()).to.equal(10399772520000000000n);
+    expect(await vault.totalCollateral()).to.equal(46140510250000000000n);
+    expect(await vault.totalDebt()).to.equal(35740737730000000000n);
     await settings.setFeeReceiver(otherAccount.address);
     await expect(vault.rebalance())
         .to.emit(vault, "Transfer")
@@ -263,7 +269,7 @@ describeif(network.name === "hardhat")("Laundromat Vault", function () {
     await vault
       .withdraw(ethers.parseUnits("1", 18), owner.address);
   
-    expect(await provider.getBalance(otherAccount.address)).to.equal(1000000009939226460000000n);
+    expect(await provider.getBalance(otherAccount.address)).to.equal(1000000009942131517965379n);
 
   });
 

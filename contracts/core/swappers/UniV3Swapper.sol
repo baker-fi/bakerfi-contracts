@@ -109,6 +109,7 @@ contract UniV3Swapper is Ownable, ISwapHandler, UseServiceRegistry {
                 IERC20(params.underlyingIn).safeTransfer(msg.sender, params.amountIn - amountIn);
             }
             emit Swap( params.underlyingIn, params.underlyingOut, amountIn, params.amountOut);
+            amountOut = params.amountOut;
         }
     }
 }

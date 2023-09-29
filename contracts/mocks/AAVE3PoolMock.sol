@@ -186,8 +186,8 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
             uint256 healthFactor
         )
     {
-        totalCollateralBase = users[user].depositAmount * _collateralPerEth / _pricePrecision;
-        totalDebtBase = users[user].borrowedAmount * _borrowedPerETh / _pricePrecision;
+        totalCollateralBase = users[user].depositAmount * _collateralPerEth / _pricePrecision/1e10;
+        totalDebtBase = users[user].borrowedAmount * _borrowedPerETh / _pricePrecision/1e10;
         availableBorrowsBase = 0;
         currentLiquidationThreshold = users[user].depositAmount * LOAN_LIQUIDATION_THRESHOLD / LOAN_TO_VALUE_PRECISION;
         if(users[user].depositAmount > 0) {

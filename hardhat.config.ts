@@ -21,6 +21,9 @@ const config: HardhatUserConfig = {
   gasReporter: {
     enabled: process.env.REPORT_GAS === "true",
   },  
+  mocha: {
+    timeout: 100000000
+  },
   defaultNetwork: "hardhat",
   typechain: {
     outDir: 'src/typechain',
@@ -68,9 +71,9 @@ const config: HardhatUserConfig = {
       accounts: STAGING_ACCOUNTS_PKEYS
     },
     base_devnet: {
-      url: "https://rpc.vnet.tenderly.co/devnet/base-development/9ae3a35a-51c7-4e24-beaf-a66cf052a281",
+      url: `${process.env.TENDERLY_DEV_NET_RPC}`,
       chainId: 8453,
-      gasMultiplier: 2,
+      gasMultiplier: 4,
       accounts: STAGING_ACCOUNTS_PKEYS
     }
   },

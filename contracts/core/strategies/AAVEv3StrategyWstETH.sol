@@ -44,8 +44,8 @@ contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH {
     function _convertToWETH(uint256 amount) internal virtual override returns (uint256) {
         // 1. Unwrap wstETH -> stETH
         uint256 stETHAmount = unwrapWstETH(amount);
-        // 2. Swap stETH -> weth
-        return swaptoken(stETHA(), wETHA(), stETHAmount);
+        // 2. Swap wstETH -> weth
+        return swaptoken(stETHA(), wETHA(), 0, stETHAmount, 0);
     }
 }
 

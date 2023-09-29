@@ -28,11 +28,11 @@ contract AAVEv3StrategyAny is AAVEv3StrategyBase {
 
     function _convertFromWETH(uint256 amount) internal virtual override returns (uint256) {
         // 1. Swap WETH -> cbETH
-        return swaptoken(wETHA(), ierc20A(), amount);
+        return swaptoken(wETHA(), ierc20A(), 0, amount, 0);
     }
 
     function _convertToWETH(uint256 amount) internal virtual override returns (uint256) {
         // 1.Swap cbETH -> WETH
-        return swaptoken(ierc20A(), wETHA(), amount);
+        return swaptoken(ierc20A(), wETHA(), 0, amount, 0);
     }
 }

@@ -89,6 +89,7 @@ async function main() {
       await serviceRegistry.getAddress(),
       await strategy.getAddress() 
   );
+  await strategy.transferOwnership(await vault.getAddress());
   console.log("Vault =", await vault.getAddress());
   console.log("---------------------------------------------------------------------------");
   console.log(`💥 Laundromat Deployment Done on  ${networkName} 👏`);

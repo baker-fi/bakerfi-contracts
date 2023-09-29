@@ -225,4 +225,13 @@ contract LaundromatVault is Ownable, Pausable, ERC20Permit, UseSettings {
     function getFeeReceiver() external view returns (address) {
         return _feeReceiver;
     }
+
+    function getTargetLTV() public view returns (uint256) {
+        return _strategy.getTargetLTV();
+    }
+
+    function setTargetLTV(uint256 target) external onlyOwner {
+        _strategy.setTargetLTV(target);
+    }   
+
 }

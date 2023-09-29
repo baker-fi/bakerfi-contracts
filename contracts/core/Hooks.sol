@@ -3,11 +3,12 @@ pragma solidity ^0.8.18;
 pragma experimental ABIEncoderV2;
 
 import {ServiceRegistry} from "./ServiceRegistry.sol";
-import {WETH_CONTRACT,PERCENTAGE_PRECISION,SWAPPER_HANDLER, SETTINGS, WSTETH_ETH_ORACLE, AAVE_V3, FLASH_LENDER, ST_ETH_CONTRACT, WST_ETH_CONTRACT} from "./Constants.sol";
+import {WETH_CONTRACT,UNISWAP_QUOTER, PERCENTAGE_PRECISION,SWAPPER_HANDLER, SETTINGS, WSTETH_ETH_ORACLE, AAVE_V3, FLASH_LENDER, ST_ETH_CONTRACT, WST_ETH_CONTRACT} from "./Constants.sol";
 import {IWETH} from "../interfaces/tokens/IWETH.sol";
 import {IServiceRegistry} from "../interfaces/core/IServiceRegistry.sol";
 import {IOracle} from "../interfaces/core/IOracle.sol";
 import {IWStETH} from "../interfaces/lido/IWStETH.sol";
+import {IQuoterV2} from "../interfaces/uniswap/v3/IQuoterV2.sol";
 import {IPoolV3} from "../interfaces/aave/v3/IPoolV3.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ISwapHandler} from "../interfaces/core/ISwapHandler.sol";
@@ -152,6 +153,7 @@ abstract contract UseAAVEv3 {
     ) internal {
         IERC20(assetIn).approve(aaveV3A(), amountIn);
         aaveV3().supply(assetIn, amountIn, address(this), 0);
+        aaveV3().setUserUseReserveAsCollateral(assetIn, true);        
         aaveV3().borrow(assetOut, borrowOut, 2, 0, address(this));
     }
 
@@ -163,7 +165,13 @@ abstract contract UseAAVEv3 {
         IERC20(reserve.aTokenAddress).safeApprove(aaveV3A(), amount);
         aaveV3().repayWithATokens(assetIn, amount, 2);      
     }
-
+    function repay(
+         address assetIn,
+         uint256 amount
+    ) internal {
+        IERC20(assetIn).safeApprove(aaveV3A(), amount);
+        aaveV3().repay(assetIn, amount, 2, address(this));      
+    }
 }
 
 abstract contract UseOracle {
@@ -175,6 +183,10 @@ abstract contract UseOracle {
 
     function oracle() internal view returns (IOracle) {
         return _oracle;
+    }
+
+    function getLastPrice() internal view returns (uint256) {
+        return _oracle.getLatestPrice();
     }
 }
 
@@ -196,18 +208,20 @@ abstract contract UseSwapper {
     function swaptoken(
         address assetIn,
         address assetOut,
-        uint256 amountIn
-    ) internal returns (uint256 amountOut) {
+        uint mode,
+        uint256 amountIn,
+        uint256 amountOut
+    ) internal returns (uint256 returnedAmount) {
         IERC20(assetIn).approve(swapperA(), amountIn);
         ISwapHandler.SwapParams memory params = ISwapHandler.SwapParams(
             assetIn,
             assetOut,
-            0,
+            mode,
             amountIn,
-            0,
+            amountOut,
             bytes("")
         );
-        amountOut = swapper().executeSwap(params);
+        returnedAmount = swapper().executeSwap(params);
     }
 }
 
@@ -224,5 +238,23 @@ abstract contract UseFlashLender {
 
     function flashLenderA() internal view returns (address) {
         return address(_fLender);
+    }
+}
+
+
+abstract contract UseUniQuoter {
+    
+    IQuoterV2 immutable _quoter;
+
+    constructor(ServiceRegistry registry) {
+        _quoter = IQuoterV2(registry.getServiceFromHash(UNISWAP_QUOTER));
+    }
+
+    function uniQuoter() internal view returns (IQuoterV2) {
+        return _quoter;
+    }
+
+    function uniQuoterA() internal view returns (address) {
+        return address(_quoter);
     }
 }

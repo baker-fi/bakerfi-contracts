@@ -51,6 +51,8 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
     );
     // 5. Deploy cbETH/ETH Oracle
     const oracle  = await deployOracleMock(serviceRegistry, "cbETH/ETH Oracle");
+    const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");    
+    await ethOracle.setLatestPrice(ethers.parseUnits("1", 18));
     const levarage = await deployLeverageLibrary();
 
     const strategy = await deployAAVEv3StrategyAny(
@@ -60,7 +62,6 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
       "cbETH",
       "cbETH/ETH Oracle"
     );
-
     return {
       cbETH,
       weth,
@@ -84,11 +85,11 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
         [owner.address], [ ethers.parseUnits("10", 18)]
     );;
     expect(await strategy.getPosition()).to.deep.equal([ 
-        45705032703999999999n, 
-        35740737736704000000n
+        45705032700000000000n, 
+        35740737730000000000n
     ]);
     expect(await strategy.totalAssets()).to.equal(
-        9964294967295999999n
+        9964294970000000000n
     );  
   });
 
@@ -101,11 +102,11 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
         value: ethers.parseUnits("10", 18)
     });
     expect(await strategy.getPosition()).to.deep.equal([ 
-        45705032703999999999n, 
-        35740737736704000000n
+      45705032700000000000n, 
+      35740737730000000000n
     ]);
     expect(await strategy.totalAssets()).to.equal(
-        9964294967295999999n
+      9964294970000000000n
     );  
     // Receive ~=5 ETH
     await strategy.undeploy(
@@ -114,7 +115,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
     );
 
     const provider = ethers.provider;
-    expect(await provider.getBalance(receiver)).to.equal(4999999992797565943n);
+    expect(await provider.getBalance(receiver)).to.equal(4982065590468138080n);
   })
 
 

@@ -12,4 +12,6 @@ interface IStrategy {
     function undeploy(uint256 amount, address payable receiver) external returns (uint256 actualAmount);   
     function exit() external returns (uint256 actualAmount);   
     function getPosition() external view returns ( uint256 totalCollateralInEth,  uint256 totalDebtInEth);
+    function getTargetLTV() external view returns (uint256 target);   
+    function setTargetLTV(uint256 target) external;   
 }

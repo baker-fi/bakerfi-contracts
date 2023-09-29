@@ -8,7 +8,17 @@ import {ServiceRegistry} from "../../core/ServiceRegistry.sol";
 import {IWETHAdapter} from "../../interfaces/core/IWETHAdapter.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {WETH_CONTRACT, PERCENTAGE_PRECISION, WSTETH_ETH_ORACLE, AAVE_V3, FLASH_LENDER, ST_ETH_CONTRACT, WST_ETH_CONTRACT} from "../Constants.sol";
+import {IQuoterV2} from "../../interfaces/uniswap/v3/IQuoterV2.sol";
+import { 
+    ETH_USD_ORACLE,
+    WETH_CONTRACT, 
+    PERCENTAGE_PRECISION, 
+    WSTETH_ETH_ORACLE, 
+    AAVE_V3, 
+    FLASH_LENDER, 
+    ST_ETH_CONTRACT, 
+    WST_ETH_CONTRACT
+} from "../Constants.sol";
 import {Rebase, RebaseLibrary} from "../../libraries/BoringRebase.sol";
 import {IWETH} from "../../interfaces/tokens/IWETH.sol";
 import {IOracle} from "../../interfaces/core/IOracle.sol";
@@ -18,8 +28,31 @@ import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
 import "../../interfaces/aave/v3/DataTypes.sol";
 import {IStrategy} from "../../interfaces/core/IStrategy.sol";
 import {Leverage} from "../../libraries/Leverage.sol";
-import {UseOracle, UseWETH, UseStETH, UseFlashLender, UseWstETH, UseAAVEv3, UseServiceRegistry, UseSwapper, UseIERC20} from "../Hooks.sol";
+import {
+    UseOracle,
+    UseUniQuoter, 
+    UseWETH, 
+    UseStETH,
+    UseFlashLender, 
+    UseWstETH, 
+    UseAAVEv3, 
+    UseServiceRegistry, 
+    UseSwapper, 
+    UseIERC20
+} from "../Hooks.sol";
 
+/**
+ * 
+ * Base Strategy that does AAVE leverage/deleverage using flash loans 
+ * 
+ * TODO: Use the Uniswap Swapper directly to optimize gas consumption
+ * TODO: Enable E-Mode on initialization for collateral
+ * TODO: Optimize Gas by set MAX Int allowances on initialization
+ * 
+ * @title 
+ * @author 
+ * @notice 
+ */
 abstract contract AAVEv3StrategyBase is
     Ownable,
     IStrategy,
@@ -29,17 +62,20 @@ abstract contract AAVEv3StrategyBase is
     UseIERC20,
     UseAAVEv3,
     UseSwapper,
-    UseFlashLender,
-    UseOracle    
+    UseFlashLender,   
+    UseUniQuoter
 {
+
+    enum FlashLoanAction{ SUPPLY_BOORROW, PAY_DEBT_WITHDRAW, PAY_DEBT}
     event StrategyProfit(uint256 amount, uint256 deployedAmount);
     event StrategyLoss(uint256 amount, uint256 deployedAmount);
 
-    uint256 private LOAN_TO_VALUE = 800 * 1e6;
+    uint256 private _targetLoanToValue = 800 * 1e6;
 
     struct FlashLoanData {
         uint256 originalAmount;
         address receiver;
+        FlashLoanAction action;
     }
 
     bytes32 constant SUCCESS_MESSAGE = keccak256("ERC3156FlashBorrower.onFlashLoan");
@@ -51,11 +87,14 @@ abstract contract AAVEv3StrategyBase is
     uint256 internal _pendingAmount = 0;
     uint256 private _deployedAmount = 0;
 
+    IOracle         _collateralOracle;
+    IOracle         _ethUSDOracle;
+
     constructor(
         address owner,
         ServiceRegistry registry,
         bytes32 collateralIERC20,
-        bytes32 oracle
+        bytes32 collateralOracle
     )
         Ownable()
         UseServiceRegistry(registry)
@@ -64,13 +103,26 @@ abstract contract AAVEv3StrategyBase is
         UseAAVEv3(registry)
         UseSwapper(registry)
         UseFlashLender(registry)       
-        UseOracle(registry, oracle)
+        UseUniQuoter(registry)
     {
+        _collateralOracle = IOracle(registry.getServiceFromHash(collateralOracle));
+        _ethUSDOracle = IOracle(registry.getServiceFromHash(ETH_USD_ORACLE));        
+        require(address(_ethUSDOracle)!= address(0), "Invalid ETH/USD Oracle");
+        require(address(_collateralOracle)!= address(0), "Invalid cbETH/ETH Oracle");
+        require(ierc20A() != address(0), "Invalid Output");        
         require(owner != address(0), "Invalid Owner Address");
         _transferOwnership(owner);
     }
 
     receive() external payable {}
+
+    function setTargetLTV(uint256 targetLoanToValue) onlyOwner external {
+        _targetLoanToValue = targetLoanToValue;
+    }
+
+    function getTargetLTV() external view returns (uint256 ) {
+        return _targetLoanToValue;
+    }
 
     function getPosition()
         external
@@ -97,7 +149,7 @@ abstract contract AAVEv3StrategyBase is
         // 1. Wrap Ethereum
         wETH().deposit{value: msg.value}();
         // 2. Initiate a WETH Flash Loan
-        uint256 leverage = Leverage.calculateLeverageRatio(msg.value, LOAN_TO_VALUE, 10);
+        uint256 leverage = Leverage.calculateLeverageRatio(msg.value, _targetLoanToValue, 10);
         uint256 loanAmount = leverage - msg.value;
         uint256 fee = flashLender().flashFee(wETHA(), loanAmount);
         uint256 allowance = wETH().allowance(address(this), flashLenderA());
@@ -107,13 +159,60 @@ abstract contract AAVEv3StrategyBase is
                 IERC3156FlashBorrower(this),
                 wETHA(),
                 loanAmount,
-                abi.encode(msg.value, msg.sender)
+                abi.encode(msg.value, msg.sender, FlashLoanAction.SUPPLY_BOORROW)
             ),
             "Failed to run Flash Loan"
         );
         deployedAmount = _pendingAmount;
         _deployedAmount = _deployedAmount.add(deployedAmount);
         _pendingAmount = 0;
+    }
+
+    /**
+     * 
+     */
+    function _supplyBorrow(uint256 amount, uint256 loanAmount, uint256 fee) private {
+       uint256 collateralIn = _convertFromWETH(amount + loanAmount);
+        // 3. Deposit Collateral and Borrow ETH
+        supplyAndBorrow(ierc20A(), collateralIn, wETHA(), loanAmount + fee);
+        uint256 collateralInETH = _toWETH(collateralIn);
+        _pendingAmount = collateralInETH - loanAmount + fee;
+    }
+
+
+    function _payDebt(uint256 debtAmount, uint256 fee ) private {
+        repay(wETHA(), debtAmount);
+        // Get a Quote to know how much collateral i require to pay debt
+        (uint256 amountIn,,,) = uniQuoter().quoteExactOutputSingle(
+                IQuoterV2.QuoteExactOutputSingleParams(
+                    ierc20A(), 
+                    wETHA(), 
+                    debtAmount + fee,
+                    500,  
+                    0
+                )
+        );
+        aaveV3().withdraw(ierc20A(), amountIn , address(this));
+        swaptoken(ierc20A(), wETHA(), 1, amountIn, debtAmount + fee);             
+    }
+
+    /**
+     * 
+     */
+    function _repayAndWithdraw(uint256 withdrawAmountInETh, uint256 repayAmount, uint256 fee, address payable receiver ) private {
+        uint256 withdrawAmount = _fromWETH(withdrawAmountInETh);            
+        repay(wETHA(), repayAmount);
+        aaveV3().withdraw(ierc20A(), withdrawAmount, address(this));             
+        // 2. Convert Collateral to WETH
+        uint256 wETHAmount = _convertToWETH(withdrawAmount);
+        // 2. Convert Collateral to WETH
+        uint256 leftETH = wETHAmount - repayAmount - fee;                             
+        // 3. Unwrap wETH
+        unwrapWETH(leftETH);
+        // 4. Withdraw ETh to Receiver
+        (bool success, ) = payable(receiver).call{value: leftETH}("");
+        require(success, "Failed to Send ETH Back");
+        _pendingAmount = leftETH;
     }
 
     /**
@@ -132,15 +231,19 @@ abstract contract AAVEv3StrategyBase is
         uint256 fee,
         bytes memory callData
     ) external returns (bytes32) {
+        // TODO: Block msg.sender to our flash Lender
         require(initiator == address(this), "FlashBorrower: Untrusted loan initiator");
-        require(token == wETHA(), "Invalid Flash Loan Asset");
-        require(ierc20A() != address(0), "Invalid Output");
-        FlashLoanData memory data = abi.decode(callData, (FlashLoanData));
-        uint256 colAmount = _convertFromWETH(data.originalAmount + amount);
-        // 3. Deposit Collateral and Borrow ETH
-        supplyAndBorrow(ierc20A(), colAmount, wETHA(), amount + fee);
-        uint256 collateralInETH = _toWETH(colAmount);
-        _pendingAmount = collateralInETH - amount + fee;
+        // Only Allow WETH Flash Loans
+        require(token == wETHA(), "Invalid Flash Loan Asset");        
+        FlashLoanData memory data = abi.decode(callData, (FlashLoanData));                
+        if( data.action ==  FlashLoanAction.SUPPLY_BOORROW ) {
+            _supplyBorrow(data.originalAmount, amount, fee);
+        // Use the Borrowed to pay ETH and deleverage        
+        } else if (data.action ==  FlashLoanAction.PAY_DEBT_WITHDRAW) {            
+            _repayAndWithdraw(data.originalAmount, amount, fee, payable(data.receiver));
+        } else if (data.action ==  FlashLoanAction.PAY_DEBT) { 
+            _payDebt(amount, fee);
+        }
         return SUCCESS_MESSAGE;
     }
 
@@ -170,11 +273,22 @@ abstract contract AAVEv3StrategyBase is
         uint256 totalDebtBaseInEth
     ) internal returns (uint256 deltaDebt) {
         uint256 numerator = totalDebtBaseInEth -
-            (LOAN_TO_VALUE.mul(totalCollateralBaseInEth).div(PERCENTAGE_PRECISION));
-        uint256 divisor = (PERCENTAGE_PRECISION - LOAN_TO_VALUE);
+            (_targetLoanToValue.mul(totalCollateralBaseInEth).div(PERCENTAGE_PRECISION));
+        uint256 divisor = (PERCENTAGE_PRECISION - _targetLoanToValue);
         deltaDebt = numerator.mul(PERCENTAGE_PRECISION).div(divisor);
-        uint256 colPaidInDebt = _fromWETH(deltaDebt);
-        repayWithAToken(ierc20A(), colPaidInDebt);
+        uint256 fee = flashLender().flashFee(wETHA(), deltaDebt);
+        uint256 allowance = wETH().allowance(address(this), flashLenderA());
+
+        wETH().approve(flashLenderA(), deltaDebt + fee + allowance);
+        require(
+            flashLender().flashLoan(
+                IERC3156FlashBorrower(this),
+                wETHA(),
+                deltaDebt,
+                abi.encode(deltaDebt, address(0), FlashLoanAction.PAY_DEBT)
+            ),
+            "Failed to run Flash Loan"
+        );
     }
 
     /**
@@ -188,14 +302,15 @@ abstract contract AAVEv3StrategyBase is
 
         if (totalDebtBaseInEth > 0) {
             ltv = totalDebtBaseInEth.mul(PERCENTAGE_PRECISION).div(totalCollateralBaseInEth);
-            if (ltv > LOAN_TO_VALUE && ltv < PERCENTAGE_PRECISION) {
+            if (ltv > _targetLoanToValue && ltv < PERCENTAGE_PRECISION) {
                 // Pay Debt to rebalance the position
                 deltaDebt = _adjustDebt(totalCollateralBaseInEth, totalDebtBaseInEth);
             }
         }
 
-        uint256 newDeployedAmount = (totalCollateralBaseInEth.sub(deltaDebt)).sub(
-            totalDebtBaseInEth.sub(deltaDebt)
+        uint256 newDeployedAmount = (totalCollateralBaseInEth
+            .sub(deltaDebt))
+            .sub(totalDebtBaseInEth.sub(deltaDebt)
         );
 
         require(deltaDebt < totalCollateralBaseInEth, "Invalid DeltaDeb Calculated");
@@ -221,34 +336,18 @@ abstract contract AAVEv3StrategyBase is
         view
         returns (uint256 totalCollateralInEth, uint256 totalDebtInEth)
     {
+        totalCollateralInEth = 0;
+        totalDebtInEth = 0;
         (uint256 totalCollateralBase, uint256 totalDebtBase, , , , ) = aaveV3().getUserAccountData(
             address(this)
         );
-        totalCollateralInEth = totalCollateralBase;
-        totalDebtInEth = totalDebtBase;
-    }
-
-    /**
-     * Pay the debt on loan position and removes some deployed capital in order to
-     * pay back to the deployer
-     *
-     * @param percentageToBurn The percentage deployed to be removed from collateral position
-     * debt
-     */
-    function _payDebtAndWithdraw(
-        uint256 percentageToBurn
-    ) internal returns (uint256 returnedCollateral) {
-        (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition();
-        // 1. Pay Debt
-        uint256 deltaDebt = (totalDebtBaseInEth).mul(percentageToBurn).div(PERCENTAGE_PRECISION);
-        uint256 collateralPaid = _fromWETH(deltaDebt);
-        repayWithAToken(ierc20A(), collateralPaid);
-        // 2. Withdraw from AAVE Pool
-        uint256 deltaCollateral = (totalCollateralBaseInEth).mul(percentageToBurn).div(
-            PERCENTAGE_PRECISION
-        );
-        returnedCollateral = _fromWETH(deltaCollateral) - collateralPaid;
-        aaveV3().withdraw(ierc20A(), returnedCollateral, address(this));
+        uint256 price = _ethUSDOracle.getLatestPrice();
+        if ( totalCollateralBase !=0 ) {
+              totalCollateralInEth = totalCollateralBase.mul(1e28).div(price);
+        }
+        if ( totalDebtBase != 0 ) {
+            totalDebtInEth = totalDebtBase.mul(1e28).div(price);
+        }      
     }
 
     /**
@@ -263,28 +362,41 @@ abstract contract AAVEv3StrategyBase is
         address payable receiver
     ) private returns (uint256 undeployedAmount) {
         uint256 percentageToBurn = (amount).mul(PERCENTAGE_PRECISION).div(totalAssets());
-        // 1. Rebalance Collateral Balance and Debt and return Collateral
-        uint256 returnedCollateral = _payDebtAndWithdraw(percentageToBurn);
-        // 2. Convert Collateral to WETH
-        uint256 wETHAmount = _convertToWETH(returnedCollateral);
-        // 3. Unwrap wETH
-        unwrapWETH(wETHAmount);
-        // 4. Withdraw ETh to Receiver
-        (bool success, ) = payable(receiver).call{value: wETHAmount}("");
-        require(success, "Failed to Send ETH Back");
-        undeployedAmount = wETHAmount;
-        _deployedAmount = _deployedAmount.sub(wETHAmount);
-    }
+        // 1. Rebalance Collateral Balance and Debt and return Collateral  
+        (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition();
+        uint256 deltaDebtInETH = (totalDebtBaseInEth).mul(percentageToBurn).div(PERCENTAGE_PRECISION);        
+        // 2. Withdraw from AAVE Pool
+        uint256 deltaCollateralInETH = (totalCollateralBaseInEth).mul(percentageToBurn).div(
+            PERCENTAGE_PRECISION
+        );
+        uint256 fee = flashLender().flashFee(wETHA(), deltaDebtInETH);
+        uint256 allowance = wETH().allowance(address(this), flashLenderA());
+        wETH().approve(flashLenderA(), deltaDebtInETH + fee + allowance);
+         require(
+            flashLender().flashLoan(
+                IERC3156FlashBorrower(this),
+                wETHA(),
+                deltaDebtInETH,
+                abi.encode(deltaCollateralInETH, receiver, FlashLoanAction.PAY_DEBT_WITHDRAW)
+            ),
+            "Failed to run Flash Loan"
+        );
+        undeployedAmount = _pendingAmount;
+        _deployedAmount = _deployedAmount.sub(undeployedAmount);
+        _pendingAmount = 0;
+        
 
+    }
+    
     function _convertFromWETH(uint256 amount) internal virtual returns (uint256);
 
     function _convertToWETH(uint256 amount) internal virtual returns (uint256);
     
     function _toWETH(uint256 amountIn) internal view  returns (uint256 amountOut) {
-        amountOut = amountIn.mul(oracle().getLatestPrice()).div(oracle().getPrecision());
+        amountOut = amountIn.mul(_collateralOracle.getLatestPrice()).div(_collateralOracle.getPrecision());
     }
 
     function _fromWETH(uint256 amountIn) internal view returns (uint256 amountOut) {
-        amountOut = amountIn.mul(oracle().getPrecision()).div(oracle().getLatestPrice());
+        amountOut = amountIn.mul(_collateralOracle.getPrecision()).div(_collateralOracle.getLatestPrice());
     }
 }
