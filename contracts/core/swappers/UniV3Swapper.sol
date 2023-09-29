@@ -31,6 +31,7 @@ contract UniV3Swapper is Ownable, ISwapHandler, UseServiceRegistry {
         require(owner != address(0), "Invalid Owner Address");
         _transferOwnership(owner);
         _uniRouter = IV3SwapRouter(registerSvc().getServiceFromHash(UNISWAP_ROUTER));
+        require(address(_uniRouter) != address(0), "Invalid Uniswap Router");    
     }
 
     function getFeeTier(address fromToken, address toToken) public view returns (uint24) {

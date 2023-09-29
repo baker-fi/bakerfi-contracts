@@ -25,6 +25,7 @@ contract BalancerFlashLender is IERC3156FlashLender {
     
     constructor(ServiceRegistry registry) {
         _balancerVault = IFlashLoans(registry.getServiceFromHash(BALANCER_VAULT));
+        require(address(_balancerVault) != address(0), "Invalid Balancer Vault");  
     }
 
     function maxFlashLoan(address token) external pure override returns (uint256) {

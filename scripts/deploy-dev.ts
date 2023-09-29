@@ -6,6 +6,7 @@ import {
   deployServiceRegistry,
   deployStEth,
   deploySwapper,
+  deployQuoterV2Mock,
   deployVault,
   deployWETH,
   deployOracleMock,
@@ -46,13 +47,25 @@ async function main() {
   const settings  = await deploySettings(owner.address, serviceRegistry);
   console.log("feeSettings =", await settings.getAddress());
   // 7. Deploy wETH/stETH Swapper
-  const swapper  = await deploySwapper(weth, stETH, serviceRegistry, STETH_MAX_SUPPLY);
+  const swapper = await deploySwapper(weth, stETH, serviceRegistry, STETH_MAX_SUPPLY);
+  // 7. Addd Pair
+  await swapper.addPair(
+    await weth.getAddress(),
+    await wstETH.getAddress()
+  );
+
   console.log("Swap Router Mock =", await swapper.getAddress());
   // 8. Deploy AAVE Mock Service
   const aaveV3PoolMock = await deployAaveV3(wstETH, weth, serviceRegistry, AAVE_DEPOSIT); 
   console.log("AAVE v3 Mock =", await aaveV3PoolMock.getAddress());
   // 9. Deploy wstETH/ETH Oracle 
+  const uniQuoter = await deployQuoterV2Mock(serviceRegistry);
+  console.log("Uniswap Quoter =", await uniQuoter.getAddress() );  
   const oracle = await deployOracleMock(serviceRegistry, "wstETH/ETH Oracle");
+  console.log("wstETH/ETH Oracle =", await oracle.getAddress() );  
+  const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");    
+  console.log("ETH/USD Oracle =", await ethOracle.getAddress() );  
+  await ethOracle.setLatestPrice(ethers.parseUnits("1", 18));
   const strategy = await deployAAVEv3StrategyWstETH( 
     owner.address,
     await serviceRegistry.getAddress(), 
