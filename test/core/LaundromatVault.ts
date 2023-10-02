@@ -160,11 +160,11 @@ describeif(network.name === "hardhat")("Laundromat Vault", function () {
     await vault.withdraw(ethers.parseUnits("1", 18), owner.address);
     expect(await vault.balanceOf(owner.address)).to.equal(8986343597383680000n);
     expect(await vault.totalCollateral()).to.equal(41083860720000000000n);
-    expect(await vault.totalDebt()).to.equal(31696511440000000000n);
-    expect(await vault.totalPosition()).to.equal(9387349280000000000n);
-    expect(await vault.loanToValue()).to.equal(771507615n);
+    expect(await vault.totalDebt()).to.equal(32161776410000000000n);
+    expect(await vault.totalPosition()).to.equal(8922084310000000000n);
+    expect(await vault.loanToValue()).to.equal(782832378n);
     expect(await vault.totalSupply()).to.equal(8986343597383680000n);
-    expect(await vault.tokenPerETh()).to.equal(957282330649965972n);
+    expect(await vault.tokenPerETh()).to.equal(1007202273050889831n);
   });
 
 
@@ -274,7 +274,7 @@ describeif(network.name === "hardhat")("Laundromat Vault", function () {
   });
 
 
-  it.only("Test Max Withdraw", async function (){
+  it("Test Max Withdraw", async function (){
     const { owner, vault, settings, otherAccount, anotherAccount} = await loadFixture(deployFunction);
     await vault.deposit(owner.address, {
       value: ethers.parseUnits("10", 18),

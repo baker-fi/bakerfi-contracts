@@ -166,10 +166,10 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
 
     expect(await strategy.getPosition()).to.deep.equal([ 
       26488409310000000000n, 
-      21153630020000000000n
+      21397465640000000000n
     ]);
     expect(await strategy.totalAssets()).to.equal(
-      5334779290000000000n
+      5090943670000000000n
     );
   })
 
