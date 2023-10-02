@@ -7,8 +7,7 @@ import {
     deploySettings,
   } from "../../scripts/common";
 
-//describeif(network.name === "hardhat")
-describe.only("Settings", function () {
+describeif(network.name === "hardhat")("Settings", function () {
 
     async function deployFunction() {
         const [owner, otherAccount] = await ethers.getSigners();
