@@ -28,7 +28,7 @@ contract Settings is Ownable {
     }
 
     function setUnrollThreshold(uint256 loanToValue) external onlyOwner {
-        require(loanToValue <  PERCENTAGE_PRECISION);
+        require(loanToValue <  PERCENTAGE_PRECISION, "Invalid percentage value");
         _loanToValue = loanToValue;
     }
 
@@ -37,7 +37,7 @@ contract Settings is Ownable {
     }
 
     function setLoanToValue(uint256 loanToValue) external onlyOwner {
-        require(loanToValue <  PERCENTAGE_PRECISION);
+        require(loanToValue <  PERCENTAGE_PRECISION, "Invalid percentage value");
         _loanToValue = loanToValue;
     }
 
@@ -46,7 +46,7 @@ contract Settings is Ownable {
     }
 
     function setWithdrawalFee(uint256 fee) external onlyOwner {
-        require(fee <  PERCENTAGE_PRECISION);
+        require(fee <  PERCENTAGE_PRECISION, "Invalid percentage value");
         _withdrawalFee = fee;
     }
 
@@ -55,7 +55,7 @@ contract Settings is Ownable {
     }
 
     function setPerformanceFee(uint256 fee) external onlyOwner {
-        require(fee <  PERCENTAGE_PRECISION);
+        require(fee <  PERCENTAGE_PRECISION, "Invalid percentage value");
         _performanceFee = fee;
     }
 

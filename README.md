@@ -134,7 +134,6 @@ MIT
 ### TODO - Smart Contracts 
 
 * Unit Test Settings changes: P1
-* Test Corner Cases: Max Withdraw P1
 * Test Corner Cases: Strategy Exit P1 
 * Use the Uniswap Directly: P2
 * Myhtril Check - Fix Vulnerability fixes: P3
