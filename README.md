@@ -134,12 +134,12 @@ MIT
 ### TODO - Smart Contracts 
 
 * Test Corner Cases: Strategy Exit P1 
-* Use the Uniswap Directly: P2
-* Myhtril Check - Fix Vulnerability fixes: P3
 * Logic: Check if the SetAsCollateral is already done P2
-* Logic: Enable E-Mode on initialization for collateral higher LTV: P2
-* Optimization: Set MAX Int allowances on initialization - P3
-* Upgrade Flash Lender: P4
 * Test Logic with Flash Loan fees: P2
 * Fuzzing Testing: P2
+* Logic: Enable E-Mode on initialization for collateral higher LTV: P2
+* Use the Uniswap Directly: P3
 * Make the Leverage Values Hardcoded: P3
+* Myhtril Check - Fix Vulnerability fixes: P3
+* Optimization: Set MAX Int allowances on initialization - P3
+* Upgrade Flash Lender: P4

@@ -122,6 +122,7 @@ abstract contract AAVEv3StrategyBase is
     receive() external payable {}
 
     function setTargetLTV(uint256 targetLoanToValue) onlyOwner external {
+        require(targetLoanToValue <  PERCENTAGE_PRECISION, "Invalid percentage value");
         _targetLoanToValue = targetLoanToValue;
     }
 
@@ -255,9 +256,9 @@ abstract contract AAVEv3StrategyBase is
     /**
      * Exit the full position and move the funds to the owner
      */
-    function exit() external override onlyOwner returns (uint256 undeployedAmount) {
+    function exit(address payable liquidator) external override onlyOwner returns (uint256 undeployedAmount) {
         uint256 amount = totalAssets();
-        undeployedAmount = _undeploy(amount, payable(owner()));
+        undeployedAmount = _undeploy(amount, liquidator);
     }
 
     /**
