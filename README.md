@@ -12,9 +12,9 @@ Recursive ETH Staking made easy
 
 ## Integrations 
 * AAVE v3 
-* AAVE v2
 * Lido Staking Contracts
-* 1Inch Swaps for the best swap prices
+* Uniswap v3
+* Balancer Flash Loans
 
 ## Prerequisites
 Before getting started with this project, make sure you have the following prerequisites:
@@ -105,16 +105,14 @@ Laundromat Vault AAVEv3 Strategy = 0xC5Dfa3ebaDD8cf122b2b086e3aC28492Da76a0eE
 WSETH/ETH Oracle = 0xE8F362bF1E066547113981FdaC7c1dDC6949a7Ac
 ```
 
-
 ### Development CLI Commands 
 
 #### Get the Network Deployment Addresses 
+
 ```
 #HARDHAT_NETWORK=base_devnet npx ts-node --files scripts/cli.ts  contracts <serviceRegistryAddress>
 HARDHAT_NETWORK=base_devnet npx ts-node --files scripts/cli.ts  contracts 0xE8A1e868E4736669b73B9E26BE22129bD6B4E83d
 ```
-
-
 
 ### Interacting with Contracts
 You can interact with the deployed contracts using the Hardhat console. Start the console with the following command:
@@ -132,3 +130,18 @@ Please make sure to update tests as appropriate.
 
 ## License
 MIT
+
+### TODO - Smart Contracts 
+
+* Use the Uniswap Directly: P2
+* Unit Test Settings changes: P1
+* Myhtril Check - Fix Vulnerability fixes: P3
+* Test Corner Cases: Max Withdraw P1
+* Test Corner Cases: Strategy Exit P1 
+* Logic: Check if the SetAsCollateral is already done P2
+* Logic: Enable E-Mode on initialization for collateral higher LTV: P2
+* Optimization: Set MAX Int allowances on initialization - P3
+* Upgrade Flash Lender: P4
+* Test Logic with Flash Loan fees: P2
+* Fuzzing Testing: P2
+* Make the Leverage Values Hardcoded: P3

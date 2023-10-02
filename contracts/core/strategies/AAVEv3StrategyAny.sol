@@ -8,7 +8,6 @@ import {UseWETH, ServiceRegistry, UseOracle, UseIERC20} from "../Hooks.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IWStETH} from "../../interfaces/lido/IWStETH.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 /**
  * @title WST used
@@ -17,7 +16,6 @@ import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
  */
 contract AAVEv3StrategyAny is AAVEv3StrategyBase {
     using SafeERC20 for IERC20;
-    using SafeMath for uint256;
 
     constructor(
         address owner,

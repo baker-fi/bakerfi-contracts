@@ -2,7 +2,6 @@
 pragma solidity ^0.8.18;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/interfaces/IERC3156FlashLender.sol";
 import {IFlashLoans} from "../../interfaces/balancer/IFlashLoan.sol";
@@ -15,7 +14,7 @@ import "@openzeppelin/contracts/interfaces/IERC3156FlashBorrower.sol";
  *
  * */
 contract BalancerFlashLender is IERC3156FlashLender {
-    using SafeMath for uint256;
+
     using SafeERC20 for IERC20;
 
     bytes32 public constant CALLBACK_SUCCESS = keccak256("ERC3156FlashBorrower.onFlashLoan");

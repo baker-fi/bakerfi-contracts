@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
+
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/interfaces/IERC3156FlashBorrower.sol";
 import "@openzeppelin/contracts/interfaces/IERC3156FlashLender.sol";
-import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {ServiceRegistry} from "../../core/ServiceRegistry.sol";
 import {IWETHAdapter} from "../../interfaces/core/IWETHAdapter.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -82,7 +82,6 @@ abstract contract AAVEv3StrategyBase is
 
     using SafeERC20 for IERC20;
     using Leverage for uint256;
-    using SafeMath for uint256;
 
     uint256 internal _pendingAmount = 0;
     uint256 private _deployedAmount = 0;
@@ -169,7 +168,7 @@ abstract contract AAVEv3StrategyBase is
             "Failed to run Flash Loan"
         );
         deployedAmount = _pendingAmount;
-        _deployedAmount = _deployedAmount.add(deployedAmount);
+        _deployedAmount = _deployedAmount + deployedAmount;
         _pendingAmount = 0;
     }
 
@@ -278,9 +277,9 @@ abstract contract AAVEv3StrategyBase is
         uint256 totalDebtBaseInEth
     ) internal returns (uint256 deltaDebt) {
         uint256 numerator = totalDebtBaseInEth -
-            (_targetLoanToValue.mul(totalCollateralBaseInEth).div(PERCENTAGE_PRECISION));
+            (_targetLoanToValue * totalCollateralBaseInEth / PERCENTAGE_PRECISION);
         uint256 divisor = (PERCENTAGE_PRECISION - _targetLoanToValue);
-        deltaDebt = numerator.mul(PERCENTAGE_PRECISION).div(divisor);
+        deltaDebt = numerator * PERCENTAGE_PRECISION /divisor;
         uint256 fee = flashLender().flashFee(wETHA(), deltaDebt);
         uint256 allowance = wETH().allowance(address(this), flashLenderA());
 
@@ -306,17 +305,14 @@ abstract contract AAVEv3StrategyBase is
         uint256 deltaDebt = 0;
 
         if (totalDebtBaseInEth > 0) {
-            ltv = totalDebtBaseInEth.mul(PERCENTAGE_PRECISION).div(totalCollateralBaseInEth);
+            ltv = totalDebtBaseInEth * PERCENTAGE_PRECISION/totalCollateralBaseInEth;
             if (ltv > _targetLoanToValue && ltv < PERCENTAGE_PRECISION) {
                 // Pay Debt to rebalance the position
                 deltaDebt = _adjustDebt(totalCollateralBaseInEth, totalDebtBaseInEth);
             }
         }
 
-        uint256 newDeployedAmount = (totalCollateralBaseInEth
-            .sub(deltaDebt))
-            .sub(totalDebtBaseInEth.sub(deltaDebt)
-        );
+        uint256 newDeployedAmount = totalCollateralBaseInEth - deltaDebt - (totalDebtBaseInEth - deltaDebt);
 
         require(deltaDebt < totalCollateralBaseInEth, "Invalid DeltaDeb Calculated");
 
@@ -348,10 +344,10 @@ abstract contract AAVEv3StrategyBase is
         );
         uint256 price = _ethUSDOracle.getLatestPrice();
         if ( totalCollateralBase !=0 ) {
-              totalCollateralInEth = totalCollateralBase.mul(1e28).div(price);
+              totalCollateralInEth = totalCollateralBase * 1e28 /price;
         }
         if ( totalDebtBase != 0 ) {
-            totalDebtInEth = totalDebtBase.mul(1e28).div(price);
+            totalDebtInEth = totalDebtBase * 1e28 /price;
         }      
     }
 
@@ -366,14 +362,13 @@ abstract contract AAVEv3StrategyBase is
         uint256 amount,
         address payable receiver
     ) private returns (uint256 undeployedAmount) {
-        uint256 percentageToBurn = (amount).mul(PERCENTAGE_PRECISION).div(totalAssets());
+        uint256 percentageToBurn = amount * PERCENTAGE_PRECISION /totalAssets();
         // 1. Rebalance Collateral Balance and Debt and return Collateral  
         (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition();
-        uint256 deltaDebtInETH = (totalDebtBaseInEth).mul(percentageToBurn).div(PERCENTAGE_PRECISION);        
+        uint256 deltaDebtInETH = totalDebtBaseInEth * percentageToBurn / PERCENTAGE_PRECISION;        
         // 2. Withdraw from AAVE Pool
-        uint256 deltaCollateralInETH = (totalCollateralBaseInEth).mul(percentageToBurn).div(
-            PERCENTAGE_PRECISION
-        );
+        uint256 deltaCollateralInETH = totalCollateralBaseInEth * percentageToBurn / PERCENTAGE_PRECISION
+        ;
         uint256 fee = flashLender().flashFee(wETHA(), deltaDebtInETH);
         uint256 allowance = wETH().allowance(address(this), flashLenderA());
         wETH().approve(flashLenderA(), deltaDebtInETH + fee + allowance);
@@ -387,7 +382,7 @@ abstract contract AAVEv3StrategyBase is
             "Failed to run Flash Loan"
         );
         undeployedAmount = _pendingAmount;
-        _deployedAmount = _deployedAmount.sub(undeployedAmount);
+        _deployedAmount = _deployedAmount - undeployedAmount;
         _pendingAmount = 0;
         
 
@@ -398,10 +393,10 @@ abstract contract AAVEv3StrategyBase is
     function _convertToWETH(uint256 amount) internal virtual returns (uint256);
     
     function _toWETH(uint256 amountIn) internal view  returns (uint256 amountOut) {
-        amountOut = amountIn.mul(_collateralOracle.getLatestPrice()).div(_collateralOracle.getPrecision());
+        amountOut = amountIn * _collateralOracle.getLatestPrice() /_collateralOracle.getPrecision();
     }
 
     function _fromWETH(uint256 amountIn) internal view returns (uint256 amountOut) {
-        amountOut = amountIn.mul(_collateralOracle.getPrecision()).div(_collateralOracle.getLatestPrice());
+        amountOut = amountIn * _collateralOracle.getPrecision() / _collateralOracle.getLatestPrice();
     }
 }

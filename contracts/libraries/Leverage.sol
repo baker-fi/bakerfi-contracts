@@ -3,11 +3,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
-
-
 library Leverage {
-    using SafeMath for uint256;
     
     uint256 constant MAX_LOAN_TO_VALUE = 1e9; // 100%
 

@@ -8,7 +8,6 @@ import {UseWETH, UseStETH, UseWstETH, UseServiceRegistry, UseOracle, UseIERC20} 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IWStETH} from "../../interfaces/lido/IWStETH.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 /**
  * @title WST used 
@@ -18,7 +17,6 @@ import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH { 
     
     using SafeERC20 for IERC20;
-    using SafeMath for uint256;
 
     constructor(
         address owner,
@@ -38,7 +36,7 @@ contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH {
         require(sent, "Failed to send Ether");
         uint256 wStEthBalanceAfter = wstETH().balanceOf(address(this));
         // 3. Wrap stETH -> wstETH
-        return wStEthBalanceAfter.sub(wStEthBalanceBefore);
+        return wStEthBalanceAfter - wStEthBalanceBefore;
     }
 
     function _convertToWETH(uint256 amount) internal virtual override returns (uint256) {

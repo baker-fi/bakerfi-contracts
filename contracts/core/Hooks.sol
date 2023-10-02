@@ -16,7 +16,6 @@ import "@openzeppelin/contracts/interfaces/IERC3156FlashLender.sol";
 import {ISettings} from "../interfaces/core/ISettings.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "../interfaces/aave/v3/DataTypes.sol";
-import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 abstract contract UseServiceRegistry {
     ServiceRegistry private immutable _registry;
@@ -132,7 +131,6 @@ abstract contract UseWstETH {
 abstract contract UseAAVEv3 {
     
     using SafeERC20 for IERC20;
-    using SafeMath for uint256;
 
     IPoolV3 immutable _aavev3;
     

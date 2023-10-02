@@ -2,7 +2,6 @@
 pragma solidity ^0.8.18;
 pragma experimental ABIEncoderV2;
 
-import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {ServiceRegistry} from "../../core/ServiceRegistry.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -15,7 +14,6 @@ import {UNISWAP_ROUTER} from "../Constants.sol";
 contract UniV3Swapper is Ownable, ISwapHandler, UseServiceRegistry {
     
     error SwapFailed();
-    using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
     IV3SwapRouter private _uniRouter;

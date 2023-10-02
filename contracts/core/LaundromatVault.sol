@@ -6,7 +6,6 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Pausable} from "@openzeppelin/contracts/security/Pausable.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Rebase, RebaseLibrary} from "../libraries/BoringRebase.sol";
-import {SafeMath} from "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {ServiceRegistry} from "../core/ServiceRegistry.sol";
 import {ISwapHandler} from "../interfaces/core/ISwapHandler.sol";
 import {IStrategy} from "../interfaces/core/IStrategy.sol";
@@ -29,7 +28,6 @@ import {UseSettings} from "./Hooks.sol";
  * @notice
  */
 contract LaundromatVault is Ownable, Pausable, ERC20Permit, UseSettings {
-    using SafeMath for uint256;
     using RebaseLibrary for Rebase;
     using SafeERC20 for ERC20;
 
@@ -79,13 +77,11 @@ contract LaundromatVault is Ownable, Pausable, ERC20Permit, UseSettings {
                     settings().getFeeReceiver() != address(this) &&
                     settings().getPerformanceFee() > 0
                 ) {                 
-                    uint256 feeInEth = uint256(balanceChange)
-                        .mul(settings().getPerformanceFee())   
-                        .div(PERCENTAGE_PRECISION);                
-                    uint256 percToTreasury = feeInEth.mul(PERCENTAGE_PRECISION).div(newPos);
-                    uint256 sharesToMint = percToTreasury.mul(totalSupply()).div(
-                        PERCENTAGE_PRECISION
-                    );
+                    uint256 feeInEth = uint256(balanceChange) * 
+                        settings().getPerformanceFee() / 
+                        PERCENTAGE_PRECISION;
+                    uint256 percToTreasury = feeInEth *  PERCENTAGE_PRECISION / newPos ;
+                    uint256 sharesToMint = percToTreasury * totalSupply() / PERCENTAGE_PRECISION;
                     _mint(settings().getFeeReceiver(), sharesToMint);
                 }
             }
@@ -119,12 +115,12 @@ contract LaundromatVault is Ownable, Pausable, ERC20Permit, UseSettings {
      */
     function withdraw(uint256 shares, address payable receiver) external returns (uint256 amount) {
         require(balanceOf(msg.sender) >= shares, "No Enough balance to withdraw");
-        uint256 percentageToBurn = shares.mul(PERCENTAGE_PRECISION).div(totalSupply());
-        uint256 withdrawAmount = (totalPosition()).mul(percentageToBurn).div(PERCENTAGE_PRECISION);
+        uint256 percentageToBurn = shares * PERCENTAGE_PRECISION / totalSupply();
+        uint256 withdrawAmount = totalPosition() * percentageToBurn /PERCENTAGE_PRECISION;
         amount = _strategy.undeploy(withdrawAmount, payable(this));
         // Withdraw ETh to Receiver and pay withdrawal Fees
         if (settings().getWithdrawalFee() != 0  && settings().getFeeReceiver() != address(0)) {
-            uint256 fee = amount.mul(settings().getWithdrawalFee()).div(PERCENTAGE_PRECISION);
+            uint256 fee = amount * settings().getWithdrawalFee() /PERCENTAGE_PRECISION;
             (bool success, ) = payable(receiver).call{value: amount - fee}("");
             require(success, "Failed to Send ETH To Receiver");
             (bool successFee, ) = payable(settings().getFeeReceiver()).call{value: fee}("");
@@ -145,7 +141,7 @@ contract LaundromatVault is Ownable, Pausable, ERC20Permit, UseSettings {
         if (totalCollateralInEth == 0) {
             ltv = 0;
         } else {
-            ltv = totalDebtInEth.mul(PERCENTAGE_PRECISION).div(totalCollateralInEth);
+            ltv = totalDebtInEth * PERCENTAGE_PRECISION / totalCollateralInEth;
         }
     }
 
@@ -197,7 +193,7 @@ contract LaundromatVault is Ownable, Pausable, ERC20Permit, UseSettings {
         if (totalSupply() == 0 || position == 0) {
             return 0;
         }
-        return totalSupply().mul(1 ether).div(position);
+        return totalSupply() * 1 ether / position;
     }
 
     function setWithdrawalFee(uint256 fee) external onlyOwner {
