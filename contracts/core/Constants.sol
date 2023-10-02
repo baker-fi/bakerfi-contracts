@@ -19,3 +19,4 @@ bytes32 constant SWAPPER_HANDLER = keccak256(bytes("Swapper Handler"));
 bytes32 constant BALANCER_VAULT = keccak256(bytes("Balancer Vault"));
 bytes32 constant SETTINGS = keccak256(bytes("Settings"));
 bytes32 constant UNISWAP_QUOTER = keccak256(bytes("Uniswap Quoter"));
+uint8 constant E_MODE_CATEGORY_ETH = 1;

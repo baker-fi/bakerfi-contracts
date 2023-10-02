@@ -17,7 +17,8 @@ import {
     AAVE_V3, 
     FLASH_LENDER, 
     ST_ETH_CONTRACT, 
-    WST_ETH_CONTRACT
+    WST_ETH_CONTRACT,
+    E_MODE_CATEGORY_ETH
 } from "../Constants.sol";
 import {Rebase, RebaseLibrary} from "../../libraries/BoringRebase.sol";
 import {IWETH} from "../../interfaces/tokens/IWETH.sol";
@@ -116,7 +117,9 @@ abstract contract AAVEv3StrategyBase is
         require(swapperA() != address(0), "Invalid Swapper Handler Contract");                        
         require(flashLenderA() != address(0), "Invalid Flash Lender Contract");                                
         require(uniQuoterA() != address(0), "Invalid Uniswap Quoter Contract");                                        
-        _transferOwnership(owner);
+        _transferOwnership(owner);        
+        aaveV3().setUserEMode(E_MODE_CATEGORY_ETH);
+        require(aaveV3().getUserEMode(address(this)) == E_MODE_CATEGORY_ETH, "Invalid Emode");
     }
 
     receive() external payable {}
