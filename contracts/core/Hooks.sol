@@ -158,14 +158,6 @@ abstract contract UseAAVEv3 {
         aaveV3().borrow(assetOut, borrowOut, 2, 0, address(this));
     }
 
-    function repayWithAToken(
-         address assetIn,
-         uint256 amount
-    ) internal {
-        DataTypes.ReserveData memory reserve = aaveV3().getReserveData(assetIn);
-        IERC20(reserve.aTokenAddress).safeApprove(aaveV3A(), amount);
-        aaveV3().repayWithATokens(assetIn, amount, 2);      
-    }
     function repay(
          address assetIn,
          uint256 amount

@@ -40,6 +40,7 @@ import {
     UseSwapper, 
     UseIERC20
 } from "../Hooks.sol";
+import "hardhat/console.sol";
 
 /**
  * 
@@ -204,7 +205,7 @@ abstract contract AAVEv3StrategyBase is
      * 
      */
     function _repayAndWithdraw(uint256 withdrawAmountInETh, uint256 repayAmount, uint256 fee, address payable receiver ) private {
-        uint256 withdrawAmount = _fromWETH(withdrawAmountInETh);            
+        uint256 withdrawAmount = _fromWETH(withdrawAmountInETh);    
         repay(wETHA(), repayAmount);
         aaveV3().withdraw(ierc20A(), withdrawAmount, address(this));             
         // 2. Convert Collateral to WETH
@@ -367,8 +368,7 @@ abstract contract AAVEv3StrategyBase is
         (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition();
         uint256 deltaDebtInETH = totalDebtBaseInEth * percentageToBurn / PERCENTAGE_PRECISION;        
         // 2. Withdraw from AAVE Pool
-        uint256 deltaCollateralInETH = totalCollateralBaseInEth * percentageToBurn / PERCENTAGE_PRECISION
-        ;
+        uint256 deltaCollateralInETH = totalCollateralBaseInEth * percentageToBurn / PERCENTAGE_PRECISION;      
         uint256 fee = flashLender().flashFee(wETHA(), deltaDebtInETH);
         uint256 allowance = wETH().allowance(address(this), flashLenderA());
         wETH().approve(flashLenderA(), deltaDebtInETH + fee + allowance);

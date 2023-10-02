@@ -133,11 +133,11 @@ MIT
 
 ### TODO - Smart Contracts 
 
-* Use the Uniswap Directly: P2
 * Unit Test Settings changes: P1
-* Myhtril Check - Fix Vulnerability fixes: P3
 * Test Corner Cases: Max Withdraw P1
 * Test Corner Cases: Strategy Exit P1 
+* Use the Uniswap Directly: P2
+* Myhtril Check - Fix Vulnerability fixes: P3
 * Logic: Check if the SetAsCollateral is already done P2
 * Logic: Enable E-Mode on initialization for collateral higher LTV: P2
 * Optimization: Set MAX Int allowances on initialization - P3

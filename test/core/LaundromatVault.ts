@@ -273,4 +273,28 @@ describeif(network.name === "hardhat")("Laundromat Vault", function () {
 
   });
 
+
+  it.only("Test Max Withdraw", async function (){
+    const { owner, vault, settings, otherAccount, anotherAccount} = await loadFixture(deployFunction);
+    await vault.deposit(owner.address, {
+      value: ethers.parseUnits("10", 18),
+    });
+    
+    const provider = ethers.provider;
+    const balanceOf = await vault.balanceOf(owner.address);
+    const balanceBefore = await provider.getBalance(otherAccount.address);
+    await vault.withdraw(balanceOf, otherAccount.address);
+    const balanceAfter = await provider.getBalance(otherAccount.address);
+    
+    expect(await vault.balanceOf(owner.address)).to.equal(0);
+    expect(await vault.totalSupply()).to.equal(0);
+    expect(await vault.totalCollateral()).to.equal(0);
+    expect(await vault.totalDebt()).to.equal(0);
+    expect(balanceAfter - balanceBefore).to.equal(9928554227270000000n);
+    expect(await vault.loanToValue()).to.equal(0);
+    expect(await vault.tokenPerETh()).to.equal(0);
+  });
+
+
+
 });
