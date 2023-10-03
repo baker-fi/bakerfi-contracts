@@ -41,7 +41,7 @@ import {
     UseSwapper, 
     UseIERC20
 } from "../Hooks.sol";
-import "hardhat/console.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
  * 
@@ -65,7 +65,8 @@ abstract contract AAVEv3StrategyBase is
     UseAAVEv3,
     UseSwapper,
     UseFlashLender,   
-    UseUniQuoter
+    UseUniQuoter,
+    ReentrancyGuard 
 {
 
     enum FlashLoanAction{ SUPPLY_BOORROW, PAY_DEBT_WITHDRAW, PAY_DEBT}
@@ -153,7 +154,7 @@ abstract contract AAVEv3StrategyBase is
     /**
      * Deploy new Capital on the pool making it productive on the Lido
      */
-    function deploy() external payable onlyOwner returns (uint256 deployedAmount) {
+    function deploy() external payable onlyOwner nonReentrant returns (uint256 deployedAmount) {
         require(msg.value != 0, "No Zero deposit Allower");
         // 1. Wrap Ethereum
         wETH().deposit{value: msg.value}();
@@ -259,7 +260,7 @@ abstract contract AAVEv3StrategyBase is
     /**
      * Exit the full position and move the funds to the owner
      */
-    function exit(address payable liquidator) external override onlyOwner returns (uint256 undeployedAmount) {
+    function exit(address payable liquidator) external override onlyOwner nonReentrant returns (uint256 undeployedAmount) {
         uint256 amount = totalAssets();
         undeployedAmount = _undeploy(amount, liquidator);
     }
@@ -304,7 +305,7 @@ abstract contract AAVEv3StrategyBase is
      * Harvest a profit when there is a difference between the amount the strategy
      * predicts that is deployed and the real value
      */
-    function harvest() external override onlyOwner returns (int256 balanceChange) {
+    function harvest() external override onlyOwner nonReentrant returns (int256 balanceChange) {
         (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition();
         uint256 ltv = 0;
         uint256 deltaDebt = 0;

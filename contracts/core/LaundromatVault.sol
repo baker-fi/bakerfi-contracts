@@ -13,6 +13,7 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 import {PERCENTAGE_PRECISION} from "./Constants.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 import {UseSettings} from "./Hooks.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
  * Landromat Vault
@@ -27,7 +28,7 @@ import {UseSettings} from "./Hooks.sol";
  * @author Helder Vasconcelos
  * @notice
  */
-contract LaundromatVault is Ownable, Pausable, ERC20Permit, UseSettings {
+contract LaundromatVault is Ownable, Pausable, ERC20Permit, UseSettings, ReentrancyGuard {
     using RebaseLibrary for Rebase;
     using SafeERC20 for ERC20;
 
@@ -67,7 +68,7 @@ contract LaundromatVault is Ownable, Pausable, ERC20Permit, UseSettings {
      * Function to rebalance the strategy, prevent a liquidation and pay fees
      * to protocol by minting shares to the fee receiver
      */
-    function rebalance() external returns (int256 balanceChange)  {
+    function rebalance() external nonReentrant returns (int256 balanceChange)  {
         uint256 currentPos = totalPosition();
         if (currentPos > 0) {
             balanceChange = _strategy.harvest();
@@ -99,7 +100,7 @@ contract LaundromatVault is Ownable, Pausable, ERC20Permit, UseSettings {
      *
      * @param receiver The account that receives the shares minted
      */
-    function deposit(address receiver) external payable returns (uint256 shares) {
+    function deposit(address receiver) external payable nonReentrant returns (uint256 shares) {
         require(msg.value > 0, "Invalid Amount to be deposit");
         Rebase memory total = Rebase(totalPosition(), totalSupply());
         uint256 amount = _strategy.deploy{value: msg.value}();
@@ -113,7 +114,7 @@ contract LaundromatVault is Ownable, Pausable, ERC20Permit, UseSettings {
      * @param shares The amount of shares (mateETH) to be burned
      * @param receiver The account that is going to receive the assets
      */
-    function withdraw(uint256 shares, address payable receiver) external returns (uint256 amount) {
+    function withdraw(uint256 shares, address payable receiver) external nonReentrant returns (uint256 amount) {
         require(balanceOf(msg.sender) >= shares, "No Enough balance to withdraw");
         uint256 percentageToBurn = shares * PERCENTAGE_PRECISION / totalSupply();
         uint256 withdrawAmount = totalPosition() * percentageToBurn /PERCENTAGE_PRECISION;

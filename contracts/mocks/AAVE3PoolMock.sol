@@ -268,11 +268,15 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
 
     function getEModeCategoryData(
         uint8 id
-    ) external view override returns (DataTypes.EModeCategory memory) {}
+    ) external view override returns (DataTypes.EModeCategory memory) {
+       
+    }
 
     function setUserEMode(uint8 categoryId) external override {}
 
-    function getUserEMode(address user) external view override returns (uint256) {}
+    function getUserEMode(address user) external view override returns (uint256) {
+         return 1;
+    }
 
     function resetIsolationModeTotalDebt(address asset) external override {}
 

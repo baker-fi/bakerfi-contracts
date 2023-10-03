@@ -133,9 +133,9 @@ MIT
 
 ### TODO - Smart Contracts 
 
+* Add Reentrancy Guards: P2
 * Fuzzing Testing: P2
 * Test Logic with Flash Loan fees: P2
-* Add Reentrancy Guards: P2
 * Use the Uniswap Directly: P3
 * Unit Test Service Registry: P3
 * Make the Leverage Values Hardcoded: P3
