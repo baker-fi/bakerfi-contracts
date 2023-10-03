@@ -31,6 +31,7 @@ import {IStrategy} from "../../interfaces/core/IStrategy.sol";
 import {UseLeverage} from "../hooks/UseLeverage.sol";
 import { UseOracle } from "../hooks/UseOracle.sol";
 import { UseUniQuoter } from "../hooks/UseUniQuoter.sol";
+import { UseSettings } from "../hooks/UseSettings.sol";
 import { UseWETH } from "../hooks/UseWETH.sol";
 import { UseStETH } from "../hooks/UseStETH.sol";
 import { UseFlashLender } from "../hooks/UseFlashLender.sol";
@@ -65,7 +66,8 @@ abstract contract AAVEv3StrategyBase is
     UseFlashLender,   
     UseUniQuoter,
     ReentrancyGuard,
-    UseLeverage
+    UseLeverage,
+    UseSettings
 {
 
     enum FlashLoanAction{ SUPPLY_BOORROW, PAY_DEBT_WITHDRAW, PAY_DEBT}
@@ -104,6 +106,7 @@ abstract contract AAVEv3StrategyBase is
         UseSwapper(registry)
         UseFlashLender(registry)       
         UseUniQuoter(registry)
+        UseSettings(registry)
     {
         _collateralOracle = IOracle(registry.getServiceFromHash(collateralOracle));
         _ethUSDOracle = IOracle(registry.getServiceFromHash(ETH_USD_ORACLE));   
@@ -117,21 +120,17 @@ abstract contract AAVEv3StrategyBase is
 
     receive() external payable {}
 
-    function setTargetLTV(uint256 targetLoanToValue) onlyOwner external {
-        require(targetLoanToValue <  PERCENTAGE_PRECISION, "Invalid percentage value");
-        _targetLoanToValue = targetLoanToValue;
-    }
-
-    function getTargetLTV() external view returns (uint256 ) {
-        return _targetLoanToValue;
-    }
-
     function getPosition()
         external
         view
-        returns (uint256 totalCollateralInEth, uint256 totalDebtInEth)
+        returns (uint256 totalCollateralInEth, uint256 totalDebtInEth, uint256 loanToValue)
     {
-        return _getPosition();
+        (totalCollateralInEth, totalDebtInEth) = _getPosition();
+        if (totalCollateralInEth == 0) {
+            loanToValue = 0;
+        } else {
+            loanToValue = totalDebtInEth * PERCENTAGE_PRECISION / totalCollateralInEth;
+        }
     }
 
     /**
@@ -275,7 +274,7 @@ abstract contract AAVEv3StrategyBase is
         uint256 totalDebtBaseInEth
     ) internal returns (uint256 deltaDebt) {
         uint256 numerator = totalDebtBaseInEth -
-            (_targetLoanToValue * totalCollateralBaseInEth / PERCENTAGE_PRECISION);
+            (settings().getLoanToValue() * totalCollateralBaseInEth / PERCENTAGE_PRECISION);
         uint256 divisor = (PERCENTAGE_PRECISION - _targetLoanToValue);
         deltaDebt = numerator * PERCENTAGE_PRECISION /divisor;
         uint256 fee = flashLender().flashFee(wETHA(), deltaDebt);
@@ -304,11 +303,12 @@ abstract contract AAVEv3StrategyBase is
 
         if (totalDebtBaseInEth > 0) {
             ltv = totalDebtBaseInEth * PERCENTAGE_PRECISION/totalCollateralBaseInEth;
-            if (ltv > _targetLoanToValue && ltv < PERCENTAGE_PRECISION) {
+            if (ltv > settings().getMaxLoanToValue() && ltv < PERCENTAGE_PRECISION) {
                 // Pay Debt to rebalance the position
                 deltaDebt = _adjustDebt(totalCollateralBaseInEth, totalDebtBaseInEth);
             }
         }
+
 
         uint256 newDeployedAmount = totalCollateralBaseInEth - deltaDebt - (totalDebtBaseInEth - deltaDebt);
 

@@ -18,8 +18,9 @@ contract Settings is Ownable {
 
     uint256 private _withdrawalFee = 10 * 1e6; // 1%
     uint256 private _performanceFee = 10* 1e6; // 1%
-    address private _feeReceiver = address(0);
+    address private _feeReceiver = address(0); // No Fee Receiver
     uint256 private _loanToValue =  800 * 1e6; // 80%
+    uint256 private _maxLoanToValue =  850 * 1e6; // 85% 
     // The mininum amount of profit to unroll the profit to ETH 
     uint256 private _unrollThreshold = 1e16 wei; 
 
@@ -27,13 +28,14 @@ contract Settings is Ownable {
         _transferOwnership(owner);
     }
 
-    function setUnrollThreshold(uint256 loanToValue) external onlyOwner {
-        require(loanToValue <  PERCENTAGE_PRECISION, "Invalid percentage value");
-        _loanToValue = loanToValue;
+    function setMaxLoanToValue(uint256 maxLoanToValue) external onlyOwner {
+        require(maxLoanToValue <  PERCENTAGE_PRECISION, "Invalid percentage value");
+        require(maxLoanToValue > _loanToValue, "Max Loan to Value should be higher than loan to value");
+        _maxLoanToValue = maxLoanToValue;
     }
 
-    function getUnrollThreshold() external view returns (uint256) {
-        return _unrollThreshold;
+    function getMaxLoanToValue() external view returns (uint256) {
+        return _maxLoanToValue;
     }
 
     function setLoanToValue(uint256 loanToValue) external onlyOwner {

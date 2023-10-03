@@ -11,7 +11,5 @@ interface IStrategy {
     function harvest() external returns (int256 balanceChange);
     function undeploy(uint256 amount, address payable receiver) external returns (uint256 actualAmount);   
     function exit(address payable liquidator) external returns (uint256 actualAmount);   
-    function getPosition() external view returns ( uint256 totalCollateralInEth,  uint256 totalDebtInEth);
-    function getTargetLTV() external view returns (uint256 target);   
-    function setTargetLTV(uint256 target) external;   
+    function getPosition() external view returns (uint256 totalCollateralInEth,  uint256 totalDebtInEth, uint256 loanToValue);
 }

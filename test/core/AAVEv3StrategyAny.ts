@@ -10,6 +10,7 @@ import {
   deployFlashLender,
   deployOracleMock,
   deployWETH,
+  deploySettings,
   deployAAVEv3StrategyAny,
   deployQuoterV2Mock,
 } from "../../scripts/common";
@@ -24,6 +25,10 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
     const AAVE_DEPOSIT = ethers.parseUnits("10000", 18);
     const serviceRegistry = await deployServiceRegistry(owner.address);
     const serviceRegistryAddress = await serviceRegistry.getAddress();
+    const settings = await deploySettings(   
+      owner.address,
+      serviceRegistry,
+    );
     const weth = await deployWETH(serviceRegistry);
     // 1. Deploy Flash Lender
     const flashLender = await deployFlashLender(
@@ -70,7 +75,8 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
       aave3Pool,
       flashLender,
       strategy,
-      oracle
+      oracle,
+      settings
     };
   }
 
@@ -84,7 +90,8 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
     );;
     expect(await strategy.getPosition()).to.deep.equal([ 
         45705032700000000000n, 
-        35740737730000000000n
+        35740737730000000000n,
+        781986919n
     ]);
     expect(await strategy.totalAssets()).to.equal(
         9964294970000000000n
@@ -101,7 +108,8 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
     });
     expect(await strategy.getPosition()).to.deep.equal([ 
       45705032700000000000n, 
-      35740737730000000000n
+      35740737730000000000n,
+      781986919n
     ]);
     expect(await strategy.totalAssets()).to.equal(
       9964294970000000000n
@@ -138,12 +146,10 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
     const liquidator = "0x7cFE75bEBE00f5159B6a890aFf89756CDFB313E6";
     await strategy.exit( liquidator);
     expect(await strategy.totalAssets()).to.equal(0); 
-    expect(await strategy.getPosition()).to.deep.equal([0n,0n]);
+    expect(await strategy.getPosition()).to.deep.equal([0n,0n,0n]);
   });
 
-
-
-  it("Default Target LTV", async ()=> {
+  /*it("Default Target LTV", async ()=> {
     const { owner, strategy } = await loadFixture(deployFunction);   
     expect(await strategy.getTargetLTV()).to.equal(800*(1e6)); 
   });
@@ -166,5 +172,5 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
     await expect(
       strategy.setTargetLTV(1100*(1e6))
     ).to.be.revertedWith("Invalid percentage value");
-  });
+  });*/
 });

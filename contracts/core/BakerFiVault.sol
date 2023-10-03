@@ -39,10 +39,6 @@ contract BakerFiVault is Ownable, Pausable, ERC20Permit, UseSettings, Reentrancy
     ServiceRegistry public immutable _registry;
     IStrategy private immutable _strategy;
 
-    uint256 private _withdrawalFee = 10 * 1e6; // 10%
-    uint256 private _performanceFee = 10 * 1e6; // 10%
-    address private _feeReceiver = address(0);
-
     event Deposit(address depositor, address receiver, uint256 amount, uint256 shares);
     event Withdraw(address owner, uint256 amount, uint256 shares);
 
@@ -137,33 +133,28 @@ contract BakerFiVault is Ownable, Pausable, ERC20Permit, UseSettings, Reentrancy
      * Percentage of borrowed per value provided
      */
     function loanToValue() public view returns (uint256 ltv) {
-        (uint256 totalCollateralInEth, uint256 totalDebtInEth) = _strategy.getPosition();
-        if (totalCollateralInEth == 0) {
-            ltv = 0;
-        } else {
-            ltv = totalDebtInEth * PERCENTAGE_PRECISION / totalCollateralInEth;
-        }
+        (,, ltv) = _strategy.getPosition();    
     }
 
     /**
      * Total Amount of assets controlled by strategy
      */
     function totalCollateral() public view returns (uint256 totalCollateralInEth) {
-        (totalCollateralInEth, ) = _strategy.getPosition();
+        (totalCollateralInEth,, ) = _strategy.getPosition();
     }
 
     /**
      * Totaal of liabilities on the strategy
      */
     function totalDebt() public view returns (uint256 totalDebtInEth) {
-        (, totalDebtInEth) = _strategy.getPosition();
+        (, totalDebtInEth,) = _strategy.getPosition();
     }
 
     /**
      * Total Assets that belong to the Share Holders
      */
     function totalPosition() public view returns (uint256 amount) {
-        (uint256 totalCollateralInEth, uint256 totalDebtInEth) = _strategy.getPosition();
+        (uint256 totalCollateralInEth, uint256 totalDebtInEth, ) = _strategy.getPosition();
         amount = totalCollateralInEth - totalDebtInEth;
     }
 
@@ -196,7 +187,7 @@ contract BakerFiVault is Ownable, Pausable, ERC20Permit, UseSettings, Reentrancy
         return totalSupply() * 1 ether / position;
     }
 
-    function setWithdrawalFee(uint256 fee) external onlyOwner {
+   /* function setWithdrawalFee(uint256 fee) external onlyOwner {
         require(fee < PERCENTAGE_PRECISION);
         _withdrawalFee = fee;
     }
@@ -224,11 +215,11 @@ contract BakerFiVault is Ownable, Pausable, ERC20Permit, UseSettings, Reentrancy
     }
 
     function getTargetLTV() public view returns (uint256) {
-        return _strategy.getTargetLTV();
+        return settings().getLoanToValue();
     }
 
     function setTargetLTV(uint256 target) external onlyOwner {
         _strategy.setTargetLTV(target);
-    }   
+    } */
 
 }

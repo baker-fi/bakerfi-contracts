@@ -8,6 +8,7 @@ import {
   deployWStEth,
   deploySwapper,
   deployAaveV3,
+  deploySettings,
   deployFlashLender,
   deployOracleMock,
   deployWETH,
@@ -33,6 +34,10 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
       serviceRegistry,
       weth,
       FLASH_LENDER_DEPOSIT
+    );
+    const settings = await deploySettings(   
+      owner.address,
+      serviceRegistry,
     );
     // 2. Deploy stETH
     const stETH = await deployStEth(serviceRegistry, owner, STETH_MAX_SUPPLY);
@@ -96,7 +101,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
 
   it("Test Initialized Strategy", async function () {
     const { owner, strategy } = await loadFixture(deployFunction);
-    expect(await strategy.getPosition()).to.deep.equal([ 0n, 0n]);
+    expect(await strategy.getPosition()).to.deep.equal([ 0n, 0n, 0n]);
     expect(await strategy.totalAssets()).to.equal(0);
   });
 
@@ -110,7 +115,8 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
     );;
     expect(await strategy.getPosition()).to.deep.equal([ 
         45655671260000000000n, 
-        35740737730000000000n
+        35740737730000000000n,
+        782832378n
     ]);
     expect(await strategy.totalAssets()).to.equal(
         9914933530000000000n
@@ -119,7 +125,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
   });
 
 
-  it("Test Profit", async function () {
+  it("Test Profit - No Debt Adjust", async function () {
     const { owner, strategy, aave3Pool } = await loadFixture(deployFunction);
     // Deploy 10 ETH
     await strategy.deploy({
@@ -137,7 +143,8 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
     ); 
     expect(await strategy.getPosition()).to.deep.equal([ 
         50221238390000000000n, 
-        35740737730000000000n
+        35740737730000000000n,
+        711665798n
     ]);
     expect(await strategy.totalAssets()).to.equal(
         14480500660000000000n
@@ -145,7 +152,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
   })
 
 
-  it("Test Loss", async function () {
+  it("Test Loss - No Debt Adjust", async function () {
     const { owner, oracle, strategy, aave3Pool } = await loadFixture(deployFunction);   
      // Deploy 10 ETH
      await strategy.deploy({
@@ -159,16 +166,31 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
     await oracle.setLatestPrice(
       1130*(1e6)*0.9
     );
+
+    expect(await strategy.getPosition()).to.deep.equal([ 
+      41090104140000000000n, 
+      35740737730000000000n, 
+      869813753n
+    ]);
+
     await strategy.harvest();
 
     expect(await strategy.getPosition()).to.deep.equal([ 
       26488409310000000000n, 
-      21397465640000000000n
+      21397465640000000000n,
+      807804854n
     ]);
     expect(await strategy.totalAssets()).to.equal(
       5090943670000000000n
     );
-  })
+  });
+
+
+  it("Test Loss - Debt Adjust", async function () {})
+
+
+  it("Test Loss - Collateral Value is lower than debt", async function () {})
+
 
 
 });

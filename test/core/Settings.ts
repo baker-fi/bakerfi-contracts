@@ -21,6 +21,7 @@ describeif(network.name === "hardhat")("Settings", function () {
         const { settings } = await loadFixture(deployFunction);
         expect(await settings.owner()).to.equal("0xF39FC4F1d439D03E82f698a86f2D79C6aa9dD380");
         expect(await settings.getLoanToValue()).to.equal( 800*(1e6));
+        expect(await settings.getMaxLoanToValue()).to.equal( 850*(1e6));
         expect(await settings.getWithdrawalFee()).to.equal(10*(1e6));
         expect(await settings.getPerformanceFee()).to.equal(10*(1e6));
         expect(await settings.getFeeReceiver()).to.equal("0x0000000000000000000000000000000000000000");
@@ -36,6 +37,26 @@ describeif(network.name === "hardhat")("Settings", function () {
     it("❌ Invalid Loan to Value", async function () {
         const { settings, otherAccount} = await loadFixture(deployFunction);
         await expect(settings.connect(otherAccount).setLoanToValue(1100*(1e6)))
+        .to.be.revertedWith("Invalid percentage value");
+    });
+
+
+    it("Change Max Loan to Value", async function () {
+        const { settings, otherAccount} = await loadFixture(deployFunction);
+        await settings.connect(otherAccount).setMaxLoanToValue(820*(1e6));
+        expect(await settings.connect(otherAccount).getMaxLoanToValue()).to.equal( 820*(1e6));
+    });
+
+
+    it("❌ Invalid Max Loan to Value", async function () {
+        const { settings, otherAccount} = await loadFixture(deployFunction);
+        await expect(settings.connect(otherAccount).setMaxLoanToValue(400*(1e6)))
+        .to.be.revertedWith("Max Loan to Value should be higher than loan to value");
+    });
+
+    it("❌ Invalid Max Loan to Value", async function () {
+        const { settings, otherAccount} = await loadFixture(deployFunction);
+        await expect(settings.connect(otherAccount).setMaxLoanToValue(1100*(1e6)))
         .to.be.revertedWith("Invalid percentage value");
     });
 
@@ -74,6 +95,13 @@ describeif(network.name === "hardhat")("Settings", function () {
         const { settings,owner, otherAccount} = await loadFixture(deployFunction);
         await expect(settings.setFeeReceiver(owner.address))
           .to.be.revertedWith("Ownable: caller is not the owner");
+    });
+
+
+    it("Change Max Loan To value", async function () {
+        const { settings, otherAccount} = await loadFixture(deployFunction);
+        await settings.connect(otherAccount).setMaxLoanToValue(850*(1e6));
+        expect(await settings.getMaxLoanToValue()).to.equal(850*(1e6));
     });
 
 });
