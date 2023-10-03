@@ -19,6 +19,8 @@ abstract contract UseWstETH {
     constructor(ServiceRegistry registry) {
         _wstETH = IWStETH(registry.getServiceFromHash(WST_ETH_CONTRACT));
         _stETHToken = IERC20(registry.getServiceFromHash(ST_ETH_CONTRACT));
+        require(address(_wstETH) != address(0), "Invalid Wrapped Staked ETH Contract");
+        require(address(_stETHToken) != address(0), "Invalid Staked ETH Contract");
     }
 
     function wstETH() internal view returns (IWStETH) {

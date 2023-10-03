@@ -11,6 +11,7 @@ abstract contract UseOracle {
 
     constructor(ServiceRegistry registry, bytes32 oracleName ) {
         _oracle = IOracle(registry.getServiceFromHash(oracleName));
+        require(address(_oracle) != address(0), "Invalid Oracle Contract");
     }
 
     function oracle() internal view returns (IOracle) {

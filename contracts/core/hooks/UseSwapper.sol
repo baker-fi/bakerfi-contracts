@@ -13,6 +13,7 @@ abstract contract UseSwapper {
 
     constructor(ServiceRegistry registry) {
         _swapper = ISwapHandler(registry.getServiceFromHash(SWAPPER_HANDLER));
+        require(address(_swapper) != address(0), "Invalid Swapper Handler Contract");
     }
 
     function swapper() internal view returns (ISwapHandler) {

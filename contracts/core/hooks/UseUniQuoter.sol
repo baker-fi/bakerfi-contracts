@@ -13,6 +13,7 @@ abstract contract UseUniQuoter {
 
     constructor(ServiceRegistry registry) {
         _quoter = IQuoterV2(registry.getServiceFromHash(UNISWAP_QUOTER));
+        require(address(_quoter) != address(0), "Invalid Uniswap Quoter Contract");
     }
 
     function uniQuoter() internal view returns (IQuoterV2) {

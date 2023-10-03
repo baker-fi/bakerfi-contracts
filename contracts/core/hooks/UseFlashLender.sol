@@ -15,6 +15,7 @@ abstract contract UseFlashLender {
 
     constructor(ServiceRegistry registry) {
         _fLender = IERC3156FlashLender(registry.getServiceFromHash(FLASH_LENDER));
+        require(address(_fLender) != address(0), "Invalid Flash Lender Contract");
     }
 
     function flashLender() internal view returns (IERC3156FlashLender) {

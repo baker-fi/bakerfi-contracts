@@ -13,6 +13,7 @@ contract UseIERC20 {
 
     constructor(ServiceRegistry registry, bytes32 name) {
         _ierc20 = IERC20(registry.getServiceFromHash(name));
+        require(address(_ierc20) != address(0), "Invalid IERC20 Contract");
     }
 
     function ierc20() internal view returns (IERC20) {

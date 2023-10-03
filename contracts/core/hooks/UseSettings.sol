@@ -12,6 +12,7 @@ abstract contract UseSettings {
 
     constructor(ServiceRegistry registry) {
         _settings = ISettings(registry.getServiceFromHash(SETTINGS));
+        require(address(_settings) != address(0), "Invalid Settings Contract");
     }
 
     function settings() internal view returns (ISettings) {

@@ -11,6 +11,7 @@ abstract contract UseStETH {
 
     constructor(ServiceRegistry registry) {
         _stETH = IERC20(registry.getServiceFromHash(ST_ETH_CONTRACT));
+        require(address(_stETH) != address(0), "Invalid St ETH Contract");
     }
 
     function stETH() internal view returns (IERC20) {

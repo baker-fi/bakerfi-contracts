@@ -19,6 +19,7 @@ abstract contract UseAAVEv3 {
 
     constructor(ServiceRegistry registry) {
         _aavev3 = IPoolV3(registry.getServiceFromHash(AAVE_V3));
+        require(address(_aavev3) != address(0), "Invalid AAVE v3 Contract");
     }
 
     function aaveV3() internal view returns (IPoolV3) {

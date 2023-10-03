@@ -15,6 +15,7 @@ abstract contract UseWETH {
 
     constructor(ServiceRegistry registry) {
         _wETH = IWETH(registry.getServiceFromHash(WETH_CONTRACT));
+        require(address(_wETH) != address(0), "Invalid Wrapped ETH Contract");
     }
 
     function wETH() internal view returns (IWETH) {

@@ -110,12 +110,6 @@ abstract contract AAVEv3StrategyBase is
         require(owner != address(0), "Invalid Owner Address");     
         require(address(_ethUSDOracle)!= address(0), "Invalid ETH/USD Oracle");
         require(address(_collateralOracle)!= address(0), "Invalid <Collateral>/ETH Oracle");        
-        require(ierc20A() != address(0), "Invalid Collateral ERC-20 Contract");    
-        require(aaveV3A() != address(0), "Invalid AAVE Contract");        
-        require(wETHA() != address(0), "Invalid WETH Contract");                
-        require(swapperA() != address(0), "Invalid Swapper Handler Contract");                        
-        require(flashLenderA() != address(0), "Invalid Flash Lender Contract");                                
-        require(uniQuoterA() != address(0), "Invalid Uniswap Quoter Contract");                                        
         _transferOwnership(owner);        
         aaveV3().setUserEMode(E_MODE_CATEGORY_ETH);
         require(aaveV3().getUserEMode(address(this)) == E_MODE_CATEGORY_ETH, "Invalid Emode");
