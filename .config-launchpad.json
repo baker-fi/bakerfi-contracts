@@ -7,9 +7,9 @@
     "events": "@events"                 
   },
   "output": {                           
-    "interfaceDir": "src/contracts/laundromat/interfaces",
-    "classDir": "src/contracts/laundromat/classes",
-    "eventsDir": "src/contracts/laundromat/events"
+    "interfaceDir": "src/contracts/bakerfi/interfaces",
+    "classDir": "src/contracts/bakerfi/classes",
+    "eventsDir": "src/contracts/bakerfi/events"
   },
   "overwrite": {                        
     "interface": true,

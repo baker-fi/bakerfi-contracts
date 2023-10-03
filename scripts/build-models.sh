@@ -1,6 +1,6 @@
 #/bin/bash
 
-npx dlt -j .config-launchpad.json -f artifacts/contracts/core/BakerFiVault.sol/LaundromatVault.json   && 
+npx dlt -j .config-launchpad.json -f artifacts/contracts/core/BakerFiVault.sol/BakerFiVault.json   && 
 npx dlt -j .config-launchpad.json -f artifacts/contracts/core/AAVEv3Strategy.sol/AAVEv3Strategy.json &&
 npx dlt -j .config-launchpad.json -f artifacts/contracts/core/ServiceRegistry.sol/ServiceRegistry.json  &&
 npx dlt -j .config-launchpad.json -f artifacts/contracts/core/swappers/UniV3Swapper.sol/UniV3Swapper.json && 

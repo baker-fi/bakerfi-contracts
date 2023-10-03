@@ -12,7 +12,7 @@ import BaseConfig from "../../scripts/config";
 import { ISwapHandler } from '../../src/typechain/contracts/interfaces/core/ISwapHandler';
 import { describeif } from "../common";
 
-describeif(network.name === "base_devnet")("Laundromat Swapper", function () {
+describeif(network.name === "base_devnet")("BakerFi Swapper", function () {
   
   async function deployFunction() {
     // ETH Token
