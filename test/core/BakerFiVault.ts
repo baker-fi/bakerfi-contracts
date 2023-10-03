@@ -17,7 +17,7 @@ import {
   deployQuoterV2Mock,
 } from "../../scripts/common";
 
-describeif(network.name === "hardhat")("Laundromat Vault", function () {
+describeif(network.name === "hardhat")("BakerFi Vault", function () {
   async function deployFunction() {
     const [owner, otherAccount, anotherAccount] = await ethers.getSigners();
     const STETH_MAX_SUPPLY = ethers.parseUnits("1000010000", 18);
@@ -101,7 +101,7 @@ describeif(network.name === "hardhat")("Laundromat Vault", function () {
 
   it("Test Initialized Vault", async function () {
     const { owner, vault } = await loadFixture(deployFunction);
-    expect(await vault.symbol()).to.equal("matETH");
+    expect(await vault.symbol()).to.equal("brETH");
     expect(await vault.balanceOf(owner.address)).to.equal(0);
     expect(await vault.totalSupply()).to.equal(0);
     expect(await vault.totalCollateral()).to.equal(0);
@@ -134,8 +134,8 @@ describeif(network.name === "hardhat")("Laundromat Vault", function () {
       value: depositAmount,
     });
 
-    expect(await vault.symbol()).to.equal("matETH");
-    expect(await vault.name()).to.equal("laundromat ETH");
+    expect(await vault.symbol()).to.equal("brETH");
+    expect(await vault.name()).to.equal("Bread ETH");
     expect(await vault.balanceOf(owner.address)).to.equal(9986343597383680000n);
     expect(await vault.totalCollateral()).to.equal(45655671260000000000n);
     expect(await vault.totalDebt()).to.equal(35740737730000000000n);

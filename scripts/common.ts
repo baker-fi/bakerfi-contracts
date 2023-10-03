@@ -42,7 +42,7 @@ export async function deployVault(
   serviceRegistry: string,
   strategy: string
 ) {
-  const Vault = await ethers.getContractFactory("LaundromatVault");
+  const Vault = await ethers.getContractFactory("BakerFiVault");
   const vault = await Vault.deploy(owner, serviceRegistry, strategy);
   await vault.waitForDeployment();
   return vault;

@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 
 /**
  *  
- * @title Laundromat Protocol Settings 
+ * @title BakerFi Protocol Settings 
  * @author 
  * @notice The settings could only be Changed by the Owner and could be used by any contract 
  * by the system

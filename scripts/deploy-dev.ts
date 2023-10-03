@@ -20,7 +20,7 @@ import {
 async function main() {
   // Max Staked ETH available
   console.log("---------------------------------------------------------------------------");
-  console.log("💥 Laundromat Deploying ....");
+  console.log("💥 BakerFi Deploying ....");
   const STETH_MAX_SUPPLY = ethers.parseUnits("1000000000", 18);
   const FLASH_LENDER_DEPOSIT = ethers.parseUnits("10000", 18);
   const AAVE_DEPOSIT = ethers.parseUnits("10000", 18);
@@ -73,13 +73,13 @@ async function main() {
       await serviceRegistry.getAddress(),
       await strategy.getAddress() 
     );
-  console.log("Laundromat Vault =", await vault.getAddress() );  
-  console.log("Laundromat Vault AAVEv3 Strategy =", await strategy.getAddress());
+  console.log("BakerFi Vault =", await vault.getAddress() );  
+  console.log("BakerFi Vault AAVEv3 Strategy =", await strategy.getAddress());
   await strategy.transferOwnership(await vault.getAddress());
 
   console.log("WSETH/ETH Oracle =", await oracle.getAddress());
   console.log("---------------------------------------------------------------------------");
-  console.log("💥 Laundromat Deployment Done 👏");
+  console.log("💥 BakerFi Deployment Done 👏");
 }
 
 

@@ -19,7 +19,7 @@ async function main() {
   console.log(
     "---------------------------------------------------------------------------"
   );
-  console.log("💥 Laundromat Deploying ....");
+  console.log("💥 BakerFi Deploying ....");
 
   const networkName = hre.network.name;
   const chainId = hre.network.config.chainId;
@@ -88,7 +88,7 @@ async function main() {
   await strategy.transferOwnership(await vault.getAddress());
   console.log("Vault =", await vault.getAddress());
   console.log("---------------------------------------------------------------------------");
-  console.log(`💥 Laundromat Deployment Done on  ${networkName} 👏`);
+  console.log(`💥 BakerFi Deployment Done on  ${networkName} 👏`);
 }
 
 async function deployFlashLendInfra(serviceRegistry, config: any) {

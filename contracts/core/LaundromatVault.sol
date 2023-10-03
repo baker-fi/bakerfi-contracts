@@ -28,12 +28,12 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
  * @author Helder Vasconcelos
  * @notice
  */
-contract LaundromatVault is Ownable, Pausable, ERC20Permit, UseSettings, ReentrancyGuard {
+contract BakerFiVault is Ownable, Pausable, ERC20Permit, UseSettings, ReentrancyGuard {
     using RebaseLibrary for Rebase;
     using SafeERC20 for ERC20;
 
-    string constant NAME = "laundromat ETH";
-    string constant SYMBOl = "matETH";
+    string constant NAME = "Bread ETH";
+    string constant SYMBOl = "brETH";
 
     // The System System register
     ServiceRegistry public immutable _registry;

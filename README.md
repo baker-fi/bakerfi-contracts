@@ -134,7 +134,6 @@ MIT
 ### TODO - Smart Contracts 
 
 * Test Logic with Flash Loan fees: P2
-* Leverage Unit Testing: P2
 * Unit Test Service Registry: P2
 * Use the Uniswap Directly: P3
 * Separate Protection and Profit/Loss Detection: P3
