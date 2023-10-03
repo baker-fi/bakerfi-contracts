@@ -7,7 +7,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
-import {UseServiceRegistry} from "../Hooks.sol";
+import {UseServiceRegistry} from "../hooks/UseServiceRegistry.sol";
 import {IV3SwapRouter} from "../../interfaces/uniswap/v3/ISwapRouter.sol";
 import {UNISWAP_ROUTER} from "../Constants.sol";
 

@@ -11,7 +11,6 @@ import {
   deployFlashLender,
   deployOracleMock,
   deployWETH,
-  deployLeverageLibrary,
   deployAAVEv3StrategyWstETH,
   deployQuoterV2Mock,
 } from "../../scripts/common";
@@ -75,11 +74,9 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
     const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");    
     await ethOracle.setLatestPrice(ethers.parseUnits("1", 18));
 
-    const levarage = await deployLeverageLibrary();
     const strategy = await deployAAVEv3StrategyWstETH(
       owner.address,
-      serviceRegistryAddress,
-      await levarage.getAddress()
+      serviceRegistryAddress
     );
 
     return {

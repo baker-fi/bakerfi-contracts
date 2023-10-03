@@ -7,7 +7,6 @@ import {
     deployBalancerFL,
     deployAAVEv3StrategyAny,
     deployETHOracle,
-    deployLeverageLibrary,
     deployUniSwapper,
     deploCbETHToETHOracle,
     deploySettings,
@@ -24,9 +23,6 @@ describeif(network.name === "base_devnet")("VaultBase", function () {
         
         // 1. Deploy Service Registry
         const serviceRegistry = await deployServiceRegistry(deployer.address);
-
-        // 2. Deploy the Leverage Library
-        const leverageLib = await deployLeverageLibrary();
 
         // 3. Set the WETH Address
         await serviceRegistry.registerService(

@@ -10,7 +10,6 @@ import {
   deployFlashLender,
   deployOracleMock,
   deployWETH,
-  deployLeverageLibrary,
   deployAAVEv3StrategyAny,
   deployQuoterV2Mock,
 } from "../../scripts/common";
@@ -54,12 +53,10 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
     const oracle  = await deployOracleMock(serviceRegistry, "cbETH/ETH Oracle");
     const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");    
     await ethOracle.setLatestPrice(ethers.parseUnits("1", 18));
-    const levarage = await deployLeverageLibrary();
     await deployQuoterV2Mock(serviceRegistry);
     const strategy = await deployAAVEv3StrategyAny(
       owner.address,
       serviceRegistryAddress,
-      await levarage.getAddress(),
       "cbETH",
       "cbETH/ETH Oracle"
     );

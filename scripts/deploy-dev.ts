@@ -2,7 +2,6 @@ import { ethers } from "hardhat";
 import {
   deployAaveV3,
   deployFlashLender,
-  deployLeverageLibrary,
   deployServiceRegistry,
   deployStEth,
   deploySwapper,
@@ -30,8 +29,6 @@ async function main() {
   // 1. Deploy the Service Registry
   const serviceRegistry = await deployServiceRegistry(owner.address);
   console.log("Service Registry =", await serviceRegistry.getAddress());
-  // 2. Deploy the Leverage Library
-  const leverageLib = await deployLeverageLibrary();
   // 3. Deploy the WETH 
   const weth = await deployWETH(serviceRegistry);
   console.log("WETH =", await weth.getAddress());
@@ -69,7 +66,6 @@ async function main() {
   const strategy = await deployAAVEv3StrategyWstETH( 
     owner.address,
     await serviceRegistry.getAddress(), 
-    await leverageLib.getAddress() 
   );
   // 10. Deploy the Vault attached to Leverage Lib
     const vault = await deployVault(

@@ -4,7 +4,7 @@ import "@openzeppelin/contracts/interfaces/IERC3156FlashBorrower.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {ServiceRegistry} from "../core/ServiceRegistry.sol";
-import {UseFlashLender} from "../core/Hooks.sol";
+import {UseFlashLender} from "../core/hooks/UseFlashLender.sol";
 
 
 contract FlashBorrowerMock is IERC3156FlashBorrower, UseFlashLender {

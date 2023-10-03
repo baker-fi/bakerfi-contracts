@@ -1,6 +1,5 @@
 import hre from "hardhat";
 import {
-  deployLeverageLibrary,
   deployServiceRegistry,
   deployVault,
   deployAAVEv3StrategyWstETH,
@@ -33,9 +32,6 @@ async function main() {
 
   // 1. Deployed Service Registry
   console.log("Service Registry =", await serviceRegistry.getAddress());
-
-  // 2. Deploy the Leverage Library
-  const leverageLib = await deployLeverageLibrary();
 
   // 3. Register WETH
   await serviceRegistry.registerService(

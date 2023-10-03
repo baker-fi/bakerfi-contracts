@@ -20,3 +20,4 @@ bytes32 constant BALANCER_VAULT = keccak256(bytes("Balancer Vault"));
 bytes32 constant SETTINGS = keccak256(bytes("Settings"));
 bytes32 constant UNISWAP_QUOTER = keccak256(bytes("Uniswap Quoter"));
 uint8 constant E_MODE_CATEGORY_ETH = 1;
+uint256 constant MAX_LOAN_TO_VALUE = 1e9; // 100%

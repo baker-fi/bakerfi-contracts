@@ -28,19 +28,17 @@ import {IPoolV3} from "../../interfaces/aave/v3/IPoolV3.sol";
 import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
 import "../../interfaces/aave/v3/DataTypes.sol";
 import {IStrategy} from "../../interfaces/core/IStrategy.sol";
-import {Leverage} from "../../libraries/Leverage.sol";
-import {
-    UseOracle,
-    UseUniQuoter, 
-    UseWETH, 
-    UseStETH,
-    UseFlashLender, 
-    UseWstETH, 
-    UseAAVEv3, 
-    UseServiceRegistry, 
-    UseSwapper, 
-    UseIERC20
-} from "../Hooks.sol";
+import {UseLeverage} from "../hooks/UseLeverage.sol";
+import { UseOracle } from "../hooks/UseOracle.sol";
+import { UseUniQuoter } from "../hooks/UseUniQuoter.sol";
+import { UseWETH } from "../hooks/UseWETH.sol";
+import { UseStETH } from "../hooks/UseStETH.sol";
+import { UseFlashLender } from "../hooks/UseFlashLender.sol";
+import { UseWstETH } from "../hooks/UseWstETH.sol";
+import { UseAAVEv3 } from "../hooks/UseAAVEv3.sol";
+import { UseServiceRegistry } from "../hooks/UseServiceRegistry.sol";
+import { UseSwapper } from "../hooks/UseSwapper.sol";
+import { UseIERC20 } from "../hooks/UseIERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
@@ -66,7 +64,8 @@ abstract contract AAVEv3StrategyBase is
     UseSwapper,
     UseFlashLender,   
     UseUniQuoter,
-    ReentrancyGuard 
+    ReentrancyGuard,
+    UseLeverage
 {
 
     enum FlashLoanAction{ SUPPLY_BOORROW, PAY_DEBT_WITHDRAW, PAY_DEBT}
@@ -84,7 +83,6 @@ abstract contract AAVEv3StrategyBase is
     bytes32 constant SUCCESS_MESSAGE = keccak256("ERC3156FlashBorrower.onFlashLoan");
 
     using SafeERC20 for IERC20;
-    using Leverage for uint256;
 
     uint256 internal _pendingAmount = 0;
     uint256 private _deployedAmount = 0;
@@ -159,7 +157,7 @@ abstract contract AAVEv3StrategyBase is
         // 1. Wrap Ethereum
         wETH().deposit{value: msg.value}();
         // 2. Initiate a WETH Flash Loan
-        uint256 leverage = Leverage.calculateLeverageRatio(msg.value, _targetLoanToValue, 10);
+        uint256 leverage = calculateLeverageRatio(msg.value, _targetLoanToValue, 10);
         uint256 loanAmount = leverage - msg.value;
         uint256 fee = flashLender().flashFee(wETHA(), loanAmount);
         uint256 allowance = wETH().allowance(address(this), flashLenderA());

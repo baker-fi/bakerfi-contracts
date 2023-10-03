@@ -12,7 +12,7 @@ import {IStrategy} from "../interfaces/core/IStrategy.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {PERCENTAGE_PRECISION} from "./Constants.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
-import {UseSettings} from "./Hooks.sol";
+import {UseSettings} from "./hooks/UseSettings.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**

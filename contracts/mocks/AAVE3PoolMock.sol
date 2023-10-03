@@ -6,7 +6,6 @@ import {IPoolV3} from "../interfaces/aave/v3/IPoolV3.sol";
 import "../interfaces/aave/v3/DataTypes.sol";
 import "../interfaces/aave/v3/IPoolAddressesProvider.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "hardhat/console.sol";
 
 contract AaveV3PoolMock is IPoolV3, ERC20 {
 

@@ -4,18 +4,22 @@ pragma solidity ^0.8.18;
 import {AAVEv3StrategyBase} from "./AAVEv3StrategyBase.sol";
 import {WST_ETH_CONTRACT, WSTETH_ETH_ORACLE} from "../Constants.sol";
 import {ServiceRegistry} from "../../core/ServiceRegistry.sol";
-import {UseWETH, UseStETH, UseWstETH, UseServiceRegistry, UseOracle, UseIERC20} from "../Hooks.sol";
+import {UseWETH} from "../hooks/UseWETH.sol";
+import {UseStETH} from "../hooks/UseStETH.sol";
+import {UseWstETH} from "../hooks/UseWstETH.sol";
+import {UseServiceRegistry} from "../hooks/UseServiceRegistry.sol";
+import {UseOracle} from "../hooks/UseOracle.sol";
+import {UseIERC20} from "../hooks/UseIERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IWStETH} from "../../interfaces/lido/IWStETH.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 /**
- * @title WST used 
- * @author 
- * @notice 
+ * @title WST used
+ * @author
+ * @notice
  */
-contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH { 
-    
+contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH {
     using SafeERC20 for IERC20;
 
     constructor(
@@ -27,7 +31,7 @@ contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH {
         UseStETH(registry)
     {}
 
-    function _convertFromWETH(uint256 amount)  internal virtual override returns (uint256) {
+    function _convertFromWETH(uint256 amount) internal virtual override returns (uint256) {
         // 1. Unwrap ETH to this account
         wETH().withdraw(amount);
         uint256 wStEthBalanceBefore = wstETH().balanceOf(address(this));
@@ -46,4 +50,3 @@ contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH {
         return swaptoken(stETHA(), wETHA(), 0, stETHAmount, 0);
     }
 }
-

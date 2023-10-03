@@ -12,7 +12,6 @@ import {
   deployFlashLender,
   deployOracleMock,
   deployWETH,
-  deployLeverageLibrary,
   deployAAVEv3StrategyWstETH,
   deploySettings,
   deployQuoterV2Mock,
@@ -73,11 +72,9 @@ describeif(network.name === "hardhat")("Laundromat Vault", function () {
     const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");    
     await ethOracle.setLatestPrice(ethers.parseUnits("1", 18));
 
-    const levarage = await deployLeverageLibrary();
     const strategy = await deployAAVEv3StrategyWstETH(
       owner.address,
-      serviceRegistryAddress,
-      await levarage.getAddress()
+      serviceRegistryAddress
     );
     const vault = await deployVault(
       owner.address,
