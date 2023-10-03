@@ -23,7 +23,7 @@ contract ServiceRegistry is Ownable, IServiceRegistry {
     ) external onlyOwner {
         require(
             _services[serviceNameHash] == address(0),
-            "registry/service-override"
+            "Service is already set"
         );
         _services[serviceNameHash] = serviceAddress;
         emit ServiceRegistered(serviceNameHash, serviceAddress);
@@ -32,7 +32,7 @@ contract ServiceRegistry is Ownable, IServiceRegistry {
     function unregisterService(bytes32 serviceNameHash) external onlyOwner {
         require(
             _services[serviceNameHash] != address(0),
-            "registry/service-does-not-exist"
+            "Service does not exist"
         );
         _services[serviceNameHash] = address(0);
         emit ServiceUnregistered(serviceNameHash);
@@ -50,9 +50,5 @@ contract ServiceRegistry is Ownable, IServiceRegistry {
 
     function getServiceFromHash(bytes32  serviceHash) external view returns (address) {
         return _services[serviceHash];
-    }
-
-    function getServiceAddress(bytes32 serviceNameHash) external view returns (address) {
-        return _services[serviceNameHash];
-    }
+    }  
 }
