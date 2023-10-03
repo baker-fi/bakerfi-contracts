@@ -1,4 +1,4 @@
-# Landromat Smart Contracts
+# Bakerfi Smart Contracts
 
 Recursive ETH Staking made easy
 
