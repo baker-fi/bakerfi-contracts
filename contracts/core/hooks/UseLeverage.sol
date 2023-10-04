@@ -29,7 +29,7 @@ contract UseLeverage {
         uint256 totalCollateralBaseInEth,
         uint256 totalDebtBaseInEth
     ) public pure returns (uint256 deltaCollateralInETH, uint256 deltaDebtInETH) {
-        require(percentageToBurn > 0 && percentageToBurn <= PERCENTAGE_PRECISION);
+        require(percentageToBurn > 0 && percentageToBurn <= PERCENTAGE_PRECISION, "Invalid Percentage Value");
         // Reduce Collateral based on the percentage to Burn
         deltaDebtInETH = (totalDebtBaseInEth * percentageToBurn) / PERCENTAGE_PRECISION;
         // Reduce Debt based on the percentage to Burn

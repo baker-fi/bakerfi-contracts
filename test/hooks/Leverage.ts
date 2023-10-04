@@ -75,5 +75,59 @@ describeif(network.name === "hardhat")("Leverage", function () {
             100*1e6,
             21
         )).to.be.revertedWith("Invalid Number of Loops");
+    });
+
+
+
+    it("Calculate Delta Position - 50% Burn", async function () {
+        const { leverage } = await loadFixture(deployFunction);
+        expect(await leverage.calcDeltaPosition(
+            500*1e6,
+            ethers.parseUnits("10", 18), 
+            ethers.parseUnits("8", 18)                       
+        )).to.deep.equal([5000000000000000000n, 4000000000000000000n]);
     })
+
+    it("Calculate Delta Position - 50% Burn", async function () {
+        const { leverage } = await loadFixture(deployFunction);
+        expect(await leverage.calcDeltaPosition(
+            500*1e6,
+            ethers.parseUnits("10", 18), 
+            ethers.parseUnits("8", 18)                       
+        )).to.deep.equal([5000000000000000000n, 4000000000000000000n]);
+    })
+
+    it("Calculate Delta Position - 100% Burn", async function () {
+        const { leverage } = await loadFixture(deployFunction);
+        expect(await leverage.calcDeltaPosition(
+            1000*1e6,
+            ethers.parseUnits("10", 18), 
+            ethers.parseUnits("8", 18)                       
+        )).to.deep.equal([
+            ethers.parseUnits("10", 18), 
+            ethers.parseUnits("8", 18
+        )]);
+
+    })
+
+    it("Calculate Delta Position - 101% Burn, Reverted", async function () {
+        const { leverage } = await loadFixture(deployFunction);
+        await expect( leverage.calcDeltaPosition(
+            1001*1e6,
+            ethers.parseUnits("10", 18), 
+            ethers.parseUnits("8", 18)                       
+        )).to.be.revertedWith("Invalid Percentage Value");
+
+    })
+
+    it("Calculate Delta Position - 0% Burn, Reverted", async function () {
+        const { leverage } = await loadFixture(deployFunction);
+        await expect( leverage.calcDeltaPosition(
+            0,
+            ethers.parseUnits("10", 18), 
+            ethers.parseUnits("8", 18)                       
+        )).to.be.revertedWith("Invalid Percentage Value");
+    })
+
+
 })
