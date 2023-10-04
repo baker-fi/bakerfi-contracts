@@ -130,4 +130,63 @@ describeif(network.name === "hardhat")("Leverage", function () {
     })
 
 
+    it("Calculate Delta Debt - 80% -> 50% ", async function () {
+        const { leverage } = await loadFixture(deployFunction);
+        const debtToPay = await leverage.calculateDebtToPay(
+            500*1e6,
+            ethers.parseUnits("10", 18), 
+            ethers.parseUnits("8", 18)                       
+        );       
+        
+        expect(debtToPay).to.equal( ethers.parseUnits("6", 18));
+
+        const newCollateral =  ethers.parseUnits("10", 18) -  debtToPay;
+        const newDebt =  ethers.parseUnits("8", 18) - debtToPay;   
+
+        expect(newCollateral).to.deep.equal(ethers.parseUnits("4", 18));
+        expect(newDebt).to.deep.equal(ethers.parseUnits("2", 18));
+    
+    }) ;
+
+    it("Calculate Delta Position - 80% -> 20% ", async function () {
+        const { leverage } = await loadFixture(deployFunction);
+        const debtToPay = await leverage.calculateDebtToPay(
+            200*1e6,
+            ethers.parseUnits("10", 18), 
+            ethers.parseUnits("8", 18)                       
+        );       
+        expect(debtToPay).to.equal(7500000000000000000n);
+
+        const newCollateral =  ethers.parseUnits("10", 18) -  debtToPay;
+        const newDebt =  ethers.parseUnits("8", 18) -  debtToPay;   
+        expect(newCollateral).to.deep.equal(2500000000000000000n);
+        expect(newDebt).to.deep.equal(500000000000000000n);
+        
+    }) ;
+
+    it("Calculate Delta Debt - 80% -> 1% ", async function () {
+        const { leverage } = await loadFixture(deployFunction);
+        const debtToPay = await leverage.calculateDebtToPay(
+            10*1e6,
+            ethers.parseUnits("10", 18), 
+            ethers.parseUnits("8", 18)                       
+        );       
+        expect(debtToPay).to.equal(7979797979797979797n);
+
+        const newCollateral = ethers.parseUnits("10", 18) -  debtToPay;
+        const newDebt = ethers.parseUnits("8", 18) -  debtToPay;   
+
+        expect(newCollateral).to.deep.equal(2020202020202020203n);
+        expect(newDebt).to.deep.equal(20202020202020203n);
+    }) ;
+
+   it("Calculate Delta Debt - 80% -> 90% ", async function () {
+        const { leverage } = await loadFixture(deployFunction);
+        await expect(leverage.calculateDebtToPay(
+            900*1e6,
+            ethers.parseUnits("10", 18), 
+            ethers.parseUnits("8", 18)                       
+        )).to.be.revertedWith("Invalid Target value");
+    });
+
 })

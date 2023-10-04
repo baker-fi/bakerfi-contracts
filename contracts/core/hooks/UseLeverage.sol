@@ -36,14 +36,15 @@ contract UseLeverage {
         deltaCollateralInETH = (totalCollateralBaseInEth * percentageToBurn) / PERCENTAGE_PRECISION;
     }
 
-    function calcDeltaDebt(
-        uint256 totalCollateralBaseInEth,
-        uint256 totalDebtBaseInEth,
-        uint256 targetLoanToValue
-    ) public pure returns (uint256 deltaDebtInETH) {
-        uint256 numerator = totalDebtBaseInEth -
-            ((targetLoanToValue * totalCollateralBaseInEth) / PERCENTAGE_PRECISION);
+    function calculateDebtToPay(
+        uint256 targetLoanToValue,
+        uint256 collateral,
+        uint256 debt
+    ) public pure returns (uint256 delta) {
+        uint256 colValue = ((targetLoanToValue * collateral) / PERCENTAGE_PRECISION);
+        require(colValue < debt, "Invalid Target value");
+        uint256 numerator = debt - colValue;
         uint256 divisor = (PERCENTAGE_PRECISION - targetLoanToValue);
-        deltaDebtInETH = (numerator * PERCENTAGE_PRECISION) / divisor;
+        delta = (numerator * PERCENTAGE_PRECISION) / divisor;    
     }
 }

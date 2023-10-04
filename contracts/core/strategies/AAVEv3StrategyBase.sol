@@ -265,7 +265,7 @@ abstract contract AAVEv3StrategyBase is
         uint256 totalCollateralBaseInEth,
         uint256 totalDebtBaseInEth
     ) internal returns (uint256 deltaDebt) {
-        (deltaDebt) = calcDeltaDebt(totalCollateralBaseInEth, totalDebtBaseInEth, settings().getLoanToValue());
+        deltaDebt = calculateDebtToPay(settings().getLoanToValue(), totalCollateralBaseInEth, totalDebtBaseInEth );
         uint256 fee = flashLender().flashFee(wETHA(), deltaDebt);
         uint256 allowance = wETH().allowance(address(this), flashLenderA());
         wETH().approve(flashLenderA(), deltaDebt + fee + allowance);
