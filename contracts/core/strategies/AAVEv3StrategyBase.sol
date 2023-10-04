@@ -265,10 +265,7 @@ abstract contract AAVEv3StrategyBase is
         uint256 totalCollateralBaseInEth,
         uint256 totalDebtBaseInEth
     ) internal returns (uint256 deltaDebt) {
-        uint256 numerator = totalDebtBaseInEth -
-            (settings().getLoanToValue() * totalCollateralBaseInEth / PERCENTAGE_PRECISION);
-        uint256 divisor = (PERCENTAGE_PRECISION - _targetLoanToValue);
-        deltaDebt = numerator * PERCENTAGE_PRECISION /divisor;
+        (deltaDebt) = calcDeltaDebt(totalCollateralBaseInEth, totalDebtBaseInEth, settings().getLoanToValue());
         uint256 fee = flashLender().flashFee(wETHA(), deltaDebt);
         uint256 allowance = wETH().allowance(address(this), flashLenderA());
         wETH().approve(flashLenderA(), deltaDebt + fee + allowance);
@@ -352,7 +349,7 @@ abstract contract AAVEv3StrategyBase is
         (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition();
         require(totalCollateralBaseInEth > totalDebtBaseInEth, "No Collateral margin to scale");    
         uint256 percentageToBurn = amount * PERCENTAGE_PRECISION /(totalCollateralBaseInEth - totalDebtBaseInEth);
-        (uint256 deltaCollateralInETH, uint256 deltaDebtInETH) = adjustPosition(
+        (uint256 deltaCollateralInETH, uint256 deltaDebtInETH) = calcDeltaPosition(
             percentageToBurn, 
             totalCollateralBaseInEth, 
             totalDebtBaseInEth
@@ -372,8 +369,6 @@ abstract contract AAVEv3StrategyBase is
         undeployedAmount = _pendingAmount;
         _deployedAmount = _deployedAmount - undeployedAmount;
         _pendingAmount = 0;
-        
-
     }
     
     function _convertFromWETH(uint256 amount) internal virtual returns (uint256);

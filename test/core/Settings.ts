@@ -104,4 +104,17 @@ describeif(network.name === "hardhat")("Settings", function () {
         expect(await settings.getMaxLoanToValue()).to.equal(850*(1e6));
     });
 
+
+    it("Change Nr Loops", async function () {
+        const { settings, otherAccount} = await loadFixture(deployFunction);
+        await settings.connect(otherAccount).setNrLoops(5);
+        expect(await settings.connect(otherAccount).getNrLoops()).to.equal( 5);
+    });
+
+
+    it("❌ Invalid Nr Loops", async function () {
+        const { settings, otherAccount} = await loadFixture(deployFunction);
+        await expect(settings.connect(otherAccount).setNrLoops(30)).to.be.revertedWith("Invalid Number of Loops");
+    });
+
 });

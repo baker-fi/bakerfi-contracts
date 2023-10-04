@@ -9,7 +9,7 @@ pragma solidity ^0.8.18;
  * by the system
  */
 
-import { PERCENTAGE_PRECISION } from "./Constants.sol";
+import { PERCENTAGE_PRECISION, MAX_LOOPS} from "./Constants.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ISettings } from "../interfaces/core/ISettings.sol";
 
@@ -20,9 +20,8 @@ contract Settings is Ownable {
     uint256 private _performanceFee = 10* 1e6; // 1%
     address private _feeReceiver = address(0); // No Fee Receiver
     uint256 private _loanToValue =  800 * 1e6; // 80%
-    uint256 private _maxLoanToValue =  850 * 1e6; // 85% 
-    // The mininum amount of profit to unroll the profit to ETH 
-    uint256 private _unrollThreshold = 1e16 wei; 
+    uint256 private _maxLoanToValue =  850 * 1e6; // 85%     
+    uint8   private _nrLoops = 10; 
 
     constructor(address owner) {
         _transferOwnership(owner);
@@ -72,6 +71,16 @@ contract Settings is Ownable {
 
     function getFeeReceiver() external view returns (address) {
         return _feeReceiver;
+    }
+
+
+     function getNrLoops() external view returns (uint8) {
+        return _nrLoops;
+    }
+
+    function setNrLoops(uint8 nrLoops) external onlyOwner {
+        require(nrLoops <  MAX_LOOPS, "Invalid Number of Loops");
+        _nrLoops = nrLoops;
     }
 
 }

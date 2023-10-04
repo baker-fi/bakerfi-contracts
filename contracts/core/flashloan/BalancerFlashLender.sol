@@ -27,11 +27,11 @@ contract BalancerFlashLender is IERC3156FlashLender {
         require(address(_balancerVault) != address(0), "Invalid Balancer Vault");  
     }
 
-    function maxFlashLoan(address token) external pure override returns (uint256) {
+    function maxFlashLoan(address) external pure override returns (uint256) {
         return 2 ** 256 - 1;
     }
 
-    function flashFee(address token, uint256 amount) external pure override returns (uint256) {
+    function flashFee(address, uint256) external pure override returns (uint256) {
         return 0;
     }
 

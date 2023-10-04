@@ -1,11 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
-import {PERCENTAGE_PRECISION} from "../Constants.sol";
+import {PERCENTAGE_PRECISION, MAX_LOOPS} from "../Constants.sol";
 
 contract UseLeverage {
-    uint256 constant MAX_LOAN_TO_VALUE = 1e9; // 100%
-    uint8 constant MAX_LOOPS = 20; // 100%
-
+    
     function calculateLeverageRatio(
         uint256 baseValue,
         uint256 loanToValue,
@@ -26,7 +24,7 @@ contract UseLeverage {
         return leverage;
     }
 
-    function adjustPosition(
+    function calcDeltaPosition(
         uint256 percentageToBurn,
         uint256 totalCollateralBaseInEth,
         uint256 totalDebtBaseInEth
@@ -36,5 +34,16 @@ contract UseLeverage {
         deltaDebtInETH = (totalDebtBaseInEth * percentageToBurn) / PERCENTAGE_PRECISION;
         // Reduce Debt based on the percentage to Burn
         deltaCollateralInETH = (totalCollateralBaseInEth * percentageToBurn) / PERCENTAGE_PRECISION;
+    }
+
+    function calcDeltaDebt(
+        uint256 totalCollateralBaseInEth,
+        uint256 totalDebtBaseInEth,
+        uint256 targetLoanToValue
+    ) public pure returns (uint256 deltaDebtInETH) {
+        uint256 numerator = totalDebtBaseInEth -
+            ((targetLoanToValue * totalCollateralBaseInEth) / PERCENTAGE_PRECISION);
+        uint256 divisor = (PERCENTAGE_PRECISION - targetLoanToValue);
+        deltaDebtInETH = (numerator * PERCENTAGE_PRECISION) / divisor;
     }
 }
