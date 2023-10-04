@@ -128,6 +128,12 @@ const config: HardhatUserConfig = {
       },
     ],
   },
+  contractSizer: {
+    alphaSort: true,
+    disambiguatePaths: false,
+    runOnCompile: true,
+    strict: true
+  }
 };
 
 export default config;
