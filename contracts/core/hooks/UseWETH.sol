@@ -10,7 +10,7 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 
 
 abstract contract UseWETH {
-    IWETH immutable _wETH;
+    IWETH immutable private _wETH;
     using SafeERC20 for IERC20;
 
     constructor(ServiceRegistry registry) {
@@ -18,15 +18,15 @@ abstract contract UseWETH {
         require(address(_wETH) != address(0), "Invalid Wrapped ETH Contract");
     }
 
-    function wETH() internal view returns (IWETH) {
+    function wETH() public view returns (IWETH) {
         return _wETH;
     }
 
-    function wETHA() internal view returns (address) {
+    function wETHA() public view returns (address) {
         return address(_wETH);
     }
 
-    function unwrapWETH(uint256 wETHAmount) internal {
+    function _unwrapWETH(uint256 wETHAmount) internal {
         IERC20(address(_wETH)).safeApprove(address(_wETH), wETHAmount);
         wETH().withdraw(wETHAmount);
     }

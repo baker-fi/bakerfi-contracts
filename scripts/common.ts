@@ -189,7 +189,7 @@ export async function deployETHOracle(serviceRegistry, chainLinkAddress) {
 }
 
 export async function deploCbETHToETHOracle(serviceRegistry, chainLinkAddress) {
-  const oracleContract = await ethers.getContractFactory("cbETHToETHOracle");
+  const oracleContract = await ethers.getContractFactory("CbETHToETHOracle");
   const oracle = await oracleContract.deploy(chainLinkAddress);
   await oracle.waitForDeployment();
   await serviceRegistry.registerService(

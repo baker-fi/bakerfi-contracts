@@ -10,8 +10,8 @@ interface IChainlinkAggregator {
 
 contract ETHOracle is IOracle {
 
-    IChainlinkAggregator public immutable _ethPriceFeed;
-    uint256 internal constant PRECISION = 10 ** 18;
+    IChainlinkAggregator private immutable _ethPriceFeed;
+    uint256 private constant _PRECISION = 10 ** 18;
 
     constructor(
         address ethPriceFeed
@@ -20,7 +20,7 @@ contract ETHOracle is IOracle {
     }
 
     function getPrecision() external pure override returns (uint256) {
-        return PRECISION;
+        return _PRECISION;
     }
 
     //  cbETH/ETH

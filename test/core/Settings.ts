@@ -51,7 +51,7 @@ describeif(network.name === "hardhat")("Settings", function () {
     it("❌ Invalid Max Loan to Value", async function () {
         const { settings, otherAccount} = await loadFixture(deployFunction);
         await expect(settings.connect(otherAccount).setMaxLoanToValue(400*(1e6)))
-        .to.be.revertedWith("Max Loan to Value should be higher than loan to value");
+        .to.be.revertedWith("Invalid Max Loan");
     });
 
     it("❌ Invalid Max Loan to Value", async function () {

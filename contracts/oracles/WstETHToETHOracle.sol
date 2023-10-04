@@ -9,9 +9,9 @@ interface IChainlinkAggregator {
 
 contract WstETHToETHOracle is IOracle {
 
-    IWStETH public immutable              _wstETH;
-    IChainlinkAggregator public immutable _stETHToETHPriceFeed;
-    uint256 internal constant PRECISION = 10 ** 18;
+    IWStETH private immutable              _wstETH;
+    IChainlinkAggregator private immutable _stETHToETHPriceFeed;
+    uint256 internal constant _PRECISION = 10 ** 18;
 
     constructor(
         address stETHToETHPriceFeed, 
@@ -23,7 +23,7 @@ contract WstETHToETHOracle is IOracle {
     }
 
     function getPrecision() external pure override returns (uint256) {
-        return PRECISION;
+        return _PRECISION;
     }
 
     //  WSETH/ETH
@@ -31,6 +31,6 @@ contract WstETHToETHOracle is IOracle {
         uint256 wstETHToStETH = uint256(_wstETH.stEthPerToken());
         assert(wstETHToStETH > 0);
         uint256 stETHToETH = uint256(_stETHToETHPriceFeed.latestAnswer());
-        return wstETHToStETH * stETHToETH / PRECISION;
+        return wstETHToStETH * stETHToETH / _PRECISION;
     }
 }

@@ -8,17 +8,17 @@ import {IServiceRegistry} from "../../interfaces/core/IServiceRegistry.sol";
 import {ISettings} from "../../interfaces/core/ISettings.sol";
 
 abstract contract UseSettings {
-    ISettings immutable _settings;
+    ISettings immutable private _settings;
 
     constructor(ServiceRegistry registry) {
         _settings = ISettings(registry.getServiceFromHash(SETTINGS));
         require(address(_settings) != address(0), "Invalid Settings Contract");
     }
 
-    function settings() internal view returns (ISettings) {
+    function settings() public view returns (ISettings) {
         return _settings;
     }
-    function settingsA() internal view returns (address) {
+    function settingsA() public view returns (address) {
         return address(_settings);
     }
 }

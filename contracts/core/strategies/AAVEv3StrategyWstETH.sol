@@ -22,6 +22,7 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH {
     using SafeERC20 for IERC20;
 
+    // solhint-disable no-empty-blocks    
     constructor(
         address owner,
         ServiceRegistry registry
@@ -30,6 +31,8 @@ contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH {
         UseWstETH(registry)
         UseStETH(registry)
     {}
+    // solhint-enable no-empty-blocks    
+    
 
     function _convertFromWETH(uint256 amount) internal virtual override returns (uint256) {
         // 1. Unwrap ETH to this account
@@ -45,8 +48,8 @@ contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH {
 
     function _convertToWETH(uint256 amount) internal virtual override returns (uint256) {
         // 1. Unwrap wstETH -> stETH
-        uint256 stETHAmount = unwrapWstETH(amount);
+        uint256 stETHAmount = _unwrapWstETH(amount);
         // 2. Swap wstETH -> weth
-        return swaptoken(stETHA(), wETHA(), 0, stETHAmount, 0);
+        return _swaptoken(stETHA(), wETHA(), 0, stETHAmount, 0);
     }
 }

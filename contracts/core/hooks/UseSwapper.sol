@@ -9,22 +9,22 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
 
 abstract contract UseSwapper {
-    ISwapHandler immutable _swapper;
+    ISwapHandler immutable private _swapper;
 
     constructor(ServiceRegistry registry) {
         _swapper = ISwapHandler(registry.getServiceFromHash(SWAPPER_HANDLER));
         require(address(_swapper) != address(0), "Invalid Swapper Handler Contract");
     }
 
-    function swapper() internal view returns (ISwapHandler) {
+    function swapper() public view returns (ISwapHandler) {
         return _swapper;
     }
 
-    function swapperA() internal view returns (address) {
+    function swapperA() public view returns (address) {
         return address(_swapper);
     }
 
-    function swaptoken(
+    function _swaptoken(
         address assetIn,
         address assetOut,
         uint mode,

@@ -3,11 +3,11 @@ pragma solidity ^0.8.18;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/interfaces/IERC3156FlashLender.sol";
+import {IERC3156FlashLender} from "@openzeppelin/contracts/interfaces/IERC3156FlashLender.sol";
 import {IFlashLoans} from "../../interfaces/balancer/IFlashLoan.sol";
 import {BALANCER_VAULT} from "../Constants.sol";
 import {ServiceRegistry} from "../../core/ServiceRegistry.sol";
-import "@openzeppelin/contracts/interfaces/IERC3156FlashBorrower.sol";
+import {IERC3156FlashBorrower} from "@openzeppelin/contracts/interfaces/IERC3156FlashBorrower.sol";
 
 /**
  *  Balancer Flash Loan Adapter
@@ -19,9 +19,8 @@ contract BalancerFlashLender is IERC3156FlashLender {
 
     bytes32 public constant CALLBACK_SUCCESS = keccak256("ERC3156FlashBorrower.onFlashLoan");
 
-    IFlashLoans _balancerVault;
+    IFlashLoans private _balancerVault;
 
-    
     constructor(ServiceRegistry registry) {
         _balancerVault = IFlashLoans(registry.getServiceFromHash(BALANCER_VAULT));
         require(address(_balancerVault) != address(0), "Invalid Balancer Vault");  
@@ -57,9 +56,9 @@ contract BalancerFlashLender is IERC3156FlashLender {
         bytes memory userData
     ) external {
         require(msg.sender == address(_balancerVault), "Invalid Flash Loan Lender");
-        require(tokens.length == 1);
-        require(amounts.length == 1);
-        require(feeAmounts.length == 1);
+        require(tokens.length == 1, "Invalid Token List");
+        require(amounts.length == 1,  "Invalid Amount List");
+        require(feeAmounts.length == 1,  "Invalid Fees Amount");
         (address borrower, bytes memory originalCallData) = abi.decode(userData, (address, bytes));
 
         address asset = tokens[0];

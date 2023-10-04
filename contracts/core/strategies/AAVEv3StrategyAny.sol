@@ -19,20 +19,22 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 contract AAVEv3StrategyAny is AAVEv3StrategyBase {
     using SafeERC20 for IERC20;
 
+    // solhint-disable no-empty-blocks  
     constructor(
         address owner,
         ServiceRegistry registry,
         bytes32 collateral,
         bytes32 oracle
     ) AAVEv3StrategyBase(owner, registry, collateral, oracle) {}
+    // solhint-enable no-empty-blocks    
 
     function _convertFromWETH(uint256 amount) internal virtual override returns (uint256) {
         // 1. Swap WETH -> cbETH
-        return swaptoken(wETHA(), ierc20A(), 0, amount, 0);
+        return _swaptoken(wETHA(), ierc20A(), 0, amount, 0);
     }
 
     function _convertToWETH(uint256 amount) internal virtual override returns (uint256) {
         // 1.Swap cbETH -> WETH
-        return swaptoken(ierc20A(), wETHA(), 0, amount, 0);
+        return _swaptoken(ierc20A(), wETHA(), 0, amount, 0);
     }
 }

@@ -11,9 +11,9 @@ import {ISwapHandler} from "../interfaces/core/ISwapHandler.sol";
 import {IStrategy} from "../interfaces/core/IStrategy.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {PERCENTAGE_PRECISION} from "./Constants.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
+import {ERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 import {UseSettings} from "./hooks/UseSettings.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
  * Landromat Vault
@@ -32,11 +32,11 @@ contract BakerFiVault is Ownable, Pausable, ERC20Permit, UseSettings, Reentrancy
     using RebaseLibrary for Rebase;
     using SafeERC20 for ERC20;
 
-    string constant NAME = "Bread ETH";
-    string constant SYMBOl = "brETH";
+    string constant private _NAME = "Bread ETH";
+    string constant private _SYMBOL = "brETH";
 
     // The System System register
-    ServiceRegistry public immutable _registry;
+    ServiceRegistry private immutable _registry;
     IStrategy private immutable _strategy;
 
     event Deposit(address depositor, address receiver, uint256 amount, uint256 shares);
@@ -52,7 +52,7 @@ contract BakerFiVault is Ownable, Pausable, ERC20Permit, UseSettings, Reentrancy
         address owner,
         ServiceRegistry registry,
         IStrategy strategy
-    ) ERC20Permit(NAME) ERC20(NAME, SYMBOl) UseSettings(registry) {
+    ) ERC20Permit(_NAME) ERC20(_NAME, _SYMBOL) UseSettings(registry) {
         require(owner != address(0), "Invalid Owner Address");
         _transferOwnership(owner);
         _registry = registry;
@@ -87,6 +87,8 @@ contract BakerFiVault is Ownable, Pausable, ERC20Permit, UseSettings, Reentrancy
     /**
      * Function to receive ETH Payments from the strategy
      */
+    
+    // solhint-disable-next-line no-empty-blocks        
     receive() external payable {}
 
     /**
@@ -120,7 +122,7 @@ contract BakerFiVault is Ownable, Pausable, ERC20Permit, UseSettings, Reentrancy
             (bool success, ) = payable(receiver).call{value: amount - fee}("");
             require(success, "Failed to Send ETH To Receiver");
             (bool successFee, ) = payable(settings().getFeeReceiver()).call{value: fee}("");
-            require(successFee, "Failed to Send ETH to Fee Receiver");
+            require(successFee, "Failed to pay Service Fee");
         } else {
             (bool success, ) = payable(receiver).call{value: amount}("");
             require(success, "Failed to Send ETH Back");

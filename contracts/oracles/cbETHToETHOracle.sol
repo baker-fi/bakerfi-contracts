@@ -8,10 +8,10 @@ interface IChainlinkAggregator {
     function latestTimestamp() external view returns (uint256);
 }
 
-contract cbETHToETHOracle is IOracle {
+contract CbETHToETHOracle is IOracle {
 
-    IChainlinkAggregator public immutable _stCbETHToETHPriceFeed;
-    uint256 internal constant PRECISION = 10 ** 18;
+    IChainlinkAggregator private immutable _stCbETHToETHPriceFeed;
+    uint256 private constant _PRECISION = 10 ** 18;
 
     constructor(
         address stCbETHToETHPriceFeed
@@ -20,7 +20,7 @@ contract cbETHToETHOracle is IOracle {
     }
 
     function getPrecision() external pure override returns (uint256) {
-        return PRECISION;
+        return _PRECISION;
     }
 
     //  cbETH/ETH

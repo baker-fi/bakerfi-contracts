@@ -13,6 +13,7 @@
     "compile:clean": "rm -rf cache/* && rm -rf artifacts/* && rm -rf typechain-types/*",
     "compile": "npx hardhat compile",
     "test": "npx hardhat test",
+    "solhint:check":"npx solhint  'contracts/**/*.sol'",
     "test:gas": "REPORT_GAS=true npx hardhat test",
     "test:coverage": "REPORT_GAS=true npx hardhat coverage",
     "contract:size": "npx hardhat size-contracts",

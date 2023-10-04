@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.18;
-
+ 
+/* solhint-disable func-name-mixedcase */
+/* solhint-disable var-name-mixedcase */
 interface ICurvePool {
     function coins(uint256 i) external view returns (address);
 

@@ -257,7 +257,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
     );
 
     await expect(strategy.harvest()).to
-      .be.revertedWith("Collateral value is lower that debt");
+      .be.revertedWith("Collateral is lower that debt");
 
   });
 
