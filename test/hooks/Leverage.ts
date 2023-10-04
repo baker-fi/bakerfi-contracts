@@ -88,13 +88,13 @@ describeif(network.name === "hardhat")("Leverage", function () {
         )).to.deep.equal([5000000000000000000n, 4000000000000000000n]);
     })
 
-    it("Calculate Delta Position - 50% Burn", async function () {
+    it("Calculate Delta Position - 10% Burn", async function () {
         const { leverage } = await loadFixture(deployFunction);
         expect(await leverage.calcDeltaPosition(
-            500*1e6,
+            100*1e6,
             ethers.parseUnits("10", 18), 
             ethers.parseUnits("8", 18)                       
-        )).to.deep.equal([5000000000000000000n, 4000000000000000000n]);
+        )).to.deep.equal([1000000000000000000n, 800000000000000000n]);
     })
 
     it("Calculate Delta Position - 100% Burn", async function () {
