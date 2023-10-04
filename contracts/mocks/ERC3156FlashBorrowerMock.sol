@@ -29,7 +29,7 @@ contract FlashBorrowerMock is IERC3156FlashBorrower, UseFlashLender {
         address token,
         uint256 amount
     ) external {
-        IERC20(token).approve(flashLenderA(), amount);
+        require(IERC20(token).approve(flashLenderA(), amount));
         flashLender().flashLoan(this, token, amount, "0x");    
     }
 

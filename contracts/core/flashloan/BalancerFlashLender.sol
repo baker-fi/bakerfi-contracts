@@ -19,7 +19,7 @@ contract BalancerFlashLender is IERC3156FlashLender {
 
     bytes32 public constant CALLBACK_SUCCESS = keccak256("ERC3156FlashBorrower.onFlashLoan");
 
-    IFlashLoans private _balancerVault;
+    IFlashLoans private immutable _balancerVault;
 
     constructor(ServiceRegistry registry) {
         _balancerVault = IFlashLoans(registry.getServiceFromHash(BALANCER_VAULT));

@@ -115,6 +115,7 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
     ) external override returns (uint256) {
         users[msg.sender].borrowedAmount -= amount;
         _borrowedToken.transfer(onBehalfOf, amount);
+        return amount;
     }
     
 

@@ -31,7 +31,7 @@ abstract contract UseSwapper {
         uint256 amountIn,
         uint256 amountOut
     ) internal returns (uint256 returnedAmount) {
-        IERC20(assetIn).approve(swapperA(), amountIn);
+        require(IERC20(assetIn).approve(swapperA(), amountIn));
         ISwapHandler.SwapParams memory params = ISwapHandler.SwapParams(
             assetIn,
             assetOut,

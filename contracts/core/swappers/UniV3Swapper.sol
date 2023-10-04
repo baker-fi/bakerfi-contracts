@@ -16,7 +16,7 @@ contract UniV3Swapper is Ownable, ISwapHandler, UseServiceRegistry {
     error SwapFailed();
     using SafeERC20 for IERC20;
 
-    IV3SwapRouter private _uniRouter;
+    IV3SwapRouter private immutable _uniRouter;
     
     event Swap(address indexed assetIn, address assetOut,  uint256 assetInAmount, uint256 assetOutAmount);
 

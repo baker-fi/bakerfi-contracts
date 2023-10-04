@@ -35,7 +35,7 @@ abstract contract UseAAVEv3 {
         address assetOut,
         uint256 borrowOut
     ) internal {
-        IERC20(assetIn).approve(aaveV3A(), amountIn);
+        require(IERC20(assetIn).approve(aaveV3A(), amountIn));
         aaveV3().supply(assetIn, amountIn, address(this), 0);
         aaveV3().setUserUseReserveAsCollateral(assetIn, true);
         aaveV3().borrow(assetOut, borrowOut, 2, 0, address(this));
@@ -43,6 +43,6 @@ abstract contract UseAAVEv3 {
 
     function _repay(address assetIn, uint256 amount) internal {
         IERC20(assetIn).safeApprove(aaveV3A(), amount);
-        aaveV3().repay(assetIn, amount, 2, address(this));
+        require(aaveV3().repay(assetIn, amount, 2, address(this)) == amount);
     }
 }

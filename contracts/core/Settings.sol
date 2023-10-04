@@ -14,7 +14,7 @@ import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ISettings } from "../interfaces/core/ISettings.sol";
 
 
-contract Settings is Ownable {
+contract Settings is Ownable, ISettings {
 
     uint256 private _withdrawalFee = 10 * 1e6; // 1%
     uint256 private _performanceFee = 10* 1e6; // 1%

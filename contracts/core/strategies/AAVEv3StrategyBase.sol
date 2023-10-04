@@ -5,7 +5,6 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC3156FlashBorrower} from "@openzeppelin/contracts/interfaces/IERC3156FlashBorrower.sol";
 import {IERC3156FlashLender} from "@openzeppelin/contracts/interfaces/IERC3156FlashLender.sol";
 import {ServiceRegistry} from "../../core/ServiceRegistry.sol";
-import {IWETHAdapter} from "../../interfaces/core/IWETHAdapter.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IQuoterV2} from "../../interfaces/uniswap/v3/IQuoterV2.sol";
