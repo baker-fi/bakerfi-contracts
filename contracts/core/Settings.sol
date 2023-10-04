@@ -29,7 +29,7 @@ contract Settings is Ownable {
 
     function setMaxLoanToValue(uint256 maxLoanToValue) external onlyOwner {
         require(maxLoanToValue <  PERCENTAGE_PRECISION, "Invalid percentage value");
-        require(maxLoanToValue > _loanToValue, "Max Loan to Value should be higher than loan to value");
+        require(maxLoanToValue >= _loanToValue, "Max Loan to Value should be higher than loan to value");
         _maxLoanToValue = maxLoanToValue;
     }
 

@@ -286,8 +286,10 @@ abstract contract AAVEv3StrategyBase is
      */
     function harvest() external override onlyOwner nonReentrant returns (int256 balanceChange) {
         (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition();
+        require(totalCollateralBaseInEth > totalDebtBaseInEth, "Collateral value is lower that debt");
         uint256 ltv = 0;
         uint256 deltaDebt = 0;
+        require(deltaDebt < totalCollateralBaseInEth, "Invalid DeltaDeb Calculated");
 
         if (totalDebtBaseInEth > 0) {
             ltv = totalDebtBaseInEth * PERCENTAGE_PRECISION/totalCollateralBaseInEth;

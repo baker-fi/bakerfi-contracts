@@ -95,7 +95,8 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
       flashLender,
       wstETH,
       strategy,
-      oracle
+      oracle,
+      settings,
     };
   }
 
@@ -155,18 +156,63 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
 
   it("Harvest Loss - No Debt Adjust", async function () {
     const { owner, oracle, strategy, aave3Pool } = await loadFixture(deployFunction);   
-     // Deploy 10 ETH
+    // Deploy 10 ETH
      await strategy.deploy({
         value: ethers.parseUnits("10", 18)
-    })
-     // Increment the Collateral value by 10%
+    });
+
+    expect(await strategy.getPosition()).to.deep.equal([ 
+      45655671260000000000n, 
+      35740737730000000000n, 
+      782832378n
+    ]);
+
+    expect(await strategy.totalAssets()).to.equal(
+      9914933530000000000n
+    );
+
+    // Increment the Collateral value by 10%
     await aave3Pool.setCollateralPerEth(
-        1130*(1e6)*0.9
+      1130*(1e6)*0.98
+    );
+
+    await oracle.setLatestPrice(
+      1130*(1e6)*0.98
+    );
+    await expect(strategy.harvest()).to.emit(
+      strategy, "StrategyLoss")
+      .withArgs(
+        984523487383680000n,
+        9001820110000000000n,
+      );;
+
+    expect(await strategy.getPosition()).to.deep.equal([ 
+      44742557840000000000n, 
+      35740737730000000000n,
+      798808549n
+    ]);
+
+    expect(await strategy.totalAssets()).to.equal(
+      9001820110000000000n
+    );
+  });
+
+
+  it("Harvest Loss - Debt Adjust", async function () {
+    const { owner,settings, oracle, strategy, aave3Pool } = await loadFixture(deployFunction);   
+    await strategy.deploy({
+      value: ethers.parseUnits("10", 18)
+    })
+    // Increment the Collateral value by 10%
+    await aave3Pool.setCollateralPerEth(
+      1130*(1e6)*0.9
     );
 
     await oracle.setLatestPrice(
       1130*(1e6)*0.9
     );
+
+    await settings.setMaxLoanToValue(800 * 1e6);
 
     expect(await strategy.getPosition()).to.deep.equal([ 
       41090104140000000000n, 
@@ -174,23 +220,46 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
       869813753n
     ]);
 
-    await strategy.harvest();
-
+    await expect(strategy.harvest()).to.emit(
+      strategy, "StrategyLoss")
+      .withArgs(
+        4636977187383680000n,
+        5349366410000000000n,
+    );;
+    
     expect(await strategy.getPosition()).to.deep.equal([ 
       26488409310000000000n, 
-      21397465640000000000n,
+      21397465640000000000n, 
       807804854n
     ]);
+
     expect(await strategy.totalAssets()).to.equal(
       5090943670000000000n
     );
+
   });
 
 
-  it("Harvest Loss - Debt Adjust", async function () {})
+  it("Harvest Loss - Collateral Value is lower than debt", async function () {
+    
+    const { owner,settings, oracle, strategy, aave3Pool } = await loadFixture(deployFunction);   
+    await strategy.deploy({
+      value: ethers.parseUnits("10", 18)
+    })
 
+    // Increment the Collateral value by 10%
+    await aave3Pool.setCollateralPerEth(
+      1130*(1e6)*0.5
+    );
 
-  it("Harvest Loss - Collateral Value is lower than debt", async function () {});
+    await oracle.setLatestPrice(
+      1130*(1e6)*0.5
+    );
+
+    await expect(strategy.harvest()).to
+      .be.revertedWith("Collateral value is lower that debt");
+
+  });
 
 
 
