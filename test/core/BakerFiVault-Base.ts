@@ -85,9 +85,8 @@ describeif(network.name === "base_devnet")("VaultBase", function () {
         const strategy = await deployAAVEv3StrategyAny(
             deployer.address,
             await serviceRegistry.getAddress(),
-            await leverageLib.getAddress(),
-                "cbETH",
-                "cbETH/ETH Oracle"
+            "cbETH",
+            "cbETH/ETH Oracle"
         );     
 
         await strategy.setTargetLTV(ethers.parseUnits("500", 6));

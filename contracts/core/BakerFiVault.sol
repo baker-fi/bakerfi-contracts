@@ -187,39 +187,4 @@ contract BakerFiVault is Ownable, Pausable, ERC20Permit, UseSettings, Reentrancy
         return totalSupply() * 1 ether / position;
     }
 
-   /* function setWithdrawalFee(uint256 fee) external onlyOwner {
-        require(fee < PERCENTAGE_PRECISION);
-        _withdrawalFee = fee;
-    }
-
-    function getWithdrawalFee() external view returns (uint256) {
-        return _withdrawalFee;
-    }
-
-    function setPerformanceFee(uint256 fee) external onlyOwner {
-        require(fee < PERCENTAGE_PRECISION);
-        _performanceFee = fee;
-    }
-
-    function getPerformanceFee() external view returns (uint256) {
-        return _performanceFee;
-    }
-
-    function setFeeReceiver(address receiver) external onlyOwner {
-        require(receiver != address(0));
-        _feeReceiver = receiver;
-    }
-
-    function getFeeReceiver() external view returns (address) {
-        return _feeReceiver;
-    }
-
-    function getTargetLTV() public view returns (uint256) {
-        return settings().getLoanToValue();
-    }
-
-    function setTargetLTV(uint256 target) external onlyOwner {
-        _strategy.setTargetLTV(target);
-    } */
-
 }

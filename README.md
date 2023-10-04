@@ -135,7 +135,6 @@ MIT
 
 * Test Logic with Flash Loan fees: P2
 * Use the Uniswap Directly: P3
-* Separate Protection and Profit/Loss Detection: P3
 * Make the Leverage Values Hardcoded: P3
 * Myhtril Check - Fix Vulnerability fixes: P3
 * Optimization: Set MAX Int allowances on initialization - P3

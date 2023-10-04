@@ -105,6 +105,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
     expect(await strategy.totalAssets()).to.equal(0);
   });
 
+  
   it("Test Deploy", async function () {
     const { owner, strategy } = await loadFixture(deployFunction);
     // Deploy 10 ETH
@@ -125,7 +126,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
   });
 
 
-  it("Test Profit - No Debt Adjust", async function () {
+  it("Harvest Profit - No Debt Adjust", async function () {
     const { owner, strategy, aave3Pool } = await loadFixture(deployFunction);
     // Deploy 10 ETH
     await strategy.deploy({
@@ -152,7 +153,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
   })
 
 
-  it("Test Loss - No Debt Adjust", async function () {
+  it("Harvest Loss - No Debt Adjust", async function () {
     const { owner, oracle, strategy, aave3Pool } = await loadFixture(deployFunction);   
      // Deploy 10 ETH
      await strategy.deploy({
@@ -186,10 +187,10 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
   });
 
 
-  it("Test Loss - Debt Adjust", async function () {})
+  it("Harvest Loss - Debt Adjust", async function () {})
 
 
-  it("Test Loss - Collateral Value is lower than debt", async function () {})
+  it("Harvest Loss - Collateral Value is lower than debt", async function () {});
 
 
 

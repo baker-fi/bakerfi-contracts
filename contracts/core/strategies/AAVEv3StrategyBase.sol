@@ -249,14 +249,6 @@ abstract contract AAVEv3StrategyBase is
     }
 
     /**
-     * Exit the full position and move the funds to the owner
-     */
-    function exit(address payable liquidator) external override onlyOwner nonReentrant returns (uint256 undeployedAmount) {
-        uint256 amount = totalAssets();
-        undeployedAmount = _undeploy(amount, liquidator);
-    }
-
-    /**
      * Undeploy an amount from the current position returning ETH to the
      * owner of the shares
      * @param amount Amount undeployed
@@ -279,7 +271,6 @@ abstract contract AAVEv3StrategyBase is
         deltaDebt = numerator * PERCENTAGE_PRECISION /divisor;
         uint256 fee = flashLender().flashFee(wETHA(), deltaDebt);
         uint256 allowance = wETH().allowance(address(this), flashLenderA());
-
         wETH().approve(flashLenderA(), deltaDebt + fee + allowance);
         require(
             flashLender().flashLoan(
@@ -308,8 +299,6 @@ abstract contract AAVEv3StrategyBase is
                 deltaDebt = _adjustDebt(totalCollateralBaseInEth, totalDebtBaseInEth);
             }
         }
-
-
         uint256 newDeployedAmount = totalCollateralBaseInEth - deltaDebt - (totalDebtBaseInEth - deltaDebt);
 
         require(deltaDebt < totalCollateralBaseInEth, "Invalid DeltaDeb Calculated");
@@ -360,12 +349,14 @@ abstract contract AAVEv3StrategyBase is
         uint256 amount,
         address payable receiver
     ) private returns (uint256 undeployedAmount) {
-        uint256 percentageToBurn = amount * PERCENTAGE_PRECISION /totalAssets();
-        // 1. Rebalance Collateral Balance and Debt and return Collateral  
         (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition();
-        uint256 deltaDebtInETH = totalDebtBaseInEth * percentageToBurn / PERCENTAGE_PRECISION;        
-        // 2. Withdraw from AAVE Pool
-        uint256 deltaCollateralInETH = totalCollateralBaseInEth * percentageToBurn / PERCENTAGE_PRECISION;      
+        require(totalCollateralBaseInEth > totalDebtBaseInEth, "No Collateral margin to scale");    
+        uint256 percentageToBurn = amount * PERCENTAGE_PRECISION /(totalCollateralBaseInEth - totalDebtBaseInEth);
+        (uint256 deltaCollateralInETH, uint256 deltaDebtInETH) = adjustPosition(
+            percentageToBurn, 
+            totalCollateralBaseInEth, 
+            totalDebtBaseInEth
+        );
         uint256 fee = flashLender().flashFee(wETHA(), deltaDebtInETH);
         uint256 allowance = wETH().allowance(address(this), flashLenderA());
         wETH().approve(flashLenderA(), deltaDebtInETH + fee + allowance);
