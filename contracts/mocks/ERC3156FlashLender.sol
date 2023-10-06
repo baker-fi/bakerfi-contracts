@@ -3,22 +3,29 @@ pragma solidity ^0.8.18;
 import "@openzeppelin/contracts/interfaces/IERC3156FlashLender.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {PERCENTAGE_PRECISION} from "../core/Constants.sol";
+
 
 contract MockFlashLender is IERC3156FlashLender {
-    
-    uint256 constant FLASH_LOAN_FEE_PRECISION = 100000;
-    uint256 constant FLASH_LOAN_FEE = 100; // 0.1% 
-    IERC20 _asset;
     
     using SafeERC20 for IERC20;
 
     bytes32 public constant CALLBACK_SUCCESS = keccak256("ERC3156FlashBorrower.onFlashLoan");
-    
 
-    IERC3156FlashLender _flashLender;
+    IERC20  private _asset;        
+    uint256 private _flashLoanFee = 1e6; // 0.1%     
+    IERC3156FlashLender private _flashLender;
 
     constructor(IERC20 asset) {
         _asset = asset;
+    }
+    
+    function getFlashLoanFee() public view returns (uint256)  {
+        return _flashLoanFee;
+    }
+    
+    function setFlashLoanFee(uint256 fee) external {
+        _flashLoanFee = fee;
     }
      
     function maxFlashLoan(address token) external view override returns (uint256) {
@@ -26,7 +33,7 @@ contract MockFlashLender is IERC3156FlashLender {
     }
 
     function flashFee(address token, uint256 amount) external view  override returns (uint256) {
-        return amount * FLASH_LOAN_FEE / FLASH_LOAN_FEE_PRECISION;
+        return amount * _flashLoanFee / PERCENTAGE_PRECISION;
     }
 
     function flashLoan(
@@ -35,7 +42,7 @@ contract MockFlashLender is IERC3156FlashLender {
         uint256 amount,
         bytes calldata data
     ) external override returns (bool) {
-        uint256 fee = amount * FLASH_LOAN_FEE / FLASH_LOAN_FEE_PRECISION;       
+        uint256 fee = amount * _flashLoanFee / PERCENTAGE_PRECISION;              
         uint256 balanceBefore = _asset.balanceOf(address(this)); 
         require(balanceBefore >= amount, "No Balance available for flash load");        
         _asset.safeTransfer(address(borrower), amount);                        

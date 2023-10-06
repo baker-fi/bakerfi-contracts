@@ -6,14 +6,14 @@ import {IPoolV3} from "../interfaces/aave/v3/IPoolV3.sol";
 import "../interfaces/aave/v3/DataTypes.sol";
 import "../interfaces/aave/v3/IPoolAddressesProvider.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {DataTypes} from "../interfaces/aave/v3/DataTypes.sol";
 
 contract AaveV3PoolMock is IPoolV3, ERC20 {
 
-    
     struct UserInfo {
         uint256 depositAmount;
         uint256 borrowedAmount;
-    }
+    }   
 
     mapping(address => UserInfo) public users;
 
@@ -70,6 +70,7 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
         _collateralToken.transferFrom(msg.sender, address(this), amount);
         users[msg.sender].depositAmount= users[msg.sender].depositAmount + amount;
         _mint(msg.sender, amount);
+        emit Supply(asset, msg.sender,  msg.sender, amount, 0 );
     }
 
     function supplyWithPermit(
@@ -93,6 +94,7 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
         users[msg.sender].depositAmount-= amount;
         (_collateralToken).transfer(msg.sender, amount);      
         _burn(msg.sender, amount);
+        emit Withdraw(asset, msg.sender, msg.sender, amount );
     }
 
     function borrow(
@@ -105,6 +107,7 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
         require(users[msg.sender].depositAmount - users[msg.sender].borrowedAmount >= amount, "Not Enough Balance to Borrow");
         _borrowedToken.transfer(onBehalfOf, amount);
         users[msg.sender].borrowedAmount += amount;
+        emit Borrow(asset, msg.sender,msg.sender, amount,  DataTypes.InterestRateMode.NONE , 0, 0);
     }
 
     function repay(
@@ -115,6 +118,7 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
     ) external override returns (uint256) {
         users[msg.sender].borrowedAmount -= amount;
         _borrowedToken.transfer(onBehalfOf, amount);
+        emit Repay(asset, msg.sender, msg.sender, amount,  false);
         return amount;
     }
     

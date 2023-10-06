@@ -66,17 +66,16 @@ contract BakerFiVault is Ownable, Pausable, ERC20Permit, UseSettings, Reentrancy
     function rebalance() external nonReentrant returns (int256 balanceChange)  {
         uint256 currentPos = totalPosition();
         if (currentPos > 0) {
-            balanceChange = _strategy.harvest();
-            uint256 newPos = totalPosition();
+            balanceChange = _strategy.harvest();           
             if (balanceChange > 0) {
                 if (
                     settings().getFeeReceiver() != address(this) &&
                     settings().getPerformanceFee() > 0
-                ) {                 
+                ) {           
                     uint256 feeInEth = uint256(balanceChange) * 
                         settings().getPerformanceFee() / 
-                        PERCENTAGE_PRECISION;
-                    uint256 percToTreasury = feeInEth *  PERCENTAGE_PRECISION / newPos ;
+                        PERCENTAGE_PRECISION;                    
+                    uint256 percToTreasury = feeInEth *  PERCENTAGE_PRECISION / currentPos ;
                     uint256 sharesToMint = percToTreasury * totalSupply() / PERCENTAGE_PRECISION;
                     _mint(settings().getFeeReceiver(), sharesToMint);
                 }

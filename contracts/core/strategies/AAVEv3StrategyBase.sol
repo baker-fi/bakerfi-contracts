@@ -39,7 +39,7 @@ import {UseServiceRegistry} from "../hooks/UseServiceRegistry.sol";
 import {UseSwapper} from "../hooks/UseSwapper.sol";
 import {UseIERC20} from "../hooks/UseIERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-
+import "hardhat/console.sol";
 /**
  *
  * Base Strategy that does AAVE leverage/deleverage using flash loans
@@ -167,7 +167,7 @@ abstract contract AAVEv3StrategyBase is
         );
         deployedAmount = _pendingAmount;
         _deployedAmount = _deployedAmount + deployedAmount;
-        _pendingAmount = 0;
+        _pendingAmount = 0;        
     }
 
     /**
@@ -177,8 +177,8 @@ abstract contract AAVEv3StrategyBase is
         uint256 collateralIn = _convertFromWETH(amount + loanAmount);
         // 3. Deposit Collateral and Borrow ETH
         _supplyAndBorrow(ierc20A(), collateralIn, wETHA(), loanAmount + fee);
-        uint256 collateralInETH = _toWETH(collateralIn);
-        _pendingAmount = collateralInETH - loanAmount + fee;
+        uint256 collateralInETH = _toWETH(collateralIn);       
+        _pendingAmount = collateralInETH - loanAmount - fee;
     }
 
     function _payDebt(uint256 debtAmount, uint256 fee) private {
@@ -206,13 +206,13 @@ abstract contract AAVEv3StrategyBase is
         // 2. Convert Collateral to WETH
         uint256 wETHAmount = _convertToWETH(withdrawAmount);
         // 2. Convert Collateral to WETH
-        uint256 leftETH = wETHAmount - repayAmount - fee;
+        uint256 ethToWithdraw = wETHAmount - repayAmount - fee;
         // 3. Unwrap wETH
-        _unwrapWETH(leftETH);
+        _unwrapWETH(ethToWithdraw);
         // 4. Withdraw ETh to Receiver
-        (bool success, ) = payable(receiver).call{value: leftETH}("");
+        (bool success, ) = payable(receiver).call{value: ethToWithdraw}("");
         require(success, "Failed to Send ETH Back");
-        _pendingAmount = leftETH;
+        _pendingAmount = ethToWithdraw;
     }
 
     /**
@@ -378,7 +378,11 @@ abstract contract AAVEv3StrategyBase is
             "Failed to run Flash Loan"
         );
         undeployedAmount = _pendingAmount;
-        _deployedAmount = _deployedAmount - undeployedAmount;
+        if(undeployedAmount > _deployedAmount) {
+            _deployedAmount = 0;
+        } else {
+            _deployedAmount = _deployedAmount - undeployedAmount;
+        }        
         _pendingAmount = 0;
     }
 
@@ -397,4 +401,5 @@ abstract contract AAVEv3StrategyBase is
             (amountIn * _collateralOracle.getPrecision()) /
             _collateralOracle.getLatestPrice();
     }
+    
 }
