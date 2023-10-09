@@ -95,6 +95,7 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
         (_collateralToken).transfer(msg.sender, amount);      
         _burn(msg.sender, amount);
         emit Withdraw(asset, msg.sender, msg.sender, amount );
+        return amount;
     }
 
     function borrow(

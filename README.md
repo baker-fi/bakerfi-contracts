@@ -133,9 +133,10 @@ MIT
 
 ### TODO - Smart Contracts 
 
-* Test Logic with Flash Loan fees: P2
-* Use the Uniswap Directly: P3
-* Make the Leverage Values Hardcoded: P3
+* Use the Uniswap Directly: P1
+* Rebase Library Unit Tests: P1
 * Myhtril Check - Fix Vulnerability fixes: P3
 * Optimization: Set MAX Int allowances on initialization - P3
 * Upgrade Flash Lender: P4
+* Make the Leverage Values Hardcoded: P5
+

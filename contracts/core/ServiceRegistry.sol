@@ -12,9 +12,10 @@ contract ServiceRegistry is Ownable, IServiceRegistry {
     
     mapping(bytes32 => address) private _services;
 
-    constructor(address owner) {
-        require(owner != address(0), "Invalid Owner Address");
-        _transferOwnership(owner);
+    constructor(address ownerToSet) Ownable()
+    {
+        require(ownerToSet != address(0), "Invalid Owner Address");
+        _transferOwnership(ownerToSet);
     }
 
     function registerService(

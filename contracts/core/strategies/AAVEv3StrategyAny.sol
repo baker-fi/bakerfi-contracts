@@ -21,11 +21,11 @@ contract AAVEv3StrategyAny is AAVEv3StrategyBase {
 
     // solhint-disable no-empty-blocks  
     constructor(
-        address owner,
+        address initialOwner,
         ServiceRegistry registry,
         bytes32 collateral,
         bytes32 oracle
-    ) AAVEv3StrategyBase(owner, registry, collateral, oracle) {}
+    ) AAVEv3StrategyBase(initialOwner, registry, collateral, oracle) {}
     // solhint-enable no-empty-blocks    
 
     function _convertFromWETH(uint256 amount) internal virtual override returns (uint256) {

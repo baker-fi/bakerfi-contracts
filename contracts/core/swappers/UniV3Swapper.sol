@@ -10,8 +10,9 @@ import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
 import {UseServiceRegistry} from "../hooks/UseServiceRegistry.sol";
 import {IV3SwapRouter} from "../../interfaces/uniswap/v3/ISwapRouter.sol";
 import {UNISWAP_ROUTER} from "../Constants.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract UniV3Swapper is Ownable, ISwapHandler, UseServiceRegistry {
+contract UniV3Swapper is Ownable, ISwapHandler, UseServiceRegistry, ReentrancyGuard {
     
     error SwapFailed();
     using SafeERC20 for IERC20;
@@ -24,10 +25,10 @@ contract UniV3Swapper is Ownable, ISwapHandler, UseServiceRegistry {
 
     constructor(
         ServiceRegistry registry,
-        address owner
+        address initialOwner
     ) Ownable() ISwapHandler() UseServiceRegistry(registry) {
-        require(owner != address(0), "Invalid Owner Address");
-        _transferOwnership(owner);
+        require(initialOwner != address(0), "Invalid Owner Address");
+        _transferOwnership(initialOwner);
         _uniRouter = IV3SwapRouter(registerSvc().getServiceFromHash(UNISWAP_ROUTER));
         require(address(_uniRouter) != address(0), "Invalid Uniswap Router");    
     }
@@ -48,7 +49,7 @@ contract UniV3Swapper is Ownable, ISwapHandler, UseServiceRegistry {
         _feeTiers[keccak256(abi.encodePacked(toToken, fromToken))] = 0;
     }
 
-    function executeSwap(SwapParams calldata params) external override returns (uint256 amountOut) {
+    function executeSwap(SwapParams calldata params) nonReentrant external override returns (uint256 amountOut) {
         require(params.underlyingIn != address(0), "Invalid Input Asset");
         require(params.underlyingOut != address(0), "Invalid Input Asset");
         uint24 fee = getFeeTier(params.underlyingIn, params.underlyingOut);

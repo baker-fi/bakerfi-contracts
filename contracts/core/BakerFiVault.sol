@@ -14,6 +14,7 @@ import {PERCENTAGE_PRECISION} from "./Constants.sol";
 import {ERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 import {UseSettings} from "./hooks/UseSettings.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 /**
  * Landromat Vault
@@ -31,6 +32,8 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 contract BakerFiVault is Ownable, Pausable, ERC20Permit, UseSettings, ReentrancyGuard {
     using RebaseLibrary for Rebase;
     using SafeERC20 for ERC20;
+    using Address for address;
+    using Address for address payable;
 
     string constant private _NAME = "Bread ETH";
     string constant private _SYMBOL = "brETH";
@@ -44,17 +47,17 @@ contract BakerFiVault is Ownable, Pausable, ERC20Permit, UseSettings, Reentrancy
 
     /**
      * Deploy The Vaults
-     * @param owner The owner of this contract that is able to change the settings
+     * @param initialOwner The owner of this contract that is able to change the settings
      * @param registry The Contract Registry address
      * @param strategy  The Strategy applied on this vault
      */
     constructor(
-        address owner,
+        address initialOwner,
         ServiceRegistry registry,
         IStrategy strategy
     ) ERC20Permit(_NAME) ERC20(_NAME, _SYMBOL) UseSettings(registry) {
-        require(owner != address(0), "Invalid Owner Address");
-        _transferOwnership(owner);
+        require(initialOwner != address(0), "Invalid Owner Address");
+        _transferOwnership(initialOwner);
         _registry = registry;
         _strategy = strategy;
     }
@@ -99,7 +102,11 @@ contract BakerFiVault is Ownable, Pausable, ERC20Permit, UseSettings, Reentrancy
     function deposit(address receiver) external payable nonReentrant returns (uint256 shares) {
         require(msg.value > 0, "Invalid Amount to be deposit");
         Rebase memory total = Rebase(totalPosition(), totalSupply());
-        uint256 amount = _strategy.deploy{value: msg.value}();
+        bytes memory result = (address(_strategy)).functionCallWithValue(
+            abi.encodeWithSignature("deploy()"), 
+            msg.value
+        );
+        uint256 amount= abi.decode(result, (uint256));
         shares = total.toBase(amount, false);
         _mint(receiver, shares);
         emit Deposit(msg.sender, receiver, msg.value, shares);
@@ -112,19 +119,17 @@ contract BakerFiVault is Ownable, Pausable, ERC20Permit, UseSettings, Reentrancy
      */
     function withdraw(uint256 shares, address payable receiver) external nonReentrant returns (uint256 amount) {
         require(balanceOf(msg.sender) >= shares, "No Enough balance to withdraw");
+        require(receiver != address(0), "Invalid Receiver");
         uint256 percentageToBurn = shares * PERCENTAGE_PRECISION / totalSupply();
         uint256 withdrawAmount = totalPosition() * percentageToBurn /PERCENTAGE_PRECISION;
         amount = _strategy.undeploy(withdrawAmount, payable(this));
         // Withdraw ETh to Receiver and pay withdrawal Fees
         if (settings().getWithdrawalFee() != 0  && settings().getFeeReceiver() != address(0)) {
             uint256 fee = amount * settings().getWithdrawalFee() /PERCENTAGE_PRECISION;
-            (bool success, ) = payable(receiver).call{value: amount - fee}("");
-            require(success, "Failed to Send ETH To Receiver");
-            (bool successFee, ) = payable(settings().getFeeReceiver()).call{value: fee}("");
-            require(successFee, "Failed to pay Service Fee");
+            payable(receiver).sendValue(amount - fee);
+            payable(settings().getFeeReceiver()).sendValue(fee);          
         } else {
-            (bool success, ) = payable(receiver).call{value: amount}("");
-            require(success, "Failed to Send ETH Back");
+            payable(receiver).sendValue(amount);
         }
         _burn(msg.sender, shares);
         emit Withdraw(msg.sender, amount, shares);

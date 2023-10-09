@@ -9,7 +9,7 @@ interface IWETH {
 
     function balanceOf(address) external view returns (uint256);
 
-    function approve(address, uint256) external;
+    function approve(address, uint256) external returns (bool success);
 
     function transfer(address, uint256) external returns (bool);
 

@@ -2,9 +2,9 @@
 pragma solidity 0.8.18;
 
 contract WETH {
-  string public name = "Wrapped Ether";
-  string public symbol = "WETH";
-  uint8 public decimals = 18;
+  string public constant name = "Wrapped Ether";
+  string public constant symbol = "WETH";
+  uint8 public constant decimals = 18;
 
   event Approval(address indexed src, address indexed guy, uint256 wad);
   event Transfer(address indexed src, address indexed dst, uint256 wad);

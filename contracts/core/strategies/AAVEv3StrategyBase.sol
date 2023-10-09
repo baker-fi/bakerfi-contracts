@@ -39,7 +39,8 @@ import {UseServiceRegistry} from "../hooks/UseServiceRegistry.sol";
 import {UseSwapper} from "../hooks/UseSwapper.sol";
 import {UseIERC20} from "../hooks/UseIERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "hardhat/console.sol";
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+
 /**
  *
  * Base Strategy that does AAVE leverage/deleverage using flash loans
@@ -86,7 +87,9 @@ abstract contract AAVEv3StrategyBase is
     bytes32 private constant _SUCCESS_MESSAGE = keccak256("ERC3156FlashBorrower.onFlashLoan");
 
     using SafeERC20 for IERC20;
-
+    using Address for address;    
+    using Address for address payable;
+    
     uint256 internal _pendingAmount = 0;
     uint256 private _deployedAmount = 0;
 
@@ -94,7 +97,7 @@ abstract contract AAVEv3StrategyBase is
     IOracle private _ethUSDOracle;
 
     constructor(
-        address owner,
+        address initialOwner,
         ServiceRegistry registry,
         bytes32 collateralIERC20,
         bytes32 collateralOracle
@@ -111,10 +114,10 @@ abstract contract AAVEv3StrategyBase is
     {
         _collateralOracle = IOracle(registry.getServiceFromHash(collateralOracle));
         _ethUSDOracle = IOracle(registry.getServiceFromHash(ETH_USD_ORACLE));
-        require(owner != address(0), "Invalid Owner Address");
+        require(initialOwner != address(0), "Invalid Owner Address");
         require(address(_ethUSDOracle) != address(0), "Invalid ETH/USD Oracle");
         require(address(_collateralOracle) != address(0), "Invalid <Collateral>/ETH Oracle");
-        _transferOwnership(owner);
+        _transferOwnership(initialOwner);
         aaveV3().setUserEMode(E_MODE_CATEGORY_ETH);
         require(aaveV3().getUserEMode(address(this)) == E_MODE_CATEGORY_ETH, "Invalid Emode");
     }
@@ -149,13 +152,17 @@ abstract contract AAVEv3StrategyBase is
     function deploy() external payable onlyOwner nonReentrant returns (uint256 deployedAmount) {
         require(msg.value != 0, "No Zero deposit Allower");
         // 1. Wrap Ethereum
-        wETH().deposit{value: msg.value}();
+        address(wETHA()).functionCallWithValue(
+            abi.encodeWithSignature("deposit()"), 
+            msg.value
+        );
+        
         // 2. Initiate a WETH Flash Loan
         uint256 leverage = calculateLeverageRatio(msg.value, _targetLoanToValue, 10);
         uint256 loanAmount = leverage - msg.value;
         uint256 fee = flashLender().flashFee(wETHA(), loanAmount);
         uint256 allowance = wETH().allowance(address(this), flashLenderA());
-        wETH().approve(flashLenderA(), loanAmount + fee + allowance);
+        require(wETH().approve(flashLenderA(), loanAmount + fee + allowance));
         require(
             flashLender().flashLoan(
                 IERC3156FlashBorrower(this),
@@ -187,7 +194,7 @@ abstract contract AAVEv3StrategyBase is
         (uint256 amountIn, , , ) = uniQuoter().quoteExactOutputSingle(
             IQuoterV2.QuoteExactOutputSingleParams(ierc20A(), wETHA(), debtAmount + fee, 500, 0)
         );
-        aaveV3().withdraw(ierc20A(), amountIn, address(this));
+        require(aaveV3().withdraw(ierc20A(), amountIn, address(this)) == amountIn, "Invalid Amount Withdrawn");
         _swaptoken(ierc20A(), wETHA(), 1, amountIn, debtAmount + fee);
     }
 
@@ -202,7 +209,7 @@ abstract contract AAVEv3StrategyBase is
     ) private {
         uint256 withdrawAmount = _fromWETH(withdrawAmountInETh);
         _repay(wETHA(), repayAmount);
-        aaveV3().withdraw(ierc20A(), withdrawAmount, address(this));
+        require(aaveV3().withdraw(ierc20A(), withdrawAmount, address(this)) ==  withdrawAmount, "Invalid Amount Withdrawn");
         // 2. Convert Collateral to WETH
         uint256 wETHAmount = _convertToWETH(withdrawAmount);
         // 2. Convert Collateral to WETH
@@ -210,8 +217,7 @@ abstract contract AAVEv3StrategyBase is
         // 3. Unwrap wETH
         _unwrapWETH(ethToWithdraw);
         // 4. Withdraw ETh to Receiver
-        (bool success, ) = payable(receiver).call{value: ethToWithdraw}("");
-        require(success, "Failed to Send ETH Back");
+        payable(receiver).sendValue(ethToWithdraw);
         _pendingAmount = ethToWithdraw;
     }
 
@@ -231,7 +237,7 @@ abstract contract AAVEv3StrategyBase is
         uint256 fee,
         bytes memory callData
     ) external returns (bytes32) {
-        // TODO: Block msg.sender to our flash Lender
+        require(msg.sender == flashLenderA(), "Invalid Flash loan sender");
         require(initiator == address(this), "Untrusted loan initiator");
         // Only Allow WETH Flash Loans
         require(token == wETHA(), "Invalid Flash Loan Asset");
@@ -256,7 +262,7 @@ abstract contract AAVEv3StrategyBase is
     function undeploy(
         uint256 amount,
         address payable receiver
-    ) external onlyOwner returns (uint256 undeployedAmount) {
+    ) external onlyOwner nonReentrant returns (uint256 undeployedAmount) {
         undeployedAmount = _undeploy(amount, receiver);
     }
 
@@ -271,7 +277,7 @@ abstract contract AAVEv3StrategyBase is
         );
         uint256 fee = flashLender().flashFee(wETHA(), deltaDebt);
         uint256 allowance = wETH().allowance(address(this), flashLenderA());
-        wETH().approve(flashLenderA(), deltaDebt + fee + allowance);
+        require(wETH().approve(flashLenderA(), deltaDebt + fee + allowance));
         require(
             flashLender().flashLoan(
                 IERC3156FlashBorrower(this),
@@ -367,7 +373,7 @@ abstract contract AAVEv3StrategyBase is
         );
         uint256 fee = flashLender().flashFee(wETHA(), deltaDebtInETH);
         uint256 allowance = wETH().allowance(address(this), flashLenderA());
-        wETH().approve(flashLenderA(), deltaDebtInETH + fee + allowance);
+        require(wETH().approve(flashLenderA(), deltaDebtInETH + fee + allowance));
         require(
             flashLender().flashLoan(
                 IERC3156FlashBorrower(this),

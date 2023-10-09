@@ -103,7 +103,7 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     };
   }
 
-  it("Test Initialized Vault", async function () {
+  it("Vault Initilization", async function () {
     const { owner, vault } = await loadFixture(deployFunction);
     expect(await vault.symbol()).to.equal("brETH");
     expect(await vault.balanceOf(owner.address)).to.equal(0);
@@ -115,7 +115,7 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     expect(await vault.loanToValue()).to.equal(0);
   });
 
-  it("Test Deposit Event", async function () {
+  it("Deposit 10TH", async function () {
     const { owner, vault } = await loadFixture(deployFunction);
     const depositAmount = ethers.parseUnits("10", 18);
     await expect(vault.deposit(owner.address, { value: depositAmount }))
@@ -127,28 +127,19 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
         9986343597383680000n
       )
       .to.changeEtherBalances([owner.address], [-ethers.parseUnits("10", 18)]);
+
+      expect(await vault.symbol()).to.equal("brETH");
+      expect(await vault.name()).to.equal("Bread ETH");
+      expect(await vault.balanceOf(owner.address)).to.equal(9914933531975680000n);
+      expect(await vault.totalCollateral()).to.equal(45655671260000000000n);
+      expect(await vault.totalDebt()).to.equal(35740737730000000000n);
+      expect(await vault.totalPosition()).to.equal(9914933530000000000n);
+      expect(await vault.loanToValue()).to.equal(782832378);
+      expect(await vault.totalSupply()).to.equal(9914933531975680000n);
+      expect(await vault.tokenPerETh()).to.equal(1000000000199263060n);
   });
 
-  it("Test Deposit", async function () {
-    const { owner, vault } = await loadFixture(deployFunction);
-
-    const depositAmount = ethers.parseUnits("10", 18);
-    await vault.deposit(owner.address, {
-      value: depositAmount,
-    });
-
-    expect(await vault.symbol()).to.equal("brETH");
-    expect(await vault.name()).to.equal("Bread ETH");
-    expect(await vault.balanceOf(owner.address)).to.equal(9914933531975680000n);
-    expect(await vault.totalCollateral()).to.equal(45655671260000000000n);
-    expect(await vault.totalDebt()).to.equal(35740737730000000000n);
-    expect(await vault.totalPosition()).to.equal(9914933530000000000n);
-    expect(await vault.loanToValue()).to.equal(782832378);
-    expect(await vault.totalSupply()).to.equal(9914933531975680000n);
-    expect(await vault.tokenPerETh()).to.equal(1000000000199263060n);
-  });
-
-  it("Test Withdraw", async function () {
+  it("Withdraw - 1 brETH" , async function () {
     const { owner, vault } = await loadFixture(deployFunction);
 
     const depositAmount = ethers.parseUnits("10", 18);
@@ -157,7 +148,14 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
       value: depositAmount,
     });
 
-    await vault.withdraw(ethers.parseUnits("1", 18), owner.address);
+    await expect(vault.withdraw(ethers.parseUnits("1", 18), owner.address))
+      .to.emit(vault, "Withdraw")
+        .withArgs(
+          owner.address, 4969613303000000000n, ethers.parseUnits("1", 18)
+        )
+      .to.changeEtherBalances(
+        [owner.address], [1001373754431390967n]
+      );
     expect(await vault.balanceOf(owner.address)).to.equal(8914933531975680000n);
     expect(await vault.totalCollateral()).to.equal(41050933260000000000n);
     expect(await vault.totalDebt()).to.equal(32135999730000000000n);
@@ -167,21 +165,7 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     expect(await vault.tokenPerETh()).to.equal(1000000000221614664n);
   });
 
-  it("Test Withdraw Event", async function () {
-    const { owner, vault } = await loadFixture(deployFunction);
-    const depositAmount = ethers.parseUnits("10", 18);
-
-    await vault.deposit(owner.address, {
-      value: depositAmount,
-    });
-
-    await expect(vault.withdraw(ethers.parseUnits("5", 18), owner.address))
-      .to.emit(vault, "Withdraw")
-      .withArgs(owner.address, 4969613303000000000n, ethers.parseUnits("5", 18))
-      .to.changeEtherBalances([owner.address], [5006868774156954831n]);
-  });
-
-  it("Test Zero Deposit", async function () {
+  it("Deposit - 0 ETH", async function () {
     const { owner, vault } = await loadFixture(deployFunction);
 
     await expect(
@@ -191,7 +175,7 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     ).to.be.revertedWith("Invalid Amount to be deposit");
   });
 
-  it("Withdraw overbalance", async function () {
+  it("Withdraw failed not enough brETH", async function () {
     const { owner, vault } = await loadFixture(deployFunction);
 
     await vault.deposit(owner.address, {
@@ -203,7 +187,7 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     ).to.be.revertedWith("No Enough balance to withdraw");
   });
 
-  it("Transfer Shares ", async function () {
+  it("Transfer 10 brETH", async function () {
     const { owner, vault, otherAccount } = await loadFixture(deployFunction);
     await vault.deposit(owner.address, {
       value: ethers.parseUnits("10", 18),
@@ -216,7 +200,7 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     );
   });
 
-  it("Verify profit on Rebalance", async function () {
+  it("Harvest Profit on Rebalance", async function () {
     const { owner, vault, otherAccount, aave3Pool, settings } =
       await loadFixture(deployFunction);
     await vault.deposit(owner.address, {
@@ -244,7 +228,7 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     );
   });
 
-  it("Withdraw With Fees", async function () {
+  it("Withdraw With Service Fees", async function () {
     const { owner, vault, settings, otherAccount, anotherAccount } =
       await loadFixture(deployFunction);
 
@@ -264,7 +248,7 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     );
   });
 
-  it("Test Max Withdraw", async function () {
+  it("Withdraw - Burn all brETH", async function () {
     const { owner, vault, settings, otherAccount, anotherAccount } =
       await loadFixture(deployFunction);
     await vault.deposit(owner.address, {
@@ -286,7 +270,7 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     expect(await vault.tokenPerETh()).to.equal(0);
   });
 
-  it("Deposit with Flash Loan No Fees", async () => {
+  it("Deposit with No Flash Loan Fees", async () => {
     const { owner, vault, otherAccount, flashLender, anotherAccount } =
       await loadFixture(deployFunction);
 
@@ -306,7 +290,7 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     expect(await vault.tokenPerETh()).to.equal(1000000000470289416n);
   });
 
-  it("Withdraw with Flash Loan No Fees", async () => {
+  it("Withdraw with No Flash Loan Fees", async () => {
     const { owner, vault, flashLender } = await loadFixture(deployFunction);
 
     await flashLender.setFlashLoanFee(0);
@@ -322,9 +306,18 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
       .to.changeEtherBalances([owner.address], [5024803137523732200n]);
   });
 
-  it("Adjust Debt with Flash Loan No Fees", async () => {
-    const { owner, swapper, vault,wstETH, weth, settings, strategy, oracle, aave3Pool } =
-      await loadFixture(deployFunction);
+  it("Adjust Debt with No Flash Loan Fees", async () => {
+    const {
+      owner,
+      swapper,
+      vault,
+      wstETH,
+      weth,
+      settings,
+      strategy,
+      oracle,
+      aave3Pool,
+    } = await loadFixture(deployFunction);
     const depositAmount = ethers.parseUnits("10", 18);
     await swapper.addPair(await weth.getAddress(), await wstETH.getAddress());
     await vault.deposit(owner.address, {
@@ -339,21 +332,21 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
 
     await expect(vault.rebalance())
       .to.emit(strategy, "StrategyLoss")
-        .withArgs(4565567121975680000n, 5349366410000000000n)
+      .withArgs(4565567121975680000n, 5349366410000000000n)
       .to.emit(aave3Pool, "Repay")
-        .withArgs(
-          await weth.getAddress(),
-          await strategy.getAddress(),
-          await strategy.getAddress(),
-          14343272090000000000n,
-          false
-        )
+      .withArgs(
+        await weth.getAddress(),
+        await strategy.getAddress(),
+        await strategy.getAddress(),
+        14343272090000000000n,
+        false
+      )
       .to.emit(aave3Pool, "Withdraw")
-        .withArgs(
-          await wstETH.getAddress(),
-          await strategy.getAddress(),
-          await strategy.getAddress(),
-          14357615362090000000n,
+      .withArgs(
+        await wstETH.getAddress(),
+        await strategy.getAddress(),
+        await strategy.getAddress(),
+        14357615362090000000n
       );
 
     expect(await vault.totalPosition()).to.equal(5090943670000000000n);

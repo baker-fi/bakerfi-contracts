@@ -13,6 +13,7 @@ import {UseIERC20} from "../hooks/UseIERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IWStETH} from "../../interfaces/lido/IWStETH.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 /**
  * @title WST used
@@ -21,13 +22,13 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
  */
 contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH {
     using SafeERC20 for IERC20;
-
+    using Address for address payable;
     // solhint-disable no-empty-blocks    
     constructor(
-        address owner,
+        address initialOwner,
         ServiceRegistry registry
     )
-        AAVEv3StrategyBase(owner, registry, WST_ETH_CONTRACT, WSTETH_ETH_ORACLE)
+        AAVEv3StrategyBase(initialOwner, registry, WST_ETH_CONTRACT, WSTETH_ETH_ORACLE)
         UseWstETH(registry)
         UseStETH(registry)
     {}
@@ -39,8 +40,8 @@ contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH {
         wETH().withdraw(amount);
         uint256 wStEthBalanceBefore = wstETH().balanceOf(address(this));
         // 2. Stake and Wrap using the receive function
-        (bool sent, ) = payable(wstETHA()).call{value: amount}("");
-        require(sent, "Failed to send Ether");
+        payable(wstETHA()).sendValue(amount);
+       // require(sent, "Failed to send Ether");
         uint256 wStEthBalanceAfter = wstETH().balanceOf(address(this));
         // 3. Wrap stETH -> wstETH
         return wStEthBalanceAfter - wStEthBalanceBefore;

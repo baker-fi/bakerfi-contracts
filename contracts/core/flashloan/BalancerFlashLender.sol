@@ -4,7 +4,7 @@ pragma solidity ^0.8.18;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC3156FlashLender} from "@openzeppelin/contracts/interfaces/IERC3156FlashLender.sol";
-import {IFlashLoans} from "../../interfaces/balancer/IFlashLoan.sol";
+import {IFlashLoans, IFlashLoanRecipient} from "../../interfaces/balancer/IFlashLoan.sol";
 import {BALANCER_VAULT} from "../Constants.sol";
 import {ServiceRegistry} from "../../core/ServiceRegistry.sol";
 import {IERC3156FlashBorrower} from "@openzeppelin/contracts/interfaces/IERC3156FlashBorrower.sol";
@@ -13,7 +13,7 @@ import {IERC3156FlashBorrower} from "@openzeppelin/contracts/interfaces/IERC3156
  *  Balancer Flash Loan Adapter
  *
  * */
-contract BalancerFlashLender is IERC3156FlashLender {
+contract BalancerFlashLender is IERC3156FlashLender, IFlashLoanRecipient{
 
     using SafeERC20 for IERC20;
 
