@@ -75,8 +75,6 @@ abstract contract AAVEv3StrategyBase is
     event StrategyLoss(uint256 amount, uint256 deployedAmount);
     event StrategyAmountUpdate(address source, uint256 newDeployment);
 
-    //uint256 private _targetLoanToValue = 500 * 1e6;
-
     struct FlashLoanData {
         uint256 originalAmount;
         address receiver;
