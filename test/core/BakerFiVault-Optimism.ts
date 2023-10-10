@@ -83,6 +83,11 @@ describeif(network.name === "optimism_devnet")("VaultOptimism", function () {
       config.AAVEEModeCategory
     );
 
+    await serviceRegistry.registerService(
+      ethers.keccak256(Buffer.from("Strategy")),
+      await strategy.getAddress() ,
+    );
+
     await settings.setLoanToValue(ethers.parseUnits("800", 6));
 
     // 13. Deploy the Vault

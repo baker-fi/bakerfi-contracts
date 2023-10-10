@@ -7,13 +7,14 @@ import {IERC3156FlashLender} from "@openzeppelin/contracts/interfaces/IERC3156Fl
 import {IFlashLoans, IFlashLoanRecipient} from "../../interfaces/balancer/IFlashLoan.sol";
 import {BALANCER_VAULT} from "../Constants.sol";
 import {ServiceRegistry} from "../../core/ServiceRegistry.sol";
+import {UseStrategy} from "../../core/hooks/UseStrategy.sol";
 import {IERC3156FlashBorrower} from "@openzeppelin/contracts/interfaces/IERC3156FlashBorrower.sol";
 
 /**
  *  Balancer Flash Loan Adapter
  *
  * */
-contract BalancerFlashLender is IERC3156FlashLender, IFlashLoanRecipient{
+contract BalancerFlashLender is IERC3156FlashLender, IFlashLoanRecipient {
 
     using SafeERC20 for IERC20;
 
@@ -21,7 +22,8 @@ contract BalancerFlashLender is IERC3156FlashLender, IFlashLoanRecipient{
 
     IFlashLoans private immutable _balancerVault;
 
-    constructor(ServiceRegistry registry) {
+    constructor(ServiceRegistry registry) 
+    {
         _balancerVault = IFlashLoans(registry.getServiceFromHash(BALANCER_VAULT));
         require(address(_balancerVault) != address(0), "Invalid Balancer Vault");  
     }
@@ -32,7 +34,7 @@ contract BalancerFlashLender is IERC3156FlashLender, IFlashLoanRecipient{
 
     function flashFee(address, uint256) external pure override returns (uint256) {
         return 0;
-    }
+    }    
 
     function flashLoan(
         IERC3156FlashBorrower borrower,

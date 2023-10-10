@@ -2,10 +2,7 @@
 pragma solidity ^0.8.18;
 import {IOracle} from "../interfaces/core/IOracle.sol";
 import {IWStETH} from "../interfaces/lido/IWStETH.sol";
-
-interface IChainlinkAggregator {
-    function latestAnswer() external view returns (int256);
-}
+import  {IChainlinkAggregator} from "../interfaces/chainlink/IChainlinkAggregator.sol";
 
 contract WstETHToETHOracle is IOracle {
 

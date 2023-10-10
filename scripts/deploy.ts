@@ -65,6 +65,9 @@ async function main() {
   );
   console.log("AAVE V3 Pool  =", config.AAVEPool);
 
+  // Flash Lender Adapter
+  await deployFlashLendInfra(serviceRegistry, config);
+
   if ( config.cbETH ) {
     // Register CbETH ERC20 Address
     await serviceRegistry.registerService(
@@ -75,14 +78,17 @@ async function main() {
   }
   await deployCollateralOracle(config, serviceRegistry);
 
-  // Flash Lender Adapter
-  await deployFlashLendInfra(serviceRegistry, config);
-
   const strategy = await deployStrategy(
     config, 
     deployer, 
     serviceRegistry
   );
+
+  await serviceRegistry.registerService(
+    hre.ethers.keccak256(Buffer.from("Strategy")),
+    await strategy.getAddress() ,
+  );
+
   // 10. Deploy the Vault attached to Leverage Lib
   const vault = await deployVault(
         deployer.address, 

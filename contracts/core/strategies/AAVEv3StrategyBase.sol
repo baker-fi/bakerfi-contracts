@@ -155,8 +155,7 @@ abstract contract AAVEv3StrategyBase is
         address(wETHA()).functionCallWithValue(
             abi.encodeWithSignature("deposit()"), 
             msg.value
-        );
-        
+        );        
         // 2. Initiate a WETH Flash Loan
         uint256 leverage = calculateLeverageRatio(
             msg.value, 

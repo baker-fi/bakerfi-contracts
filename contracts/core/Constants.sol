@@ -19,5 +19,6 @@ bytes32 constant SWAPPER_HANDLER = keccak256(bytes("Swapper Handler"));
 bytes32 constant BALANCER_VAULT = keccak256(bytes("Balancer Vault"));
 bytes32 constant SETTINGS = keccak256(bytes("Settings"));
 bytes32 constant UNISWAP_QUOTER = keccak256(bytes("Uniswap Quoter"));
+bytes32 constant STRATEGY = keccak256(bytes("Strategy"));
 uint256 constant MAX_LOAN_TO_VALUE = 1e9; // 100%
 uint8 constant MAX_LOOPS = 20; // 100%
