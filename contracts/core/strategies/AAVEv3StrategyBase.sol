@@ -191,7 +191,7 @@ abstract contract AAVEv3StrategyBase is
         // 3. Deposit Collateral and Borrow ETH
         _supplyAndBorrow(ierc20A(), collateralIn, wETHA(), loanAmount + fee);
         uint256 collateralInETH = _toWETH(collateralIn);       
-        _pendingAmount = collateralInETH - loanAmount - fee;
+        _pendingAmount = collateralInETH - loanAmount - fee;        
     }
 
     function _payDebt(uint256 debtAmount, uint256 fee) private {

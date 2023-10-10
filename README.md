@@ -135,8 +135,9 @@ MIT
 
 * Use the Uniswap Directly: P1
 * Rebase Library Unit Tests: P1
-* Myhtril Check - Fix Vulnerability fixes: P3
+* Myhtril Check - Fix Vulnerability fixes: P2
 * Optimization: Set MAX Int allowances on initialization - P3
-* Upgrade Flash Lender: P4
+* Upgrade Flash Lender: P2
+* Support for Proxies: P4
 * Make the Leverage Values Hardcoded: P5
 

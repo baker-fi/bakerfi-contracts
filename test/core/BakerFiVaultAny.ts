@@ -47,7 +47,6 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
     );
 
     const settings = await deploySettings(owner.address, serviceRegistry);
-    // await stETH.transfer(await wstETH.getAddress(), STETH_TO_WRAPPER);
 
     // Deposit some WETH on Swapper
     await weth.deposit?.call("", { value: ethers.parseUnits("10000", 18) });
@@ -58,8 +57,8 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
 
     // 5. Deploy AAVEv3 Mock Pool
     const aave3Pool = await deployAaveV3(
-      cbETH,   
-      weth,      
+      cbETH,
+      weth,
       serviceRegistry,
       AAVE_DEPOSIT
     );
@@ -68,10 +67,7 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
     const oracle = await deployOracleMock(serviceRegistry, "cbETH/ETH Oracle");
     const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");
     await ethOracle.setLatestPrice(ethers.parseUnits("1", 18));
-
-    await deployQuoterV2Mock(serviceRegistry);
-    await ethOracle.setLatestPrice(ethers.parseUnits("1", 18));
-
+    await deployQuoterV2Mock(serviceRegistry);    
     const strategy = await deployAAVEv3StrategyAny(
       owner.address,
       serviceRegistryAddress,
@@ -106,16 +102,14 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
 
   it("Deposit with no Flash Loan Fees", async function () {
     const { owner, vault, weth, aave3Pool, strategy, cbETH, flashLender } =
-    await loadFixture(deployFunction);
+      await loadFixture(deployFunction);
     await flashLender.setFlashLoanFee(0);
     await expect(
       await vault.deposit(owner.address, {
         value: ethers.parseUnits("10", 18),
       })
     )
-      .to.changeEtherBalances([owner.address], [
-        ethers.parseUnits("-10", 18)
-    ])
+      .to.changeEtherBalances([owner.address], [ethers.parseUnits("-10", 18)])
       .to.emit(aave3Pool, "Supply")
       .withArgs(
         await cbETH.getAddress(),
@@ -123,7 +117,7 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
         await strategy.getAddress(),
         45705032704000000000n,
         0
-      ) 
+      )
       .to.emit(aave3Pool, "Borrow")
       .withArgs(
         await weth.getAddress(),
@@ -133,19 +127,19 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
         0,
         0,
         0
-      );;
+      );
   });
-
 
   it("Deposit with 1% Flash Loan Fees", async function () {
     const { owner, vault, weth, aave3Pool, strategy, cbETH, flashLender } =
-    await loadFixture(deployFunction);
+      await loadFixture(deployFunction);
     await flashLender.setFlashLoanFee(10e6); // 1%
     await expect(
       await vault.deposit(owner.address, {
         value: ethers.parseUnits("10", 18),
       })
-    ).to.emit(aave3Pool, "Borrow")
+    )
+      .to.emit(aave3Pool, "Borrow")
       .withArgs(
         await weth.getAddress(),
         await strategy.getAddress(),
@@ -154,6 +148,37 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
         0,
         0,
         0
-      );;
+      );
+  });
+
+  it("Multiple Deposits", async function () {
+    const { owner, vault, weth,swapper, aave3Pool, strategy, cbETH, flashLender } =
+    await loadFixture(deployFunction);    
+    await swapper.setRatio(1130*(1e6));
+    await expect(
+      vault.deposit(owner.address, {
+        value: ethers.parseUnits("10", 18),
+      })
+    )
+      .to.emit(strategy, "StrategyAmountUpdate")
+      .withArgs(
+        await strategy.getAddress(), 
+        9964294967295999999n
+    );
+
+    await expect(
+      vault.deposit(owner.address, {
+        value: ethers.parseUnits("10", 18),
+      })
+    )
+      .to.emit(strategy, "StrategyAmountUpdate")
+      .withArgs(await strategy.getAddress(), 19928589934591999998n);
+    await expect(
+      vault.deposit(owner.address, {
+        value: ethers.parseUnits("10", 18),
+      })
+    )
+      .to.emit(strategy, "StrategyAmountUpdate")
+      .withArgs(await strategy.getAddress(), 29892884901887999997n);
   });
 });
