@@ -28,8 +28,8 @@ contract BalancerFlashLender is IERC3156FlashLender, IFlashLoanRecipient {
         require(address(_balancerVault) != address(0), "Invalid Balancer Vault");  
     }
 
-    function maxFlashLoan(address) external pure override returns (uint256) {
-        return 2 ** 256 - 1;
+    function maxFlashLoan(address token) external view override returns (uint256) {
+        return IERC20(token).balanceOf(address(_balancerVault));
     }
 
     function flashFee(address, uint256) external pure override returns (uint256) {
@@ -66,7 +66,7 @@ contract BalancerFlashLender is IERC3156FlashLender, IFlashLoanRecipient {
         address asset = tokens[0];
         uint256 amount = amounts[0];
         uint256 fee = feeAmounts[0];
-
+        
         // Transfer the loan received to borrower
         IERC20(asset).safeTransfer(borrower, amount);
 

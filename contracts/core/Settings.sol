@@ -13,7 +13,11 @@ import { PERCENTAGE_PRECISION, MAX_LOOPS} from "./Constants.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ISettings } from "../interfaces/core/ISettings.sol";
 
-
+/**
+ * @title Protocol Settings Contract
+ * @author 
+ * @notice 
+ */
 contract Settings is Ownable, ISettings {
 
     uint256 private _withdrawalFee = 10 * 1e6; // 1%
