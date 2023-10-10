@@ -45,7 +45,6 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
  * Base Strategy that does AAVE leverage/deleverage using flash loans
  *
  * TODO: Use the Uniswap Swapper directly to optimize gas consumption
- * TODO: Enable E-Mode on initialization for collateral
  * TODO: Optimize Gas by set MAX Int allowances on initialization
  *
  * @title
@@ -151,7 +150,7 @@ abstract contract AAVEv3StrategyBase is
      * Deploy new Capital on the pool making it productive on the Lido
      */
     function deploy() external payable onlyOwner nonReentrant returns (uint256 deployedAmount) {
-        require(msg.value != 0, "No Zero deposit Allower");
+        require(msg.value != 0, "No Zero deposit Allowed");
         // 1. Wrap Ethereum
         address(wETHA()).functionCallWithValue(
             abi.encodeWithSignature("deposit()"), 

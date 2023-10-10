@@ -67,7 +67,7 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
     const oracle = await deployOracleMock(serviceRegistry, "cbETH/ETH Oracle");
     const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");
     await ethOracle.setLatestPrice(ethers.parseUnits("1", 18));
-    await deployQuoterV2Mock(serviceRegistry);    
+    await deployQuoterV2Mock(serviceRegistry);
     const strategy = await deployAAVEv3StrategyAny(
       owner.address,
       serviceRegistryAddress,
@@ -152,19 +152,20 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
   });
 
   it("Multiple Deposits", async function () {
-    const { owner, vault, weth,swapper, aave3Pool, strategy, cbETH, flashLender } =
-    await loadFixture(deployFunction);    
-    await swapper.setRatio(1130*(1e6));
+    const {
+      owner,
+      vault,
+      swapper,
+      strategy,
+    } = await loadFixture(deployFunction);
+    await swapper.setRatio(1130 * 1e6);
     await expect(
       vault.deposit(owner.address, {
         value: ethers.parseUnits("10", 18),
       })
     )
       .to.emit(strategy, "StrategyAmountUpdate")
-      .withArgs(
-        await strategy.getAddress(), 
-        9964294967295999999n
-    );
+      .withArgs(await strategy.getAddress(), 9964294967295999999n);
 
     await expect(
       vault.deposit(owner.address, {
@@ -181,4 +182,77 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
       .to.emit(strategy, "StrategyAmountUpdate")
       .withArgs(await strategy.getAddress(), 29892884901887999997n);
   });
+
+  it("convertToShares - 1ETH", async function () {
+    const {
+        owner,
+        vault,
+        swapper,
+        strategy,
+      } = await loadFixture(deployFunction);
+    
+    await vault.deposit(owner.address, {
+        value: ethers.parseUnits("10", 18),
+    });
+
+    expect(
+        await vault.convertToShares(ethers.parseUnits("1", 18))
+    ).to.equal(999999999925562443n);
+  })
+
+
+  it("convertToAssets - 1e18 brETH", async function () {
+    const {
+        owner,
+        vault,
+        swapper,
+        strategy,
+      } = await loadFixture(deployFunction);
+    
+    await vault.deposit(owner.address, {
+        value: ethers.parseUnits("10", 18),
+    });
+    expect(
+        await vault.convertToAssets(ethers.parseUnits("1", 18))
+    ).to.equal(1000000000074437556n);
+  })
+
+  it("convertToShares - 1ETH no balance", async function () {
+    const {
+        owner,
+        vault,
+        swapper,
+        strategy,
+      } = await loadFixture(deployFunction);
+
+      expect(
+        await vault.convertToAssets(ethers.parseUnits("1", 18))
+    ).to.equal(ethers.parseUnits("1", 18));
+  })
+
+
+  it("convertToAssets - 1e18 brETH  no balance", async function () {
+    const {
+        owner,
+        vault,
+        swapper,
+        strategy,
+      } = await loadFixture(deployFunction);
+    expect(
+        await vault.convertToAssets(ethers.parseUnits("1", 18))
+    ).to.equal(ethers.parseUnits("1", 18));
+  })
+
+  it("tokenPerETh - No Balance", async function () {
+    const {
+        owner,
+        vault,
+        swapper,
+        strategy,
+      } = await loadFixture(deployFunction);
+    expect(
+        await vault.tokenPerETh()
+    ).to.equal(ethers.parseUnits("1", 18));
+  })
+
 });

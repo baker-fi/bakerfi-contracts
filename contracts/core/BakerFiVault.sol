@@ -189,7 +189,7 @@ contract BakerFiVault is Ownable, Pausable, ERC20Permit, UseSettings, Reentrancy
     function tokenPerETh() public view returns (uint256) {
         uint256 position = totalPosition();
         if (totalSupply() == 0 || position == 0) {
-            return 0;
+            return 1 ether;
         }
         return totalSupply() * 1 ether / position;
     }

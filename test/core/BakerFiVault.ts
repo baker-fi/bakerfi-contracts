@@ -118,7 +118,7 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     expect(await vault.totalCollateral()).to.equal(0);
     expect(await vault.totalDebt()).to.equal(0);
     expect(await vault.loanToValue()).to.equal(0);
-    expect(await vault.tokenPerETh()).to.equal(0);
+    expect(await vault.tokenPerETh()).to.equal(ethers.parseUnits("1", 18));
     expect(await vault.loanToValue()).to.equal(0);
   });
 
@@ -274,7 +274,7 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     expect(await vault.totalDebt()).to.equal(0);
     expect(balanceAfter - balanceBefore).to.equal(9928554227270000000n);
     expect(await vault.loanToValue()).to.equal(0);
-    expect(await vault.tokenPerETh()).to.equal(0);
+    expect(await vault.tokenPerETh()).to.equal(ethers.parseUnits("1", 18));
   });
 
   it("Deposit with No Flash Loan Fees", async () => {
@@ -356,4 +356,33 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
 
     expect(await vault.totalPosition()).to.equal(5090943670000000000n);
   });
+
+
+  it("Withdraw - Invalid Receiver", async () => {
+    const { owner, vault, } =
+    await loadFixture(deployFunction);
+    const depositAmount = ethers.parseUnits("10", 18);
+    await vault.deposit(owner.address, {
+      value: depositAmount,
+    });
+
+    await expect(vault.withdraw(
+      ethers.parseUnits("1", 18),
+      "0x0000000000000000000000000000000000000000"
+    )).to.be.revertedWith(
+      "Invalid Receiver"
+    );
+  })
+
+
+
+  it("Rebalance - no balance", async () => {
+    const { owner, vault, } = await loadFixture(deployFunction);
+    await vault.rebalance();
+    expect(true).to.equal(true);
+  })
+
+ 
+
+
 });
