@@ -23,4 +23,8 @@ interface ISettings {
 
     function getFeeReceiver() external view returns (address);
 
+    function getNrLoops() external view returns (uint8) ;
+
+    function setNrLoops(uint8 nrLoops) external;
+
 }

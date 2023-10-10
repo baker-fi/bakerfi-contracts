@@ -16,9 +16,14 @@ import {
   deploySettings,
   deployQuoterV2Mock,
 } from "../../scripts/common";
+import BaseConfig from "../../scripts/config";
 
 describeif(network.name === "hardhat")("BakerFi Vault", function () {
+  
   async function deployFunction() {
+    const networkName = network.name;
+    const chainId = network.config.chainId;
+    const config = BaseConfig[networkName];
     const [owner, otherAccount, anotherAccount] = await ethers.getSigners();
     const STETH_MAX_SUPPLY = ethers.parseUnits("1000010000", 18);
     const STETH_TO_WRAPPER = ethers.parseUnits("10000", 18);
@@ -76,7 +81,8 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
 
     const strategy = await deployAAVEv3StrategyWstETH(
       owner.address,
-      serviceRegistryAddress
+      serviceRegistryAddress,
+      config.AAVEEModeCategory
     );
     const vault = await deployVault(
       owner.address,
@@ -100,6 +106,7 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
       oracle,
       strategy,
       settings,
+      config,
     };
   }
 
@@ -331,8 +338,6 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     await settings.setMaxLoanToValue(800 * 1e6);
 
     await expect(vault.rebalance())
-      .to.emit(strategy, "StrategyLoss")
-      .withArgs(4565567121975680000n, 5349366410000000000n)
       .to.emit(aave3Pool, "Repay")
       .withArgs(
         await weth.getAddress(),

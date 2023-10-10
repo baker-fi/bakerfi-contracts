@@ -17,8 +17,14 @@ import {
 
 import { describeif } from "../common";
 
+import BaseConfig from "../../scripts/config";
+
 describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
   async function deployFunction() {
+
+    const networkName = network.name;
+    const chainId = network.config.chainId;
+    const config = BaseConfig[networkName];
     const [owner, otherAccount] = await ethers.getSigners();
     const CBETH_MAX_SUPPLY = ethers.parseUnits("1000000000", 18);
     const FLASH_LENDER_DEPOSIT = ethers.parseUnits("10000", 18);
@@ -63,7 +69,8 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
       owner.address,
       serviceRegistryAddress,
       "cbETH",
-      "cbETH/ETH Oracle"
+      "cbETH/ETH Oracle",
+      config.AAVEEModeCategory
     );
     return {
       cbETH,
@@ -76,7 +83,8 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
       flashLender,
       strategy,
       oracle,
-      settings
+      settings,
+      config
     };
   }
 

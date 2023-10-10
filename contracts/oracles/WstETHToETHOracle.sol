@@ -28,9 +28,6 @@ contract WstETHToETHOracle is IOracle {
 
     //  WSETH/ETH
     function getLatestPrice() external override view returns (uint256) {
-        uint256 wstETHToStETH = uint256(_wstETH.stEthPerToken());
-        assert(wstETHToStETH > 0);
-        uint256 stETHToETH = uint256(_stETHToETHPriceFeed.latestAnswer());
-        return wstETHToStETH * stETHToETH / _PRECISION;
+        return uint256(_stETHToETHPriceFeed.latestAnswer());
     }
 }

@@ -21,6 +21,7 @@ describeif(network.name === "base_devnet")("VaultBase", function () {
         const networkName = network.name;
         const config = BaseConfig[networkName];
         
+        
         // 1. Deploy Service Registry
         const serviceRegistry = await deployServiceRegistry(deployer.address);
 
@@ -86,7 +87,8 @@ describeif(network.name === "base_devnet")("VaultBase", function () {
             deployer.address,
             await serviceRegistry.getAddress(),
             "cbETH",
-            "cbETH/ETH Oracle"
+            "cbETH/ETH Oracle",
+            config.AAVEEModeCategory
         );     
 
         await strategy.setTargetLTV(ethers.parseUnits("500", 6));
@@ -101,7 +103,7 @@ describeif(network.name === "base_devnet")("VaultBase", function () {
         const weth = await ethers.getContractAt("IWETH",  config.weth);
         const cbETH = await ethers.getContractAt("IERC20",  config.cbETH);
         await strategy.transferOwnership(await vault.getAddress());
-        return {serviceRegistry, weth, cbETH, vault, deployer, otherAccount, strategy};
+        return {serviceRegistry, weth, config, cbETH, vault, deployer, otherAccount, strategy};
     }
 
     it("Test Initialized Vault", async function () {

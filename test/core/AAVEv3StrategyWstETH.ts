@@ -16,9 +16,13 @@ import {
   deployQuoterV2Mock,
 } from "../../scripts/common";
 import { describeif } from "../common";
+import BaseConfig from "../../scripts/config";
 
 describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
   async function deployFunction() {
+    const networkName = network.name;
+    const chainId = network.config.chainId;
+    const config = BaseConfig[networkName];
     const [owner, otherAccount] = await ethers.getSigners();
     const STETH_MAX_SUPPLY = ethers.parseUnits("1000000000", 18);
     const DEPOSIT_ST_ETH_SUPPLY = ethers.parseUnits("10000000", 18);
@@ -77,7 +81,8 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
 
     const strategy = await deployAAVEv3StrategyWstETH(
       owner.address,
-      serviceRegistryAddress
+      serviceRegistryAddress,
+      config.AAVEEModeCategory
     );
 
     return {
@@ -88,6 +93,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
       serviceRegistry,
       swapper,
       aave3Pool,
+      config,
       flashLender,
       wstETH,
       strategy,
@@ -157,8 +163,8 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
 
     // Increment the Collateral value by 10%
     await aave3Pool.setCollateralPerEth(1130 * 1e6 * 0.98);
-
     await oracle.setLatestPrice(1130 * 1e6 * 0.98);
+    
     await expect(strategy.harvest())
       .to.emit(strategy, "StrategyLoss")
       .withArgs(913113421975680000n, 9001820110000000000n);
@@ -172,18 +178,17 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
     expect(await strategy.totalAssets()).to.equal(9001820110000000000n);
   });
 
-  it("Harvest Loss - Debt Adjust", async function () {
+  it("Harvest - Debt Adjust", async function () {
     const { owner, settings, oracle, strategy, aave3Pool } = await loadFixture(
       deployFunction
     );
     await strategy.deploy({
       value: ethers.parseUnits("10", 18),
     });
-    // Increment the Collateral value by 10%
+    // Descrease the Collateral value by 10%
     await aave3Pool.setCollateralPerEth(1130 * 1e6 * 0.9);
 
     await oracle.setLatestPrice(1130 * 1e6 * 0.9);
-
     await settings.setMaxLoanToValue(800 * 1e6);
 
     expect(await strategy.getPosition()).to.deep.equal([
@@ -193,8 +198,11 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
     ]);
 
     await expect(strategy.harvest())
-      .to.emit(strategy, "StrategyLoss")
-      .withArgs(4565567121975680000n, 5349366410000000000n);
+      .to.emit(strategy, "StrategyAmountUpdate")
+      .withArgs(
+        await strategy.getAddress(),
+        5349366410000000000n
+      );
 
     expect(await strategy.getPosition()).to.deep.equal([
       26488409310000000000n,

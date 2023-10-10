@@ -22,6 +22,7 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
 
     IERC20 public _collateralToken;
     IERC20 public _borrowedToken;
+    uint8 private _emode;
 
     uint256 private _collateralPerEth = 1130*(1e6);
     uint256 private _borrowedPerETh= 1000*(1e6);
@@ -277,10 +278,12 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
        
     }
 
-    function setUserEMode(uint8 categoryId) external override {}
+    function setUserEMode(uint8 categoryId) external override {
+        _emode = categoryId;
+    }
 
     function getUserEMode(address user) external view override returns (uint256) {
-         return 1;
+         return _emode;
     }
 
     function resetIsolationModeTotalDebt(address asset) external override {}

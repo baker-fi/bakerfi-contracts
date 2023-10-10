@@ -15,10 +15,14 @@ import {
   deployQuoterV2Mock,
   deployAAVEv3StrategyAny,
 } from "../../scripts/common";
+import BaseConfig from "../../scripts/config";
 
 describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
   async function deployFunction() {
     const [owner, otherAccount, anotherAccount] = await ethers.getSigners();
+    const networkName = network.name;
+    const chainId = network.config.chainId;
+    const config = BaseConfig[networkName];
     const CBETH_MAX_SUPPLY = ethers.parseUnits("1000000000", 18);
     const FLASH_LENDER_DEPOSIT = ethers.parseUnits("10000", 18);
     const AAVE_DEPOSIT = ethers.parseUnits("10000", 18);
@@ -72,7 +76,8 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
       owner.address,
       serviceRegistryAddress,
       "cbETH",
-      "cbETH/ETH Oracle"
+      "cbETH/ETH Oracle",
+      config.AAVEEModeCategory
     );
 
     const vault = await deployVault(

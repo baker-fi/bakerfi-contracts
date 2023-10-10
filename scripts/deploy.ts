@@ -78,7 +78,11 @@ async function main() {
   // Flash Lender Adapter
   await deployFlashLendInfra(serviceRegistry, config);
 
-  const strategy = await deployStrategy(config, deployer, serviceRegistry, leverageLib);
+  const strategy = await deployStrategy(
+    config, 
+    deployer, 
+    serviceRegistry
+  );
   // 10. Deploy the Vault attached to Leverage Lib
   const vault = await deployVault(
         deployer.address, 
@@ -102,16 +106,16 @@ async function deployFlashLendInfra(serviceRegistry, config: any) {
   console.log(`Balancer Flash Lender Adapter =`, await flashLender.getAddress());
 }
 
-async function deployStrategy(config: any, deployer, serviceRegistry, leverageLib) {
+async function deployStrategy(config: any, deployer, serviceRegistry) {
   let strategy;
   switch (config.strategy) {
     case "base":
         strategy = await deployAAVEv3StrategyAny(
         deployer.address,
         await serviceRegistry.getAddress(),
-        await leverageLib.getAddress(),
         hre.ethers.keccak256(Buffer.from("cbETH")),
-        hre.ethers.keccak256(Buffer.from("cbETH/ETH Oracle"))
+        hre.ethers.keccak256(Buffer.from("cbETH/ETH Oracle")),
+        config.AAVEEModeCategory
       );     
       break;
     default:

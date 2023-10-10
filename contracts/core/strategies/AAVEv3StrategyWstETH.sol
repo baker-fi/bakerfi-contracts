@@ -26,9 +26,10 @@ contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH {
     // solhint-disable no-empty-blocks    
     constructor(
         address initialOwner,
-        ServiceRegistry registry
+        ServiceRegistry registry,
+        uint8 eModeCategory
     )
-        AAVEv3StrategyBase(initialOwner, registry, WST_ETH_CONTRACT, WSTETH_ETH_ORACLE)
+        AAVEv3StrategyBase(initialOwner, registry, WST_ETH_CONTRACT, WSTETH_ETH_ORACLE, eModeCategory)
         UseWstETH(registry)
         UseStETH(registry)
     {}

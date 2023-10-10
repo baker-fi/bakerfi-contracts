@@ -16,8 +16,7 @@ import {
     AAVE_V3, 
     FLASH_LENDER, 
     ST_ETH_CONTRACT, 
-    WST_ETH_CONTRACT, 
-    E_MODE_CATEGORY_ETH
+    WST_ETH_CONTRACT
 } from "../Constants.sol";
 import {Rebase, RebaseLibrary} from "../../libraries/BoringRebase.sol";
 import {IWETH} from "../../interfaces/tokens/IWETH.sol";
@@ -75,8 +74,9 @@ abstract contract AAVEv3StrategyBase is
     }
     event StrategyProfit(uint256 amount, uint256 deployedAmount);
     event StrategyLoss(uint256 amount, uint256 deployedAmount);
+    event StrategyAmountUpdate(address source, uint256 newDeployment);
 
-    uint256 private _targetLoanToValue = 800 * 1e6;
+    //uint256 private _targetLoanToValue = 500 * 1e6;
 
     struct FlashLoanData {
         uint256 originalAmount;
@@ -100,7 +100,8 @@ abstract contract AAVEv3StrategyBase is
         address initialOwner,
         ServiceRegistry registry,
         bytes32 collateralIERC20,
-        bytes32 collateralOracle
+        bytes32 collateralOracle,
+        uint8 eModeCategory
     )
         Ownable()
         UseServiceRegistry(registry)
@@ -118,8 +119,8 @@ abstract contract AAVEv3StrategyBase is
         require(address(_ethUSDOracle) != address(0), "Invalid ETH/USD Oracle");
         require(address(_collateralOracle) != address(0), "Invalid <Collateral>/ETH Oracle");
         _transferOwnership(initialOwner);
-        aaveV3().setUserEMode(E_MODE_CATEGORY_ETH);
-        require(aaveV3().getUserEMode(address(this)) == E_MODE_CATEGORY_ETH, "Invalid Emode");
+        aaveV3().setUserEMode(eModeCategory);
+        require(aaveV3().getUserEMode(address(this)) == eModeCategory, "Invalid Emode");
     }
     // solhint-disable-next-line no-empty-blocks
     receive() external payable {}
@@ -158,7 +159,11 @@ abstract contract AAVEv3StrategyBase is
         );
         
         // 2. Initiate a WETH Flash Loan
-        uint256 leverage = calculateLeverageRatio(msg.value, _targetLoanToValue, 10);
+        uint256 leverage = calculateLeverageRatio(
+            msg.value, 
+            settings().getLoanToValue(), 
+            settings().getNrLoops()
+        );
         uint256 loanAmount = leverage - msg.value;
         uint256 fee = flashLender().flashFee(wETHA(), loanAmount);
         uint256 allowance = wETH().allowance(address(this), flashLenderA());
@@ -174,6 +179,7 @@ abstract contract AAVEv3StrategyBase is
         );
         deployedAmount = _pendingAmount;
         _deployedAmount = _deployedAmount + deployedAmount;
+        emit StrategyAmountUpdate(address(this), _deployedAmount);
         _pendingAmount = 0;        
     }
 
@@ -315,21 +321,24 @@ abstract contract AAVEv3StrategyBase is
             (totalDebtBaseInEth - deltaDebt);
 
         require(deltaDebt < totalCollateralBaseInEth, "Invalid DeltaDeb Calculated");
-
+           
         if (newDeployedAmount == _deployedAmount) {
             return 0;
-        }
+        }   
 
-        if (newDeployedAmount > _deployedAmount) {
+        // Log Profit or Loss when there is no debt adjustment 
+        if (newDeployedAmount > _deployedAmount && deltaDebt == 0) {
             uint256 profit = newDeployedAmount - _deployedAmount;
             emit StrategyProfit(profit, newDeployedAmount);
             balanceChange = int256(profit);
-        } else if (newDeployedAmount < _deployedAmount) {
+        } else if (newDeployedAmount < _deployedAmount && deltaDebt == 0) {
             uint256 loss = _deployedAmount - newDeployedAmount;
             emit StrategyLoss(loss, newDeployedAmount);
             balanceChange = -int256(loss);
         }
+        emit StrategyAmountUpdate(address(this), newDeployedAmount);     
         _deployedAmount = newDeployedAmount;
+      
     }
 
     function _getPosition()
@@ -389,6 +398,7 @@ abstract contract AAVEv3StrategyBase is
         } else {
             _deployedAmount = _deployedAmount - undeployedAmount;
         }        
+        emit StrategyAmountUpdate(address(this), _deployedAmount);        
         _pendingAmount = 0;
     }
 

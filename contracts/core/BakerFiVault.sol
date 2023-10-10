@@ -73,6 +73,7 @@ contract BakerFiVault is Ownable, Pausable, ERC20Permit, UseSettings, Reentrancy
             if (balanceChange > 0) {
                 if (
                     settings().getFeeReceiver() != address(this) &&
+                    settings().getFeeReceiver() != address(0) && 
                     settings().getPerformanceFee() > 0
                 ) {           
                     uint256 feeInEth = uint256(balanceChange) * 

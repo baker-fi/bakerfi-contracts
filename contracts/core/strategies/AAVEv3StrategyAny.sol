@@ -24,8 +24,9 @@ contract AAVEv3StrategyAny is AAVEv3StrategyBase {
         address initialOwner,
         ServiceRegistry registry,
         bytes32 collateral,
-        bytes32 oracle
-    ) AAVEv3StrategyBase(initialOwner, registry, collateral, oracle) {}
+        bytes32 oracle,
+        uint8 eModeCategory        
+    ) AAVEv3StrategyBase(initialOwner, registry, collateral, oracle, eModeCategory) {}
     // solhint-enable no-empty-blocks    
 
     function _convertFromWETH(uint256 amount) internal virtual override returns (uint256) {

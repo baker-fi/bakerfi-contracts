@@ -66,6 +66,7 @@ async function main() {
   const strategy = await deployAAVEv3StrategyWstETH( 
     owner.address,
     await serviceRegistry.getAddress(), 
+    1,
   );
   // 10. Deploy the Vault attached to Leverage Lib
     const vault = await deployVault(

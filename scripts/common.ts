@@ -50,12 +50,17 @@ export async function deployVault(
 
 export async function deployAAVEv3StrategyWstETH(
   owner: string,
-  serviceRegistry: string
+  serviceRegistry: string,
+  emodeCategory: number,
 ) {
   const AAVEv3Strategy = await ethers.getContractFactory(
     "AAVEv3StrategyWstETH"
   );
-  const strategy = await AAVEv3Strategy.deploy(owner, serviceRegistry);
+  const strategy = await AAVEv3Strategy.deploy(
+    owner, 
+    serviceRegistry,
+    emodeCategory
+  );
   await strategy.waitForDeployment();
   return strategy;
 }
@@ -64,14 +69,16 @@ export async function deployAAVEv3StrategyAny(
   owner: string,
   serviceRegistry: string,
   collateral: string,
-  oracle: string
+  oracle: string,
+  emodeCategory
 ) {
   const AAVEv3Strategy = await ethers.getContractFactory("AAVEv3StrategyAny");
   const strategy = await AAVEv3Strategy.deploy(
     owner,
     serviceRegistry,
     ethers.keccak256(Buffer.from(collateral)),
-    ethers.keccak256(Buffer.from(oracle))
+    ethers.keccak256(Buffer.from(oracle)),
+    emodeCategory
   );
   await strategy.waitForDeployment();
   return strategy;
@@ -205,7 +212,9 @@ export async function deploWSTETHToETHOracle(
   wstETHAddress
 ) {
   const WSETHToETH = await ethers.getContractFactory("WstETHToETHOracle");
-  const oracle = await WSETHToETH.deploy(chainLinkAddress, wstETHAddress);
+  const oracle = await WSETHToETH.deploy(
+    chainLinkAddress, wstETHAddress
+  );
   await oracle.waitForDeployment();
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from("wstETH/ETH Oracle")),

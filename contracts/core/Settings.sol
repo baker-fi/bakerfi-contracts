@@ -87,7 +87,7 @@ contract Settings is Ownable, ISettings {
     }
 
 
-     function getNrLoops() external view returns (uint8) {
+    function getNrLoops() external view returns (uint8) {
         return _nrLoops;
     }
 
