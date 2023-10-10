@@ -91,7 +91,6 @@ describeif(network.name === "hardhat")("Balancer Flash Loan", function () {
     const fl = await deployBalancerFL(serviceRegistry);
 
     const borrower = await deployFlashBorrowerMock(serviceRegistry);
-    console.log("1");
     return { owner, otherAccount, weth, borrower, config, fl };
   }
 

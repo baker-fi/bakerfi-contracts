@@ -184,7 +184,7 @@ abstract contract AAVEv3StrategyBase is
      */
     function _supplyBorrow(uint256 amount, uint256 loanAmount, uint256 fee) private {
         uint256 collateralIn = _convertFromWETH(amount + loanAmount);
-        // 3. Deposit Collateral and Borrow ETH
+        // Deposit on AAVE Collateral and Borrow ETH
         _supplyAndBorrow(ierc20A(), collateralIn, wETHA(), loanAmount + fee);
         uint256 collateralInETH = _toWETH(collateralIn);       
         _pendingAmount = collateralInETH - loanAmount - fee;        
@@ -196,7 +196,10 @@ abstract contract AAVEv3StrategyBase is
         (uint256 amountIn, , , ) = uniQuoter().quoteExactOutputSingle(
             IQuoterV2.QuoteExactOutputSingleParams(ierc20A(), wETHA(), debtAmount + fee, 500, 0)
         );
-        require(aaveV3().withdraw(ierc20A(), amountIn, address(this)) == amountIn, "Invalid Amount Withdrawn");
+        require(
+            aaveV3().withdraw(ierc20A(), amountIn, address(this)) == amountIn, 
+            "Invalid Amount Withdrawn"
+        );
         _swaptoken(ierc20A(), wETHA(), 1, amountIn, debtAmount + fee);
     }
 
@@ -211,14 +214,18 @@ abstract contract AAVEv3StrategyBase is
     ) private {
         uint256 withdrawAmount = _fromWETH(withdrawAmountInETh);
         _repay(wETHA(), repayAmount);
-        require(aaveV3().withdraw(ierc20A(), withdrawAmount, address(this)) ==  withdrawAmount, "Invalid Amount Withdrawn");
-        // 2. Convert Collateral to WETH
+
+        require(
+            aaveV3().withdraw(ierc20A(), withdrawAmount, address(this)) ==  withdrawAmount, 
+            "Invalid Amount Withdrawn"
+        );
+        // Convert Collateral to WETH
         uint256 wETHAmount = _convertToWETH(withdrawAmount);
-        // 2. Convert Collateral to WETH
+        // Calculate how much ETH i am able to withdraw
         uint256 ethToWithdraw = wETHAmount - repayAmount - fee;
-        // 3. Unwrap wETH
+        // Unwrap wETH
         _unwrapWETH(ethToWithdraw);
-        // 4. Withdraw ETh to Receiver
+        // Withdraw ETh to Receiver
         payable(receiver).sendValue(ethToWithdraw);
         _pendingAmount = ethToWithdraw;
     }
@@ -303,7 +310,11 @@ abstract contract AAVEv3StrategyBase is
         );
         uint256 ltv = 0;
         uint256 deltaDebt = 0;
-        require(deltaDebt < totalCollateralBaseInEth, "Invalid DeltaDebt Calculated");
+        
+        require(
+            deltaDebt < totalCollateralBaseInEth, 
+            "Invalid DeltaDebt Calculated"
+        );
 
         if (totalDebtBaseInEth > 0) {
             ltv = (totalDebtBaseInEth * PERCENTAGE_PRECISION) / totalCollateralBaseInEth;
@@ -316,7 +327,10 @@ abstract contract AAVEv3StrategyBase is
             deltaDebt -
             (totalDebtBaseInEth - deltaDebt);
 
-        require(deltaDebt < totalCollateralBaseInEth, "Invalid DeltaDeb Calculated");
+        require(
+            deltaDebt < totalCollateralBaseInEth, 
+            "Invalid DeltaDebt Calculated"
+        );
            
         if (newDeployedAmount == _deployedAmount) {
             return 0;
@@ -368,15 +382,23 @@ abstract contract AAVEv3StrategyBase is
         address payable receiver
     ) private returns (uint256 undeployedAmount) {
         (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition();
-        require(totalCollateralBaseInEth > totalDebtBaseInEth, "No Collateral margin to scale");
+        // When the position is in liquidation state revert the transaction
+        require(
+            totalCollateralBaseInEth > totalDebtBaseInEth, 
+            "No Collateral margin to scale"
+        );
         uint256 percentageToBurn = (amount * PERCENTAGE_PRECISION) /
             (totalCollateralBaseInEth - totalDebtBaseInEth);
+        
+        // Calculate how much i need to burn to accomodate the withdraw
         (uint256 deltaCollateralInETH, uint256 deltaDebtInETH) = calcDeltaPosition(
             percentageToBurn,
             totalCollateralBaseInEth,
             totalDebtBaseInEth
         );
+        // Calculate the Flash Loan FEE
         uint256 fee = flashLender().flashFee(wETHA(), deltaDebtInETH);
+        // Update WETH allowance to pay the debt after the flash loan
         uint256 allowance = wETH().allowance(address(this), flashLenderA());
         require(wETH().approve(flashLenderA(), deltaDebtInETH + fee + allowance));
         require(
@@ -388,6 +410,7 @@ abstract contract AAVEv3StrategyBase is
             ),
             "Failed to run Flash Loan"
         );
+        // Update the amount of ETH deployed on the contract
         undeployedAmount = _pendingAmount;
         if(undeployedAmount > _deployedAmount) {
             _deployedAmount = 0;

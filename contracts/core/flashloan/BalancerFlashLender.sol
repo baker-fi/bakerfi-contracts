@@ -41,7 +41,8 @@ contract BalancerFlashLender is IERC3156FlashLender, IFlashLoanRecipient {
         address token,
         uint256 amount,
         bytes calldata data
-    ) external override returns (bool) {
+    ) external override returns (bool) { 
+        require(msg.sender == address(borrower), "Invalid Borrower");
         address[] memory tokens = new address[](1);
         tokens[0] = token;
         uint256[] memory amounts = new uint256[](1);
@@ -62,7 +63,7 @@ contract BalancerFlashLender is IERC3156FlashLender, IFlashLoanRecipient {
         require(amounts.length == 1,  "Invalid Amount List");
         require(feeAmounts.length == 1,  "Invalid Fees Amount");
         (address borrower, bytes memory originalCallData) = abi.decode(userData, (address, bytes));
-
+        //require(borrower == address(this), "Invalid Flash Borrower");
         address asset = tokens[0];
         uint256 amount = amounts[0];
         uint256 fee = feeAmounts[0];
