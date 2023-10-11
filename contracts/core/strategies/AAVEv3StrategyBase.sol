@@ -91,8 +91,8 @@ abstract contract AAVEv3StrategyBase is
     uint256 internal _pendingAmount = 0;
     uint256 private _deployedAmount = 0;
 
-    IOracle private _collateralOracle;
-    IOracle private _ethUSDOracle;
+    IOracle private immutable _collateralOracle;
+    IOracle private immutable _ethUSDOracle;
     uint24 internal immutable _swapFeeTier;
 
     constructor(
@@ -182,7 +182,8 @@ abstract contract AAVEv3StrategyBase is
         deployedAmount = _pendingAmount;
         _deployedAmount = _deployedAmount + deployedAmount;
         emit StrategyAmountUpdate(address(this), _deployedAmount);
-        _pendingAmount = 0;        
+        // Pending amount is not cleared to save gas 
+       // _pendingAmount = 0;        
     }
 
     /**
@@ -329,7 +330,7 @@ abstract contract AAVEv3StrategyBase is
         // Local Copy to reduce the number of SLOADs
         uint256  deployedAmount = _deployedAmount;        
         require(
-            deltaDebt < totalCollateralBaseInEth, 
+            deltaDebt < totalDebtBaseInEth, 
             "Invalid DeltaDebt Calculated"
         );
 
@@ -434,8 +435,9 @@ abstract contract AAVEv3StrategyBase is
         } else {
             _deployedAmount = _deployedAmount - undeployedAmount;
         }        
-        emit StrategyAmountUpdate(address(this), _deployedAmount);        
-        _pendingAmount = 0;
+        emit StrategyAmountUpdate(address(this), _deployedAmount);  
+        // Pending amount is not cleared to save gas      
+        //_pendingAmount = 0;
     }
 
     function _convertFromWETH(uint256 amount) internal virtual returns (uint256);

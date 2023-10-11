@@ -3,13 +3,15 @@ pragma solidity ^0.8.18;
 import {PERCENTAGE_PRECISION, MAX_LOOPS} from "../Constants.sol";
 
 contract UseLeverage {
+
+   
     
     function calculateLeverageRatio(
         uint256 baseValue,
         uint256 loanToValue,
         uint8 nrLoops
     ) public pure returns (uint256) {
-        require(nrLoops <= MAX_LOOPS, "Invalid Number of Loops");
+        require(nrLoops <= MAX_LOOPS, "Invalid Number of Loops");            
         require(loanToValue > 0 && loanToValue < PERCENTAGE_PRECISION, "Invalid Loan to value");
         uint256 leverage = baseValue;
         uint256 prev = baseValue;
@@ -18,7 +20,7 @@ contract UseLeverage {
             leverage += inc;
             prev = inc;
             unchecked {
-                i++;
+                ++i;
             }
         }
         return leverage;
