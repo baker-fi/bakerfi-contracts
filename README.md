@@ -133,8 +133,8 @@ MIT
 
 ### TODO - Smart Contracts 
 
-* Use the Uniswap Directly: P1
 * Rebase Library Unit Tests: P1
 * Myhtril Check - Fix Vulnerability fixes: P2
 * Optimization: Set MAX Int allowances on initialization - P3
-* Support for Proxies: P4
+* Support for Proxies: P3
+* Governance Token: P4
