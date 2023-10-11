@@ -122,6 +122,8 @@ abstract contract AAVEv3StrategyBase is
         _transferOwnership(initialOwner);
         aaveV3().setUserEMode(eModeCategory);
         require(aaveV3().getUserEMode(address(this)) == eModeCategory, "Invalid Emode");
+        require(wETH().approve(uniRouterA(), 2**256 - 1));
+        require(ierc20().approve(uniRouterA(), 2**256 - 1));
     }
     // solhint-disable-next-line no-empty-blocks
     receive() external payable {}

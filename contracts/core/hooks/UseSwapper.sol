@@ -24,6 +24,15 @@ abstract contract UseSwapper is ISwapHandler {
         require(address(_uniRouter) != address(0), "Invalid Uniswap Router");   
     }
 
+
+     function uniRouter() public view returns (IV3SwapRouter) {
+        return _uniRouter;
+    }
+
+    function uniRouterA() public view returns (address) {
+        return address(_uniRouter);
+    }
+
     function _swap(ISwapHandler.SwapParams memory params) internal override returns (uint256 amountOut) {
         require(params.underlyingIn != address(0), "Invalid Input Asset");
         require(params.underlyingOut != address(0), "Invalid Input Asset");
@@ -32,8 +41,6 @@ abstract contract UseSwapper is ISwapHandler {
 
         // Exact Input
         if (params.mode == 0) {
-            // Approve the router to spend the Asset.
-            IERC20(params.underlyingIn).safeApprove(address(_uniRouter), params.amountIn);
             amountOut = _uniRouter.exactInputSingle(
                 IV3SwapRouter.ExactInputSingleParams({
                     tokenIn: params.underlyingIn,
@@ -52,8 +59,6 @@ abstract contract UseSwapper is ISwapHandler {
             emit Swap( params.underlyingIn, params.underlyingOut,   params.amountIn, amountOut);        
             // Exact Output
         } else if (params.mode == 1) {
-            IERC20(params.underlyingIn).safeApprove(address(_uniRouter), params.amountIn);
-            // Executes the swap returning the amountIn needed to spend to receive the desired amountOut.
             uint256 amountIn = _uniRouter.exactOutputSingle(
                 IV3SwapRouter.ExactOutputSingleParams({
                     tokenIn: params.underlyingIn,
@@ -66,7 +71,6 @@ abstract contract UseSwapper is ISwapHandler {
                 })
             );
             if (amountIn < params.amountIn) {
-                IERC20(params.underlyingIn).safeApprove(address(_uniRouter), 0);
                 IERC20(params.underlyingIn).safeTransfer(address(this), params.amountIn - amountIn);
             }
             emit Swap( params.underlyingIn, params.underlyingOut, amountIn, params.amountOut);

@@ -33,7 +33,9 @@ contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH {
         AAVEv3StrategyBase(initialOwner, registry, WST_ETH_CONTRACT, WSTETH_ETH_ORACLE, swapFeeTier, eModeCategory)
         UseWstETH(registry)
         UseStETH(registry)
-    {}
+    {
+        require(stETH().approve(uniRouterA(), 2**256 - 1));
+    }
     // solhint-enable no-empty-blocks    
     
 
