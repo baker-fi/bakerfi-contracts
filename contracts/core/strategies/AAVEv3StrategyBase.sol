@@ -326,7 +326,8 @@ abstract contract AAVEv3StrategyBase is
         );
         uint256 ltv = 0;
         uint256 deltaDebt = 0;
-        
+        // Local Copy to reduce the number of SLOADs
+        uint256  deployedAmount = _deployedAmount;        
         require(
             deltaDebt < totalCollateralBaseInEth, 
             "Invalid DeltaDebt Calculated"
@@ -348,17 +349,17 @@ abstract contract AAVEv3StrategyBase is
             "Invalid DeltaDebt Calculated"
         );
            
-        if (newDeployedAmount == _deployedAmount) {
+        if (newDeployedAmount == deployedAmount) {
             return 0;
         }   
 
         // Log Profit or Loss when there is no debt adjustment 
-        if (newDeployedAmount > _deployedAmount && deltaDebt == 0) {
-            uint256 profit = newDeployedAmount - _deployedAmount;
+        if (newDeployedAmount > deployedAmount && deltaDebt == 0) {
+            uint256 profit = newDeployedAmount - deployedAmount;
             emit StrategyProfit(profit, newDeployedAmount);
             balanceChange = int256(profit);
-        } else if (newDeployedAmount < _deployedAmount && deltaDebt == 0) {
-            uint256 loss = _deployedAmount - newDeployedAmount;
+        } else if (newDeployedAmount < deployedAmount && deltaDebt == 0) {
+            uint256 loss = deployedAmount - newDeployedAmount;
             emit StrategyLoss(loss, newDeployedAmount);
             balanceChange = -int256(loss);
         }
