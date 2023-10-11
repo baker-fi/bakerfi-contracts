@@ -21,6 +21,8 @@ const devAccounts: HardhatNetworkAccountUserConfig[] =  STAGING_ACCOUNTS_PKEYS.m
 const config: HardhatUserConfig = {
   gasReporter: {
     enabled: process.env.REPORT_GAS === "true",
+    currency: 'USDC',
+    gasPrice: 10
   },  
   mocha: {
     timeout: 100000000
@@ -42,7 +44,6 @@ const config: HardhatUserConfig = {
       hardfork: 'london',
       gas: 'auto',
       initialBaseFeePerGas: 1000000000,
-      allowUnlimitedContractSize: true,
     },
     local: {
       chainId: 1337,
