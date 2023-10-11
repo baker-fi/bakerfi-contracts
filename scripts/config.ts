@@ -12,6 +12,7 @@ export default {
         ethOracle: "0x71041dddad3595f9ced3dccfbe3d1f4b0a16bb70",
         AAVEEModeCategory: 1,       
         strategy: "base",        
+        swapFeeTier: 500,        
         AAVEPool: "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5", // Validated       
     },
     "optimism_devnet": {
@@ -27,10 +28,12 @@ export default {
         ethOracle: "0x13e3ee699d1909e989722e753853ae30b17e08c5",
         strategy: "base",        
         AAVEEModeCategory: 2,        
+        swapFeeTier: 100,        
         AAVEPool: "0x794a61358d6845594f94dc1db02a252b5b4814ad", // Validated   
     }, 
     "hardhat": {
-        AAVEEModeCategory: 0,        
+        AAVEEModeCategory: 0,
+        swapFeeTier: 500,        
     },
 }
 

@@ -121,6 +121,7 @@ async function deployStrategy(config: any, deployer, serviceRegistry) {
         await serviceRegistry.getAddress(),
         hre.ethers.keccak256(Buffer.from("cbETH")),
         hre.ethers.keccak256(Buffer.from("cbETH/ETH Oracle")),
+        config.swapFeeTier,
         config.AAVEEModeCategory
       );     
       break;

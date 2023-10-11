@@ -14,7 +14,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IWStETH} from "../../interfaces/lido/IWStETH.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
-
+import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
 /**
  * @title WST used
  * @author
@@ -27,9 +27,10 @@ contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH {
     constructor(
         address initialOwner,
         ServiceRegistry registry,
+        uint24 swapFeeTier,
         uint8 eModeCategory
     )
-        AAVEv3StrategyBase(initialOwner, registry, WST_ETH_CONTRACT, WSTETH_ETH_ORACLE, eModeCategory)
+        AAVEv3StrategyBase(initialOwner, registry, WST_ETH_CONTRACT, WSTETH_ETH_ORACLE, swapFeeTier, eModeCategory)
         UseWstETH(registry)
         UseStETH(registry)
     {}
@@ -49,9 +50,17 @@ contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH {
     }
 
     function _convertToWETH(uint256 amount) internal virtual override returns (uint256) {
-        // 1. Unwrap wstETH -> stETH
-        uint256 stETHAmount = _unwrapWstETH(amount);
-        // 2. Swap wstETH -> weth
-        return _swaptoken(stETHA(), wETHA(), 0, stETHAmount, 0);
+        // Convert from wstETH -> weth directly
+        return _swap(
+            ISwapHandler.SwapParams(
+                wstETHA(),                       // Asset In
+                wETHA(),                         // Asset Out
+                0,                               // Swap Mode
+                amount,                          // Amount In 
+                0,                               // Amount Out
+                _swapFeeTier,                    // Fee Pair Tier
+                bytes("")                        // User Payload
+            )
+        );
     }
 }

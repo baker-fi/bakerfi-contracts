@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.18;
 
-interface ISwapHandler {
+abstract contract ISwapHandler {
     /// @notice Params for swaps using SwapHub contract and swap handlers
     /// @param underlyingIn sold token address
     /// @param underlyingOut bought token address
@@ -17,10 +17,11 @@ interface ISwapHandler {
         uint mode;
         uint amountIn;
         uint amountOut;
+        uint24 feeTier;
         bytes payload;
     }
 
     /// @notice Execute a trade on the swap handler
     /// @param params struct defining the requested trade
-    function executeSwap(SwapParams calldata params) external returns (uint256 amountOut);
+    function _swap(SwapParams memory params) internal virtual returns (uint256 amountOut);
 }

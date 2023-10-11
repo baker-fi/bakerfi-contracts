@@ -51,6 +51,7 @@ export async function deployVault(
 export async function deployAAVEv3StrategyWstETH(
   owner: string,
   serviceRegistry: string,
+  swapFreeTier: number,
   emodeCategory: number,
 ) {
   const AAVEv3Strategy = await ethers.getContractFactory(
@@ -59,6 +60,7 @@ export async function deployAAVEv3StrategyWstETH(
   const strategy = await AAVEv3Strategy.deploy(
     owner, 
     serviceRegistry,
+    swapFreeTier,
     emodeCategory
   );
   await strategy.waitForDeployment();
@@ -70,7 +72,8 @@ export async function deployAAVEv3StrategyAny(
   serviceRegistry: string,
   collateral: string,
   oracle: string,
-  emodeCategory
+  swapFreeTier: number,
+  emodeCategory: number
 ) {
   const AAVEv3Strategy = await ethers.getContractFactory("AAVEv3StrategyAny");
   const strategy = await AAVEv3Strategy.deploy(
@@ -78,6 +81,7 @@ export async function deployAAVEv3StrategyAny(
     serviceRegistry,
     ethers.keccak256(Buffer.from(collateral)),
     ethers.keccak256(Buffer.from(oracle)),
+    swapFreeTier,
     emodeCategory
   );
   await strategy.waitForDeployment();

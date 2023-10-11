@@ -4,7 +4,6 @@ import { ethers, network } from "hardhat";
 import {
   deployServiceRegistry,
   deployCbETH,
-  deploySwapper,
   deployAaveV3,
   deployFlashLender,
   deployOracleMock,
@@ -19,9 +18,9 @@ import { describeif } from "../common";
 import BaseConfig from "../../scripts/config";
 
 describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
+  
   async function deployFunction() {
     const networkName = network.name;
-    const chainId = network.config.chainId;
     const config = BaseConfig[networkName];
     const [owner, otherAccount] = await ethers.getSigners();
     const CBETH_MAX_SUPPLY = ethers.parseUnits("1000000000", 18);
@@ -39,15 +38,34 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
     );
     // 2. Deploy cbEBT
     const cbETH = await deployCbETH(serviceRegistry, owner, CBETH_MAX_SUPPLY);
-    // 3. Deploy WETH -> cbETH Swapper
-    const swapper = await deploySwapper(
-      weth,
-      cbETH,
-      serviceRegistry,
-      CBETH_MAX_SUPPLY
+
+    // Deploy cbETH -> ETH Uniswap Router
+    const UniRouter = await ethers.getContractFactory("UniV3RouterMock");
+    const uniRouter = await UniRouter.deploy(
+      await weth.getAddress(),
+      await cbETH.getAddress()
     );
 
-    await swapper.setRatio(1130 * 1e6);
+    await uniRouter.setPrice(885 * 1e6);
+    // Register Uniswap Router
+    await serviceRegistry.registerService(
+      ethers.keccak256(Buffer.from("Uniswap Router")),
+      await uniRouter.getAddress()
+    );
+
+    // Deposit ETH on Uniswap Mock Router
+    await weth.deposit?.call("", { value: ethers.parseUnits("10000", 18) });
+    await weth.transfer(
+      await uniRouter.getAddress(),
+      ethers.parseUnits("10000", 18)
+    );
+
+    // Deposit cbETH on Uniswap Mock Router
+    await cbETH.transfer(
+      await uniRouter.getAddress(),
+      ethers.parseUnits("10000", 18)
+    );
+
     // 4. Deploy AAVEv3 Mock Pool
     const aave3Pool = await deployAaveV3(
       cbETH,
@@ -65,6 +83,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
       serviceRegistryAddress,
       "cbETH",
       "cbETH/ETH Oracle",
+      config.swapFeeTier,
       config.AAVEEModeCategory
     );
     return {
@@ -73,7 +92,6 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
       owner,
       otherAccount,
       serviceRegistry,
-      swapper,
       aave3Pool,
       flashLender,
       strategy,
@@ -92,11 +110,11 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
       })
     ).to.changeEtherBalances([owner.address], [ethers.parseUnits("10", 18)]);
     expect(await strategy.getPosition()).to.deep.equal([
-      45705032700000000000n,
+      45707317950000000000n,
       35740737730000000000n,
-      781986919n,
+      781947822n,
     ]);
-    expect(await strategy.totalAssets()).to.equal(9964294970000000000n);
+    expect(await strategy.totalAssets()).to.equal(9966580220000000000n);
   });
 
   it("Test Undeploy", async function () {
@@ -107,19 +125,16 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
       value: ethers.parseUnits("10", 18),
     });
     expect(await strategy.getPosition()).to.deep.equal([
-      45705032700000000000n,
+      45707317950000000000n,
       35740737730000000000n,
-      781986919n,
+      781947822n,
     ]);
-    expect(await strategy.totalAssets()).to.equal(9964294970000000000n);
+    expect(await strategy.totalAssets()).to.equal(9966580220000000000n);
     // Receive ~=5 ETH
-    await strategy.undeploy(
-      ethers.parseUnits("5", 18),
-      "0x3762eFfD0BDDDb76688eb90F5fD0301AeeC90120"
-    );
+    await strategy.undeploy(ethers.parseUnits("5", 18), receiver);
 
     const provider = ethers.provider;
-    expect(await provider.getBalance(receiver)).to.equal(4982065590468138080n);
+    expect(await provider.getBalance(receiver)).to.equal(4980923249912189805n);
   });
 
   it("Deploy Fail - Zero Value", async () => {
@@ -172,28 +187,27 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
     ).to.be.revertedWith("No Collateral margin to scale");
   });
 
-  it("onFlashLoan - Invalid Flash Loan Sender",  async () => {
+  it("onFlashLoan - Invalid Flash Loan Sender", async () => {
     const { oracle, otherAccount, aave3Pool, strategy } = await loadFixture(
       deployFunction
     );
-    await expect(strategy.onFlashLoan(
-      otherAccount.address,
-      otherAccount.address,
-      ethers.parseUnits("10", 18),
-      0,
-      "0x"
-    )).to.be.revertedWith(
-      "Invalid Flash loan sender"
-    );
+    await expect(
+      strategy.onFlashLoan(
+        otherAccount.address,
+        otherAccount.address,
+        ethers.parseUnits("10", 18),
+        0,
+        "0x"
+      )
+    ).to.be.revertedWith("Invalid Flash loan sender");
   });
-  
+
   it("onFlashLoan - Invalid Flash Loan Asset", async () => {
-    const { owner, serviceRegistry, otherAccount, aave3Pool, config} = await loadFixture(
-      deployFunction
-    );
+    const { owner, serviceRegistry, otherAccount, aave3Pool, config } =
+      await loadFixture(deployFunction);
 
     await serviceRegistry.unregisterService(
-      ethers.keccak256(Buffer.from("FlashLender")),
+      ethers.keccak256(Buffer.from("FlashLender"))
     );
     await serviceRegistry.registerService(
       ethers.keccak256(Buffer.from("FlashLender")),
@@ -204,18 +218,18 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
       await serviceRegistry.getAddress(),
       "cbETH",
       "cbETH/ETH Oracle",
+      config.swapFeeTier,
       config.AAVEEModeCategory
     );
-    
-    await expect(strategy.onFlashLoan(
-      await strategy.getAddress(),
-      otherAccount.address,
-      ethers.parseUnits("10", 18),
-      0,
-      "0x"
-    )).to.be.revertedWith(
-      "Invalid Flash Loan Asset"
-    );
-  });
 
+    await expect(
+      strategy.onFlashLoan(
+        await strategy.getAddress(),
+        otherAccount.address,
+        ethers.parseUnits("10", 18),
+        0,
+        "0x"
+      )
+    ).to.be.revertedWith("Invalid Flash Loan Asset");
+  });
 });
