@@ -7,7 +7,6 @@ import {
   deployBalancerFL,
   deployAAVEv3StrategyAny,
   deployETHOracle,
-  deployUniSwapper,
   deploWSTETHToETHOracle,
   deploySettings,
 } from "../../scripts/common";
@@ -15,7 +14,6 @@ import BaseConfig from "../../scripts/config";
 import { describeif } from "../common";
 
 describeif(network.name === "optimism_devnet")("VaultOptimism", function () {
-  
   async function deployFunction() {
     const [deployer, otherAccount] = await ethers.getSigners();
     const networkName = network.name;
@@ -36,10 +34,7 @@ describeif(network.name === "optimism_devnet")("VaultOptimism", function () {
       ethers.keccak256(Buffer.from("Uniswap Router")),
       config.uniswapRouter
     );
-    // 6. Deploy the Landromat Uniswap Router Adapter
-    const swapper = await deployUniSwapper(deployer.address, serviceRegistry);
 
-    await swapper.addFeeTier(config.weth, config.wstETH, 100);
     // 7. Register AAVE V3 Service
     await serviceRegistry.registerService(
       ethers.keccak256(Buffer.from("AAVE_V3")),
@@ -80,12 +75,13 @@ describeif(network.name === "optimism_devnet")("VaultOptimism", function () {
       await serviceRegistry.getAddress(),
       "wstETH",
       "wstETH/ETH Oracle",
+      config.swapFeeTier,
       config.AAVEEModeCategory
     );
 
     await serviceRegistry.registerService(
       ethers.keccak256(Buffer.from("Strategy")),
-      await strategy.getAddress() ,
+      await strategy.getAddress()
     );
 
     await settings.setLoanToValue(ethers.parseUnits("800", 6));
@@ -123,7 +119,7 @@ describeif(network.name === "optimism_devnet")("VaultOptimism", function () {
     expect(await vault.totalCollateral()).to.equal(0);
     expect(await vault.totalDebt()).to.equal(0);
     expect(await vault.loanToValue()).to.equal(0);
-    expect(await vault.tokenPerETh()).to.equal(0);
+    expect(await vault.tokenPerETh()).to.equal(ethers.parseUnits("1", 18));
     expect(await vault.loanToValue()).to.equal(0);
   });
 
@@ -200,33 +196,30 @@ describeif(network.name === "optimism_devnet")("VaultOptimism", function () {
   it("Liquidation Protection - Adjust Debt", async function () {
     const { vault, strategy, settings, aave3Pool, weth, deployer, wstETH } =
       await loadFixture(deployFunction);
-    
-    await settings.setLoanToValue(ethers.parseUnits("500", 6));    
-    await settings.setMaxLoanToValue(ethers.parseUnits("510", 6));
-    
-    const depositAmount = ethers.parseUnits("1", 18);
-    
-    await expect( vault.deposit(deployer.address, {
-      value: depositAmount,
-    })).to.emit(
-        strategy, "StrategyAmountUpdate"). withArgs(
-        await strategy.getAddress(),
-        (value)=> {
-            return value>= 971432545612539374n;
-        } );
 
+    await settings.setLoanToValue(ethers.parseUnits("500", 6));
+    await settings.setMaxLoanToValue(ethers.parseUnits("510", 6));
+
+    const depositAmount = ethers.parseUnits("1", 18);
+
+    await expect(
+      vault.deposit(deployer.address, {
+        value: depositAmount,
+      })
+    )
+      .to.emit(strategy, "StrategyAmountUpdate")
+      .withArgs(await strategy.getAddress(), (value) => {
+        return value >= 971432545612539374n;
+      });
 
     await settings.setLoanToValue(ethers.parseUnits("400", 6));
     await settings.setMaxLoanToValue(ethers.parseUnits("400", 6));
 
     await expect(vault.rebalance())
-      .to.emit(
-        strategy, "StrategyAmountUpdate").withArgs(
-        await strategy.getAddress(),
-        (value)=> {           
-            return value>= 902114986650737323n;
-        }
-       )   ;
+      .to.emit(strategy, "StrategyAmountUpdate")
+      .withArgs(await strategy.getAddress(), (value) => {
+        return value >= 902114986650737323n;
+      });
     expect(await vault.loanToValue())
       .to.greaterThan(300000000n)
       .lessThanOrEqual(410000000n);

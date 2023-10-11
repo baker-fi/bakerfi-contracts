@@ -9,6 +9,7 @@ import {
   deployAaveV3,
   deployFlashLender,
   deployOracleMock,
+  deployUniV3RouterMock,
   deployWETH,
   deployCbETH,
   deploySettings,
@@ -21,7 +22,6 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
   async function deployFunction() {
     const [owner, otherAccount, anotherAccount] = await ethers.getSigners();
     const networkName = network.name;
-    const chainId = network.config.chainId;
     const config = BaseConfig[networkName];
     const CBETH_MAX_SUPPLY = ethers.parseUnits("1000000000", 18);
     const FLASH_LENDER_DEPOSIT = ethers.parseUnits("10000", 18);
@@ -29,31 +29,46 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
     const serviceRegistry = await deployServiceRegistry(owner.address);
     const serviceRegistryAddress = await serviceRegistry.getAddress();
     const weth = await deployWETH(serviceRegistry);
-    // 1. Deploy Flash Lender
+
+    // Deploy Flash Lender
     const flashLender = await deployFlashLender(
       serviceRegistry,
       weth,
       FLASH_LENDER_DEPOSIT
     );
-    // 2. Deploy cbETH
+
+    // Deploy cbETH
     const cbETH = await deployCbETH(serviceRegistry, owner, CBETH_MAX_SUPPLY);
 
-    // 4. Deploy cbETH -> ETH
-    const swapper = await deploySwapper(
-      weth,
-      cbETH,
-      serviceRegistry,
-      CBETH_MAX_SUPPLY
+    // Deploy cbETH -> ETH Uniswap Router
+    const UniRouter = await ethers.getContractFactory("UniV3RouterMock");
+    const uniRouter = await UniRouter.deploy(
+      await weth.getAddress(),
+      await cbETH.getAddress()
+    );
+
+    // Register Uniswap Router
+    await serviceRegistry.registerService(
+      ethers.keccak256(Buffer.from("Uniswap Router")),
+      await uniRouter.getAddress()
+    );
+
+    await uniRouter.setPrice(885 * 1e6);
+
+    // Deposit ETH on Uniswap Mock Router
+    await weth.deposit?.call("", { value: ethers.parseUnits("10000", 18) });
+    await weth.transfer(
+      await uniRouter.getAddress(),
+      ethers.parseUnits("10000", 18)
+    );
+
+    // Deposit cbETH on Uniswap Mock Router
+    await cbETH.transfer(
+      await uniRouter.getAddress(),
+      ethers.parseUnits("10000", 18)
     );
 
     const settings = await deploySettings(owner.address, serviceRegistry);
-
-    // Deposit some WETH on Swapper
-    await weth.deposit?.call("", { value: ethers.parseUnits("10000", 18) });
-    await weth.transfer(
-      await swapper.getAddress(),
-      ethers.parseUnits("10000", 18)
-    );
 
     // 5. Deploy AAVEv3 Mock Pool
     const aave3Pool = await deployAaveV3(
@@ -73,6 +88,7 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
       serviceRegistryAddress,
       "cbETH",
       "cbETH/ETH Oracle",
+      config.swapFeeTier,
       config.AAVEEModeCategory
     );
 
@@ -91,9 +107,9 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
       anotherAccount,
       serviceRegistry,
       vault,
-      swapper,
       aave3Pool,
       flashLender,
+      uniRouter,
       oracle,
       strategy,
       settings,
@@ -115,7 +131,7 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
         await cbETH.getAddress(),
         await strategy.getAddress(),
         await strategy.getAddress(),
-        45705032704000000000n,
+        40448953943040000000n,
         0
       )
       .to.emit(aave3Pool, "Borrow")
@@ -152,20 +168,9 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
   });
 
   it("Multiple Deposits", async function () {
-    const {
-      owner,
-      vault,
-      swapper,
-      strategy,
-    } = await loadFixture(deployFunction);
-    await swapper.setRatio(1130 * 1e6);
-    await expect(
-      vault.deposit(owner.address, {
-        value: ethers.parseUnits("10", 18),
-      })
-    )
-      .to.emit(strategy, "StrategyAmountUpdate")
-      .withArgs(await strategy.getAddress(), 9964294967295999999n);
+    const { owner, vault, uniRouter, strategy } = await loadFixture(
+      deployFunction
+    );
 
     await expect(
       vault.deposit(owner.address, {
@@ -173,86 +178,64 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
       })
     )
       .to.emit(strategy, "StrategyAmountUpdate")
-      .withArgs(await strategy.getAddress(), 19928589934591999998n);
+      .withArgs(await strategy.getAddress(), 9966580218931200000n);
+
     await expect(
       vault.deposit(owner.address, {
         value: ethers.parseUnits("10", 18),
       })
     )
       .to.emit(strategy, "StrategyAmountUpdate")
-      .withArgs(await strategy.getAddress(), 29892884901887999997n);
+      .withArgs(await strategy.getAddress(), 19933160437862400000n);
+    await expect(
+      vault.deposit(owner.address, {
+        value: ethers.parseUnits("10", 18),
+      })
+    )
+      .to.emit(strategy, "StrategyAmountUpdate")
+      .withArgs(await strategy.getAddress(), 29899740656793600000n);
   });
 
   it("convertToShares - 1ETH", async function () {
-    const {
-        owner,
-        vault,
-        swapper,
-        strategy,
-      } = await loadFixture(deployFunction);
-    
+    const { owner, vault, strategy } = await loadFixture(deployFunction);
+
     await vault.deposit(owner.address, {
-        value: ethers.parseUnits("10", 18),
+      value: ethers.parseUnits("10", 18),
     });
 
-    expect(
-        await vault.convertToShares(ethers.parseUnits("1", 18))
-    ).to.equal(999999999925562443n);
-  })
-
+    expect(await vault.convertToShares(ethers.parseUnits("1", 18))).to.equal(
+      999999999892761611n
+    );
+  });
 
   it("convertToAssets - 1e18 brETH", async function () {
-    const {
-        owner,
-        vault,
-        swapper,
-        strategy,
-      } = await loadFixture(deployFunction);
-    
+    const { owner, vault, strategy } = await loadFixture(deployFunction);
+
     await vault.deposit(owner.address, {
-        value: ethers.parseUnits("10", 18),
+      value: ethers.parseUnits("10", 18),
     });
-    expect(
-        await vault.convertToAssets(ethers.parseUnits("1", 18))
-    ).to.equal(1000000000074437556n);
-  })
+    expect(await vault.convertToAssets(ethers.parseUnits("1", 18))).to.equal(
+      1000000000107238388n
+    );
+  });
 
   it("convertToShares - 1ETH no balance", async function () {
-    const {
-        owner,
-        vault,
-        swapper,
-        strategy,
-      } = await loadFixture(deployFunction);
+    const { owner, vault, strategy } = await loadFixture(deployFunction);
 
-      expect(
-        await vault.convertToAssets(ethers.parseUnits("1", 18))
-    ).to.equal(ethers.parseUnits("1", 18));
-  })
-
+    expect(await vault.convertToAssets(ethers.parseUnits("1", 18))).to.equal(
+      ethers.parseUnits("1", 18)
+    );
+  });
 
   it("convertToAssets - 1e18 brETH  no balance", async function () {
-    const {
-        owner,
-        vault,
-        swapper,
-        strategy,
-      } = await loadFixture(deployFunction);
-    expect(
-        await vault.convertToAssets(ethers.parseUnits("1", 18))
-    ).to.equal(ethers.parseUnits("1", 18));
-  })
+    const { owner, vault, strategy } = await loadFixture(deployFunction);
+    expect(await vault.convertToAssets(ethers.parseUnits("1", 18))).to.equal(
+      ethers.parseUnits("1", 18)
+    );
+  });
 
   it("tokenPerETh - No Balance", async function () {
-    const {
-        owner,
-        vault,
-        swapper,
-        strategy,
-      } = await loadFixture(deployFunction);
-    expect(
-        await vault.tokenPerETh()
-    ).to.equal(ethers.parseUnits("1", 18));
-  })
-
+    const { owner, vault, strategy } = await loadFixture(deployFunction);
+    expect(await vault.tokenPerETh()).to.equal(ethers.parseUnits("1", 18));
+  });
 });

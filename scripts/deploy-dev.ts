@@ -1,4 +1,4 @@
-import { ethers } from "hardhat";
+import { ethers, network } from "hardhat";
 import {
   deployAaveV3,
   deployFlashLender,
@@ -14,10 +14,19 @@ import {
   deploySettings,
 } from "./common";
 
+import BaseConfig from "./config";
+
 /**
  * Deploy the Basic System for testing 
  */
 async function main() {
+
+  const networkName = network.name;
+  const chainId = network.config.chainId;
+  console.log("Network name = ", networkName);
+  console.log("Network chain id =", chainId);
+  const config = BaseConfig[networkName];
+
   // Max Staked ETH available
   console.log("---------------------------------------------------------------------------");
   console.log("💥 BakerFi Deploying ....");
@@ -66,7 +75,8 @@ async function main() {
   const strategy = await deployAAVEv3StrategyWstETH( 
     owner.address,
     await serviceRegistry.getAddress(), 
-    1,
+    config.swapFeeTier,
+    config.AAVEEModeCategory,
   );
   // 10. Deploy the Vault attached to Leverage Lib
     const vault = await deployVault(

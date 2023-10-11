@@ -42,7 +42,8 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 /**
  *
- * Base Strategy that does AAVE leverage/deleverage using flash loans
+ * Strategy that does AAVE leverage/deleverage using flash loans
+ * 
  *
  * TODO: Use the Uniswap Swapper directly to optimize gas consumption
  * TODO: Optimize Gas by set MAX Int allowances on initialization
@@ -92,12 +93,14 @@ abstract contract AAVEv3StrategyBase is
 
     IOracle private _collateralOracle;
     IOracle private _ethUSDOracle;
+    uint24 internal immutable _swapFeeTier;
 
     constructor(
         address initialOwner,
         ServiceRegistry registry,
         bytes32 collateralIERC20,
         bytes32 collateralOracle,
+        uint24 swapFeeTier,
         uint8 eModeCategory
     )
         Ownable()
@@ -112,6 +115,7 @@ abstract contract AAVEv3StrategyBase is
     {
         _collateralOracle = IOracle(registry.getServiceFromHash(collateralOracle));
         _ethUSDOracle = IOracle(registry.getServiceFromHash(ETH_USD_ORACLE));
+        _swapFeeTier = swapFeeTier;
         require(initialOwner != address(0), "Invalid Owner Address");
         require(address(_ethUSDOracle) != address(0), "Invalid ETH/USD Oracle");
         require(address(_collateralOracle) != address(0), "Invalid <Collateral>/ETH Oracle");
@@ -200,7 +204,17 @@ abstract contract AAVEv3StrategyBase is
             aaveV3().withdraw(ierc20A(), amountIn, address(this)) == amountIn, 
             "Invalid Amount Withdrawn"
         );
-        _swaptoken(ierc20A(), wETHA(), 1, amountIn, debtAmount + fee);
+        _swap(
+            ISwapHandler.SwapParams(
+                ierc20A(), 
+                wETHA(), 
+                1, 
+                amountIn, 
+                debtAmount + fee,
+                _swapFeeTier,
+                bytes("")
+            )
+        );
     }
 
     /**
@@ -389,7 +403,7 @@ abstract contract AAVEv3StrategyBase is
         );
         uint256 percentageToBurn = (amount * PERCENTAGE_PRECISION) /
             (totalCollateralBaseInEth - totalDebtBaseInEth);
-        
+  
         // Calculate how much i need to burn to accomodate the withdraw
         (uint256 deltaCollateralInETH, uint256 deltaDebtInETH) = calcDeltaPosition(
             percentageToBurn,

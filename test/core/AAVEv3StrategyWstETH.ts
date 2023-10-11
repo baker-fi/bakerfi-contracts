@@ -3,10 +3,8 @@ import { expect } from "chai";
 import { ethers, network } from "hardhat";
 import {
   deployServiceRegistry,
-  deployVault,
   deployStEth,
   deployWStEth,
-  deploySwapper,
   deployAaveV3,
   deploySettings,
   deployFlashLender,
@@ -46,24 +44,29 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
       serviceRegistry,
       await stETH.getAddress()
     );
-    // 4. Deploy WETH -> stETH Swapper
-    const swapper = await deploySwapper(
-      weth,
-      stETH,
-      serviceRegistry,
-      DEPOSIT_ST_ETH_SUPPLY
+
+    // Deploy the Swapper Mocker
+    const UniRouter = await ethers.getContractFactory("UniV3RouterMock");
+    const uniRouter = await UniRouter.deploy(
+      await weth.getAddress(),
+      await wstETH.getAddress()
     );
+    await serviceRegistry.registerService(
+      ethers.keccak256(Buffer.from("Uniswap Router")),
+      await uniRouter.getAddress()
+    );
+    await uniRouter.setPrice(885 * 1e6);
 
     await stETH.approve(await wstETH.getAddress(), WRAP_ST_ETH_DEPOSIT);
     await wstETH.wrap(WRAP_ST_ETH_DEPOSIT);
     const balance = await wstETH.balanceOf(owner.address);
+    // Deposit wstETH and ETH on Uniswap Router
+    await wstETH.transfer(await uniRouter.getAddress(), balance);
     await weth.deposit?.call("", { value: ethers.parseUnits("100", 18) });
     await weth.transfer(
-      await swapper.getAddress(),
+      await uniRouter.getAddress(),
       ethers.parseUnits("100", 18)
     );
-
-    await swapper.addPair(await weth.getAddress(), await wstETH.getAddress());
 
     // 5. Deploy AAVEv3 Mock Pool
     const aave3Pool = await deployAaveV3(
@@ -78,10 +81,10 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
     const oracle = await deployOracleMock(serviceRegistry, "wstETH/ETH Oracle");
     const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");
     await ethOracle.setLatestPrice(ethers.parseUnits("1", 18));
-
     const strategy = await deployAAVEv3StrategyWstETH(
       owner.address,
       serviceRegistryAddress,
+      config.swapFeeTier,
       config.AAVEEModeCategory
     );
 
@@ -91,7 +94,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
       owner,
       otherAccount,
       serviceRegistry,
-      swapper,
+      uniRouter,
       aave3Pool,
       config,
       flashLender,
@@ -164,7 +167,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
     // Increment the Collateral value by 10%
     await aave3Pool.setCollateralPerEth(1130 * 1e6 * 0.98);
     await oracle.setLatestPrice(1130 * 1e6 * 0.98);
-    
+
     await expect(strategy.harvest())
       .to.emit(strategy, "StrategyLoss")
       .withArgs(913113421975680000n, 9001820110000000000n);
@@ -186,9 +189,10 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
       value: ethers.parseUnits("10", 18),
     });
     // Descrease the Collateral value by 10%
-    await aave3Pool.setCollateralPerEth(1130 * 1e6 * 0.9);
 
+    await aave3Pool.setCollateralPerEth(1130 * 1e6 * 0.9);
     await oracle.setLatestPrice(1130 * 1e6 * 0.9);
+
     await settings.setMaxLoanToValue(800 * 1e6);
 
     expect(await strategy.getPosition()).to.deep.equal([
@@ -199,10 +203,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
 
     await expect(strategy.harvest())
       .to.emit(strategy, "StrategyAmountUpdate")
-      .withArgs(
-        await strategy.getAddress(),
-        5349366410000000000n
-      );
+      .withArgs(await strategy.getAddress(), 5349366410000000000n);
 
     expect(await strategy.getPosition()).to.deep.equal([
       26488409310000000000n,
