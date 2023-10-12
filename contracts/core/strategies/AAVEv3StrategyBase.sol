@@ -124,6 +124,8 @@ abstract contract AAVEv3StrategyBase is
         require(aaveV3().getUserEMode(address(this)) == eModeCategory, "Invalid Emode");
         require(wETH().approve(uniRouterA(), 2**256 - 1));
         require(ierc20().approve(uniRouterA(), 2**256 - 1));
+    
+       // require(wETH().approve(flashLenderA(), 2**256 - 1)); ???
     }
     // solhint-disable-next-line no-empty-blocks
     receive() external payable {}
@@ -168,8 +170,8 @@ abstract contract AAVEv3StrategyBase is
         );
         uint256 loanAmount = leverage - msg.value;
         uint256 fee = flashLender().flashFee(wETHA(), loanAmount);
-        uint256 allowance = wETH().allowance(address(this), flashLenderA());
-        require(wETH().approve(flashLenderA(), loanAmount + fee + allowance));
+        //§uint256 allowance = wETH().allowance(address(this), flashLenderA());
+        require(wETH().approve(flashLenderA(), loanAmount + fee));
         require(
             flashLender().flashLoan(
                 IERC3156FlashBorrower(this),
@@ -248,7 +250,7 @@ abstract contract AAVEv3StrategyBase is
     }
 
     /**
-     * Flash Loan Callback
+     * Flash Loan Callback  
      *
      * @param initiator Flash Loan Requester
      * @param token Asset requested on the loan
@@ -280,8 +282,10 @@ abstract contract AAVEv3StrategyBase is
     }
 
     /**
-     * Undeploy an amount from the current position returning ETH to the
-     * owner of the shares
+     * The primary purpose of the undeploy method is to allow users to burn shares and receive the attached ETH value to the sahres. 
+     * The method is designed to ensure that the collateralization ratio (collateral value to debt value) remains within acceptable limits. 
+     * It leverages a flash loan mechanism to obtain additional funds temporarily, covering any necessary adjustments required to maintain 
+     * the desired collateralization ratio.
      * @param amount Amount undeployed
      */
     function undeploy(
@@ -300,8 +304,8 @@ abstract contract AAVEv3StrategyBase is
             totalDebtBaseInEth
         );
         uint256 fee = flashLender().flashFee(wETHA(), deltaDebt);
-        uint256 allowance = wETH().allowance(address(this), flashLenderA());
-        require(wETH().approve(flashLenderA(), deltaDebt + fee + allowance));
+       // uint256 allowance = wETH().allowance(address(this), flashLenderA());
+        require(wETH().approve(flashLenderA(), deltaDebt + fee ));
         require(
             flashLender().flashLoan(
                 IERC3156FlashBorrower(this),
@@ -316,6 +320,7 @@ abstract contract AAVEv3StrategyBase is
     /**
      * Harvest a profit when there is a difference between the amount the strategy
      * predicts that is deployed and the real value
+     * 
      */
     function harvest() external override onlyOwner nonReentrant returns (int256 balanceChange) {
         (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition();
@@ -420,8 +425,8 @@ abstract contract AAVEv3StrategyBase is
         // Calculate the Flash Loan FEE
         uint256 fee = flashLender().flashFee(wETHA(), deltaDebtInETH);
         // Update WETH allowance to pay the debt after the flash loan
-        uint256 allowance = wETH().allowance(address(this), flashLenderA());
-        require(wETH().approve(flashLenderA(), deltaDebtInETH + fee + allowance));
+        //uint256 allowance = wETH().allowance(address(this), flashLenderA());
+        require(wETH().approve(flashLenderA(), deltaDebtInETH + fee ));
         require(
             flashLender().flashLoan(
                 IERC3156FlashBorrower(this),

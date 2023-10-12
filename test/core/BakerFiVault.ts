@@ -378,5 +378,20 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
   });
 
 
+  it("Withdraw - Invalid Receiver", async () => {
+
+    const { owner, vault } = await loadFixture(deployFunction);
+
+    for(let i = 0; i < 10; i++) {
+      await vault.deposit(owner.address, {
+        value: ethers.parseUnits("1", 18),
+      });
+      const balance = await vault.balanceOf(owner.address);
+      await vault.withdraw(balance * BigInt(Math.floor(Math.random() * 199  +1 ))/200n );
+    }
+    expect(true).to.equal(true);
+  })
+
+
 
 });

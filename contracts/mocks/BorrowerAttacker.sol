@@ -6,7 +6,6 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 import {ServiceRegistry} from "../core/ServiceRegistry.sol";
 import {UseFlashLender} from "../core/hooks/UseFlashLender.sol";
 import {UseStrategy} from "../core/hooks/UseStrategy.sol";
-import "hardhat/console.sol";
 
 contract BorrowerAttacker is IERC3156FlashBorrower, 
     UseFlashLender,
@@ -32,7 +31,6 @@ contract BorrowerAttacker is IERC3156FlashBorrower,
         address token,
         uint256 amount
     ) external {
-        console.log("1");
         require(IERC20(token).approve(flashLenderA(), amount));
         flashLender().flashLoan(
             this, 

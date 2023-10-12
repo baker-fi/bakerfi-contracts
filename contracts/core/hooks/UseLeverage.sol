@@ -2,6 +2,7 @@
 pragma solidity ^0.8.18;
 import {PERCENTAGE_PRECISION, MAX_LOOPS} from "../Constants.sol";
 
+
 contract UseLeverage {
 
    
@@ -42,6 +43,7 @@ contract UseLeverage {
         uint256 collateral,
         uint256 debt
     ) public pure returns (uint256 delta) {
+
         uint256 colValue = ((targetLoanToValue * collateral) / PERCENTAGE_PRECISION);
         require(colValue < debt, "Invalid Target value");
         uint256 numerator = debt - colValue;

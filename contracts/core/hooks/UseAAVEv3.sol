@@ -41,8 +41,8 @@ abstract contract UseAAVEv3 {
         aaveV3().borrow(assetOut, borrowOut, 2, 0, address(this));
     }
 
-    function _repay(address assetIn, uint256 amount) internal {
-        IERC20(assetIn).safeApprove(aaveV3A(), amount);
+    function _repay(address assetIn, uint256 amount) internal {        
+        IERC20(assetIn).approve(aaveV3A(), amount);
         require(aaveV3().repay(assetIn, amount, 2, address(this)) == amount);
     }
 }
