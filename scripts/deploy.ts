@@ -51,7 +51,7 @@ async function main() {
   );
   console.log("Uniswap V3 Router =", config.uniswapRouter);
 
-  // 6. Deploy the Landromat Uniswap Router Adapter
+  // 6. Deploy the BakerFi Uniswap Router Adapter
   const swapper = await deployUniSwapper(
     deployer.address,
     serviceRegistry

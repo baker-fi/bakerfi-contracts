@@ -83,6 +83,12 @@ const config: HardhatUserConfig = {
       chainId: 10,
       gasMultiplier: 4,
       accounts: STAGING_ACCOUNTS_PKEYS
+    },
+    ethereum_devnet: {
+      url: `${process.env.TENDERLY_DEV_NET_RPC}`,
+      chainId: 1,
+      gasMultiplier: 4,
+      accounts: STAGING_ACCOUNTS_PKEYS
     }
   },
   solidity: {

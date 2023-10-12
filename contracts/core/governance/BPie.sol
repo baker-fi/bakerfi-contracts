@@ -7,6 +7,13 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 
+/**
+ * Baker Pie , the BakerFi Governance ERC-20 Token 
+ * No Taxes and no Bullshit
+ * @title 
+ * @author 
+ * @notice 
+ */
 contract BPie is ERC20, Ownable, ERC20Permit, ERC20Votes{
 
     string private constant _NAME = "Baker Pie";

@@ -91,7 +91,7 @@ This will start a local Ethereum network with accounts pre-loaded with test Ethe
 npm run deploy:local
 ```
 
-If everything runs sucessfully you should get Landromat Vault deployed with some mocked Services for testing purposes
+If everything runs sucessfully you should get Bakerfi Vault deployed with some mocked Services for testing purposes
 ```
 Service Registry = 0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e
 WETH = 0xd7630A747b24b7245ff60e3095aD04684dC1a292

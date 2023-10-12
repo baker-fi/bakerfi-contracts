@@ -72,9 +72,9 @@ abstract contract AAVEv3StrategyBase is
         PAY_DEBT_WITHDRAW,
         PAY_DEBT
     }
-    event StrategyProfit(uint256 amount, uint256 deployedAmount);
-    event StrategyLoss(uint256 amount, uint256 deployedAmount);
-    event StrategyAmountUpdate(address source, uint256 newDeployment);
+    event StrategyProfit(uint256 indexed amount, uint256 indexed deployedAmount);
+    event StrategyLoss(uint256 indexed amount, uint256 indexed deployedAmount);
+    event StrategyAmountUpdate(address indexed source, uint256 indexed newDeployment);
 
     struct FlashLoanData {
         uint256 originalAmount;
@@ -321,6 +321,11 @@ abstract contract AAVEv3StrategyBase is
      */
     function harvest() external override onlyOwner nonReentrant returns (int256 balanceChange) {
         (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition();
+        
+        if (totalCollateralBaseInEth == 0 || 
+            totalDebtBaseInEth == 0) {
+            return 0;             
+        }
         require(
             totalCollateralBaseInEth > totalDebtBaseInEth,
             "Collateral is lower that debt"

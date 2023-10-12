@@ -5,7 +5,6 @@ import {PERCENTAGE_PRECISION, MAX_LOOPS} from "../Constants.sol";
 contract UseLeverage {
 
    
-    
     function calculateLeverageRatio(
         uint256 baseValue,
         uint256 loanToValue,

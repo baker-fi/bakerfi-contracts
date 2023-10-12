@@ -1,4 +1,22 @@
 export default {    
+    "ethereum_devnet": {
+        uniswapRouter: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", // Validated 
+        uniswapQuoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e", 
+        balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+        weth: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        wstETH: "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
+        stETH: "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",
+        oracle: {
+            type: "stETH",
+            chainLink: "0x86392dc19c0b719886221c78ab11eb8cf5c52812",
+        },
+        ethOracle: "0x5f4ec3df9cbd43714fe2740f5e3616155c5b8419",
+        AAVEEModeCategory: 1,       
+        strategy: "wstETH",        
+        swapFeeTier: 100,        
+        AAVEPool: "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2", // Validated      
+
+    },
     "base_devnet": {
         uniswapRouter: "0x2626664c2603336E57B271c5C0b26F421741e481", // Validated 
         uniswapQuoter: "0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a", // Validated 

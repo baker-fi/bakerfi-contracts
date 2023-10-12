@@ -17,15 +17,11 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 /**
- * Landromat Vault
- * This pool allows the user the leverage their yield position and exposure the user to
- * boosted returns using recursive
+ * BakerFi Vault
+ * This pool allows a user to leverage their yield position and exposure 
+ * using a recursive strategy based on flash loans and borrow markets.
  *
- * TODO:
- * - Harvest Function to collect fees from yield performance +-10%
- * - Withdraw Fee 0.10%
- *
- * @title Landromat Vault smart contract
+ * @title BakerFi Vault smart contract
  * @author Helder Vasconcelos
  * @notice
  */
@@ -42,8 +38,8 @@ contract BakerFiVault is Ownable, Pausable, ERC20Permit, UseSettings, Reentrancy
     ServiceRegistry private immutable _registry;
     IStrategy private immutable _strategy;
 
-    event Deposit(address depositor, address receiver, uint256 amount, uint256 shares);
-    event Withdraw(address owner, uint256 amount, uint256 shares);
+    event Deposit(address indexed depositor, address indexed receiver, uint256 indexed amount, uint256 shares);
+    event Withdraw(address indexed owner, uint256 amount, uint256 indexed shares);
 
     /**
      * Deploy The Vaults

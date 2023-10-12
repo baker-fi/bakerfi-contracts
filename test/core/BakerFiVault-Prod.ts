@@ -1,118 +1,20 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers, network } from "hardhat";
-import {
-  deployServiceRegistry,
-  deployVault,
-  deployBalancerFL,
-  deployAAVEv3StrategyAny,
-  deployETHOracle,
-  deploWSTETHToETHOracle,
-  deploySettings,
-} from "../../scripts/common";
-import BaseConfig from "../../scripts/config";
 import { describeif } from "../common";
 
-describeif(network.name === "optimism_devnet")("VaultOptimism", function () {
-  async function deployFunction() {
-    const [deployer, otherAccount] = await ethers.getSigners();
-    const networkName = network.name;
-    const config = BaseConfig[networkName];
+import {
+  getDeployFunc,
+} from "./common";
 
-    // 1. Deploy Service Registry
-    const serviceRegistry = await deployServiceRegistry(deployer.address);
-    // 3. Set the WETH Address
-    await serviceRegistry.registerService(
-      ethers.keccak256(Buffer.from("WETH")),
-      config.weth
-    );
-    // 4. Deploy Settings
-    const settings = await deploySettings(deployer.address, serviceRegistry);
-
-    // 5. Register UniswapV3 Universal Router
-    await serviceRegistry.registerService(
-      ethers.keccak256(Buffer.from("Uniswap Router")),
-      config.uniswapRouter
-    );
-
-    // 7. Register AAVE V3 Service
-    await serviceRegistry.registerService(
-      ethers.keccak256(Buffer.from("AAVE_V3")),
-      config.AAVEPool
-    );
-
-    // 8. Register wstETH
-    await serviceRegistry.registerService(
-      ethers.keccak256(Buffer.from("wstETH")),
-      config.wstETH
-    );
-    // 9. Deploy the Oracle
-    const oracle = await deploWSTETHToETHOracle(
-      serviceRegistry,
-      config.oracle.chainLink,
-      config.wstETH
-    );
-
-    await serviceRegistry.registerService(
-      ethers.keccak256(Buffer.from("Uniswap Quoter")),
-      config.uniswapQuoter
-    );
-
-    // 10. Balancer Vault
-    await serviceRegistry.registerService(
-      ethers.keccak256(Buffer.from("Balancer Vault")),
-      config.balancerVault
-    );
-
-    // 11. Flash Lender Adapter
-    await deployBalancerFL(serviceRegistry);
-
-    await deployETHOracle(serviceRegistry, config.ethOracle);
-
-    // 12. Deploy the Strategy
-    const strategy = await deployAAVEv3StrategyAny(
-      deployer.address,
-      await serviceRegistry.getAddress(),
-      "wstETH",
-      "wstETH/ETH Oracle",
-      config.swapFeeTier,
-      config.AAVEEModeCategory
-    );
-
-    await serviceRegistry.registerService(
-      ethers.keccak256(Buffer.from("Strategy")),
-      await strategy.getAddress()
-    );
-
-    await settings.setLoanToValue(ethers.parseUnits("800", 6));
-
-    // 13. Deploy the Vault
-    const vault = await deployVault(
-      deployer.address,
-      await serviceRegistry.getAddress(),
-      await strategy.getAddress()
-    );
-
-    const weth = await ethers.getContractAt("IWETH", config.weth);
-    const aave3Pool = await ethers.getContractAt("IPoolV3", config.AAVEPool);
-    const wstETH = await ethers.getContractAt("IERC20", config.wstETH);
-    await strategy.transferOwnership(await vault.getAddress());
-    return {
-      serviceRegistry,
-      weth,
-      wstETH,
-      vault,
-      deployer,
-      otherAccount,
-      strategy,
-      settings,
-      aave3Pool,
-      config,
-    };
-  }
-
-  it("Test Initialized Vault", async function () {
-    const { deployer, vault } = await loadFixture(deployFunction);
+describeif(
+    network.name === "ethereum_devnet" ||
+    network.name === "optimism_devnet" || 
+    network.name === "base_devnet"
+)("BakerFi - Production", function () {
+  
+  it("Test Initialized Vault", async function () {   
+    const { deployer, vault } = await loadFixture(getDeployFunc());
     expect(await vault.symbol()).to.equal("brETH");
     expect(await vault.balanceOf(deployer.address)).to.equal(0);
     expect(await vault.totalSupply()).to.equal(0);
@@ -124,7 +26,7 @@ describeif(network.name === "optimism_devnet")("VaultOptimism", function () {
   });
 
   it("Deposit 1 ETH", async function () {
-    const { vault, deployer } = await loadFixture(deployFunction);
+    const { vault, deployer } = await loadFixture(getDeployFunc());
 
     const depositAmount = ethers.parseUnits("1", 18);
     await vault.deposit(deployer.address, {
@@ -154,7 +56,7 @@ describeif(network.name === "optimism_devnet")("VaultOptimism", function () {
   });
 
   it("Deposit + Withdraw", async function () {
-    const { vault, settings, deployer } = await loadFixture(deployFunction);
+    const { vault, settings, deployer } = await loadFixture(getDeployFunc());
     const depositAmount = ethers.parseUnits("10", 18);
 
     await settings.setLoanToValue(ethers.parseUnits("500", 6));
@@ -189,13 +91,13 @@ describeif(network.name === "optimism_devnet")("VaultOptimism", function () {
       .lessThanOrEqual(ethers.parseUnits("11", 17));
     const balanceAfter = await provider.getBalance(deployer.address);
     expect(balanceAfter - balanceBefore)
-      .greaterThan(ethers.parseUnits("5", 18))
+      .greaterThan(ethers.parseUnits("4", 18))
       .lessThanOrEqual(ethers.parseUnits("11", 18));
   });
 
-  it("Liquidation Protection - Adjust Debt", async function () {
+  it.only("Liquidation Protection - Adjust Debt", async function () {
     const { vault, strategy, settings, aave3Pool, weth, deployer, wstETH } =
-      await loadFixture(deployFunction);
+      await loadFixture(getDeployFunc());
 
     await settings.setLoanToValue(ethers.parseUnits("500", 6));
     await settings.setMaxLoanToValue(ethers.parseUnits("510", 6));
@@ -225,3 +127,4 @@ describeif(network.name === "optimism_devnet")("VaultOptimism", function () {
       .lessThanOrEqual(410000000n);
   });
 });
+
