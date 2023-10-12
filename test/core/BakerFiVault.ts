@@ -7,7 +7,6 @@ import {
   deployVault,
   deployStEth,
   deployWStEth,
-  deploySwapper,
   deployAaveV3,
   deployFlashLender,
   deployOracleMock,
