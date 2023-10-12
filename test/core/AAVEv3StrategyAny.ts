@@ -6,6 +6,7 @@ import {
   deployCbETH,
   deployAaveV3,
   deployFlashLender,
+  deployFlashBorrowerMock,
   deployOracleMock,
   deployWETH,
   deploySettings,
@@ -66,18 +67,19 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
       ethers.parseUnits("10000", 18)
     );
 
-    // 4. Deploy AAVEv3 Mock Pool
+    // Deploy AAVEv3 Mock Pool
     const aave3Pool = await deployAaveV3(
       cbETH,
       weth,
       serviceRegistry,
       AAVE_DEPOSIT
     );
-    // 5. Deploy cbETH/ETH Oracle
+    // Deploy cbETH/ETH Oracle
     const oracle = await deployOracleMock(serviceRegistry, "cbETH/ETH Oracle");
     const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");
     await ethOracle.setLatestPrice(ethers.parseUnits("1", 18));
     await deployQuoterV2Mock(serviceRegistry);
+
     const strategy = await deployAAVEv3StrategyAny(
       owner.address,
       serviceRegistryAddress,
@@ -85,6 +87,12 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
       "cbETH/ETH Oracle",
       config.swapFeeTier,
       config.AAVEEModeCategory
+    );
+
+
+    await serviceRegistry.registerService(
+      ethers.keccak256(Buffer.from("Strategy")),
+      await strategy.getAddress()
     );
     return {
       cbETH,
@@ -237,6 +245,30 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
     ).to.be.revertedWith("Invalid Flash Loan Asset");
   });
 
+  
 
+  it("OnFlashLoan - Attacker", async ()=> {
+
+    const { weth, serviceRegistry, strategy} =
+    await loadFixture(deployFunction);
+
+
+    const BorrowerAttacker = await ethers.getContractFactory("BorrowerAttacker");
+    const attacker = await BorrowerAttacker.deploy(
+      await serviceRegistry.getAddress()
+    );
+
+    await strategy.deploy({
+      value: ethers.parseUnits("10", 18),
+    });
+    
+    await expect(
+      attacker.flashme(
+        await weth.getAddress(),
+        ethers.parseUnits("1", 18),        
+      )
+    ).to.be.revertedWith("Invalid Flash loan sender");
+
+  })
   
 });
