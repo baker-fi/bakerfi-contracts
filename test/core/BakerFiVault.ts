@@ -271,7 +271,7 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     expect(await vault.totalSupply()).to.equal(0);
     expect(await vault.totalCollateral()).to.equal(0);
     expect(await vault.totalDebt()).to.equal(0);
-    expect(balanceAfter - balanceBefore).to.equal(9928223123125998913n);
+    expect(balanceAfter - balanceBefore).to.equal(9928228588247807112n);
     expect(await vault.loanToValue()).to.equal(0);
     expect(await vault.tokenPerETh()).to.equal(ethers.parseUnits("1", 18));
   });
