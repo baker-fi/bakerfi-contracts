@@ -117,7 +117,7 @@ contract BakerFiVault is Ownable, Pausable, ERC20Permit, UseSettings, Reentrancy
         require(balanceOf(msg.sender) >= shares, "No Enough balance to withdraw");
         uint256 percentageToBurn = shares * PERCENTAGE_PRECISION / totalSupply();
         uint256 withdrawAmount = totalPosition() * percentageToBurn /PERCENTAGE_PRECISION;
-        amount = _strategy.undeploy(withdrawAmount, payable(this));
+        amount = _strategy.undeploy(withdrawAmount);
         // Withdraw ETh to Receiver and pay withdrawal Fees
         if (settings().getWithdrawalFee() != 0  && settings().getFeeReceiver() != address(0)) {
             uint256 fee = amount * settings().getWithdrawalFee() /PERCENTAGE_PRECISION;

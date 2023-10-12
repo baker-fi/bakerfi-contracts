@@ -119,7 +119,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
 
   it("Test Undeploy", async function () {
     const { owner, strategy } = await loadFixture(deployFunction);
-    const receiver = "0x3762eFfD0BDDDb76688eb90F5fD0301AeeC90120";
+    const receiver = owner.address;
     // Deploy 10TH ETH
     await strategy.deploy({
       value: ethers.parseUnits("10", 18),
@@ -131,10 +131,12 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
     ]);
     expect(await strategy.totalAssets()).to.equal(9966580220000000000n);
     // Receive ~=5 ETH
-    await strategy.undeploy(ethers.parseUnits("5", 18), receiver);
-
-    const provider = ethers.provider;
-    expect(await provider.getBalance(receiver)).to.equal(4980923249912189805n);
+    await  expect(
+      strategy.undeploy(ethers.parseUnits("5", 18))
+    ).to.changeEtherBalances(
+      [owner.address], [4980923249912189805n]
+    );
+  
   });
 
   it("Deploy Fail - Zero Value", async () => {
@@ -183,7 +185,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
     await aave3Pool.setCollateralPerEth(1130 * 1e6 * 0.1);
     await oracle.setLatestPrice(1130 * 1e6 * 0.1);
     await expect(
-      strategy.undeploy(ethers.parseUnits("10", 18), otherAccount.address)
+      strategy.undeploy(ethers.parseUnits("10", 18))
     ).to.be.revertedWith("No Collateral margin to scale");
   });
 
@@ -232,4 +234,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
       )
     ).to.be.revertedWith("Invalid Flash Loan Asset");
   });
+
+
+  
 });

@@ -283,13 +283,11 @@ abstract contract AAVEv3StrategyBase is
      * Undeploy an amount from the current position returning ETH to the
      * owner of the shares
      * @param amount Amount undeployed
-     * @param receiver Receiver of the capital
      */
     function undeploy(
-        uint256 amount,
-        address payable receiver
+        uint256 amount
     ) external onlyOwner nonReentrant returns (uint256 undeployedAmount) {
-        undeployedAmount = _undeploy(amount, receiver);
+        undeployedAmount = _undeploy(amount, payable(msg.sender));
     }
 
     function _adjustDebt(
