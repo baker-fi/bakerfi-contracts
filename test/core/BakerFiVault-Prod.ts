@@ -67,7 +67,7 @@ describeif(
 
     const provider = ethers.provider;
     const balanceBefore = await provider.getBalance(deployer.address);
-    await vault.withdraw(ethers.parseUnits("5", 18), deployer.address);
+    await vault.withdraw(ethers.parseUnits("5", 18));
     expect(await vault.balanceOf(deployer.address))
       .to.greaterThan(ethers.parseUnits("4", 18))
       .lessThanOrEqual(ethers.parseUnits("6", 18));
@@ -95,7 +95,7 @@ describeif(
       .lessThanOrEqual(ethers.parseUnits("11", 18));
   });
 
-  it.only("Liquidation Protection - Adjust Debt", async function () {
+  it("Liquidation Protection - Adjust Debt", async function () {
     const { vault, strategy, settings, aave3Pool, weth, deployer, wstETH } =
       await loadFixture(getDeployFunc());
 

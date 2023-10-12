@@ -159,7 +159,7 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
       value: depositAmount,
     });
 
-    await expect(vault.withdraw(ethers.parseUnits("1", 18), owner.address))
+    await expect(vault.withdraw(ethers.parseUnits("1", 18)))
       .to.emit(vault, "Withdraw")
       .withArgs(owner.address, 4969613303000000000n, ethers.parseUnits("1", 18))
       .to.changeEtherBalances([owner.address], [1001373754928851603n]);
@@ -190,7 +190,7 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     });
 
     await expect(
-      vault.withdraw(ethers.parseUnits("20", 18), owner.address)
+      vault.withdraw(ethers.parseUnits("20", 18))
     ).to.be.revertedWith("No Enough balance to withdraw");
   });
 
@@ -248,7 +248,7 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
       value: depositAmount,
     });
 
-    await vault.withdraw(ethers.parseUnits("1", 18), owner.address);
+    await vault.withdraw(ethers.parseUnits("1", 18));
 
     expect(await provider.getBalance(otherAccount.address)).to.equal(
       1000000010013737549288516n
@@ -264,15 +264,15 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
 
     const provider = ethers.provider;
     const balanceOf = await vault.balanceOf(owner.address);
-    const balanceBefore = await provider.getBalance(otherAccount.address);
-    await vault.withdraw(balanceOf, otherAccount.address);
-    const balanceAfter = await provider.getBalance(otherAccount.address);
+    const balanceBefore = await provider.getBalance(owner.address);
+    await vault.withdraw(balanceOf);
+    const balanceAfter = await provider.getBalance(owner.address);
 
     expect(await vault.balanceOf(owner.address)).to.equal(0);
     expect(await vault.totalSupply()).to.equal(0);
     expect(await vault.totalCollateral()).to.equal(0);
     expect(await vault.totalDebt()).to.equal(0);
-    expect(balanceAfter - balanceBefore).to.equal(9928554227580935809n);
+    expect(balanceAfter - balanceBefore).to.equal(9928223023125861513n);
     expect(await vault.loanToValue()).to.equal(0);
     expect(await vault.tokenPerETh()).to.equal(ethers.parseUnits("1", 18));
   });
@@ -307,7 +307,7 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
       value: depositAmount,
     });
 
-    await expect(vault.withdraw(ethers.parseUnits("5", 18), owner.address))
+    await expect(vault.withdraw(ethers.parseUnits("5", 18)))
       .to.emit(vault, "Withdraw")
       .withArgs("0x0000000000000000000000000000000000000000", 0n, 0n)
       .to.changeEtherBalances([owner.address], [5024803137643837552n]);
@@ -356,7 +356,7 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     expect(await vault.totalPosition()).to.equal(5090943670000000000n);
   });
 
-  it("Withdraw - Invalid Receiver", async () => {
+  it.skip("Withdraw - Invalid Receiver", async () => {
     const { owner, vault } = await loadFixture(deployFunction);
     const depositAmount = ethers.parseUnits("10", 18);
     await vault.deposit(owner.address, {

@@ -112,21 +112,19 @@ contract BakerFiVault is Ownable, Pausable, ERC20Permit, UseSettings, Reentrancy
     /**
      * Burn shares and receive the ETH unrolled to a receiver
      * @param shares The amount of shares (mateETH) to be burned
-     * @param receiver The account that is going to receive the assets
      */
-    function withdraw(uint256 shares, address payable receiver) external nonReentrant returns (uint256 amount) {
+    function withdraw(uint256 shares) external nonReentrant returns (uint256 amount) {
         require(balanceOf(msg.sender) >= shares, "No Enough balance to withdraw");
-        require(receiver != address(0), "Invalid Receiver");
         uint256 percentageToBurn = shares * PERCENTAGE_PRECISION / totalSupply();
         uint256 withdrawAmount = totalPosition() * percentageToBurn /PERCENTAGE_PRECISION;
         amount = _strategy.undeploy(withdrawAmount, payable(this));
         // Withdraw ETh to Receiver and pay withdrawal Fees
         if (settings().getWithdrawalFee() != 0  && settings().getFeeReceiver() != address(0)) {
             uint256 fee = amount * settings().getWithdrawalFee() /PERCENTAGE_PRECISION;
-            payable(receiver).sendValue(amount - fee);
+            payable(msg.sender).sendValue(amount - fee);
             payable(settings().getFeeReceiver()).sendValue(fee);          
         } else {
-            payable(receiver).sendValue(amount);
+            payable(msg.sender).sendValue(amount);
         }
         _burn(msg.sender, shares);
         emit Withdraw(msg.sender, amount, shares);
