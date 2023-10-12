@@ -160,10 +160,12 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
 
   it("Undeploy Fail - No Permissions", async () => {
     const { owner, otherAccount, strategy } = await loadFixture(deployFunction);
+
+    strategy.deploy({
+      value: ethers.parseUnits("10", 18),
+    })
     await expect(
-      strategy.connect(otherAccount).deploy({
-        value: ethers.parseUnits("10", 18),
-      })
+      strategy.connect(otherAccount).undeploy(ethers.parseUnits("5", 18))
     ).to.be.revertedWith("Ownable: caller is not the owner");
   });
 
