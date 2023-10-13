@@ -1,0 +1,14 @@
+{
+    "name": "web3-actions",
+    "scripts": {
+        "build": "tsc"
+    },
+    "devDependencies": {
+        "typescript": "^4.3.5"
+    },
+    "dependencies": {
+        "@tenderly/actions": "^0.2.0",
+        "ethers": "^5.7.2"
+    },
+    "private": true
+}

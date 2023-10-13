@@ -179,7 +179,7 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
       })
     )
       .to.emit(strategy, "StrategyAmountUpdate")
-      .withArgs(await strategy.getAddress(), 9966580218931200000n);
+      .withArgs(9966580218931200000n);
 
     await expect(
       vault.deposit(owner.address, {
@@ -187,14 +187,14 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
       })
     )
       .to.emit(strategy, "StrategyAmountUpdate")
-      .withArgs(await strategy.getAddress(), 19933160437862400000n);
+      .withArgs(19933160437862400000n);
     await expect(
       vault.deposit(owner.address, {
         value: ethers.parseUnits("10", 18),
       })
     )
       .to.emit(strategy, "StrategyAmountUpdate")
-      .withArgs(await strategy.getAddress(), 29899740656793600000n);
+      .withArgs( 29899740656793600000n);
   });
 
   it("convertToShares - 1ETH", async function () {

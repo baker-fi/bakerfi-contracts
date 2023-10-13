@@ -1,0 +1,21 @@
+account_id: ""
+actions:
+  h3v/project:
+    runtime: v2
+    sources: web3-actions
+    specs:
+      publishLidoAPR:
+        description: This is just an example, but you can publish this action.
+        function: publishLidoAPR:lidoAPR
+        trigger:
+          type: transaction
+          transaction:
+            status:
+              - mined
+            filters: 
+              - network: 1
+                eventEmitted:
+                  contract: 
+                    address: 0xae7ab96520de3a18e5e111b5eaab095312d7fe84
+                  name: TokenRebased
+project_slug: ""

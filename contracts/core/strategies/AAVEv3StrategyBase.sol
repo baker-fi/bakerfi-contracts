@@ -74,7 +74,7 @@ abstract contract AAVEv3StrategyBase is
     }
     event StrategyProfit(uint256 indexed amount, uint256 indexed deployedAmount);
     event StrategyLoss(uint256 indexed amount, uint256 indexed deployedAmount);
-    event StrategyAmountUpdate(address indexed source, uint256 indexed newDeployment);
+    event StrategyAmountUpdate(uint256 indexed newDeployment);
 
     struct FlashLoanData {
         uint256 originalAmount;
@@ -183,7 +183,7 @@ abstract contract AAVEv3StrategyBase is
         );
         deployedAmount = _pendingAmount;
         _deployedAmount = _deployedAmount + deployedAmount;
-        emit StrategyAmountUpdate(address(this), _deployedAmount);
+        emit StrategyAmountUpdate(_deployedAmount);
         // Pending amount is not cleared to save gas 
        // _pendingAmount = 0;        
     }
@@ -372,7 +372,7 @@ abstract contract AAVEv3StrategyBase is
             emit StrategyLoss(loss, newDeployedAmount);
             balanceChange = -int256(loss);
         }
-        emit StrategyAmountUpdate(address(this), newDeployedAmount);     
+        emit StrategyAmountUpdate(newDeployedAmount);     
         _deployedAmount = newDeployedAmount;
       
     }
@@ -443,7 +443,7 @@ abstract contract AAVEv3StrategyBase is
         } else {
             _deployedAmount = _deployedAmount - undeployedAmount;
         }        
-        emit StrategyAmountUpdate(address(this), _deployedAmount);  
+        emit StrategyAmountUpdate( _deployedAmount);  
         // Pending amount is not cleared to save gas      
         //_pendingAmount = 0;
     }
