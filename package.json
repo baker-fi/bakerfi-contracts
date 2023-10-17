@@ -55,7 +55,8 @@
     "@openzeppelin/contracts": "^4.9.2",
     "@sushiswap/bentobox-sdk": "^1.0.0-canary.13",
     "@taikai/dappkit": "^2.3.1",
-    "commander": "^11.0.0"
+    "commander": "^11.0.0",
+    "dotenv": "^16.3.1"
   },
   "contractSizer": {
     "alphaSort": true,

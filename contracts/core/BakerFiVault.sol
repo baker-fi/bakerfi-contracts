@@ -8,6 +8,7 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Rebase, RebaseLibrary} from "../libraries/BoringRebase.sol";
 import {ServiceRegistry} from "../core/ServiceRegistry.sol";
 import {ISwapHandler} from "../interfaces/core/ISwapHandler.sol";
+import {IVault} from "../interfaces/core/IVault.sol";
 import {IStrategy} from "../interfaces/core/IStrategy.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {PERCENTAGE_PRECISION} from "./Constants.sol";
@@ -25,7 +26,14 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
  * @author Helder Vasconcelos
  * @notice
  */
-contract BakerFiVault is Ownable, Pausable, ERC20Permit, UseSettings, ReentrancyGuard {
+contract BakerFiVault is 
+    IVault, 
+    Ownable, 
+    Pausable, 
+    ERC20Permit, 
+    UseSettings, 
+    ReentrancyGuard 
+{
     using RebaseLibrary for Rebase;
     using SafeERC20 for ERC20;
     using Address for address;
@@ -62,8 +70,8 @@ contract BakerFiVault is Ownable, Pausable, ERC20Permit, UseSettings, Reentrancy
      * Function to rebalance the strategy, prevent a liquidation and pay fees
      * to protocol by minting shares to the fee receiver
      */
-    function rebalance() external nonReentrant returns (int256 balanceChange)  {
-        uint256 currentPos = totalPosition();
+    function rebalance() external override nonReentrant returns (int256 balanceChange)  {
+        uint256 currentPos = totalAssets();
         if (currentPos > 0) {
             balanceChange = _strategy.harvest();           
             if (balanceChange > 0) {
@@ -96,9 +104,9 @@ contract BakerFiVault is Ownable, Pausable, ERC20Permit, UseSettings, Reentrancy
      *
      * @param receiver The account that receives the shares minted
      */
-    function deposit(address receiver) external payable nonReentrant returns (uint256 shares) {
+    function deposit(address receiver) external override payable nonReentrant returns (uint256 shares) {
         require(msg.value > 0, "Invalid Amount to be deposit");
-        Rebase memory total = Rebase(totalPosition(), totalSupply());
+        Rebase memory total = Rebase(totalAssets(), totalSupply());
         bytes memory result = (address(_strategy)).functionCallWithValue(
             abi.encodeWithSignature("deploy()"), 
             msg.value
@@ -113,10 +121,10 @@ contract BakerFiVault is Ownable, Pausable, ERC20Permit, UseSettings, Reentrancy
      * Burn shares and receive the ETH unrolled to a receiver
      * @param shares The amount of shares (mateETH) to be burned
      */
-    function withdraw(uint256 shares) external nonReentrant returns (uint256 amount) {
+    function withdraw(uint256 shares) external override nonReentrant returns (uint256 amount) {
         require(balanceOf(msg.sender) >= shares, "No Enough balance to withdraw");
         uint256 percentageToBurn = shares * PERCENTAGE_PRECISION / totalSupply();
-        uint256 withdrawAmount = totalPosition() * percentageToBurn /PERCENTAGE_PRECISION;
+        uint256 withdrawAmount = totalAssets() * percentageToBurn /PERCENTAGE_PRECISION;
         amount = _strategy.undeploy(withdrawAmount);
         // Withdraw ETh to Receiver and pay withdrawal Fees
         if (settings().getWithdrawalFee() != 0  && settings().getFeeReceiver() != address(0)) {
@@ -131,30 +139,9 @@ contract BakerFiVault is Ownable, Pausable, ERC20Permit, UseSettings, Reentrancy
     }
 
     /**
-     * Percentage of borrowed per value provided
-     */
-    function loanToValue() public view returns (uint256 ltv) {
-        (,, ltv) = _strategy.getPosition();    
-    }
-
-    /**
-     * Total Amount of assets controlled by strategy
-     */
-    function totalCollateral() public view returns (uint256 totalCollateralInEth) {
-        (totalCollateralInEth,, ) = _strategy.getPosition();
-    }
-
-    /**
-     * Totaal of liabilities on the strategy
-     */
-    function totalDebt() public view returns (uint256 totalDebtInEth) {
-        (, totalDebtInEth,) = _strategy.getPosition();
-    }
-
-    /**
      * Total Assets that belong to the Share Holders
      */
-    function totalPosition() public view returns (uint256 amount) {
+    function totalAssets() public override view returns (uint256 amount) {
         (uint256 totalCollateralInEth, uint256 totalDebtInEth, ) = _strategy.getPosition();
         amount = totalCollateralInEth - totalDebtInEth;
     }
@@ -163,8 +150,8 @@ contract BakerFiVault is Ownable, Pausable, ERC20Permit, UseSettings, Reentrancy
      * Convert an Ammount of Assets to shares
      * @param assets The amount of assets to convert
      */
-    function convertToShares(uint256 assets) external view returns (uint256 shares) {
-        Rebase memory total = Rebase(totalPosition(), totalSupply());
+    function convertToShares(uint256 assets) external override view returns (uint256 shares) {
+        Rebase memory total = Rebase(totalAssets(), totalSupply());
         shares = total.toBase(assets, false);
     }
 
@@ -172,16 +159,16 @@ contract BakerFiVault is Ownable, Pausable, ERC20Permit, UseSettings, Reentrancy
      * Convert a number of shares to the ETH value
      * @param shares The amount of shares to be converted
      */
-    function convertToAssets(uint256 shares) external view returns (uint256 assets) {
-        Rebase memory total = Rebase(totalPosition(), totalSupply());
+    function convertToAssets(uint256 shares) external override view returns (uint256 assets) {
+        Rebase memory total = Rebase(totalAssets(), totalSupply());
         assets = total.toElastic(shares, false);
     }
 
     /**
      * The Value of a share per 1ETH
      */
-    function tokenPerETh() public view returns (uint256) {
-        uint256 position = totalPosition();
+    function tokenPerETh() external override  view returns (uint256) {
+        uint256 position = totalAssets();
         if (totalSupply() == 0 || position == 0) {
             return 1 ether;
         }
