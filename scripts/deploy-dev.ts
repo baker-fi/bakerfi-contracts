@@ -13,8 +13,12 @@ import {
   deployAAVEv3StrategyWstETH,
   deploySettings,
 } from "./common";
-
+import os from "os";
+import Handlebars  from 'handlebars';
+import fs from 'fs';
 import BaseConfig from "./config";
+const CHAIN_CAST_API = process.env.CHAIN_CAST_API || 'http://localhost:55000/api/graphql';
+import { request, gql } from 'graphql-request'
 
 /**
  * Deploy the Basic System for testing 
@@ -79,19 +83,101 @@ async function main() {
     config.AAVEEModeCategory,
   );
   // 10. Deploy the Vault attached to Leverage Lib
-    const vault = await deployVault(
+  const vault = await deployVault(
       owner.address, 
       await serviceRegistry.getAddress(),
       await strategy.getAddress() 
-    );
-  console.log("BakerFi Vault =", await vault.getAddress() );  
+  );
+  
+  const vaultAddress = await vault.getAddress();
+  console.log("BakerFi Vault =", vaultAddress);  
   console.log("BakerFi Vault AAVEv3 Strategy =", await strategy.getAddress());
+  console.log("WSETH/ETH Oracle =", await oracle.getAddress());
+  
+  const Vault = await ethers.getContractFactory("BakerFiVault");
+  const AAVEv3StrategyWstETH = await ethers.getContractFactory("AAVEv3StrategyWstETH");
+  
+  const vaultABI = JSON.stringify(Vault.interface.formatJson());
+  const AAVEv3StrategyWstETHABI = JSON.stringify(Vault.interface.formatJson());
+
+
+  const latestBlock = await ethers.provider.getBlock("latest");
   await strategy.transferOwnership(await vault.getAddress());
 
-  console.log("WSETH/ETH Oracle =", await oracle.getAddress());
+  // Start Chain Cast Listeners
+  await createContractCast(
+    vaultAddress,
+    latestBlock?.number ?? 0,
+    Buffer.from(vaultABI).toString('base64'),
+    1337,
+    "CUSTOM",
+    "bakerfi-chain-events"
+  );
+
   console.log("---------------------------------------------------------------------------");
   console.log("💥 BakerFi Deployment Done 👏");
 }
+
+
+/**
+ * Function to setup a Contract Cast 
+ * @param address 
+ * @param blockNumber 
+ * @param abi 
+ * @param chainId 
+ * @param type 
+ * @param queue 
+ */
+async function createContractCast(
+  address: string,
+  blockNumber: number,  
+  abi: string,
+  chainId: number,
+  type: string,
+  queue: string
+) {
+  const pogramTemplate = fs.readFileSync(
+    'scripts/chain-cast-program.json.hs', 'utf8');
+  const template = Handlebars.compile(pogramTemplate);   
+  const program = template({
+    queue,
+  });
+  const encodedProgram = Buffer.from(program).toString('base64');
+  const variables = {
+    address,
+    chainId,
+    blockNumber,
+    type,
+    program: encodedProgram,
+  };
+  const data: { id: string }  = await request(CHAIN_CAST_API, CREATE_CONTRACT_CAST, variables);
+  console.log(`Created the stream id ${data.id}`);
+}
+
+
+const CREATE_CONTRACT_CAST = gql`
+  mutation createStream(
+    $address: String!
+    $chainId: Int!
+    $abi: String!
+    $type: ContractCastType!
+    $blockNumber: Int!
+    $program: String!
+  ) {
+    createContractCast(
+      data: {
+        address: $address
+        chainId: $chainId
+        startFrom: $blockNumber
+        abi: $abi
+        type: $type
+        program: $program
+      }
+    ) {
+      id
+    }
+  }
+`;
 
 
 // We recommend this pattern to be able to use async/await everywhere
