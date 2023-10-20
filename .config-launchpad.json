@@ -7,9 +7,9 @@
     "events": "@events"                 
   },
   "output": {                           
-    "interfaceDir": "src/contracts/bakerfi/interfaces",
-    "classDir": "src/contracts/bakerfi/classes",
-    "eventsDir": "src/contracts/bakerfi/events"
+    "interfaceDir": "src/interfaces",
+    "classDir": "src/classes",
+    "eventsDir": "src/events"
   },
   "overwrite": {                        
     "interface": true,

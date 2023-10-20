@@ -53,6 +53,10 @@ export default {
         AAVEEModeCategory: 0,
         swapFeeTier: 500,        
     },
+    "local": {
+        AAVEEModeCategory: 0,
+        swapFeeTier: 500,        
+    },
 }
 
 

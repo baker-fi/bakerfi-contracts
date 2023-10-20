@@ -72,8 +72,8 @@ abstract contract AAVEv3StrategyBase is
         PAY_DEBT_WITHDRAW,
         PAY_DEBT
     }
-    event StrategyProfit(uint256 indexed amount, uint256 indexed deployedAmount);
-    event StrategyLoss(uint256 indexed amount, uint256 indexed deployedAmount);
+    event StrategyProfit(uint256 indexed amount);
+    event StrategyLoss(uint256 indexed amount);
     event StrategyAmountUpdate(uint256 indexed newDeployment);
 
     struct FlashLoanData {
@@ -365,11 +365,11 @@ abstract contract AAVEv3StrategyBase is
         // Log Profit or Loss when there is no debt adjustment 
         if (newDeployedAmount > deployedAmount && deltaDebt == 0) {
             uint256 profit = newDeployedAmount - deployedAmount;
-            emit StrategyProfit(profit, newDeployedAmount);
+            emit StrategyProfit(profit);
             balanceChange = int256(profit);
         } else if (newDeployedAmount < deployedAmount && deltaDebt == 0) {
             uint256 loss = deployedAmount - newDeployedAmount;
-            emit StrategyLoss(loss, newDeployedAmount);
+            emit StrategyLoss(loss);
             balanceChange = -int256(loss);
         }
         emit StrategyAmountUpdate(newDeployedAmount);     

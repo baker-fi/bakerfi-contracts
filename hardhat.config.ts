@@ -5,7 +5,6 @@ import "hardhat-contract-sizer";
 import "solidity-coverage";
 import "@nomiclabs/hardhat-solhint";
 import "hardhat-gas-reporter";
-import '@typechain/hardhat'
 import '@nomicfoundation/hardhat-ethers'
 import '@nomicfoundation/hardhat-ethers'
 import '@nomicfoundation/hardhat-chai-matchers'
@@ -30,12 +29,6 @@ const config: HardhatUserConfig = {
     timeout: 100000000
   },
   defaultNetwork: "hardhat",
-  typechain: {
-    outDir: 'src/typechain',
-    target: 'ethers-v6',
-    alwaysGenerateOverloads: false, // should overloads with full signatures like deposit(uint256) be generated always, even if there are no overloads?
-    dontOverrideCompile: false // defaults to false
-  },
   networks: {
     hardhat: {
       accounts: devAccounts,
