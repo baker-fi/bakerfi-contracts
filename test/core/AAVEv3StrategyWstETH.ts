@@ -170,7 +170,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
 
     await expect(strategy.harvest())
       .to.emit(strategy, "StrategyLoss")
-      .withArgs(913113421975680000n, 9001820110000000000n);
+      .withArgs(913113421975680000n);
 
     expect(await strategy.getPosition()).to.deep.equal([
       44742557840000000000n,

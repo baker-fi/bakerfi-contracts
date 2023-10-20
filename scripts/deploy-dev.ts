@@ -15,6 +15,7 @@ import {
 } from "./common";
 
 import BaseConfig from "./config";
+import ora from 'ora';
 
 /**
  * Deploy the Basic System for testing 
@@ -23,74 +24,110 @@ async function main() {
 
   const networkName = network.name;
   const chainId = network.config.chainId;
-  console.log("Network name = ", networkName);
-  console.log("Network chain id =", chainId);
+  
   const config = BaseConfig[networkName];
-
+  console.log("  🧑‍🍳 BakerFi Cooking .... ");
+  const result: any[] = [];
+  const spinner = ora('Cooking ....').start();
   // Max Staked ETH available
-  console.log("---------------------------------------------------------------------------");
-  console.log("💥 BakerFi Deploying ....");
+  result.push(["Network Name", networkName])
+  result.push(["Network Id", chainId])
+  
   const STETH_MAX_SUPPLY = ethers.parseUnits("1000000000", 18);
   const FLASH_LENDER_DEPOSIT = ethers.parseUnits("10000", 18);
   const AAVE_DEPOSIT = ethers.parseUnits("10000", 18);
 
+  spinner.text = "Getting Signers";
   const [owner] = await ethers.getSigners();
   // 1. Deploy the Service Registry
   const serviceRegistry = await deployServiceRegistry(owner.address);
-  console.log("Service Registry =", await serviceRegistry.getAddress());
+  spinner.text = "Deploying Registry";
+  //console.log(" Service Registry =", await serviceRegistry.getAddress());
+  result.push(["Service Registry", await serviceRegistry.getAddress()])  
+  
   // 3. Deploy the WETH 
+  spinner.text = "Deploying WETH";
   const weth = await deployWETH(serviceRegistry);
-  console.log("WETH =", await weth.getAddress());
-  // 4. Deploy the Vault attached to Leverage Lib
-  const flashLender = await deployFlashLender(serviceRegistry, weth, FLASH_LENDER_DEPOSIT);
-  console.log("FlashLender Mock =", await flashLender.getAddress());
-  // 5. Deploy stETH ERC-20
-  const stETH = await deployStEth(serviceRegistry, owner, STETH_MAX_SUPPLY);
-  console.log("stETH =", await stETH.getAddress());
-  // 6. Deploy wstETH ERC-20
-  const wstETH  = await deployWStEth(serviceRegistry, await stETH.getAddress());
-  console.log("wstETH =", await wstETH.getAddress());
-  const settings  = await deploySettings(owner.address, serviceRegistry);
-  console.log("feeSettings =", await settings.getAddress());
-  // 7. Deploy wETH/stETH Swapper
-  const swapper = await deploySwapper(weth, stETH, serviceRegistry, STETH_MAX_SUPPLY);
-  // 7. Addd Pair
-  await swapper.addPair(
-    await weth.getAddress(),
-    await wstETH.getAddress()
-  );
+  result.push(["WETH", await weth.getAddress()])  
 
-  console.log("Swap Router Mock =", await swapper.getAddress());
+  // 4. Deploy the Vault attached to Leverage Lib
+  spinner.text = "Deploying Flash Lender";  
+  const flashLender = await deployFlashLender(serviceRegistry, weth, FLASH_LENDER_DEPOSIT);
+  result.push(["Flash Lender", await flashLender.getAddress()])  
+  
+  
+  // 5. Deploy stETH ERC-20
+  spinner.text = "Deploying StETH";  
+  const stETH = await deployStEth(serviceRegistry, owner, STETH_MAX_SUPPLY);
+  result.push(["StETH", await stETH.getAddress()])  
+
+  // 6. Deploy wstETH ERC-20
+  spinner.text = "Deploying WstETH";  
+  const wstETH  = await deployWStEth(serviceRegistry, await stETH.getAddress());
+  result.push(["WstETH", await wstETH.getAddress()])  
+
+  spinner.text = "Deploying Settings";  
+  const settings  = await deploySettings(owner.address, serviceRegistry);
+  result.push(["Settings", await settings.getAddress()])  
+
+
+  spinner.text = "Deploying Uniswap Router Mock";  
+  // Deploy cbETH -> ETH Uniswap Router
+  const UniRouter = await ethers.getContractFactory("UniV3RouterMock");
+  const uniRouter = await UniRouter.deploy(
+      await weth.getAddress(),
+      await wstETH.getAddress()
+  );
+  // Register Uniswap Router
+  await serviceRegistry.registerService(
+      ethers.keccak256(Buffer.from("Uniswap Router")),
+      await uniRouter.getAddress()
+  );
+  await uniRouter.setPrice(884 * 1e6);   
+  result.push(["Uniswap Router Mock", await uniRouter.getAddress()])  
+
   // 8. Deploy AAVE Mock Service
+  spinner.text = "Deploying AAVVE v3 Mock";  
   const aaveV3PoolMock = await deployAaveV3(wstETH, weth, serviceRegistry, AAVE_DEPOSIT); 
-  console.log("AAVE v3 Mock =", await aaveV3PoolMock.getAddress());
+  result.push(["AAVE v3 Mock", await aaveV3PoolMock.getAddress()])  
+
   // 9. Deploy wstETH/ETH Oracle 
+  spinner.text = "Deploying Uniswap Quoter";  
   const uniQuoter = await deployQuoterV2Mock(serviceRegistry);
-  console.log("Uniswap Quoter =", await uniQuoter.getAddress() );  
+  result.push(["Uniswap Quoter", await uniQuoter.getAddress()])  
+
+  spinner.text = "Deploying wstETH/ETH Oracle";  
   const oracle = await deployOracleMock(serviceRegistry, "wstETH/ETH Oracle");
-  console.log("wstETH/ETH Oracle =", await oracle.getAddress() );  
+  result.push(["wstETH/ETH Oracle", await oracle.getAddress()])  
+
+  spinner.text = "Deploying ETH/USD Oracle ";  
   const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");    
-  console.log("ETH/USD Oracle =", await ethOracle.getAddress() );  
-  await ethOracle.setLatestPrice(ethers.parseUnits("1", 18));
+  await ethOracle.setLatestPrice(ethers.parseUnits("1", 18)); 
+  result.push(["ETH/USD Oracle", await ethOracle.getAddress()])  
+
+  spinner.text = "Deploying AAVEv3StrategyWstETH";  
   const strategy = await deployAAVEv3StrategyWstETH( 
     owner.address,
     await serviceRegistry.getAddress(), 
     config.swapFeeTier,
     config.AAVEEModeCategory,
   );
+  result.push(["AAVEv3 Strategy WstETH", await strategy.getAddress()])  
+  
+  spinner.text = "Deploying Vault";  
   // 10. Deploy the Vault attached to Leverage Lib
-    const vault = await deployVault(
+  const vault = await deployVault(
       owner.address, 
       await serviceRegistry.getAddress(),
       await strategy.getAddress() 
-    );
-  console.log("BakerFi Vault =", await vault.getAddress() );  
-  console.log("BakerFi Vault AAVEv3 Strategy =", await strategy.getAddress());
-  await strategy.transferOwnership(await vault.getAddress());
+  );
+  result.push(["BakerFi Vault 🕋", await vault.getAddress()])
 
-  console.log("WSETH/ETH Oracle =", await oracle.getAddress());
-  console.log("---------------------------------------------------------------------------");
-  console.log("💥 BakerFi Deployment Done 👏");
+  spinner.text = "Transferring Vault Ownership";  
+  await strategy.transferOwnership(await vault.getAddress());
+  spinner.succeed("🧑‍🍳 BakerFi Served 🍰 ");
+  console.table(result);
+  process.exit(0);
 }
 
 

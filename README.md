@@ -74,6 +74,19 @@ npx hardhat run --network <network-name> scripts/deploy.ts
 
 Replace <network-name> with the desired network from your configuration.
 
+
+## Create an SDK packager 
+
+
+```
+npm run compile:clean && npm run build
+```
+
+
+```
+npm pack
+```
+
 ### Setup Development Environment 
 
 1. Start ganache with the predefined accounts
