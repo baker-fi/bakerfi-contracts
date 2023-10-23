@@ -55,7 +55,25 @@ export default {
     },
     "local": {
         AAVEEModeCategory: 0,
-        swapFeeTier: 500,        
+        swapFeeTier: 500,       
+        registry: "0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e", 
+        flashLender: "0x709432fD1621610C92cA6E8455c81Ae88621Bbb6",
+        uniswapRouter: "0xB7d0add4df75aa719bE464e860C8c40bb7FA2122", 
+        uniswapQuoter: "0x9A0562314E0D5EE1bC11e57047698Af492c5A51E", 
+        settings: "0x258b944B1e716c01725771148382EB988e4AB0a7",
+        weth: "0x5bC13d5ce928Ae6e414A831D173E86fD040deBb9",
+        wstETH: "0xf93e63A0d1ec46402065b862f08ad0962d5b2C88",
+        stETH: "0x07C1F45Dc0a620E6716d8A45485B8f0A79E270F8",
+        oracles: [{
+            pair: "wstETH/ETH",
+            address: "0xE8A1e868E4736669b73B9E26BE22129bD6B4E83d"
+        },{
+            pair: "ETH/USD",
+            address: "0x53e12d61AF104185485C79cbeBEe3D1F896d705f"
+        }],
+        strategy: "0x73BD7624C015046229e7e59fF128D67b3D5e6dB2",        
+        vault: "0x501F860caE70FA5058f1D33458F6066fdB62A591",
+        AAVEPool: "0x6a0419f287B1036B97cE06b3eda5372b42787a4c",      
     },
 }
 
