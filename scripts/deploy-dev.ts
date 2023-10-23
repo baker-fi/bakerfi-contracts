@@ -38,7 +38,7 @@ async function main() {
   const AAVE_DEPOSIT = ethers.parseUnits("10000", 18);
 
   spinner.text = "Getting Signers";
-  const [owner] = await ethers.getSigners();
+  const [owner, otherAccount] = await ethers.getSigners();
   // 1. Deploy the Service Registry
   const serviceRegistry = await deployServiceRegistry(owner.address);
   spinner.text = "Deploying Registry";
@@ -54,7 +54,8 @@ async function main() {
   spinner.text = "Deploying Flash Lender";  
   const flashLender = await deployFlashLender(serviceRegistry, weth, FLASH_LENDER_DEPOSIT);
   result.push(["Flash Lender", await flashLender.getAddress()])  
-  
+  result.push(["Flash Lender wETH", ethers.formatEther(await weth.balanceOf(await flashLender.getAddress()))])  
+
   
   // 5. Deploy stETH ERC-20
   spinner.text = "Deploying StETH";  
@@ -78,6 +79,26 @@ async function main() {
       await weth.getAddress(),
       await wstETH.getAddress()
   );
+  spinner.text = "Deploying Uniswap Router Mock";  
+
+  await stETH.approve(await wstETH.getAddress(), ethers.parseUnits("20000", 18));
+  spinner.text = "Topping Up Uniswap Swapper";  
+
+  // Deposit WETH on UniRouter
+  await weth.connect(otherAccount).deposit?.call("", { value: ethers.parseUnits("10000", 18) });
+  await weth.connect(otherAccount).transfer(
+    await uniRouter.getAddress(),
+    ethers.parseUnits("10000", 18)
+  );
+  await wstETH.wrap( ethers.parseUnits("20000", 18));
+  const wstBalance = await wstETH.balanceOf(owner.address);
+  await wstETH.transfer(await uniRouter.getAddress(), wstBalance);
+  await stETH.transfer(await uniRouter.getAddress(), ethers.parseUnits("10000", 18));
+
+  result.push(["Uniswap stETH", ethers.formatEther(await stETH.balanceOf(await uniRouter.getAddress()))])  
+  result.push(["Uniswap wstETH", ethers.formatEther(await wstETH.balanceOf(await uniRouter.getAddress()))])  
+  result.push(["Uniswap wETH", ethers.formatEther(await weth.balanceOf(await uniRouter.getAddress()))])  
+
   // Register Uniswap Router
   await serviceRegistry.registerService(
       ethers.keccak256(Buffer.from("Uniswap Router")),
