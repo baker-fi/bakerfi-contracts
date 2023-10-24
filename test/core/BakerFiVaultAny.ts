@@ -235,8 +235,8 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
     );
   });
 
-  it("tokenPerETh - No Balance", async function () {
+  it("tokenPerETH - No Balance", async function () {
     const { owner, vault, strategy } = await loadFixture(deployFunction);
-    expect(await vault.tokenPerETh()).to.equal(ethers.parseUnits("1", 18));
+    expect(await vault.tokenPerETH()).to.equal(ethers.parseUnits("1", 18));
   });
 });

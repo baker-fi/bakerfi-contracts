@@ -110,6 +110,25 @@ task("vault:assets", "Prints an account's share balance")
 
   });
 
+
+  task("vault:tokenPerETH", "Prints an tokenPerETH")
+  .setAction(async ({}, { ethers }) => {
+
+    const spinner = ora(`Geeting Vault Assets`).start();
+    try {
+        const vault = await ethers.getContractAt(
+          "BakerFiVault",
+          Config.local.vault
+        );
+        const balance = await vault.tokenPerETH();
+        spinner.succeed(`🧑‍🍳 Vault tokenPerETH ${ethers.formatEther(balance)}`);
+      } catch (e) {
+        console.log(e);
+        spinner.fail("Failed 💥");
+      }
+
+  });
+
 async function getSignerOrThrow(ethers, address) {
   const signers = await ethers.getSigners();
   const [signer] = signers.filter(

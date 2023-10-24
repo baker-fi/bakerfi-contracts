@@ -46,7 +46,7 @@ export interface BakerFiVaultMethods {
 
   symbol(): ContractCallMethod<string>;
 
-  tokenPerETh(): ContractCallMethod<number>;
+  tokenPerETH(): ContractCallMethod<number>;
 
   totalAssets(): ContractCallMethod<{'amount': number;}>;
 

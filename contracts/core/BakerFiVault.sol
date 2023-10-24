@@ -167,7 +167,7 @@ contract BakerFiVault is
     /**
      * The Value of a share per 1ETH
      */
-    function tokenPerETh() external override  view returns (uint256) {
+    function tokenPerETH() external override  view returns (uint256) {
         uint256 position = totalAssets();
         if (totalSupply() == 0 || position == 0) {
             return 1 ether;

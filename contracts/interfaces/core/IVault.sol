@@ -7,6 +7,6 @@ abstract contract IVault{
     function totalAssets() public view virtual returns (uint256 amount);
     function convertToShares(uint256 assets) external virtual view returns (uint256 shares);
     function convertToAssets(uint256 shares) external virtual view returns (uint256 assets);
-    function tokenPerETh() external view virtual returns (uint256);
+    function tokenPerETH() external view virtual returns (uint256);
     function rebalance() external virtual returns (int256 balanceChange);
 }

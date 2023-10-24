@@ -95,9 +95,12 @@ async function main() {
   await wstETH.transfer(await uniRouter.getAddress(), wstBalance);
   await stETH.transfer(await uniRouter.getAddress(), ethers.parseUnits("10000", 18));
 
-  result.push(["Uniswap stETH", ethers.formatEther(await stETH.balanceOf(await uniRouter.getAddress()))])  
-  result.push(["Uniswap wstETH", ethers.formatEther(await wstETH.balanceOf(await uniRouter.getAddress()))])  
-  result.push(["Uniswap wETH", ethers.formatEther(await weth.balanceOf(await uniRouter.getAddress()))])  
+  const stBalance = ethers.formatEther(await stETH.balanceOf(await uniRouter.getAddress()));
+  const wstBalanece = ethers.formatEther(await wstETH.balanceOf(await uniRouter.getAddress()));
+  const wethBalance = ethers.formatEther(await weth.balanceOf(await uniRouter.getAddress()));
+  result.push(["Uniswap stETH", `${stBalance} stETH`])  
+  result.push(["Uniswap wstETH", `${wstBalanece} wsETH`])  
+  result.push(["Uniswap wETH", `${wethBalance} wETH`])  
 
   // Register Uniswap Router
   await serviceRegistry.registerService(

@@ -121,7 +121,7 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     expect((await strategy.getPosition())[0]).to.equal(0);
     expect((await strategy.getPosition())[1]).to.equal(0);
     expect((await strategy.getPosition())[2]).to.equal(0);
-    expect(await vault.tokenPerETh()).to.equal(ethers.parseUnits("1", 18));
+    expect(await vault.tokenPerETH()).to.equal(ethers.parseUnits("1", 18));
   });
 
   it("Deposit 10TH", async function () {
@@ -145,7 +145,7 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     expect(await vault.totalAssets()).to.equal(9914933530000000000n);
     expect((await strategy.getPosition())[2]).to.equal(782832378);
     expect(await vault.totalSupply()).to.equal(9914933531975680000n);
-    expect(await vault.tokenPerETh()).to.equal(1000000000199263060n);
+    expect(await vault.tokenPerETH()).to.equal(1000000000199263060n);
   });
 
   it("Withdraw - 1 brETH", async function () {
@@ -167,7 +167,7 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     expect(await vault.totalAssets()).to.equal(8914933530000000000n);
     expect((await strategy.getPosition())[2]).to.equal(782832378n);
     expect(await vault.totalSupply()).to.equal(8914933531975680000n);
-    expect(await vault.tokenPerETh()).to.equal(1000000000221614664n);
+    expect(await vault.tokenPerETH()).to.equal(1000000000221614664n);
   });
 
   it("Deposit - 0 ETH", async function () {
@@ -272,7 +272,7 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     expect((await strategy.getPosition())[1]).to.equal(0);
     expect(balanceAfter - balanceBefore).to.equal(9928228588247807112n);
     expect((await strategy.getPosition()))[2].to.equal(0);
-    expect(await vault.tokenPerETh()).to.equal(ethers.parseUnits("1", 18));
+    expect(await vault.tokenPerETH()).to.equal(ethers.parseUnits("1", 18));
   });
 
   it("Deposit with No Flash Loan Fees", async () => {
@@ -292,7 +292,7 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     expect(await vault.totalAssets()).to.equal(9950638560000000000n);
     expect((await strategy.getPosition())[2]).to.equal(782050328);
     expect(await vault.totalSupply()).to.equal(9950638564679680000n);
-    expect(await vault.tokenPerETh()).to.equal(1000000000470289416n);
+    expect(await vault.tokenPerETH()).to.equal(1000000000470289416n);
   });
 
   it("Withdraw with No Flash Loan Fees", async () => {

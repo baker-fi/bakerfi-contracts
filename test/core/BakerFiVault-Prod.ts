@@ -21,7 +21,7 @@ describeif(
     expect((await strategy.getPosition())[0]).to.equal(0);
     expect((await strategy.getPosition())[1]).to.equal(0);
     expect((await strategy.getPosition())[2]).to.equal(0);
-    expect(await vault.tokenPerETh()).to.equal(ethers.parseUnits("1", 18));
+    expect(await vault.tokenPerETH()).to.equal(ethers.parseUnits("1", 18));
     expect(await vault.loanToValue()).to.equal(0);
   });
 
@@ -50,7 +50,7 @@ describeif(
     expect(await vault.totalSupply())
       .to.greaterThan(ethers.parseUnits("9", 17))
       .lessThanOrEqual(ethers.parseUnits("11", 17));
-    expect(await vault.tokenPerETh())
+    expect(await vault.tokenPerETH())
       .to.greaterThan(ethers.parseUnits("9", 17))
       .lessThanOrEqual(ethers.parseUnits("11", 17));
   });
@@ -86,7 +86,7 @@ describeif(
     expect(await vault.totalSupply())
       .to.greaterThan(ethers.parseUnits("4", 18))
       .lessThanOrEqual(ethers.parseUnits("6", 18));
-    expect(await vault.tokenPerETh())
+    expect(await vault.tokenPerETH())
       .to.greaterThan(ethers.parseUnits("9", 17))
       .lessThanOrEqual(ethers.parseUnits("11", 17));
     const balanceAfter = await provider.getBalance(deployer.address);
