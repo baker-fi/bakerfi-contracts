@@ -212,12 +212,11 @@ export async function deploCbETHToETHOracle(serviceRegistry, chainLinkAddress) {
 
 export async function deploWSTETHToETHOracle(
   serviceRegistry,
-  chainLinkAddress,
-  wstETHAddress
+  chainLinkAddress
 ) {
   const WSETHToETH = await ethers.getContractFactory("WstETHToETHOracle");
   const oracle = await WSETHToETH.deploy(
-    chainLinkAddress, wstETHAddress
+    chainLinkAddress
   );
   await oracle.waitForDeployment();
   await serviceRegistry.registerService(

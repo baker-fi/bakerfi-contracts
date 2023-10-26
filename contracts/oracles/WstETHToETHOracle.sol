@@ -6,17 +6,13 @@ import  {IChainlinkAggregator} from "../interfaces/chainlink/IChainlinkAggregato
 
 contract WstETHToETHOracle is IOracle {
 
-    IWStETH private immutable              _wstETH;
     IChainlinkAggregator private immutable _stETHToETHPriceFeed;
     uint256 internal constant _PRECISION = 10 ** 18;
 
     constructor(
-        address stETHToETHPriceFeed, 
-        address wstETH
+        address stETHToETHPriceFeed
     ) {
         _stETHToETHPriceFeed = IChainlinkAggregator(stETHToETHPriceFeed);
-        _wstETH = IWStETH(wstETH);
-
     }
 
     function getPrecision() external pure override returns (uint256) {

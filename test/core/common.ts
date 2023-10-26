@@ -7,6 +7,7 @@ import {
     deployETHOracle,
     deployUniSwapper,
     deploCbETHToETHOracle,
+    deploWSTETHToETHOracle,
     deployAAVEv3StrategyWstETH,
     deploySettings,
   } from "../../scripts/common";
@@ -145,7 +146,6 @@ export async function deployBase() {
     const oracle = await deploWSTETHToETHOracle(
       serviceRegistry,
       config.oracle.chainLink,
-      config.wstETH
     );
 
     await serviceRegistry.registerService(
