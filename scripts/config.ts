@@ -83,7 +83,7 @@ export default {
         wstETH: "0x5979D7b546E38E414F7E9822514be443A4800529", // Validated
         oracle: {
             type: "wstETH",
-            chainLink: "0x5979D7b546E38E414F7E9822514be443A4800529", // wstETH / ETH
+            chainLink: "0xb523ae262d20a936bc152e6023996e46fdc2a95d", // wstETH / ETH
         },
         ethOracle: "0x639fe6ab55c921f74e7fac1ee960c0b6293ba612",
         strategy: {

@@ -14,8 +14,8 @@ import {
 
 import BaseConfig from "../../scripts/config";
 
-export async function deployBase() {
 
+export async function deployBase() {
     const [deployer, otherAccount] = await ethers.getSigners();
     const networkName = network.name;
     const config = BaseConfig[networkName];
@@ -319,6 +319,7 @@ export async function deployEthereum() {
     );
 }
 
+
 export function getDeployFunc() {
     let deployFunc = deployEthereum;
     switch( network.name) {
@@ -327,8 +328,13 @@ export function getDeployFunc() {
         break;
       case "optimism_devnet":
         deployFunc = deployOptimism;
+        break;
       case "base_devnet":
         deployFunc = deployBase;
+        break;
+      case "arbitrum_devnet":
+        deployFunc = deployOptimism;
+        break;
       default:
         deployFunc = deployEthereum;
         break;

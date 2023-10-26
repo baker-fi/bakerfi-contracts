@@ -10,6 +10,7 @@ import {
 describeif(
     network.name === "ethereum_devnet" ||
     network.name === "optimism_devnet" || 
+    network.name === "arbitrum_devnet" || 
     network.name === "base_devnet"
 )("BakerFi - Production", function () {
   
@@ -21,8 +22,7 @@ describeif(
     expect((await strategy.getPosition())[0]).to.equal(0);
     expect((await strategy.getPosition())[1]).to.equal(0);
     expect((await strategy.getPosition())[2]).to.equal(0);
-    expect(await vault.tokenPerETH()).to.equal(ethers.parseUnits("1", 18));
-    expect(await vault.loanToValue()).to.equal(0);
+    expect(await vault.totalAssets()).to.equal(0);
   });
 
   it("Deposit 1 ETH", async function () {
@@ -110,7 +110,7 @@ describeif(
       })
     )
       .to.emit(strategy, "StrategyAmountUpdate")
-      .withArgs(await strategy.getAddress(), (value) => {
+      .withArgs((value) => {
         return value >= 971432545612539374n;
       });
 
@@ -119,7 +119,7 @@ describeif(
 
     await expect(vault.rebalance())
       .to.emit(strategy, "StrategyAmountUpdate")
-      .withArgs(await strategy.getAddress(), (value) => {
+      .withArgs((value) => {
         return value >= 902114986650737323n;
       });
     expect((await strategy.getPosition())[2])
