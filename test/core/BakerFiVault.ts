@@ -392,4 +392,34 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
 
 
 
+  it("Deposit - Account not allowed", async () => {
+    const { owner, vault, settings, otherAccount } = await loadFixture(deployFunction);
+    const depositAmount = ethers.parseUnits("10", 18);
+
+    await settings.enableAccount(otherAccount.address, true);
+
+    await expect(
+      vault.deposit(owner.address, {
+        value: depositAmount,
+      })
+    ).to.be.revertedWith( "Account not allowed");
+  });
+
+
+
+  it("Withdraw - Account not allowed", async () => {
+    const { owner, vault, settings, otherAccount } = await loadFixture(deployFunction);
+    const depositAmount = ethers.parseUnits("10", 18);
+
+    await vault.deposit(owner.address, {
+      value: depositAmount,
+    })
+
+    await settings.enableAccount(otherAccount.address, true);
+
+    await expect(
+      vault.withdraw(ethers.parseUnits("1", 18))
+    ).to.be.revertedWith( "Account not allowed");
+  });
+
 });

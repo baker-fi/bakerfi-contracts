@@ -81,6 +81,14 @@ export class Settings extends Model<SettingsMethods> implements Deployable {
     return this.sendTx(this.contract.methods.transferOwnership(newOwner));
   }
 
+  async enableAccount(account: string, enabled: boolean) {
+    return this.sendTx(this.contract.methods.enableAccount(account, enabled));
+  }
+
+  async isAccountEnabled(account: string) {
+    return this.callTx(this.contract.methods.isAccountEnabled(account));
+  }
+
   async getFeeReceiverChangedEvents(filter: PastEventOptions): XPromiseEvent<Events.FeeReceiverChangedEvent> {
     return this.contract.self.getPastEvents('FeeReceiverChanged', filter);
   }

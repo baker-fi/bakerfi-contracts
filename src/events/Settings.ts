@@ -5,3 +5,4 @@ export interface OwnershipTransferredEvent { returnValues: {'previousOwner': str
 export interface PerformanceFeeChangedEvent { returnValues: {'value': number;} }
 export interface SetMaxLoanToValueChangedEvent { returnValues: {'value': number;} }
 export interface WithdrawalFeeChangedEvent { returnValues: {'value': number;} }
+export interface AccountWhiteListEvent { returnValues: {'account': string , 'enabled': boolean; } }

@@ -120,9 +120,44 @@ describeif(network.name === "hardhat")("Settings", function () {
   });
 
   it("❌ Invalid Nr Loops", async function () {
-    const { settings, otherAccount } = await loadFixture(deployFunction);
+    const { settings, owner, otherAccount } = await loadFixture(deployFunction);
     await expect(
       settings.connect(otherAccount).setNrLoops(30)
     ).to.be.revertedWith("Invalid Number of Loops");
   });
+
+
+  it("Account should be allowed when empty white list", async function () {
+    const { settings, otherAccount } = await loadFixture(deployFunction);
+    await expect(await settings.isAccountEnabled(otherAccount.address)).to.equal(true);    
+  });
+
+  it("Account should not be allowed when is not on the whitelist", async function () {
+    const { settings,owner, otherAccount } = await loadFixture(deployFunction);
+    await settings.connect(otherAccount).enableAccount(otherAccount.address, true);
+    await expect(await settings.isAccountEnabled(owner.address)).to.equal(false);    
+  });
+
+  it("Only Owner allowed to change white list", async function () {
+    const { settings, otherAccount } = await loadFixture(deployFunction);
+    await expect(
+       settings.enableAccount(otherAccount.address, true)
+    ).to.be.revertedWith("Ownable: caller is not the owner");
+  });
+
+  it("Fail to enable an address that is enabled", async function () {
+    const { settings, otherAccount } = await loadFixture(deployFunction);
+    await settings.connect(otherAccount).enableAccount(otherAccount.address, true);
+    await expect(
+      settings.connect(otherAccount).enableAccount(otherAccount.address, true)
+   ).to.be.revertedWith("Already Enabled");
+  });
+
+  it("Fail to disable an address that is disabled", async function () {
+    const { settings, otherAccount } = await loadFixture(deployFunction);       
+    await expect(
+      settings.connect(otherAccount).enableAccount(otherAccount.address, false)
+   ).to.be.revertedWith("Not Enabled");
+  });
+
 });

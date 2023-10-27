@@ -34,6 +34,7 @@ contract BakerFiVault is
     UseSettings, 
     ReentrancyGuard 
 {
+
     using RebaseLibrary for Rebase;
     using SafeERC20 for ERC20;
     using Address for address;
@@ -48,6 +49,11 @@ contract BakerFiVault is
 
     event Deposit(address indexed depositor, address indexed receiver, uint256 indexed amount, uint256 shares);
     event Withdraw(address indexed owner, uint256 amount, uint256 indexed shares);
+
+    modifier onlyWhiteListed {
+      require(settings().isAccountEnabled(msg.sender), "Account not allowed");
+      _;
+    }
 
     /**
      * Deploy The Vaults
@@ -104,7 +110,7 @@ contract BakerFiVault is
      *
      * @param receiver The account that receives the shares minted
      */
-    function deposit(address receiver) external override payable nonReentrant returns (uint256 shares) {
+    function deposit(address receiver) external override payable nonReentrant onlyWhiteListed returns (uint256 shares) {
         require(msg.value > 0, "Invalid Amount to be deposit");
         Rebase memory total = Rebase(totalAssets(), totalSupply());
         bytes memory result = (address(_strategy)).functionCallWithValue(
@@ -121,7 +127,7 @@ contract BakerFiVault is
      * Burn shares and receive the ETH unrolled to a receiver
      * @param shares The amount of shares (mateETH) to be burned
      */
-    function withdraw(uint256 shares) external override nonReentrant returns (uint256 amount) {
+    function withdraw(uint256 shares) external override nonReentrant onlyWhiteListed returns (uint256 amount) {
         require(balanceOf(msg.sender) >= shares, "No Enough balance to withdraw");
         uint256 percentageToBurn = shares * PERCENTAGE_PRECISION / totalSupply();
         uint256 withdrawAmount = totalAssets() * percentageToBurn /PERCENTAGE_PRECISION;
