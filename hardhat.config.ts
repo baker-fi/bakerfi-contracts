@@ -53,6 +53,7 @@ const config: HardhatUserConfig = {
       url: `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
       chainId: 42161,
       blockGasLimit: 900000,
+      accounts: [`${process.env.BAKERFI_PRIVATE_KEY}`],
     },
     kovan: {
       url: `https://kovan.infura.io/v3/${process.env.INFURA_API_KEY}`,
