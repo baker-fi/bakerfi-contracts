@@ -1,10 +1,11 @@
 import ora from "ora";
 import { task } from "hardhat/config";
-import Config from "./config";
+import DeployConfig from "../constants/contracts";
 
 task("balance", "Prints an account's balance")
   .addParam("account", "The account's address")
-  .setAction(async (taskArgs, { ethers }) => {
+  .setAction(async (taskArgs, { ethers, network }) => {
+
     const balance = await ethers.provider.getBalance(taskArgs.account);
     console.log(
       `🧑‍🍳 Account Balance ${taskArgs.account} = ${ethers.formatEther(
@@ -16,12 +17,14 @@ task("balance", "Prints an account's balance")
 task("vault:deposit", "Deposit ETH on the vault")
   .addParam("account", "The account's address")
   .addParam("amount", "The ETH deposited amount")
-  .setAction(async ({ account, amount }, { ethers }) => {
+  .setAction(async ({ account, amount }, { ethers, network}) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Depositing ${account} ${amount}`).start();      
     try {     
         const vault = await ethers.getContractAt(
         "BakerFiVault",
-        Config.local.vault
+        networkConfig.vault
       );
       const signer = await getSignerOrThrow(ethers, account);      
       await vault.connect(signer).deposit(signer.address, {
@@ -37,13 +40,15 @@ task("vault:deposit", "Deposit ETH on the vault")
 task("vault:withdraw", "Burn brETH shares and receive ETH")
   .addParam("account", "The account's address")
   .addParam("amount", "The brETH deposited amount")
-  .setAction(async ({ account, amount }, { ethers }) => {
+  .setAction(async ({ account, amount }, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Withdrawing ${account} ${amount}`).start();
     try {
       const signer = await getSignerOrThrow(ethers, account);
       const vault = await ethers.getContractAt(
         "BakerFiVault",
-        Config.local.vault
+        networkConfig.vault
       );
       await vault.connect(signer).withdraw(ethers.parseUnits(amount, 18));
       spinner.succeed(`Withdrawed ${account} ${amount} ETH 🧑‍🍳`);
@@ -55,14 +60,15 @@ task("vault:withdraw", "Burn brETH shares and receive ETH")
 
 task("vault:rebalance", "Burn brETH shares and receive ETH")
   .addParam("account", "The account's address")
-  .setAction(async ({ account }, { ethers }) => {
-
+  .setAction(async ({ account }, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Rebalancing Vault ${account} `).start();
     try {
         const signer = await getSignerOrThrow(ethers, account);
         const vault = await ethers.getContractAt(
           "BakerFiVault",
-          Config.local.vault
+          networkConfig.vault
         );
         await vault.connect(signer).rebalance();
         spinner.succeed(`🧑‍🍳 Vault Rebalanced 🍰`);
@@ -74,13 +80,15 @@ task("vault:rebalance", "Burn brETH shares and receive ETH")
 
 task("vault:balance", "Prints an account's share balance")
   .addParam("account", "The account's address")
-  .setAction(async ({ account }, { ethers }) => {
+  .setAction(async ({ account }, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Geeting ${account} balance`).start();
     const signers = await ethers.getSigners();
     try {
         const vault = await ethers.getContractAt(
           "BakerFiVault",
-          Config.local.vault
+          networkConfig.vault
         );
 
         const balance = await vault.balanceOf(account);
@@ -93,13 +101,14 @@ task("vault:balance", "Prints an account's share balance")
 });
 
 task("vault:assets", "Prints an account's share balance")
-  .setAction(async ({}, { ethers }) => {
-
+  .setAction(async ({}, { ethers, network}) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Geeting Vault Assets`).start();
     try {
         const vault = await ethers.getContractAt(
           "BakerFiVault",
-          Config.local.vault
+          networkConfig.vault
         );
         const balance = await vault.totalAssets();
         spinner.succeed(`🧑‍🍳 Vault Total Assets ${ethers.formatEther(balance)} brETH`);
@@ -112,13 +121,14 @@ task("vault:assets", "Prints an account's share balance")
 
 
   task("vault:tokenPerETH", "Prints an tokenPerETH")
-  .setAction(async ({}, { ethers }) => {
-
+  .setAction(async ({}, { ethers, network}) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Geeting Vault Assets`).start();
     try {
         const vault = await ethers.getContractAt(
           "BakerFiVault",
-          Config.local.vault
+          networkConfig.vault
         );
         const balance = await vault.tokenPerETH();
         spinner.succeed(`🧑‍🍳 Vault tokenPerETH ${ethers.formatEther(balance)}`);
@@ -128,6 +138,243 @@ task("vault:assets", "Prints an account's share balance")
       }
 
   });
+
+
+task("settings:setLoanToValue", "Set Target Loan To value")
+  .addParam("value", "The new target LTV")
+  .setAction(async ({value}, { ethers, network}) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Settting Target LTV ${value}`).start();
+    try {
+      const settings = await ethers.getContractAt(
+        "Settings",
+        networkConfig.settings
+      );
+      await settings.setLoanToValue(value);
+      spinner.succeed(`🧑‍🍳 Target LTV Changed to ${value} ✅ `);
+    } catch (e) {
+      console.log(e);
+      spinner.fail("Failed 💥");
+    }
+});
+
+task("settings:getLoanToValue", "Set Target Loan To value")
+  .setAction(async ({value}, { ethers, network}) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Getting Target LTV `).start();
+    try {
+      const settings = await ethers.getContractAt(
+        "Settings",
+        networkConfig.settings
+      );
+      const value = await settings.getLoanToValue();
+      spinner.succeed(`🧑‍🍳 LTV = ${value} `);
+    } catch (e) {
+      console.log(e);
+      spinner.fail("Failed 💥");
+    }
+});
+
+
+task("settings:setMaxLoanToValue", "Set Max Target Loan To value")
+  .addParam("value", "The new max LTV")
+  .setAction(async ({value}, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Settting Max Target LTV ${value}`).start();
+    try {
+      const settings = await ethers.getContractAt(
+        "Settings",
+        networkConfig.settings
+      );
+      await settings.setMaxLoanToValue(value);
+      spinner.succeed(`🧑‍🍳 Max LTV Changed to  ${value} ✅ `);
+    } catch (e) {
+      console.log(e);
+      spinner.fail("Failed 💥");
+    }
+});
+
+
+task("settings:getMaxLoanToValue", "Get Max Target Loan To value")
+  .setAction(async ({}, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Getting Max Target LTV`).start();
+    try {
+      const settings = await ethers.getContractAt(
+        "Settings",
+        networkConfig.settings
+      );
+      const value = await settings.getMaxLoanToValue();
+      spinner.succeed(`🧑‍🍳 Max LTV ${value} `);
+    } catch (e) {
+      console.log(e);
+      spinner.fail("Failed 💥");
+    }
+});
+
+
+task("settings:setWithdrawalFee", "Set Withdrawal Fee")
+  .addParam("value", "Withdrawal Fee")
+  .setAction(async ({value}, { ethers, network}) => {    
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Settting Withdrawal Fee to ${value}`).start();
+    try {
+      const settings = await ethers.getContractAt(
+        "Settings",
+        networkConfig.settings
+      );
+      await settings.setWithdrawalFee(value);
+      spinner.succeed(`🧑‍🍳 Withdrawal Fee Changed to ${value} ✅ `);
+    } catch (e) {
+      console.log(e);
+      spinner.fail("Failed 💥");
+    }
+});
+
+task("settings:getWithdrawalFee", "get Withdrawal Fee")
+  .setAction(async ({}, { ethers, network}) => {    
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Getting Withdrawal Fee`).start();
+    try {
+      const settings = await ethers.getContractAt(
+        "Settings",
+        networkConfig.settings
+      );
+      const value = await settings.getWithdrawalFee();
+      spinner.succeed(`🧑‍🍳 Withdrawal Fee = ${value}`);
+    } catch (e) {
+      console.log(e);
+      spinner.fail("Failed 💥");
+    }
+});
+
+
+task("settings:setPerformanceFee", "Set Performance Fee")
+  .addParam("value", "The new performance fee")
+  .setAction(async ({value}, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Settting Performance Fee to ${value}`).start();
+    try {
+      const settings = await ethers.getContractAt(
+        "Settings",
+        networkConfig.settings
+      );
+      await settings.setPerformanceFee(value);
+      spinner.succeed(`🧑‍🍳 Performance Fee Changed to ${value} ✅ `);
+    } catch (e) {
+      console.log(e);
+      spinner.fail("Failed 💥");
+    }
+});
+
+task("settings:getPerformanceFee", "Get Performance Fee")  
+  .setAction(async ({}, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Gettting Performance Fee`).start();
+    try {
+      const settings = await ethers.getContractAt(
+        "Settings",
+        networkConfig.settings
+      );
+      const value = await settings.getPerformanceFee();
+      spinner.succeed(`🧑‍🍳 Performance Fee = ${value} `);
+    } catch (e) {
+      console.log(e);
+      spinner.fail("Failed 💥");
+    }
+});
+
+
+task("settings:setFeeReceiver", "Set Fee Receiver Accoutn")
+  .addParam("account", "The new max LTV")
+  .setAction(async ({account}, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Settting Fee Revceiver to ${account}`).start();
+    try {
+      const settings = await ethers.getContractAt(
+        "Settings",
+        networkConfig.settings
+      );
+      await settings.setFeeReceiver(account);
+      spinner.succeed(`🧑‍🍳 Fee Receiver Account Changed to ${account} ✅ `);
+    } catch (e) {
+      console.log(e);
+      spinner.fail("Failed 💥");
+    }
+});
+
+
+task("settings:getFeeReceiver", "Get Fee Receiver Account")
+  .setAction(async ({}, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Gettting Fee Revceiver`).start();
+    try {
+      const settings = await ethers.getContractAt(
+        "Settings",
+        networkConfig.settings
+      );
+      const value = await settings.getFeeReceiver();
+      spinner.succeed(`🧑‍🍳 Fee Receiver Account ${value} `);
+    } catch (e) {
+      console.log(e);
+      spinner.fail("Failed 💥");
+    }
+});
+
+
+task("settings:enableAccount", "Enable an account on the whitelist")
+  .addParam("account", "Accoun to enable")
+  .addParam("enabled", "enabled")  
+  .setAction(async ({account, enabled}, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Setting ${account} has ${enabled}`).start();
+    try {
+      const settings = await ethers.getContractAt(
+        "Settings",
+        networkConfig.settings
+      );
+      await settings.enableAccount(account, enabled=="true");
+      spinner.succeed(`🧑‍🍳 Account ${account} now is enabled=${enabled} ✅ `);
+    } catch (e) {
+      console.log(e);
+      spinner.fail("Failed 💥");
+    }
+});
+
+
+
+task("settings:isAccountEnabled", "Enable an account on the whitelist")
+  .addParam("account", "Accoun to enable")
+  .setAction(async ({account}, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Checking Whitelist for ${account}`).start();
+    try {
+      const settings = await ethers.getContractAt(
+        "Settings",
+        networkConfig.settings
+      );
+      const res = await settings.isAccountEnabled(account);
+      spinner.succeed(`🧑‍🍳 Account ${account} is enabled? ${res} `);
+    } catch (e) {
+      console.log(e);
+      spinner.fail("Failed 💥");
+    }
+});
+
+
+
 
 async function getSignerOrThrow(ethers, address) {
   const signers = await ethers.getSigners();
