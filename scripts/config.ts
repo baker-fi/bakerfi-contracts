@@ -75,6 +75,26 @@ export default {
         vault: "0x334a1f3C8C9c6CD670273cD80349505dB37aFc65",
         AAVEPool: "0xF8D0e82B1EE3EEc7AEcDAa4E1c94E29fe3Db712E",      
     },
+    "arbitrum_devnet": {
+        uniswapRouter: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", // Validated 
+        uniswapQuoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e", // Validated 
+        balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Validated
+        weth: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",  // Validated
+        wstETH: "0x5979D7b546E38E414F7E9822514be443A4800529", // Validated
+        oracle: {
+            type: "wstETH",
+            chainLink: "0xb523ae262d20a936bc152e6023996e46fdc2a95d", // wstETH / ETH
+        },
+        ethOracle: "0x639fe6ab55c921f74e7fac1ee960c0b6293ba612",
+        strategy: {
+            type: "base",
+            collateral: "wstETH",
+            oracle: "wstETH/ETH Oracle"
+        },     
+        AAVEEModeCategory: 2,        
+        swapFeeTier: 100,        
+        AAVEPool: "0x794a61358D6845594F94dc1DB02A252b5b4814aD", // Validated   
+    },
 }
 
 

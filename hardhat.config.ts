@@ -1,5 +1,4 @@
-import * as dotenv from "dotenv";
-
+import "dotenv/config";
 import "@nomicfoundation/hardhat-toolbox";
 import "hardhat-contract-sizer";
 import "solidity-coverage";
@@ -14,8 +13,6 @@ import { STAGING_ACCOUNTS_PKEYS} from "./constants/test-accounts";
 import {HardhatNetworkAccountUserConfig} from "hardhat/types/config";
 import "hardhat-tracer";
 import "./scripts/tasks";
-
-dotenv.config();
 
 const devAccounts: HardhatNetworkAccountUserConfig[] =  STAGING_ACCOUNTS_PKEYS.map(
   key=>  { return {privateKey: key, balance: "1000000000000000000000000"}}); 
@@ -52,6 +49,11 @@ const config: HardhatUserConfig = {
       gasPrice: 120 * 1000000000,
       chainId: 1,
     },
+    arbitrum: {
+      url: `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      chainId: 42161,
+      blockGasLimit: 900000,
+    },
     kovan: {
       url: `https://kovan.infura.io/v3/${process.env.INFURA_API_KEY}`,
       chainId: 42,
@@ -77,6 +79,12 @@ const config: HardhatUserConfig = {
     optimism_devnet: {
       url: `${process.env.TENDERLY_DEV_NET_RPC}`,
       chainId: 10,
+      gasMultiplier: 4,
+      accounts: STAGING_ACCOUNTS_PKEYS
+    },
+    arbitrum_devnet: {
+      url: `${process.env.TENDERLY_DEV_NET_RPC}`,
+      chainId: 42161,
       gasMultiplier: 4,
       accounts: STAGING_ACCOUNTS_PKEYS
     },
