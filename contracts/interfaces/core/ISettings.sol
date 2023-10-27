@@ -27,4 +27,8 @@ interface ISettings {
 
     function setNrLoops(uint8 nrLoops) external;
 
+    function enableAccount(address account, bool enabled) external ;
+    /* When the white list is empty, everybody is allowed */
+    function isAccountEnabled(address account) external view returns (bool);
+
 }

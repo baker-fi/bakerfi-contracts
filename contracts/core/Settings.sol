@@ -12,13 +12,15 @@ pragma solidity ^0.8.18;
 import { PERCENTAGE_PRECISION, MAX_LOOPS} from "./Constants.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ISettings } from "../interfaces/core/ISettings.sol";
-
+import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 /**
  * @title Protocol Settings Contract
  * @author 
  * @notice 
  */
 contract Settings is Ownable, ISettings {
+    
+    using EnumerableSet for EnumerableSet.AddressSet;
 
     uint256 private _withdrawalFee = 10 * 1e6; // 1%
     uint256 private _performanceFee = 10* 1e6; // 1%
@@ -26,6 +28,8 @@ contract Settings is Ownable, ISettings {
     uint256 private _loanToValue =  800 * 1e6; // 80%
     uint256 private _maxLoanToValue =  850 * 1e6; // 85%     
     uint8   private _nrLoops = 10; 
+    EnumerableSet.AddressSet private _enabledAccounts;
+
 
     event SetMaxLoanToValueChanged(uint256 indexed value);
     event LoanToValueChanged( uint256 indexed value);
@@ -33,10 +37,27 @@ contract Settings is Ownable, ISettings {
     event PerformanceFeeChanged( uint256 indexed value);
     event FeeReceiverChanged( uint256 indexed value);
     event NrLoopsChanged( uint256 indexed value);
+    event AccountWhiteList( address indexed account, bool enabled );
 
     constructor(address initialOwner) {
         require(initialOwner != address(0), "Invalid Owner Address");
         _transferOwnership(initialOwner);
+    }
+
+    function enableAccount(address account, bool enabled ) external onlyOwner {
+        if(enabled) {
+            require(!_enabledAccounts.contains(account), "Already Enabled");
+            _enabledAccounts.add(account);
+        } else {
+            require(_enabledAccounts.contains(account), "Not Enabled");
+            _enabledAccounts.remove(account);
+        }
+        emit AccountWhiteList(account, enabled);
+    }
+
+    /* When the white list is empty, everybody is allowed */
+    function isAccountEnabled(address account) external view returns (bool) {
+        return _enabledAccounts.length() == 0 || _enabledAccounts.contains(account);
     }
 
     function setMaxLoanToValue(uint256 maxLoanToValue) external onlyOwner {

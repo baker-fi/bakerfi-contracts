@@ -15,6 +15,8 @@ export interface SettingsMethods {
 
   getWithdrawalFee(): ContractCallMethod<number>;
 
+  isAccountEnabled(account: string): ContractCallMethod<boolean>;
+
   owner(): ContractCallMethod<string>;
 
   renounceOwnership(): ContractSendMethod
@@ -30,6 +32,8 @@ export interface SettingsMethods {
   setPerformanceFee(fee: number): ContractSendMethod
 
   setWithdrawalFee(fee: number): ContractSendMethod
+
+  enableAccount(account: string, enabled: boolean): ContractSendMethod
 
   transferOwnership(newOwner: string): ContractSendMethod
 
