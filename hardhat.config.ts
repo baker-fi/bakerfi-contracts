@@ -13,6 +13,7 @@ import { STAGING_ACCOUNTS_PKEYS} from "./constants/test-accounts";
 import {HardhatNetworkAccountUserConfig} from "hardhat/types/config";
 import "hardhat-tracer";
 import "./scripts/tasks";
+import "hardhat-flat-exporter";
 
 const devAccounts: HardhatNetworkAccountUserConfig[] =  STAGING_ACCOUNTS_PKEYS.map(
   key=>  { return {privateKey: key, balance: "1000000000000000000000000"}}); 
@@ -152,7 +153,12 @@ const config: HardhatUserConfig = {
     disambiguatePaths: false,
     runOnCompile: false,
     strict: true
-  }
+  },
+  flattenExporter: {
+    src: "./contracts",
+    path: "./flat",
+    clear: true,
+  },
 };
 
 export default config;

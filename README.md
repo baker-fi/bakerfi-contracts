@@ -82,7 +82,6 @@ Replace <network-name> with the desired network from your configuration.
 npm run compile:clean && npm run build
 ```
 
-
 ```
 npm pack
 ```
@@ -136,7 +135,16 @@ npx hardhat console --network <network-name>
 
 Replace <network-name> with the desired network from your configuration.
 
-Contributing
+
+### Usefull Tasks 
+
+**Export Flat File Contracts**
+
+```
+npm run export:flat
+``` 
+
+## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
 Please make sure to update tests as appropriate.
@@ -146,7 +154,6 @@ MIT
 
 ### TODO - Smart Contracts 
 
-* Rebase Library Unit Tests: P1
 * Myhtril Check - Fix Vulnerability fixes: P2 - Going...
 * Optimization: Set MAX Int allowances on initialization - P3 Going...
 * Support for Proxies: P3

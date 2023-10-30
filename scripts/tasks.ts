@@ -59,18 +59,16 @@ task("vault:withdraw", "Burn brETH shares and receive ETH")
   });
 
 task("vault:rebalance", "Burn brETH shares and receive ETH")
-  .addParam("account", "The account's address")
   .setAction(async ({ account }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Rebalancing Vault ${account} `).start();
     try {
-        const signer = await getSignerOrThrow(ethers, account);
         const vault = await ethers.getContractAt(
           "BakerFiVault",
           networkConfig.vault
         );
-        await vault.connect(signer).rebalance();
+        await vault.rebalance();
         spinner.succeed(`🧑‍🍳 Vault Rebalanced 🍰`);
       } catch (e) {
         console.log(e);
