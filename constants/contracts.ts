@@ -37,19 +37,19 @@ export const deployConfigMap : {[key: string]: DeployConfig} =
         settings: "0x258b944B1e716c01725771148382EB988e4AB0a7"        
     },
     "arbitrum": {
-        serviceRegistry: "0x328C8F721BF0396Ae955a99683e04095685476c9",       
+        serviceRegistry: "0xd68a2846168052C43Ae44591B6F67588D218b150",       
         weth: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",  
         stETH: "0x07C1F45Dc0a620E6716d8A45485B8f0A79E270F8",
         wstETH: "0x5979D7b546E38E414F7E9822514be443A4800529",
-        flashLender: "0xcA6b464528907C0eDF55B101b89FFC63f5B4EdB2",
+        flashLender: "0x38BEB36E9E3cF01085D0e8C317285eeefF126e7f",
         uniswapRouter: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", 
         uniswapQuoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e",
         AAVEv3Pool: "0x794a61358D6845594F94dc1DB02A252b5b4814aD", 
-        wstETHETHOracle: "0x74730C0B0710b3Fbde5B1CA34ed4B21642d6c399",
-        ethUSDOracle: "0x4B0b9d7e81EfF2C4137B9007355C54286f55fcFd",
-        strategy: "0x84249279626d14eD6d03ffc0d618789a9A3dc5C4",
-        vault: "0x4AdCcd38A1D8BeC931F7756c32Da6EfD2E405B6f",        
-        settings: "0x14dAdd1A32fd6Af60EeBc87F5228E00931B28C7C"        
+        wstETHETHOracle: "0x8D5EEF9bcbB008784b6232b61890F52A7648d81F",
+        ethUSDOracle: "0x6060608FD42b2bBC23F21ff7BB4fE72F3Ca21Ef1",
+        strategy: "0x6c59eD8e7B8641f7Abe89B1dBa8C5847799FD6FB",
+        vault: "0x7454072e99Bb7f7079fe24BFDf32A3F458a35d3C",        
+        settings: "0xb5A087ba08a6ee489c6f554Ca458741A18CDae99"        
     }
 }
 

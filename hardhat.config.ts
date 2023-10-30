@@ -51,7 +51,10 @@ const config: HardhatUserConfig = {
       chainId: 1,
     },
     arbitrum: {
-      url: `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      url: 
+       process.env.TEST_FORK === "true" ?
+       process.env.TENDERLY_FORK_RPC :
+      `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
       chainId: 42161,
       blockGasLimit: 900000,
       accounts: [`${process.env.BAKERFI_PRIVATE_KEY}`],
@@ -95,7 +98,7 @@ const config: HardhatUserConfig = {
       chainId: 1,
       gasMultiplier: 4,
       accounts: STAGING_ACCOUNTS_PKEYS
-    }
+    },
   },
   solidity: {
     compilers: [

@@ -374,6 +374,28 @@ task("settings:isAccountEnabled", "Enable an account on the whitelist")
 
 
 
+task("oracle:collateral", "Enable an account on the whitelist") 
+  .setAction(async ({account}, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`getting Collateral ${account}`).start();
+    try {
+      const oracle = await ethers.getContractAt(
+        "WstETHToETHOracle",
+        networkConfig.wstETHETHOracle
+      );
+      const price = await oracle.getLatestPrice();
+      const precision = await oracle.getPrecision();
+      spinner.succeed(`🧑‍🍳 Price is ${price} - ${precision}`);
+    } catch (e) {
+      console.log(e);
+      spinner.fail("Failed 💥");
+    }
+});
+
+
+
+
 async function getSignerOrThrow(ethers, address) {
   const signers = await ethers.getSigners();
   const [signer] = signers.filter(

@@ -83,7 +83,7 @@ async function main() {
    ********************************************/
   spinner.text = "Deploying Flash Lender Adapter";  
   const flashLenderAdapter = await deployFlashLendInfra(serviceRegistry, config);
-  result.push(["AAVE V3 Pool", await flashLenderAdapter.getAddress()]);
+  result.push(["Flash Lender", await flashLenderAdapter.getAddress()]);
   /********************************************
    * cbETH Registiring , only for Base Chain 
    ********************************************/
