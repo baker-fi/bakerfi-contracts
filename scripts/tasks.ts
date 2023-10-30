@@ -371,14 +371,11 @@ task("settings:isAccountEnabled", "Enable an account on the whitelist")
     }
 });
 
-
-
-
-task("oracle:collateral", "Enable an account on the whitelist") 
+task("oracle:collateral", "Get the wstETH/ETH Price from Oracle") 
   .setAction(async ({account}, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
-    const spinner = ora(`getting Collateral ${account}`).start();
+    const spinner = ora(`Getting On Chain Price ${account}`).start();
     try {
       const oracle = await ethers.getContractAt(
         "WstETHToETHOracle",
@@ -392,8 +389,6 @@ task("oracle:collateral", "Enable an account on the whitelist")
       spinner.fail("Failed 💥");
     }
 });
-
-
 
 
 async function getSignerOrThrow(ethers, address) {
