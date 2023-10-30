@@ -13,6 +13,7 @@ import { STAGING_ACCOUNTS_PKEYS} from "./constants/test-accounts";
 import {HardhatNetworkAccountUserConfig} from "hardhat/types/config";
 import "hardhat-tracer";
 import "./scripts/tasks";
+import "hardhat-flat-exporter";
 
 const devAccounts: HardhatNetworkAccountUserConfig[] =  STAGING_ACCOUNTS_PKEYS.map(
   key=>  { return {privateKey: key, balance: "1000000000000000000000000"}}); 
@@ -50,7 +51,10 @@ const config: HardhatUserConfig = {
       chainId: 1,
     },
     arbitrum: {
-      url: `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      url: 
+       process.env.TEST_FORK === "true" ?
+       process.env.TENDERLY_FORK_RPC :
+      `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
       chainId: 42161,
       blockGasLimit: 900000,
       accounts: [`${process.env.BAKERFI_PRIVATE_KEY}`],
@@ -94,7 +98,7 @@ const config: HardhatUserConfig = {
       chainId: 1,
       gasMultiplier: 4,
       accounts: STAGING_ACCOUNTS_PKEYS
-    }
+    },
   },
   solidity: {
     compilers: [
@@ -152,7 +156,12 @@ const config: HardhatUserConfig = {
     disambiguatePaths: false,
     runOnCompile: false,
     strict: true
-  }
+  },
+  flattenExporter: {
+    src: "./contracts",
+    path: "./flat",
+    clear: true,
+  },
 };
 
 export default config;

@@ -59,18 +59,16 @@ task("vault:withdraw", "Burn brETH shares and receive ETH")
   });
 
 task("vault:rebalance", "Burn brETH shares and receive ETH")
-  .addParam("account", "The account's address")
   .setAction(async ({ account }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Rebalancing Vault ${account} `).start();
     try {
-        const signer = await getSignerOrThrow(ethers, account);
         const vault = await ethers.getContractAt(
           "BakerFiVault",
           networkConfig.vault
         );
-        await vault.connect(signer).rebalance();
+        await vault.rebalance();
         spinner.succeed(`🧑‍🍳 Vault Rebalanced 🍰`);
       } catch (e) {
         console.log(e);
@@ -373,7 +371,24 @@ task("settings:isAccountEnabled", "Enable an account on the whitelist")
     }
 });
 
-
+task("oracle:collateral", "Get the wstETH/ETH Price from Oracle") 
+  .setAction(async ({account}, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Getting On Chain Price ${account}`).start();
+    try {
+      const oracle = await ethers.getContractAt(
+        "WstETHToETHOracle",
+        networkConfig.wstETHETHOracle
+      );
+      const price = await oracle.getLatestPrice();
+      const precision = await oracle.getPrecision();
+      spinner.succeed(`🧑‍🍳 Price is ${price} - ${precision}`);
+    } catch (e) {
+      console.log(e);
+      spinner.fail("Failed 💥");
+    }
+});
 
 
 async function getSignerOrThrow(ethers, address) {
