@@ -22,7 +22,7 @@ import {Rebase, RebaseLibrary} from "../../libraries/BoringRebase.sol";
 import {IWETH} from "../../interfaces/tokens/IWETH.sol";
 import {IOracle} from "../../interfaces/core/IOracle.sol";
 import {IWStETH} from "../../interfaces/lido/IWStETH.sol";
-import {IPoolV3} from "../../interfaces/aave/v3/IPoolV3.sol";
+import {IPoolV3, DataTypes} from "../../interfaces/aave/v3/IPoolV3.sol";
 import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
 import {IStrategy} from "../../interfaces/core/IStrategy.sol";
 import {UseLeverage} from "../hooks/UseLeverage.sol";
@@ -231,11 +231,18 @@ abstract contract AAVEv3StrategyBase is
         uint256 fee,
         address payable receiver
     ) private {
-        uint256 withdrawAmount = _fromWETH(withdrawAmountInETh);
+        
+        DataTypes.ReserveData memory reserve = aaveV3().getReserveData(ierc20A());
+        uint256 balanceOf = IERC20(reserve.aTokenAddress).balanceOf(address(this));
+        uint256 convertedAmount = _fromWETH(withdrawAmountInETh);
+        uint256 withdrawAmount = balanceOf > convertedAmount ? convertedAmount: balanceOf;
         _repay(wETHA(), repayAmount);
-
+        
         require(
-            aaveV3().withdraw(ierc20A(), withdrawAmount, address(this)) ==  withdrawAmount, 
+            aaveV3().withdraw(
+            ierc20A(), 
+            withdrawAmount,
+            address(this)) ==  withdrawAmount, 
             "Invalid Amount Withdrawn"
         );
         // Convert Collateral to WETH
