@@ -14,6 +14,7 @@ import {HardhatNetworkAccountUserConfig} from "hardhat/types/config";
 import "hardhat-tracer";
 import "./scripts/tasks";
 import "hardhat-flat-exporter";
+import "hardhat-generate-function-selectors";
 
 const devAccounts: HardhatNetworkAccountUserConfig[] =  STAGING_ACCOUNTS_PKEYS.map(
   key=>  { return {privateKey: key, balance: "1000000000000000000000000"}}); 
@@ -161,6 +162,10 @@ const config: HardhatUserConfig = {
     src: "./contracts",
     path: "./flat",
     clear: true,
+  },
+  functionSelectors: {
+    separateContractSelectors: true, //separate by contract
+    orderedByValue: true, //order function selectors by hex value, least to greatest
   },
 };
 
