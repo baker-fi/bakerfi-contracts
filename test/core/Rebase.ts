@@ -92,5 +92,19 @@ describeif(network.name === "hardhat")("Rebase Library", function () {
             false
         )).to.equal(200000n);
     });
+
+
+
+    it("toElastic - Add 1Wei", async ()=> {
+        const rebaseLib = await loadFixture(deployFunction);
+        expect(await rebaseLib.toBase(
+            [
+                0n,
+                0n
+            ],
+            1n,
+            true
+        )).to.equal(1n);
+    });
     
 });

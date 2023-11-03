@@ -422,4 +422,64 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     ).to.be.revertedWith( "Account not allowed");
   });
 
+
+  // Mocked Strategy
+
+  async function deployMockStrategyFunction() {
+    const [owner, otherAccount, anotherAccount] = await ethers.getSigners();
+    const Settings = await ethers.getContractFactory("Settings");
+    const settings = await Settings.deploy(owner);
+    await settings.waitForDeployment();
+    
+    const serviceRegistry = await deployServiceRegistry(owner.address);
+
+    const StrategyMock = await ethers.getContractFactory("StrategyMock");
+    const strategy = await StrategyMock.deploy();
+    await strategy.waitForDeployment();
+    
+    await serviceRegistry.registerService(
+      ethers.keccak256(Buffer.from("Settings")),
+      await settings.getAddress()
+    );
+
+    const BakerFiVault = await ethers.getContractFactory("BakerFiVault");
+    const vault = await BakerFiVault.deploy(
+      owner.address,
+      await serviceRegistry.getAddress(),
+      await strategy.getAddress()
+    );
+    
+    await strategy.waitForDeployment();
+
+    return {owner, settings, vault, strategy};
+  }
+
+
+  it("Deposit - Withdraw", async () => {
+    const { owner, vault, strategy } = await loadFixture(deployMockStrategyFunction);
+    await expect(vault.deposit(owner.address, {
+      value: 1,
+    })).to.emit(strategy, "StrategyAmountUpdate")
+      .withArgs(1n);
+    expect(await vault.totalAssets()).to.equal(1n);
+    expect(await vault.totalSupply()).to.equal(1n);    
+  });
+
+
+  it("Deposit - Fails Deposit when debt is higher than collateral ", async () => {
+    const { owner, vault, strategy } = await loadFixture(deployMockStrategyFunction);
+
+    const depositAmount = ethers.parseUnits("10", 18);
+    await vault.deposit(owner.address, {
+      value: depositAmount,
+    });
+    
+    await strategy.setRatio(110);
+
+    await expect(
+      vault.withdraw(ethers.parseUnits("1", 18))
+    ).to.be.revertedWith( "Collateral value is lower than debt");
+
+  });
+
 });

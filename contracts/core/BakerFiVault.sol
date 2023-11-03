@@ -117,6 +117,7 @@ contract BakerFiVault is
             abi.encodeWithSignature("deploy()"), 
             msg.value
         );
+       
         uint256 amount= abi.decode(result, (uint256));
         shares = total.toBase(amount, false);
         _mint(receiver, shares);
@@ -130,7 +131,7 @@ contract BakerFiVault is
     function withdraw(uint256 shares) external override nonReentrant onlyWhiteListed returns (uint256 amount) {
         require(balanceOf(msg.sender) >= shares, "No Enough balance to withdraw");
         uint256 percentageToBurn = shares * PERCENTAGE_PRECISION / totalSupply();
-        uint256 withdrawAmount = totalAssets() * percentageToBurn /PERCENTAGE_PRECISION;
+        uint256 withdrawAmount = totalAssets() * percentageToBurn / PERCENTAGE_PRECISION;
         amount = _strategy.undeploy(withdrawAmount);
         // Withdraw ETh to Receiver and pay withdrawal Fees
         if (settings().getWithdrawalFee() != 0  && settings().getFeeReceiver() != address(0)) {
@@ -149,6 +150,7 @@ contract BakerFiVault is
      */
     function totalAssets() public override view returns (uint256 amount) {
         (uint256 totalCollateralInEth, uint256 totalDebtInEth, ) = _strategy.getPosition();
+        require(totalCollateralInEth >= totalDebtInEth, "Collateral value is lower than debt");
         amount = totalCollateralInEth - totalDebtInEth;
     }
 

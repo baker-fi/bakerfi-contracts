@@ -144,6 +144,12 @@ Replace <network-name> with the desired network from your configuration.
 npm run export:flat
 ``` 
 
+**Run Echidna for Testing**
+
+```
+echidna . --config echidna.yaml  --contract VaultFuzzing
+```
+
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
@@ -158,3 +164,9 @@ MIT
 * Optimization: Set MAX Int allowances on initialization - P3 Going...
 * Support for Proxies: P3
 * Governance Token: P4
+
+
+
+
+
+
