@@ -17,7 +17,7 @@ contract StrategyMock is IStrategy {
     }
 
     function harvest() external override returns (int256 balanceChange) {
-        return 0;
+        return _havestPerCall;
     }
 
     function undeploy(uint256 amount) external override returns (uint256 actualAmount) {

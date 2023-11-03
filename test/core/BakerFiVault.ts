@@ -451,7 +451,7 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     
     await strategy.waitForDeployment();
 
-    return {owner, settings, vault, strategy};
+    return {owner, otherAccount, settings, vault, strategy};
   }
 
 
@@ -479,7 +479,33 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     await expect(
       vault.withdraw(ethers.parseUnits("1", 18))
     ).to.be.revertedWith( "Collateral value is lower than debt");
-
   });
+
+
+  it("Rebalance - Generates Revenue ", async () => {
+    const { owner, vault, strategy, settings, otherAccount} = await loadFixture(deployMockStrategyFunction);
+    const depositAmount = ethers.parseUnits("100", 18);
+    
+    await vault.deposit(owner.address, {
+      value: 10000,
+    });
+
+    expect(await vault.totalAssets()).to.equal(5000);
+    expect(await vault.totalSupply()).to.equal(10000);
+    
+    await settings.setFeeReceiver(otherAccount.address);
+    await settings.setPerformanceFee(100*1e6);    
+    await strategy.setHarvestPerCall(1000);
+
+    await expect(vault.rebalance()).to
+      .emit(vault, "Transfer")
+      .withArgs(
+        "0x0000000000000000000000000000000000000000",
+        otherAccount.address,
+        200
+      );
+    expect(await vault.totalSupply()).to.equal(10200);
+
+  })
 
 });

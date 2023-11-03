@@ -86,10 +86,12 @@ contract BakerFiVault is
                     settings().getFeeReceiver() != address(0) && 
                     settings().getPerformanceFee() > 0
                 ) {           
+                    uint256 updatedPos = totalAssets();
                     uint256 feeInEth = uint256(balanceChange) * 
                         settings().getPerformanceFee() / 
                         PERCENTAGE_PRECISION;                    
-                    uint256 percToTreasury = feeInEth *  PERCENTAGE_PRECISION / currentPos ;
+                    
+                    uint256 percToTreasury = feeInEth *  PERCENTAGE_PRECISION / updatedPos ;
                     uint256 sharesToMint = percToTreasury * totalSupply() / PERCENTAGE_PRECISION;
                     _mint(settings().getFeeReceiver(), sharesToMint);
                 }
@@ -130,6 +132,7 @@ contract BakerFiVault is
      */
     function withdraw(uint256 shares) external override nonReentrant onlyWhiteListed returns (uint256 amount) {
         require(balanceOf(msg.sender) >= shares, "No Enough balance to withdraw");
+        require(shares > 0, "Cannot Withdraw Zero Shares");
         uint256 percentageToBurn = shares * PERCENTAGE_PRECISION / totalSupply();
         uint256 withdrawAmount = totalAssets() * percentageToBurn / PERCENTAGE_PRECISION;
         amount = _strategy.undeploy(withdrawAmount);
