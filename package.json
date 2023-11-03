@@ -23,6 +23,7 @@
     "prettier": "prettier --write 'contracts/**/*.sol'",
     "start": "NODE_ENV=production node dist/index.js",
     "export:flat": "npx hardhat export-flat",
+    "export:selectors": "npx hardhat selectors",
     "deploy:hardhat": "npx hardhat run --network hardhat scripts/deploy.ts",
     "deploy:local": "npx hardhat run --network local scripts/deploy-dev.ts",
     "deploy:arbitrum": "npx hardhat run --network arbitrum scripts/deploy.ts",
@@ -62,7 +63,8 @@
     "@openzeppelin/contracts": "^4.9.2",
     "@sushiswap/bentobox-sdk": "^1.0.0-canary.13",
     "@taikai/dappkit": "^2.3.1",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "hardhat-generate-function-selectors": "^1.17.1"
   },
   "contractSizer": {
     "alphaSort": true,
