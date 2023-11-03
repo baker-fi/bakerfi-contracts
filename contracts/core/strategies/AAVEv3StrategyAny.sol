@@ -38,7 +38,7 @@ contract AAVEv3StrategyAny is AAVEv3StrategyBase {
             ISwapHandler.SwapParams(
             wETHA(),                          // Asset In
             ierc20A(),                        // Asset Out
-            0,                                // Swap Mode
+            ISwapHandler.SwapType.EXACT_INPUT,                                // Swap Mode
             amount,                           // Amount In 
             0,                                // Amount Out
             _swapFeeTier,                                // Fee Pair Tier
@@ -53,7 +53,7 @@ contract AAVEv3StrategyAny is AAVEv3StrategyBase {
             ISwapHandler.SwapParams(
                 ierc20A(),                      // Asset In
                 wETHA(),                        // Asset Out
-                0,                              // Swap Mode
+                ISwapHandler.SwapType.EXACT_INPUT,                              // Swap Mode
                 amount,                         // Amount In 
                 0,                              // Amount Out
                 _swapFeeTier,                              // Fee Pair Tier

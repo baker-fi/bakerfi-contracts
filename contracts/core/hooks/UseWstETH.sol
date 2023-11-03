@@ -32,12 +32,12 @@ abstract contract UseWstETH {
     }
 
     function _unwrapWstETH(uint256 amount) internal returns (uint256 stETHAmount) {
-        IERC20(wstETHA()).approve(wstETHA(), amount);
+        require(IERC20(wstETHA()).approve(wstETHA(), amount));
         stETHAmount = wstETH().unwrap(amount);
     }
 
     function _wrapWstETH(uint256 amount) internal returns (uint256 amountOut) {
-        _stETHToken.approve(wstETHA(), amount);
+        require(_stETHToken.approve(wstETHA(), amount));
         amountOut = IWStETH(wstETHA()).wrap(amount);
     }
 }

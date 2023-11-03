@@ -40,7 +40,7 @@ abstract contract UseSwapper is ISwapHandler {
         require(fee > 0, "Invalid Fee Tier to Swap");
 
         // Exact Input
-        if (params.mode == 0) {
+        if (params.mode == ISwapHandler.SwapType.EXACT_INPUT) {
             amountOut = _uniRouter.exactInputSingle(
                 IV3SwapRouter.ExactInputSingleParams({
                     tokenIn: params.underlyingIn,
@@ -58,7 +58,7 @@ abstract contract UseSwapper is ISwapHandler {
             }
             emit Swap( params.underlyingIn, params.underlyingOut,   params.amountIn, amountOut);        
             // Exact Output
-        } else if (params.mode == 1) {
+        } else if (params.mode == ISwapHandler.SwapType.EXACT_OUTPUT) {
             uint256 amountIn = _uniRouter.exactOutputSingle(
                 IV3SwapRouter.ExactOutputSingleParams({
                     tokenIn: params.underlyingIn,

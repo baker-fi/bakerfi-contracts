@@ -57,7 +57,7 @@ contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH {
             ISwapHandler.SwapParams(
                 wstETHA(),                       // Asset In
                 wETHA(),                         // Asset Out
-                0,                               // Swap Mode
+                ISwapHandler.SwapType.EXACT_INPUT,                               // Swap Mode
                 amount,                          // Amount In 
                 0,                               // Amount Out
                 _swapFeeTier,                    // Fee Pair Tier
