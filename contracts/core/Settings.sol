@@ -13,12 +13,14 @@ import { PERCENTAGE_PRECISION, MAX_LOOPS} from "./Constants.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ISettings } from "../interfaces/core/ISettings.sol";
 import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+
 /**
  * @title Protocol Settings Contract
  * @author 
  * @notice 
  */
-contract Settings is Ownable, ISettings {
+contract Settings is Ownable, ISettings, Initializable {
     
     using EnumerableSet for EnumerableSet.AddressSet;
 
@@ -39,7 +41,7 @@ contract Settings is Ownable, ISettings {
     event NrLoopsChanged( uint256 indexed value);
     event AccountWhiteList( address indexed account, bool enabled );
 
-    constructor(address initialOwner) {
+    function initialize(address initialOwner) public initializer {
         require(initialOwner != address(0), "Invalid Owner Address");
         _transferOwnership(initialOwner);
     }
