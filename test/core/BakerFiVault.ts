@@ -478,7 +478,7 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
 
     await expect(
       vault.withdraw(ethers.parseUnits("1", 18))
-    ).to.be.revertedWith( "Collateral value is lower than debt");
+    ).to.be.revertedWith( "No Assets to withdraw");
   });
 
 
