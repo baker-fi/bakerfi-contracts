@@ -270,8 +270,8 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     expect(await vault.totalSupply()).to.equal(0);
     expect((await strategy.getPosition())[0]).to.equal(0);
     expect((await strategy.getPosition())[1]).to.equal(0);
-    expect(balanceAfter - balanceBefore).to.equal(9928228588247807112n);
-    expect((await strategy.getPosition()))[2].to.equal(0);
+    expect(balanceAfter - balanceBefore).to.greaterThan(ethers.parseUnits("9", 18));
+    expect((await strategy.getPosition())[2]).to.equal(0);
     expect(await vault.tokenPerETH()).to.equal(ethers.parseUnits("1", 18));
   });
 

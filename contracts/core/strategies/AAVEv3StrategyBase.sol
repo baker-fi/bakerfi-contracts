@@ -213,7 +213,7 @@ abstract contract AAVEv3StrategyBase is
             ISwapHandler.SwapParams(
                 ierc20A(), 
                 wETHA(), 
-                1, 
+                ISwapHandler.SwapType.EXACT_OUTPUT, 
                 amountIn, 
                 debtAmount + fee,
                 _swapFeeTier,
