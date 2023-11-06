@@ -1,0 +1,5 @@
+{
+  "filter_paths": "contracts/mocks,mocks,test,@openzeppelin,ICurvePool,IPoolV3",
+  "solc_remaps": "@=node_modules/@",
+  "compile_force_framework": "hardhat"
+}

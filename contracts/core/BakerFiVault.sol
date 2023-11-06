@@ -23,7 +23,7 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
  * using a recursive strategy based on flash loans and borrow markets.
  *
  * @title BakerFi Vault smart contract
- * @author Helder Vasconcelos
+ * @author BakerFi
  * @notice
  */
 contract BakerFiVault is 
@@ -86,10 +86,12 @@ contract BakerFiVault is
                     settings().getFeeReceiver() != address(0) && 
                     settings().getPerformanceFee() > 0
                 ) {           
+                    uint256 updatedPos = totalAssets();
                     uint256 feeInEth = uint256(balanceChange) * 
                         settings().getPerformanceFee() / 
                         PERCENTAGE_PRECISION;                    
-                    uint256 percToTreasury = feeInEth *  PERCENTAGE_PRECISION / currentPos ;
+                    
+                    uint256 percToTreasury = feeInEth *  PERCENTAGE_PRECISION / updatedPos ;
                     uint256 sharesToMint = percToTreasury * totalSupply() / PERCENTAGE_PRECISION;
                     _mint(settings().getFeeReceiver(), sharesToMint);
                 }
@@ -113,11 +115,20 @@ contract BakerFiVault is
     function deposit(address receiver) external override payable nonReentrant onlyWhiteListed returns (uint256 shares) {
         require(msg.value > 0, "Invalid Amount to be deposit");
         Rebase memory total = Rebase(totalAssets(), totalSupply());
+        require(
+            // Or the Rebase is unititialized 
+            (total.elastic == 0 && total.base == 0 ) 
+            // Or Both are positive
+            || (total.base > 0 && total.elastic > 0), 
+            "Invalid Assets/Shares state"
+        );
+
         bytes memory result = (address(_strategy)).functionCallWithValue(
             abi.encodeWithSignature("deploy()"), 
             msg.value
         );
-        uint256 amount= abi.decode(result, (uint256));
+       
+        uint256 amount = abi.decode(result, (uint256));
         shares = total.toBase(amount, false);
         _mint(receiver, shares);
         emit Deposit(msg.sender, receiver, msg.value, shares);
@@ -129,28 +140,30 @@ contract BakerFiVault is
      */
     function withdraw(uint256 shares) external override nonReentrant onlyWhiteListed returns (uint256 amount) {
         require(balanceOf(msg.sender) >= shares, "No Enough balance to withdraw");
+        require(shares > 0, "Cannot Withdraw Zero Shares");
         uint256 percentageToBurn = shares * PERCENTAGE_PRECISION / totalSupply();
-        uint256 withdrawAmount = totalAssets() * percentageToBurn /PERCENTAGE_PRECISION;
+        uint256 withdrawAmount = totalAssets() * percentageToBurn / PERCENTAGE_PRECISION;
+        require(withdrawAmount > 0, "No Assets to withdraw");
         amount = _strategy.undeploy(withdrawAmount);
+        uint256 fee = 0;
         // Withdraw ETh to Receiver and pay withdrawal Fees
         if (settings().getWithdrawalFee() != 0  && settings().getFeeReceiver() != address(0)) {
-            uint256 fee = amount * settings().getWithdrawalFee() /PERCENTAGE_PRECISION;
+            fee = amount * settings().getWithdrawalFee() /PERCENTAGE_PRECISION;
             payable(msg.sender).sendValue(amount - fee);
             payable(settings().getFeeReceiver()).sendValue(fee);          
         } else {
             payable(msg.sender).sendValue(amount);
         }
         _burn(msg.sender, shares);
-        emit Withdraw(msg.sender, amount, shares);
+        emit Withdraw(msg.sender, amount - fee, shares);
     }
 
     /**
      * Total Assets that belong to the Share Holders
      */
     function totalAssets() public override view returns (uint256 amount) {
-        (uint256 totalCollateralInEth, uint256 totalDebtInEth, ) = _strategy.getPosition();
-        amount = totalCollateralInEth - totalDebtInEth;
-    }
+        amount = _strategy.deployed();
+    } 
 
     /**
      * Convert an Ammount of Assets to shares

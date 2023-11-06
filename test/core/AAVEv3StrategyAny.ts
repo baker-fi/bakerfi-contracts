@@ -122,7 +122,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
       35740737730000000000n,
       781947822n,
     ]);
-    expect(await strategy.totalAssets()).to.equal(9966580220000000000n);
+    expect(await strategy.deployed()).to.equal(9966580220000000000n);
   });
 
   it("Test Undeploy", async function () {
@@ -137,7 +137,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
       35740737730000000000n,
       781947822n,
     ]);
-    expect(await strategy.totalAssets()).to.equal(9966580220000000000n);
+    expect(await strategy.deployed()).to.equal(9966580220000000000n);
     // Receive ~=5 ETH
     await  expect(
       strategy.undeploy(ethers.parseUnits("5", 18))

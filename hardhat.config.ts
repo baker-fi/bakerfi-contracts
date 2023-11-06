@@ -162,6 +162,10 @@ const config: HardhatUserConfig = {
     path: "./flat",
     clear: true,
   },
+  functionSelectors: {
+    separateContractSelectors: true, //separate by contract
+    orderedByValue: true, //order function selectors by hex value, least to greatest
+  },
 };
 
 export default config;

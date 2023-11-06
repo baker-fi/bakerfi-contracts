@@ -17,7 +17,8 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
 /**
  * @title WST used
- * @author
+ * @author Hélder Vasconcelos
+ * @author Henrique Macedo 
  * @notice
  */
 contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH {
@@ -57,7 +58,7 @@ contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH {
             ISwapHandler.SwapParams(
                 wstETHA(),                       // Asset In
                 wETHA(),                         // Asset Out
-                0,                               // Swap Mode
+                ISwapHandler.SwapType.EXACT_INPUT,                               // Swap Mode
                 amount,                          // Amount In 
                 0,                               // Amount Out
                 _swapFeeTier,                    // Fee Pair Tier

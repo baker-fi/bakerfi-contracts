@@ -43,7 +43,7 @@ describeif(network.name === "hardhat")("Settings", function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
     await expect(
       settings.connect(otherAccount).setLoanToValue(1100 * 1e6)
-    ).to.be.revertedWith("Invalid percentage value");
+    ).to.be.revertedWith("Invalid LTV could not be higher than max");
   });
 
   it("Change Max Loan to Value", async function () {

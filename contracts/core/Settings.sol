@@ -1,26 +1,20 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-/**
- *  
- * @title BakerFi Protocol Settings 
- * @author 
- * @notice The settings could only be Changed by the Owner and could be used by any contract 
- * by the system
- */
-
 import { PERCENTAGE_PRECISION, MAX_LOOPS} from "./Constants.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ISettings } from "../interfaces/core/ISettings.sol";
 import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
 /**
  * @title Protocol Settings Contract
- * @author 
- * @notice 
+ * @author BakerFi
+ * @notice The settings could only be Changed by the Owner and could be used by any contract 
+ * by the system
  */
-contract Settings is Ownable, ISettings, Initializable {
+contract Settings is Ownable, ISettings, UUPSUpgradeable, Initializable {
     
     using EnumerableSet for EnumerableSet.AddressSet;
 
@@ -32,7 +26,6 @@ contract Settings is Ownable, ISettings, Initializable {
     uint8   private _nrLoops = 10; 
     EnumerableSet.AddressSet private _enabledAccounts;
 
-
     event SetMaxLoanToValueChanged(uint256 indexed value);
     event LoanToValueChanged( uint256 indexed value);
     event WithdrawalFeeChanged(uint256 indexed value);
@@ -41,7 +34,8 @@ contract Settings is Ownable, ISettings, Initializable {
     event NrLoopsChanged( uint256 indexed value);
     event AccountWhiteList( address indexed account, bool enabled );
 
-    function initialize(address initialOwner) public initializer {
+
+    function initialize(address initialOwner) initializer public {
         require(initialOwner != address(0), "Invalid Owner Address");
         _transferOwnership(initialOwner);
     }
@@ -63,6 +57,7 @@ contract Settings is Ownable, ISettings, Initializable {
     }
 
     function setMaxLoanToValue(uint256 maxLoanToValue) external onlyOwner {
+        require(maxLoanToValue > 0 );
         require(maxLoanToValue <  PERCENTAGE_PRECISION, "Invalid percentage value");
         require(maxLoanToValue >= _loanToValue, "Invalid Max Loan");
         _maxLoanToValue = maxLoanToValue;
@@ -74,7 +69,9 @@ contract Settings is Ownable, ISettings, Initializable {
     }
 
     function setLoanToValue(uint256 loanToValue) external onlyOwner {
+        require(loanToValue <= _maxLoanToValue, "Invalid LTV could not be higher than max");
         require(loanToValue <  PERCENTAGE_PRECISION, "Invalid percentage value");
+        require(loanToValue > 0 );
         _loanToValue = loanToValue;
         emit LoanToValueChanged(_loanToValue);
     }
@@ -123,5 +120,7 @@ contract Settings is Ownable, ISettings, Initializable {
         _nrLoops = nrLoops;
         emit NrLoopsChanged( _nrLoops);
     }
+
+    function _authorizeUpgrade(address) internal onlyOwner {}
 
 }

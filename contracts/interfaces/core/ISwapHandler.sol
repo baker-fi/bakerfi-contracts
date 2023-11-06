@@ -14,11 +14,16 @@ abstract contract ISwapHandler {
     struct SwapParams {
         address underlyingIn;
         address underlyingOut;
-        uint mode;
+        SwapType mode;
         uint amountIn;
         uint amountOut;
         uint24 feeTier;
         bytes payload;
+    }
+
+    enum SwapType {
+        EXACT_INPUT,
+        EXACT_OUTPUT
     }
 
     /// @notice Execute a trade on the swap handler

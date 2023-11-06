@@ -27,7 +27,7 @@ abstract contract UseWETH {
     }
 
     function _unwrapWETH(uint256 wETHAmount) internal {
-        IERC20(address(_wETH)).approve(address(_wETH), wETHAmount);
+        require(IERC20(address(_wETH)).approve(address(_wETH), wETHAmount));
         wETH().withdraw(wETHAmount);
     }
 }
