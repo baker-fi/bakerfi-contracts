@@ -17,7 +17,8 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
 /**
  * @title WST used
- * @author
+ * @author Hélder Vasconcelos
+ * @author Henrique Macedo 
  * @notice
  */
 contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH {

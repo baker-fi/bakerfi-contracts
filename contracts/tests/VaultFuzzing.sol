@@ -10,8 +10,9 @@ import { StrategyMock } from "../mocks/StrategyMock.sol";
 import { SETTINGS } from "../core/Constants.sol";
 
 /**
+ * 
  * @title 
- * @author 
+ * @author BakerFi
  * @notice 
  */
 contract VaultFuzzing {

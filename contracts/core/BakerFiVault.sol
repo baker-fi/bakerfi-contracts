@@ -23,7 +23,7 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
  * using a recursive strategy based on flash loans and borrow markets.
  *
  * @title BakerFi Vault smart contract
- * @author Helder Vasconcelos
+ * @author BakerFi
  * @notice
  */
 contract BakerFiVault is 
@@ -128,7 +128,7 @@ contract BakerFiVault is
             msg.value
         );
        
-        uint256 amount= abi.decode(result, (uint256));
+        uint256 amount = abi.decode(result, (uint256));
         shares = total.toBase(amount, false);
         _mint(receiver, shares);
         emit Deposit(msg.sender, receiver, msg.value, shares);
@@ -145,16 +145,17 @@ contract BakerFiVault is
         uint256 withdrawAmount = totalAssets() * percentageToBurn / PERCENTAGE_PRECISION;
         require(withdrawAmount > 0, "No Assets to withdraw");
         amount = _strategy.undeploy(withdrawAmount);
+        uint256 fee = 0;
         // Withdraw ETh to Receiver and pay withdrawal Fees
         if (settings().getWithdrawalFee() != 0  && settings().getFeeReceiver() != address(0)) {
-            uint256 fee = amount * settings().getWithdrawalFee() /PERCENTAGE_PRECISION;
+            fee = amount * settings().getWithdrawalFee() /PERCENTAGE_PRECISION;
             payable(msg.sender).sendValue(amount - fee);
             payable(settings().getFeeReceiver()).sendValue(fee);          
         } else {
             payable(msg.sender).sendValue(amount);
         }
         _burn(msg.sender, shares);
-        emit Withdraw(msg.sender, amount, shares);
+        emit Withdraw(msg.sender, amount - fee, shares);
     }
 
     /**

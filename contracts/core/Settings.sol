@@ -1,22 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-/**
- *  
- * @title BakerFi Protocol Settings 
- * @author 
- * @notice The settings could only be Changed by the Owner and could be used by any contract 
- * by the system
- */
-
 import { PERCENTAGE_PRECISION, MAX_LOOPS} from "./Constants.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ISettings } from "../interfaces/core/ISettings.sol";
 import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+
 /**
  * @title Protocol Settings Contract
- * @author 
- * @notice 
+ * @author BakerFi
+ * @notice The settings could only be Changed by the Owner and could be used by any contract 
+ * by the system
  */
 contract Settings is Ownable, ISettings {
     

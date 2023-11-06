@@ -15,7 +15,8 @@ import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
 
 /**
  * @title
- * @author
+ * @author Hélder Vasconcelos
+ * @author Henrique Macedo 
  * @notice
  */
 contract AAVEv3StrategyAny is AAVEv3StrategyBase {

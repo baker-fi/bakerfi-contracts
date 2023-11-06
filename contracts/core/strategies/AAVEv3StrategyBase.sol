@@ -49,7 +49,8 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
  * TODO: Optimize Gas by set MAX Int allowances on initialization
  *
  * @title
- * @author
+ * @author Hélder Vasconcelos
+ * @author Henrique Macedo 
  * @notice
  */
 abstract contract AAVEv3StrategyBase is
@@ -72,6 +73,9 @@ abstract contract AAVEv3StrategyBase is
         PAY_DEBT_WITHDRAW,
         PAY_DEBT
     }
+
+    event StrategyDeploy(address indexed from , uint256 indexed amount);
+    event StrategyUndeploy(address indexed from, uint256 indexed amount);  
     event StrategyProfit(uint256 indexed amount);
     event StrategyLoss(uint256 indexed amount);
     event StrategyAmountUpdate(uint256 indexed newDeployment);
@@ -197,6 +201,7 @@ abstract contract AAVEv3StrategyBase is
         _supplyAndBorrow(ierc20A(), collateralIn, wETHA(), loanAmount + fee);
         uint256 collateralInETH = _toWETH(collateralIn);       
         _pendingAmount = collateralInETH - loanAmount - fee;        
+        emit StrategyDeploy(msg.sender, _pendingAmount);
     }
 
     function _payDebt(uint256 debtAmount, uint256 fee) private {
@@ -209,7 +214,7 @@ abstract contract AAVEv3StrategyBase is
             aaveV3().withdraw(ierc20A(), amountIn, address(this)) == amountIn, 
             "Invalid Amount Withdrawn"
         );
-        _swap(
+        uint256 output = _swap(
             ISwapHandler.SwapParams(
                 ierc20A(), 
                 wETHA(), 
@@ -220,6 +225,13 @@ abstract contract AAVEv3StrategyBase is
                 bytes("")
             )
         );
+        // When there are leftovers from the swap, deposit then back
+        uint256 wethLefts = output > (debtAmount + fee) ? output - (debtAmount + fee) : 0;
+        if (wethLefts > 0) {
+            require(wETH().approve(aaveV3A(), wethLefts));
+            aaveV3().supply(wETHA(), wethLefts, address(this), 0);
+        } 
+        emit StrategyUndeploy(msg.sender, debtAmount);
     }
 
     /**
@@ -253,6 +265,7 @@ abstract contract AAVEv3StrategyBase is
         _unwrapWETH(ethToWithdraw);
         // Withdraw ETh to Receiver
         payable(receiver).sendValue(ethToWithdraw);
+        emit StrategyUndeploy(msg.sender, ethToWithdraw);
         _pendingAmount = ethToWithdraw;
     }
 
