@@ -30,7 +30,6 @@ contract Settings is Ownable, ISettings {
     uint8   private _nrLoops = 10; 
     EnumerableSet.AddressSet private _enabledAccounts;
 
-
     event SetMaxLoanToValueChanged(uint256 indexed value);
     event LoanToValueChanged( uint256 indexed value);
     event WithdrawalFeeChanged(uint256 indexed value);
@@ -61,6 +60,7 @@ contract Settings is Ownable, ISettings {
     }
 
     function setMaxLoanToValue(uint256 maxLoanToValue) external onlyOwner {
+        require(maxLoanToValue > 0 );
         require(maxLoanToValue <  PERCENTAGE_PRECISION, "Invalid percentage value");
         require(maxLoanToValue >= _loanToValue, "Invalid Max Loan");
         _maxLoanToValue = maxLoanToValue;
@@ -72,7 +72,9 @@ contract Settings is Ownable, ISettings {
     }
 
     function setLoanToValue(uint256 loanToValue) external onlyOwner {
+        require(loanToValue <= _maxLoanToValue, "Invalid LTV could not be higher than max");
         require(loanToValue <  PERCENTAGE_PRECISION, "Invalid percentage value");
+        require(loanToValue > 0 );
         _loanToValue = loanToValue;
         emit LoanToValueChanged(_loanToValue);
     }

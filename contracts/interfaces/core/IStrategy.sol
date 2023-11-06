@@ -13,9 +13,5 @@ interface IStrategy {
         uint256 amount
     ) external returns (uint256 actualAmount);
 
-    //function exit(address payable liquidator) external returns (uint256 actualAmount);
-    function getPosition()
-        external
-        view
-        returns (uint256 totalCollateralInEth, uint256 totalDebtInEth, uint256 loanToValue);
+    function deployed() external view returns (uint256 assets);    
 }

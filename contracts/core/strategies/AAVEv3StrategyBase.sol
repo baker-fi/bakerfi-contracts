@@ -147,9 +147,9 @@ abstract contract AAVEv3StrategyBase is
      * Current capital owned by Share Holders
      * The amount of capital is equal to Total Collateral Value - Total Debt Value
      */
-    function totalAssets() public view returns (uint256 totalOwnedAssets) {
+    function deployed() public view returns (uint256 totalOwnedAssets) {
         (uint256 totalCollateralInEth, uint256 totalDebtInEth) = _getPosition();
-        totalOwnedAssets = totalCollateralInEth - totalDebtInEth;
+        totalOwnedAssets = totalCollateralInEth > totalDebtInEth ? (totalCollateralInEth - totalDebtInEth): 0;
     }
 
     /**

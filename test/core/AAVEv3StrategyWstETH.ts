@@ -108,7 +108,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
   it("Test Initialized Strategy", async function () {
     const { owner, strategy } = await loadFixture(deployFunction);
     expect(await strategy.getPosition()).to.deep.equal([0n, 0n, 0n]);
-    expect(await strategy.totalAssets()).to.equal(0);
+    expect(await strategy.deployed()).to.equal(0);
   });
 
   it("Test Deploy", async function () {
@@ -124,7 +124,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
       35740737730000000000n,
       782832378n,
     ]);
-    expect(await strategy.totalAssets()).to.equal(9914933530000000000n);
+    expect(await strategy.deployed()).to.equal(9914933530000000000n);
   });
 
   it("Harvest Profit - No Debt Adjust", async function () {
@@ -144,7 +144,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
       35740737730000000000n,
       711665798n,
     ]);
-    expect(await strategy.totalAssets()).to.equal(14480500660000000000n);
+    expect(await strategy.deployed()).to.equal(14480500660000000000n);
   });
 
   it("Harvest Loss - No Debt Adjust", async function () {
@@ -162,7 +162,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
       782832378n,
     ]);
 
-    expect(await strategy.totalAssets()).to.equal(9914933530000000000n);
+    expect(await strategy.deployed()).to.equal(9914933530000000000n);
 
     // Increment the Collateral value by 10%
     await aave3Pool.setCollateralPerEth(1130 * 1e6 * 0.98);
@@ -178,7 +178,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
       798808549n,
     ]);
 
-    expect(await strategy.totalAssets()).to.equal(9001820110000000000n);
+    expect(await strategy.deployed()).to.equal(9001820110000000000n);
   });
 
   it("Harvest - Debt Adjust", async function () {
@@ -211,7 +211,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
       807804854n,
     ]);
 
-    expect(await strategy.totalAssets()).to.equal(5090943670000000000n);
+    expect(await strategy.deployed()).to.equal(5090943670000000000n);
   });
 
   it("Harvest Loss - Collateral Value is lower than debt", async function () {

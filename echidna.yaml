@@ -1,0 +1,15 @@
+#format can be "text" or "json" for different output (human or machine readable)
+format: 'text'
+#checkAsserts checks assertions
+#checkAsserts: true
+#coverage controls coverage guided testing
+coverage: false
+#seqLen defines how many transactions are in a test sequence
+seqLen: 10
+#testLimit is the number of test sequences to run
+testLimit: 5000
+balanceContract: 100000
+cryticArgs: [
+  '--solc-remaps', 
+  '@openzeppelin/contracts/=node_modules/@openzeppelin/contracts/ @openzeppelin/contracts-upgradeable/=node_modules/@openzeppelin/contracts-upgradeable/'
+]
