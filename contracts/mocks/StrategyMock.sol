@@ -16,7 +16,7 @@ contract StrategyMock is IStrategy {
         return msg.value;
     }
 
-    function harvest() external override returns (int256 balanceChange) {
+    function harvest() external view override returns (int256 balanceChange) {
         return _havestPerCall;
     }
 
@@ -27,10 +27,15 @@ contract StrategyMock is IStrategy {
         return amount;
     }
 
+    function deployed() external view override returns (uint256 actualAmount) {
+        uint256 col = address(this).balance;
+        uint256 deb = col * _debRatio / 100;        
+        actualAmount =  col >= deb ? col- deb : 0;
+    }
+
     function getPosition()
         external
-        view
-        override
+        view        
         returns (uint256 totalCollateralInEth, uint256 totalDebtInEth, uint256 loanToValue)
     {
         return (

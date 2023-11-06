@@ -483,9 +483,7 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
 
 
   it("Rebalance - Generates Revenue ", async () => {
-    const { owner, vault, strategy, settings, otherAccount} = await loadFixture(deployMockStrategyFunction);
-    const depositAmount = ethers.parseUnits("100", 18);
-    
+    const { owner, vault, strategy, settings, otherAccount} = await loadFixture(deployMockStrategyFunction);    
     await vault.deposit(owner.address, {
       value: 10000,
     });
@@ -507,5 +505,18 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     expect(await vault.totalSupply()).to.equal(10200);
 
   })
+
+  it("Rebalance - Assets on Uncollateralized positions ", async () => {
+    const { owner, vault, strategy, settings, otherAccount} = await loadFixture(deployMockStrategyFunction);
+    await vault.deposit(owner.address, {
+      value: 10000,
+    });
+    await strategy.setRatio(110);
+    expect( await vault.totalAssets()).to.equal(0n);
+    expect( await vault.convertToShares(10)).to.equal(10n);
+    expect( await vault.convertToAssets(10)).to.equal(0n);
+  });
+
+
 
 });

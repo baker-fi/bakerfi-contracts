@@ -161,9 +161,8 @@ contract BakerFiVault is
      * Total Assets that belong to the Share Holders
      */
     function totalAssets() public override view returns (uint256 amount) {
-        (uint256 totalCollateralInEth, uint256 totalDebtInEth, ) = _strategy.getPosition();
-        amount = totalCollateralInEth > totalDebtInEth ? (totalCollateralInEth - totalDebtInEth): 0;
-    }
+        amount = _strategy.deployed();
+    } 
 
     /**
      * Convert an Ammount of Assets to shares
