@@ -5,7 +5,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {ServiceRegistry} from "../core/ServiceRegistry.sol";
 import {UseFlashLender} from "../core/hooks/UseFlashLender.sol";
-
+import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 contract FlashBorrowerMock is IERC3156FlashBorrower, UseFlashLender {
     uint256 constant FLASH_LOAN_FEE_PRECISION = 100000;
@@ -18,7 +18,9 @@ contract FlashBorrowerMock is IERC3156FlashBorrower, UseFlashLender {
     using SafeERC20 for IERC20;
 
 
-    constructor(ServiceRegistry registry) UseFlashLender(registry) {}   
+    function initialize(ServiceRegistry registry)public initializer {
+         __initUseFlashLender(registry);
+    }   
 
     function borrowed(address token) external view returns (uint256) {
         return _totalBorrowed[token];

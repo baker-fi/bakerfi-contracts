@@ -2,10 +2,9 @@
 pragma solidity ^0.8.18;
 
 import { PERCENTAGE_PRECISION, MAX_LOOPS} from "./Constants.sol";
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import { ISettings } from "../interfaces/core/ISettings.sol";
 import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 /**
  * @title Protocol Settings Contract
@@ -13,15 +12,15 @@ import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.s
  * @notice The settings could only be Changed by the Owner and could be used by any contract 
  * by the system
  */
-contract Settings is Ownable, ISettings, Initializable {
+contract Settings is OwnableUpgradeable, ISettings {
     
     using EnumerableSet for EnumerableSet.AddressSet;
 
-    uint256 private                  _withdrawalFee;   // 1%
-    uint256 private                  _performanceFee; // 1%
-    address private                  _feeReceiver; // No Fee Receiver
-    uint256 private                  _loanToValue; // 80%
-    uint256 private                  _maxLoanToValue; // 85%     
+    uint256 private                  _withdrawalFee;    // 1%
+    uint256 private                  _performanceFee;   // 1%
+    address private                  _feeReceiver;      // No Fee Receiver
+    uint256 private                  _loanToValue;      // 80%
+    uint256 private                  _maxLoanToValue;   // 85%     
     uint8   private                  _nrLoops; 
     EnumerableSet.AddressSet private _enabledAccounts;
 
@@ -34,7 +33,9 @@ contract Settings is Ownable, ISettings, Initializable {
     event AccountWhiteList( address indexed account, bool enabled );
 
 
-    function initialize(address initialOwner) public virtual initializer {        
+    function initialize(address initialOwner) public initializer {        
+        __Context_init_unchained();
+        __Ownable_init_unchained();
         require(initialOwner != address(0), "Invalid Owner Address");
         _transferOwnership(initialOwner);
         _withdrawalFee = 10 * 1e6; // 1%

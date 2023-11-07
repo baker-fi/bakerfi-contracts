@@ -6,17 +6,18 @@ import {ServiceRegistry} from "../ServiceRegistry.sol";
 import {
     AAVE_V3
 } from "../Constants.sol";
-import {IServiceRegistry} from "../../interfaces/core/IServiceRegistry.sol";
-import {IPoolV3} from "../../interfaces/aave/v3/IPoolV3.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import { IServiceRegistry } from "../../interfaces/core/IServiceRegistry.sol";
+import { IPoolV3 } from "../../interfaces/aave/v3/IPoolV3.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-abstract contract UseAAVEv3 {
+abstract contract UseAAVEv3 is Initializable {
     using SafeERC20 for IERC20;
 
-    IPoolV3 immutable private _aavev3;
+    IPoolV3 private _aavev3;
 
-    constructor(ServiceRegistry registry) {
+    function __initUseAAVEv3(ServiceRegistry registry) internal onlyInitializing {
         _aavev3 = IPoolV3(registry.getServiceFromHash(AAVE_V3));
         require(address(_aavev3) != address(0), "Invalid AAVE v3 Contract");
     }

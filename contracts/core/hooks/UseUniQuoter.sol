@@ -6,12 +6,13 @@ import {ServiceRegistry} from "../ServiceRegistry.sol";
 import {UNISWAP_QUOTER} from "../Constants.sol";
 import {IQuoterV2} from "../../interfaces/uniswap/v3/IQuoterV2.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-abstract contract UseUniQuoter {
+abstract contract UseUniQuoter is Initializable {
     
-    IQuoterV2 immutable private _quoter;
+    IQuoterV2 private _quoter;
 
-    constructor(ServiceRegistry registry) {
+    function __initUseUniQuoter(ServiceRegistry registry) internal onlyInitializing  {
         _quoter = IQuoterV2(registry.getServiceFromHash(UNISWAP_QUOTER));
         require(address(_quoter) != address(0), "Invalid Uniswap Quoter Contract");
     }

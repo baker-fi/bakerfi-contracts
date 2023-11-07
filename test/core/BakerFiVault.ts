@@ -428,7 +428,8 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
   async function deployMockStrategyFunction() {
     const [owner, otherAccount, anotherAccount] = await ethers.getSigners();
     const Settings = await ethers.getContractFactory("Settings");
-    const settings = await Settings.deploy(owner);
+    const settings = await Settings.deploy();
+    await settings.initialize(owner);
     await settings.waitForDeployment();
     
     const serviceRegistry = await deployServiceRegistry(owner.address);
@@ -443,7 +444,8 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     );
 
     const BakerFiVault = await ethers.getContractFactory("BakerFiVault");
-    const vault = await BakerFiVault.deploy(
+    const vault = await BakerFiVault.deploy();
+    await vault.initialize(
       owner.address,
       await serviceRegistry.getAddress(),
       await strategy.getAddress()

@@ -5,11 +5,12 @@ pragma experimental ABIEncoderV2;
 import {ServiceRegistry} from "../ServiceRegistry.sol";
 import {ST_ETH_CONTRACT} from "../Constants.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-abstract contract UseStETH {
-    IERC20 immutable private _stETH;
+abstract contract UseStETH is Initializable  {
+    IERC20 private _stETH;
 
-    constructor(ServiceRegistry registry) {
+    function __initUseStETH(ServiceRegistry registry) internal onlyInitializing {
         _stETH = IERC20(registry.getServiceFromHash(ST_ETH_CONTRACT));
         require(address(_stETH) != address(0), "Invalid St ETH Contract");
     }

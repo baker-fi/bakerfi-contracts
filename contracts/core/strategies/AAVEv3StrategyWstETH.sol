@@ -15,26 +15,28 @@ import {IWStETH} from "../../interfaces/lido/IWStETH.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
+import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+
 /**
  * @title WST used
  * @author Hélder Vasconcelos
  * @author Henrique Macedo 
  * @notice
  */
-contract AAVEv3StrategyWstETH is AAVEv3StrategyBase, UseWstETH, UseStETH {
+contract AAVEv3StrategyWstETH is Initializable, AAVEv3StrategyBase, UseWstETH, UseStETH {
     using SafeERC20 for IERC20;
     using Address for address payable;
-    // solhint-disable no-empty-blocks    
-    constructor(
+    
+    // solhint-disable no-empty-blocks        
+    function initialize(
         address initialOwner,
         ServiceRegistry registry,
         uint24 swapFeeTier,
         uint8 eModeCategory
-    )
-        AAVEv3StrategyBase(initialOwner, registry, WST_ETH_CONTRACT, WSTETH_ETH_ORACLE, swapFeeTier, eModeCategory)
-        UseWstETH(registry)
-        UseStETH(registry)
-    {
+    )  public initializer {
+        __initializeAAVEv3StrategyBase(initialOwner, registry, WST_ETH_CONTRACT, WSTETH_ETH_ORACLE, swapFeeTier, eModeCategory);
+        __initUseWstETH(registry);
+        __initUseStETH(registry);
         require(stETH().approve(uniRouterA(), 2**256 - 1));
     }
     // solhint-enable no-empty-blocks    

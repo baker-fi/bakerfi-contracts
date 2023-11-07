@@ -43,7 +43,10 @@ export async function deployVault(
   strategy: string
 ) {
   const Vault = await ethers.getContractFactory("BakerFiVault");
-  const vault = await Vault.deploy(owner, serviceRegistry, strategy);
+  const vault = await Vault.deploy();
+  await vault.initialize(
+    owner, serviceRegistry, strategy
+  );
   await vault.waitForDeployment();
   return vault;
 }
@@ -57,7 +60,8 @@ export async function deployAAVEv3StrategyWstETH(
   const AAVEv3Strategy = await ethers.getContractFactory(
     "AAVEv3StrategyWstETH"
   );
-  const strategy = await AAVEv3Strategy.deploy(
+  const strategy = await AAVEv3Strategy.deploy();
+  await strategy.initialize(
     owner, 
     serviceRegistry,
     swapFreeTier,
@@ -76,7 +80,8 @@ export async function deployAAVEv3StrategyAny(
   emodeCategory: number
 ) {
   const AAVEv3Strategy = await ethers.getContractFactory("AAVEv3StrategyAny");
-  const strategy = await AAVEv3Strategy.deploy(
+  const strategy = await AAVEv3Strategy.deploy();
+  await strategy.initialize(
     owner,
     serviceRegistry,
     ethers.keccak256(Buffer.from(collateral)),
@@ -228,7 +233,8 @@ export async function deploWSTETHToETHOracle(
 
 export async function deploySettings(owner: string, serviceRegistry) {
   const Settings = await ethers.getContractFactory("Settings");
-  const settings = await Settings.deploy(owner);
+  const settings = await Settings.deploy();
+  settings.initialize(owner);
   await settings.waitForDeployment();
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from("Settings")),
@@ -299,7 +305,8 @@ export async function deployBalancerFL(serviceRegistry: any) {
 
 export async function deployFlashBorrowerMock(serviceRegistry) {
   const Borrower = await ethers.getContractFactory("FlashBorrowerMock");
-  const borrower = await Borrower.deploy(await serviceRegistry.getAddress());
+  const borrower = await Borrower.deploy();
+  await borrower.initialize(await serviceRegistry.getAddress());
   await borrower.waitForDeployment();
   return borrower;
 }

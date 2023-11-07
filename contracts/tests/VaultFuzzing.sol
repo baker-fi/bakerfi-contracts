@@ -28,7 +28,8 @@ contract VaultFuzzing {
             SETTINGS,
             address(settings)
         );
-        _vault = new BakerFiVault(
+        _vault = new BakerFiVault();
+        _vault.initialize(
             address(this),
             register,
             strategy

@@ -12,6 +12,7 @@ import {IWStETH} from "../../interfaces/lido/IWStETH.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IStrategy} from "../../interfaces/core/IStrategy.sol";
 import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
+import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**
  * @title
@@ -19,18 +20,20 @@ import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
  * @author Henrique Macedo 
  * @notice
  */
-contract AAVEv3StrategyAny is AAVEv3StrategyBase {
+contract AAVEv3StrategyAny is Initializable, AAVEv3StrategyBase {
     using SafeERC20 for IERC20;
 
     // solhint-disable no-empty-blocks  
-    constructor(
+    function initialize(
         address initialOwner,
         ServiceRegistry registry,
         bytes32 collateral,
         bytes32 oracle,
         uint24 swapFeeTier,
         uint8 eModeCategory        
-    ) AAVEv3StrategyBase(initialOwner, registry, collateral, oracle, swapFeeTier, eModeCategory) {}
+    ) public initializer {
+        __initializeAAVEv3StrategyBase(initialOwner, registry, collateral, oracle, swapFeeTier, eModeCategory);
+    }
     // solhint-enable no-empty-blocks    
 
     function _convertFromWETH(uint256 amount) internal virtual override returns (uint256) {

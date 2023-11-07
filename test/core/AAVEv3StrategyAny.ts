@@ -252,11 +252,11 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
     const { weth, serviceRegistry, strategy} =
     await loadFixture(deployFunction);
 
-
     const BorrowerAttacker = await ethers.getContractFactory("BorrowerAttacker");
-    const attacker = await BorrowerAttacker.deploy(
+    const attacker = await BorrowerAttacker.deploy();
+    await attacker.initialize(
       await serviceRegistry.getAddress()
-    );
+    )
 
     await strategy.deploy({
       value: ethers.parseUnits("10", 18),

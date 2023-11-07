@@ -14,6 +14,7 @@ describeif(network.name === "hardhat")("Settings", function () {
       otherAccount.address,
       serviceRegistry
     );
+    
     return { serviceRegistry, settings, otherAccount, owner };
   }
 

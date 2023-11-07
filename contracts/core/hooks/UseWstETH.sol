@@ -8,15 +8,16 @@ import {IWETH} from "../../interfaces/tokens/IWETH.sol";
 import {IWStETH} from "../../interfaces/lido/IWStETH.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 
-abstract contract UseWstETH {
-    IWStETH immutable private _wstETH;
-    IERC20 immutable private _stETHToken;
+abstract contract UseWstETH is Initializable {
+    IWStETH private _wstETH;
+    IERC20 private _stETHToken;
     
     using SafeERC20 for IERC20;
 
-    constructor(ServiceRegistry registry) {
+    function __initUseWstETH(ServiceRegistry registry) internal onlyInitializing {
         _wstETH = IWStETH(registry.getServiceFromHash(WST_ETH_CONTRACT));
         _stETHToken = IERC20(registry.getServiceFromHash(ST_ETH_CONTRACT));
         require(address(_wstETH) != address(0), "Invalid WstETH Contract");

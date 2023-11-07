@@ -6,9 +6,7 @@ import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.s
 
 contract SettingsV2 is Settings {
 
-    function initialize(address initialOwner) public override initializer {              
-    }
-    
+
     function getNumber() public pure  returns (uint256) {
         return 10;
     }

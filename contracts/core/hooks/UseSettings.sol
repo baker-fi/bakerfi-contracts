@@ -6,11 +6,12 @@ import {ServiceRegistry} from "../ServiceRegistry.sol";
 import {SETTINGS} from "../Constants.sol";
 import {IServiceRegistry} from "../../interfaces/core/IServiceRegistry.sol";
 import {ISettings} from "../../interfaces/core/ISettings.sol";
+import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-abstract contract UseSettings {
-    ISettings immutable private _settings;
+abstract contract UseSettings is Initializable {
+    ISettings private _settings;
 
-    constructor(ServiceRegistry registry) {
+    function __initUseSettings(ServiceRegistry registry) internal onlyInitializing {
         _settings = ISettings(registry.getServiceFromHash(SETTINGS));
         require(address(_settings) != address(0), "Invalid Settings Contract");
     }
