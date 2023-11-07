@@ -6,7 +6,6 @@ import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ISettings } from "../interfaces/core/ISettings.sol";
 import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
 /**
  * @title Protocol Settings Contract
@@ -14,16 +13,16 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeab
  * @notice The settings could only be Changed by the Owner and could be used by any contract 
  * by the system
  */
-contract Settings is Ownable, ISettings, UUPSUpgradeable, Initializable {
+contract Settings is Ownable, ISettings, Initializable {
     
     using EnumerableSet for EnumerableSet.AddressSet;
 
-    uint256 private _withdrawalFee = 10 * 1e6; // 1%
-    uint256 private _performanceFee = 10* 1e6; // 1%
-    address private _feeReceiver = address(0); // No Fee Receiver
-    uint256 private _loanToValue =  800 * 1e6; // 80%
-    uint256 private _maxLoanToValue =  850 * 1e6; // 85%     
-    uint8   private _nrLoops = 10; 
+    uint256 private                  _withdrawalFee;   // 1%
+    uint256 private                  _performanceFee; // 1%
+    address private                  _feeReceiver; // No Fee Receiver
+    uint256 private                  _loanToValue; // 80%
+    uint256 private                  _maxLoanToValue; // 85%     
+    uint8   private                  _nrLoops; 
     EnumerableSet.AddressSet private _enabledAccounts;
 
     event SetMaxLoanToValueChanged(uint256 indexed value);
@@ -35,9 +34,15 @@ contract Settings is Ownable, ISettings, UUPSUpgradeable, Initializable {
     event AccountWhiteList( address indexed account, bool enabled );
 
 
-    function initialize(address initialOwner) initializer public {
+    function initialize(address initialOwner) public virtual initializer {        
         require(initialOwner != address(0), "Invalid Owner Address");
         _transferOwnership(initialOwner);
+        _withdrawalFee = 10 * 1e6; // 1%
+        _performanceFee = 10* 1e6; // 1%
+        _feeReceiver = address(0); // No Fee Receiver
+        _loanToValue =  800 * 1e6; // 80%
+        _maxLoanToValue = 850 * 1e6; // 85%     
+        _nrLoops = 10; 
     }
 
     function enableAccount(address account, bool enabled ) external onlyOwner {
@@ -120,7 +125,5 @@ contract Settings is Ownable, ISettings, UUPSUpgradeable, Initializable {
         _nrLoops = nrLoops;
         emit NrLoopsChanged( _nrLoops);
     }
-
-    function _authorizeUpgrade(address) internal onlyOwner {}
 
 }

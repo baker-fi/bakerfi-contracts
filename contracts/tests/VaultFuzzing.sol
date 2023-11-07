@@ -22,7 +22,8 @@ contract VaultFuzzing {
     constructor() payable {
         StrategyMock strategy =  new StrategyMock();
         ServiceRegistry register = new ServiceRegistry(address(this));       
-        Settings settings = new Settings(address(this));       
+        Settings settings = new Settings();
+        settings.initialize(address(this));
         register.registerService(
             SETTINGS,
             address(settings)
