@@ -32,7 +32,14 @@ contract AAVEv3StrategyAny is Initializable, AAVEv3StrategyBase {
         uint24 swapFeeTier,
         uint8 eModeCategory        
     ) public initializer {
-        __initializeAAVEv3StrategyBase(initialOwner, registry, collateral, oracle, swapFeeTier, eModeCategory);
+        __initializeAAVEv3StrategyBase(
+            initialOwner,
+            registry, 
+            collateral, 
+            oracle, 
+            swapFeeTier, 
+            eModeCategory
+        );
     }
     // solhint-enable no-empty-blocks    
 
