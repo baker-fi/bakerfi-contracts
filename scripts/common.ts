@@ -45,7 +45,9 @@ export async function deployVault(
   const Vault = await ethers.getContractFactory("BakerFiVault");
   const vault = await Vault.deploy();
   await vault.initialize(
-    owner, serviceRegistry, strategy
+    owner, 
+    serviceRegistry, 
+    strategy
   );
   await vault.waitForDeployment();
   return vault;
