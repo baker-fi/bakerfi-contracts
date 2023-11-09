@@ -76,7 +76,7 @@ export async function deployBase() {
     await deployETHOracle(serviceRegistry, config.ethOracle);
 
     // 12. Deploy the Strategy
-    const strategy = await deployAAVEv3StrategyAny(
+    const { strategy } = await deployAAVEv3StrategyAny(
       deployer.address,
       await serviceRegistry.getAddress(),
       "cbETH",
@@ -88,7 +88,7 @@ export async function deployBase() {
     await strategy.setTargetLTV(ethers.parseUnits("500", 6));
 
     // 13. Deploy the Vault
-    const vault = await deployVault(
+    const { vault } = await deployVault(
       deployer.address,
       await serviceRegistry.getAddress(),
       await strategy.getAddress()
@@ -165,7 +165,7 @@ export async function deployBase() {
     await deployETHOracle(serviceRegistry, config.ethOracle);
 
     // 12. Deploy the Strategy
-    const strategy = await deployAAVEv3StrategyAny(
+    const  { strategy }= await deployAAVEv3StrategyAny(
       deployer.address,
       await serviceRegistry.getAddress(),
       "wstETH",
@@ -182,7 +182,7 @@ export async function deployBase() {
     await settings.setLoanToValue(ethers.parseUnits("800", 6));
 
     // 13. Deploy the Vault
-    const vault = await deployVault(
+    const  { vault} = await deployVault(
       deployer.address,
       await serviceRegistry.getAddress(),
       await strategy.getAddress()
@@ -266,7 +266,7 @@ export async function deployEthereum() {
     await deployETHOracle(serviceRegistry, config.ethOracle);
 
     // 12. Deploy the Strategy
-    const strategy = await deployAAVEv3StrategyWstETH(
+    const { strategy } = await deployAAVEv3StrategyWstETH(
       deployer.address,
       await serviceRegistry.getAddress(),
       config.swapFeeTier,
@@ -281,7 +281,7 @@ export async function deployEthereum() {
     await settings.setLoanToValue(ethers.parseUnits("800", 6));
 
     // 13. Deploy the Vault
-    const vault = await deployVault(
+    const { vault } = await deployVault(
       deployer.address,
       await serviceRegistry.getAddress(),
       await strategy.getAddress()

@@ -40,17 +40,36 @@ export async function deployServiceRegistry(owner: string) {
 export async function deployVault(
   owner: string,
   serviceRegistry: string,
-  strategy: string
+  strategy: string,
+  proxied?: boolean,
+  proxyAdmin?: any
 ) {
   const Vault = await ethers.getContractFactory("BakerFiVault");
   const vault = await Vault.deploy();
-  await vault.initialize(
-    owner, 
-    serviceRegistry, 
-    strategy
-  );
   await vault.waitForDeployment();
-  return vault;
+  
+  let proxy = null;  
+  if (proxied) {
+    const BakerFiProxy = await ethers.getContractFactory("BakerFiProxy");
+    proxy = await BakerFiProxy.deploy(
+      await vault.getAddress(),
+      await proxyAdmin.getAddress(),
+      Vault.interface.encodeFunctionData("initialize", [
+        owner, 
+        serviceRegistry, 
+        strategy
+      ])
+    );
+    await (proxy as any).waitForDeployment();
+  } else {
+    await vault.initialize(
+      owner, 
+      serviceRegistry, 
+      strategy
+    );
+   
+  }
+  return { proxy , vault };
 }
 
 export async function deployAAVEv3StrategyWstETH(
@@ -58,19 +77,38 @@ export async function deployAAVEv3StrategyWstETH(
   serviceRegistry: string,
   swapFreeTier: number,
   emodeCategory: number,
+  proxied?: boolean,
+  proxyAdmin?: any
 ) {
   const AAVEv3Strategy = await ethers.getContractFactory(
     "AAVEv3StrategyWstETH"
   );
   const strategy = await AAVEv3Strategy.deploy();
-  await strategy.initialize(
-    owner, 
-    serviceRegistry,
-    swapFreeTier,
-    emodeCategory
-  );
   await strategy.waitForDeployment();
-  return strategy;
+  let proxy = null;  
+
+  if(proxied) {
+    const BakerFiProxy = await ethers.getContractFactory("BakerFiProxy");
+    proxy = await BakerFiProxy.deploy(
+      await strategy.getAddress(),
+      await proxyAdmin.getAddress(),
+      AAVEv3Strategy.interface.encodeFunctionData("initialize", [
+        owner, 
+        serviceRegistry,
+        swapFreeTier,
+        emodeCategory
+      ])
+    );
+    await (proxy as any).waitForDeployment();
+  } else {
+    await strategy.initialize(
+      owner, 
+      serviceRegistry,
+      swapFreeTier,
+      emodeCategory
+    );
+  }
+  return { strategy , proxy };
 }
 
 export async function deployAAVEv3StrategyAny(
@@ -79,10 +117,30 @@ export async function deployAAVEv3StrategyAny(
   collateral: string,
   oracle: string,
   swapFreeTier: number,
-  emodeCategory: number
+  emodeCategory: number,
+  proxied?: boolean,
+  proxyAdmin?: any
 ) {
   const AAVEv3Strategy = await ethers.getContractFactory("AAVEv3StrategyAny");
   const strategy = await AAVEv3Strategy.deploy();
+  await strategy.waitForDeployment();
+  let proxy = null;  
+  if ( proxied ) {
+    const BakerFiProxy = await ethers.getContractFactory("BakerFiProxy");
+    proxy = await BakerFiProxy.deploy(
+      await strategy.getAddress(),
+      await proxyAdmin.getAddress(),
+      AAVEv3Strategy.interface.encodeFunctionData("initialize", [
+        owner,
+        serviceRegistry,
+        ethers.keccak256(Buffer.from(collateral)),
+        ethers.keccak256(Buffer.from(oracle)),
+        swapFreeTier,
+        emodeCategory
+      ])
+    );
+    await (proxy as any).waitForDeployment();
+  } else {
   await strategy.initialize(
     owner,
     serviceRegistry,
@@ -91,8 +149,9 @@ export async function deployAAVEv3StrategyAny(
     swapFreeTier,
     emodeCategory
   );
-  await strategy.waitForDeployment();
-  return strategy;
+
+  }
+  return { strategy };
 }
 
 export async function deployStEth(serviceRegistry, owner, maxSupply) {
@@ -233,15 +292,18 @@ export async function deploWSTETHToETHOracle(
   return oracle;
 }
 
-export async function deploySettings(owner: string, serviceRegistry) {
+export async function deploySettings(owner: string, serviceRegistry, skipRegister?: boolean) {
   const Settings = await ethers.getContractFactory("Settings");
   const settings = await Settings.deploy();
   settings.initialize(owner);
   await settings.waitForDeployment();
-  await serviceRegistry.registerService(
-    ethers.keccak256(Buffer.from("Settings")),
-    await settings.getAddress()
-  );
+  
+  if(!skipRegister) {
+    await serviceRegistry.registerService(
+      ethers.keccak256(Buffer.from("Settings")),
+      await settings.getAddress()
+    );
+  }
   return settings;
 }
 

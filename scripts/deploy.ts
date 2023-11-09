@@ -137,7 +137,7 @@ async function main() {
    * BakerFi Vault 
    ********************************************/
   spinner.text = "Deploying BakerFi Vault 👩‍🍳";    
-  const vault = await deployVault(
+  const { vault }= await deployVault(
         deployer.address, 
       await serviceRegistry.getAddress(),
       await strategy.getAddress() 
@@ -168,7 +168,7 @@ async function deployStrategy(config: any, deployer, serviceRegistry) {
   let strategy;
   switch (config.strategy.type) {
     case "base":
-        strategy = await deployAAVEv3StrategyAny(
+        const obj = await deployAAVEv3StrategyAny(
         deployer.address,
         await serviceRegistry.getAddress(),
         config.strategy.collateral,
@@ -176,6 +176,7 @@ async function deployStrategy(config: any, deployer, serviceRegistry) {
         config.swapFeeTier,
         config.AAVEEModeCategory
       );     
+      strategy = obj.strategy;
       break;
     default:
       break;

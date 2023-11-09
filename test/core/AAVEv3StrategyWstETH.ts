@@ -81,7 +81,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
     const oracle = await deployOracleMock(serviceRegistry, "wstETH/ETH Oracle");
     const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");
     await ethOracle.setLatestPrice(ethers.parseUnits("1", 18));
-    const strategy = await deployAAVEv3StrategyWstETH(
+    const { strategy } = await deployAAVEv3StrategyWstETH(
       owner.address,
       serviceRegistryAddress,
       config.swapFeeTier,

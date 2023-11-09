@@ -39,6 +39,14 @@ async function main() {
 
   spinner.text = "Getting Signers";
   const [owner, otherAccount] = await ethers.getSigners();
+  
+  // Deploy Proxy Admin
+  spinner.text = "Deploying Proxy Admin";  
+  const BakerFiProxyAdmin = await ethers.getContractFactory("BakerFiProxyAdmin");
+  const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
+  await proxyAdmin.waitForDeployment();
+  result.push(["Proxy Admin", await proxyAdmin.getAddress()])  
+  
   // 1. Deploy the Service Registry
   const serviceRegistry = await deployServiceRegistry(owner.address);
   spinner.text = "Deploying Registry";
@@ -56,7 +64,6 @@ async function main() {
   result.push(["Flash Lender", await flashLender.getAddress()])  
   result.push(["Flash Lender wETH", ethers.formatEther(await weth.balanceOf(await flashLender.getAddress()))])  
 
-  
   // 5. Deploy stETH ERC-20
   spinner.text = "Deploying StETH";  
   const stETH = await deployStEth(serviceRegistry, owner, STETH_MAX_SUPPLY);
@@ -67,13 +74,27 @@ async function main() {
   const wstETH  = await deployWStEth(serviceRegistry, await stETH.getAddress());
   result.push(["WstETH", await wstETH.getAddress()])  
 
-  spinner.text = "Deploying Settings";  
-  const settings  = await deploySettings(owner.address, serviceRegistry);
+  // Deploy Settings with a Proxy
+  spinner.text = "Deploying Settings Proxied";  
+  const settings = await deploySettings(owner.address, serviceRegistry, true);
+  const BakerFiProxy = await ethers.getContractFactory("BakerFiProxy");
+  const Settings = await ethers.getContractFactory("Settings");
+  const settinsProxy = await BakerFiProxy.deploy(
+    await settings.getAddress(),
+    await proxyAdmin.getAddress(),
+    Settings.interface.encodeFunctionData("initialize", [owner.address])
+  );
+  await settinsProxy.waitForDeployment();
+
+  await serviceRegistry.registerService(
+    ethers.keccak256(Buffer.from("Settings")),
+    await settinsProxy.getAddress()
+  );  
   result.push(["Settings", await settings.getAddress()])  
-
-
+  result.push(["Settings (Proxy)", await settinsProxy.getAddress()])  
+  
+  // Deploy cbETH -> ETH Uniswap Router  
   spinner.text = "Deploying Uniswap Router Mock";  
-  // Deploy cbETH -> ETH Uniswap Router
   const UniRouter = await ethers.getContractFactory("UniV3RouterMock");
   const uniRouter = await UniRouter.deploy(
       await weth.getAddress(),
@@ -82,6 +103,7 @@ async function main() {
   spinner.text = "Deploying Uniswap Router Mock";  
 
   await stETH.approve(await wstETH.getAddress(), ethers.parseUnits("20000", 18));
+  
   spinner.text = "Topping Up Uniswap Swapper";  
 
   // Deposit WETH on UniRouter
@@ -129,26 +151,36 @@ async function main() {
   await ethOracle.setLatestPrice(ethers.parseUnits("1", 18)); 
   result.push(["ETH/USD Oracle", await ethOracle.getAddress()])  
 
+  // Deploying Proxied Strategy
   spinner.text = "Deploying AAVEv3StrategyWstETH";  
-  const strategy = await deployAAVEv3StrategyWstETH( 
+  const { strategy, proxy: strategyProxy } = await deployAAVEv3StrategyWstETH( 
     owner.address,
     await serviceRegistry.getAddress(), 
     config.swapFeeTier,
     config.AAVEEModeCategory,
+    true,
+    proxyAdmin
   );
   result.push(["AAVEv3 Strategy WstETH", await strategy.getAddress()])  
+  result.push(["AAVEv3 Strategy WstETH (Proxy)", strategyProxy &&  await (strategyProxy as any).getAddress()])  
   
   spinner.text = "Deploying Vault";  
-  // 10. Deploy the Vault attached to Leverage Lib
-  const vault = await deployVault(
+  // 10. Deploy the Proxiec Vault attached to Leverage Lib
+  const { vault, proxy: vaultProxy } = await deployVault(
       owner.address, 
       await serviceRegistry.getAddress(),
-      await strategy.getAddress() 
+      await strategy.getAddress(),
+      true,
+      proxyAdmin
   );
   result.push(["BakerFi Vault 🕋", await vault.getAddress()])
-
+  result.push(["BakerFi Vault (Proxy)🕋", vaultProxy &&  await (vaultProxy as any).getAddress()])
+  
   spinner.text = "Transferring Vault Ownership";  
-  await strategy.transferOwnership(await vault.getAddress());
+  const vaultProxied = await ethers.getContractAt("BakerFiVault", await (vaultProxy as any).getAddress());
+  await vaultProxied.transferOwnership(await vault.getAddress());
+
+
   spinner.succeed("🧑‍🍳 BakerFi Served 🍰 ");
   console.table(result);
   process.exit(0);

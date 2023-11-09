@@ -85,7 +85,7 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
     const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");
     await ethOracle.setLatestPrice(ethers.parseUnits("1", 18));
     await deployQuoterV2Mock(serviceRegistry);
-    const strategy = await deployAAVEv3StrategyAny(
+    const { strategy } = await deployAAVEv3StrategyAny(
       owner.address,
       serviceRegistryAddress,
       "cbETH",
@@ -94,7 +94,7 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
       config.AAVEEModeCategory
     );
 
-    const vault = await deployVault(
+    const { vault } = await deployVault(
       owner.address,
       serviceRegistryAddress,
       await strategy.getAddress()
