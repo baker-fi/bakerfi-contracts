@@ -292,13 +292,13 @@ export async function deploWSTETHToETHOracle(
   return oracle;
 }
 
-export async function deploySettings(owner: string, serviceRegistry, skipRegister?: boolean) {
+export async function deploySettings(owner: string, serviceRegistry, proxied?: boolean) {
   const Settings = await ethers.getContractFactory("Settings");
   const settings = await Settings.deploy();
-  settings.initialize(owner);
   await settings.waitForDeployment();
   
-  if(!skipRegister) {
+  if(!proxied) {
+    await settings.initialize(owner);
     await serviceRegistry.registerService(
       ethers.keccak256(Buffer.from("Settings")),
       await settings.getAddress()
