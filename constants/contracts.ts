@@ -17,7 +17,7 @@ export type DeployConfig = {
     strategy:string;    
     strategyProxy?: string;
     vault: string;    
-    vaulProxy?: string;
+    vaultProxy?: string;
     settings: string;    
     settingsProxy?: string;
 
@@ -40,7 +40,7 @@ export const deployConfigMap : {[key: string]: DeployConfig} =
         strategy: "0xc2a603BcFa46e5616CEa164DA6A80cF62E080858",
         strategyProxy: "0xe33CA06EaaAF46A98C5631CF6c847fC50067E727",
         vault: "0x203a091dAe3B98144885927b0A2cf7Ead341b2C6",  
-        vaulProxy: "0x4129eE2030194089cEECc34fE47AfFb381E9e45D",        
+        vaultProxy: "0x4129eE2030194089cEECc34fE47AfFb381E9e45D",        
         settings: "0x26A76D21edD8049fd394786976EF578010569FcB", 
         settingsProxy: "0xB7d0add4df75aa719bE464e860C8c40bb7FA2122"       
     },
@@ -56,8 +56,11 @@ export const deployConfigMap : {[key: string]: DeployConfig} =
         wstETHETHOracle: "0x8D5EEF9bcbB008784b6232b61890F52A7648d81F",
         ethUSDOracle: "0x6060608FD42b2bBC23F21ff7BB4fE72F3Ca21Ef1",
         strategy: "0x6c59eD8e7B8641f7Abe89B1dBa8C5847799FD6FB",
-        vault: "0x7454072e99Bb7f7079fe24BFDf32A3F458a35d3C",        
-        settings: "0xb5A087ba08a6ee489c6f554Ca458741A18CDae99"        
+        strategyProxy: "0x6c59eD8e7B8641f7Abe89B1dBa8C5847799FD6FB",
+        vault: "0x7454072e99Bb7f7079fe24BFDf32A3F458a35d3C",      
+        vaultProxy: "0x7454072e99Bb7f7079fe24BFDf32A3F458a35d3C",          
+        settings: "0xb5A087ba08a6ee489c6f554Ca458741A18CDae99",
+        settingsProxy: "0xb5A087ba08a6ee489c6f554Ca458741A18CDae99"            
     }
 }
 
