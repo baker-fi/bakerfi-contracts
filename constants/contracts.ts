@@ -33,7 +33,7 @@ export const deployConfigMap : {[key: string]: DeployConfig} =
         wstETH: "0x27F56eb75a1EBbE7e7218e8fCa5FF51E3d655f22",
         flashLender: "0x5Ac32814f9EB4d415779892890a216b244FcB3B5",
         uniswapRouter: "0x621e8cdBc878Bdda95d0247B71FeBE0a8b2d4EE3", 
-        uniswapQuoter: "0x53e12d61AF104185485C79cbeBEe3D1F896d705f",
+        uniswapQuoter: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4",
         AAVEv3Pool: "0xE8A1e868E4736669b73B9E26BE22129bD6B4E83d", 
         wstETHETHOracle: "0x501F860caE70FA5058f1D33458F6066fdB62A591",
         ethUSDOracle: "0x57237193fA6B5fD3d3e8eC5d989dF73846cf7C1f",

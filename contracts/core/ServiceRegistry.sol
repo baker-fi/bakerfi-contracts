@@ -23,9 +23,10 @@ bytes32 constant BALANCER_VAULT_CONTRACT =       keccak256(bytes("Balancer Vault
 bytes32 constant SETTINGS_CONTRACT =             keccak256(bytes("Settings"));
 bytes32 constant UNISWAP_QUOTER_CONTRACT =       keccak256(bytes("Uniswap Quoter"));
 bytes32 constant STRATEGY_CONTRACT =             keccak256(bytes("Strategy"));
+
 /**
  * @title Service used to save the addresses used on the deployment
- * @author 
+ * @author BakerFi
  * @notice 
  */
 contract ServiceRegistry is Ownable, IServiceRegistry {
@@ -35,12 +36,20 @@ contract ServiceRegistry is Ownable, IServiceRegistry {
     
     mapping(bytes32 => address) private _services;
 
+    /**
+     * 
+     */
     constructor(address ownerToSet) Ownable()
     {
         require(ownerToSet != address(0), "Invalid Owner Address");
         _transferOwnership(ownerToSet);
     }
 
+    /**
+     * Register a Service contrat 
+     * @param serviceNameHash Service Name's Keccak256
+     * @param serviceAddress Contract Address 
+     */
     function registerService(
         bytes32 serviceNameHash,
         address serviceAddress
@@ -53,6 +62,10 @@ contract ServiceRegistry is Ownable, IServiceRegistry {
         emit ServiceRegistered(serviceNameHash, serviceAddress);
     }
 
+    /**
+     * Unregister a service name 
+     * @param serviceNameHash Service Name keccak256 
+     */
     function unregisterService(bytes32 serviceNameHash) external onlyOwner {
         require(
             _services[serviceNameHash] != address(0),
@@ -61,17 +74,27 @@ contract ServiceRegistry is Ownable, IServiceRegistry {
         _services[serviceNameHash] = address(0);
         emit ServiceUnregistered(serviceNameHash);
     }
-
+    /**
+     * Gets the Contract address for the service name provided
+     * @param name  Service Name
+     */
     function getServiceNameHash(
         string memory name
     ) external pure returns (bytes32) {
         return keccak256(abi.encodePacked(name));
     }
-
+    
+    /**
+     * 
+     */
     function getService(string memory serviceName) external view returns (address) {
         return _services[keccak256(abi.encodePacked(serviceName))];
     }
 
+    /**
+     * 
+     * @param serviceHash Service Name keccak256 
+     */
     function getServiceFromHash(bytes32  serviceHash) external view returns (address) {
         return _services[serviceHash];
     }  
