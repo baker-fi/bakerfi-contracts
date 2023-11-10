@@ -48,7 +48,7 @@ task("vault:withdraw", "Burn brETH shares and receive ETH")
       const signer = await getSignerOrThrow(ethers, account);
       const vault = await ethers.getContractAt(
         "BakerFiVault",
-        networkConfig.vaultProxy
+        networkConfig.vaultProxy?? ""
       );
       await vault.connect(signer).withdraw(ethers.parseUnits(amount, 18));
       spinner.succeed(`Withdrawed ${account} ${amount} ETH 🧑‍🍳`);
@@ -66,7 +66,7 @@ task("vault:rebalance", "Burn brETH shares and receive ETH")
     try {
         const vault = await ethers.getContractAt(
           "BakerFiVault",
-          networkConfig.vaultProxy
+          networkConfig.vaultProxy?? ""
         );
         await vault.rebalance();
         spinner.succeed(`🧑‍🍳 Vault Rebalanced 🍰`);
@@ -86,7 +86,7 @@ task("vault:balance", "Prints an account's share balance")
     try {
         const vault = await ethers.getContractAt(
           "BakerFiVault",
-          networkConfig.vaultProxy
+          networkConfig.vaultProxy?? ""
         );
 
         const balance = await vault.balanceOf(account);
@@ -106,7 +106,7 @@ task("vault:assets", "Prints an account's share balance")
     try {
         const vault = await ethers.getContractAt(
           "BakerFiVault",
-          networkConfig.vaultProxy
+          networkConfig.vaultProxy?? ""
         );
         const balance = await vault.totalAssets();
         spinner.succeed(`🧑‍🍳 Vault Total Assets ${ethers.formatEther(balance)} brETH`);
@@ -126,7 +126,7 @@ task("vault:assets", "Prints an account's share balance")
     try {
         const vault = await ethers.getContractAt(
           "BakerFiVault",
-          networkConfig.vaultProxy
+          networkConfig.vaultProxy?? ""
         );
         const balance = await vault.tokenPerETH();
         spinner.succeed(`🧑‍🍳 Vault tokenPerETH ${ethers.formatEther(balance)}`);
@@ -147,7 +147,7 @@ task("settings:setLoanToValue", "Set Target Loan To value")
     try {
       const settings = await ethers.getContractAt(
         "Settings",
-        networkConfig.settingsProxy
+        networkConfig.settingsProxy?? ""
       );
       await settings.setLoanToValue(value);
       spinner.succeed(`🧑‍🍳 Target LTV Changed to ${value} ✅ `);
@@ -165,7 +165,7 @@ task("settings:getLoanToValue", "Set Target Loan To value")
     try {
       const settings = await ethers.getContractAt(
         "Settings",
-        networkConfig.settingsProxy
+        networkConfig.settingsProxy?? ""
       );
       const value = await settings.getLoanToValue();
       spinner.succeed(`🧑‍🍳 LTV = ${value} `);
@@ -185,7 +185,7 @@ task("settings:setMaxLoanToValue", "Set Max Target Loan To value")
     try {
       const settings = await ethers.getContractAt(
         "Settings",
-        networkConfig.settingsProxy
+        networkConfig.settingsProxy?? ""
       );
       await settings.setMaxLoanToValue(value);
       spinner.succeed(`🧑‍🍳 Max LTV Changed to  ${value} ✅ `);
@@ -204,7 +204,7 @@ task("settings:getMaxLoanToValue", "Get Max Target Loan To value")
     try {
       const settings = await ethers.getContractAt(
         "Settings",
-        networkConfig.settingsProxy
+        networkConfig.settingsProxy?? ""
       );
       const value = await settings.getMaxLoanToValue();
       spinner.succeed(`🧑‍🍳 Max LTV ${value} `);
@@ -224,7 +224,7 @@ task("settings:setWithdrawalFee", "Set Withdrawal Fee")
     try {
       const settings = await ethers.getContractAt(
         "Settings",
-        networkConfig.settingsProxy
+        networkConfig.settingsProxy?? ""
       );
       await settings.setWithdrawalFee(value);
       spinner.succeed(`🧑‍🍳 Withdrawal Fee Changed to ${value} ✅ `);
@@ -242,7 +242,7 @@ task("settings:getWithdrawalFee", "get Withdrawal Fee")
     try {
       const settings = await ethers.getContractAt(
         "Settings",
-        networkConfig.settingsProxy
+        networkConfig.settingsProxy?? ""
       );
       const value = await settings.getWithdrawalFee();
       spinner.succeed(`🧑‍🍳 Withdrawal Fee = ${value}`);
@@ -262,7 +262,7 @@ task("settings:setPerformanceFee", "Set Performance Fee")
     try {
       const settings = await ethers.getContractAt(
         "Settings",
-        networkConfig.settingsProxy
+        networkConfig.settingsProxy?? ""
       );
       await settings.setPerformanceFee(value);
       spinner.succeed(`🧑‍🍳 Performance Fee Changed to ${value} ✅ `);
@@ -280,7 +280,7 @@ task("settings:getPerformanceFee", "Get Performance Fee")
     try {
       const settings = await ethers.getContractAt(
         "Settings",
-        networkConfig.settingsProxy
+        networkConfig.settingsProxy?? ""
       );
       const value = await settings.getPerformanceFee();
       spinner.succeed(`🧑‍🍳 Performance Fee = ${value} `);
@@ -300,7 +300,7 @@ task("settings:setFeeReceiver", "Set Fee Receiver Accoutn")
     try {
       const settings = await ethers.getContractAt(
         "Settings",
-        networkConfig.settingsProxy
+        networkConfig.settingsProxy?? ""
       );
       await settings.setFeeReceiver(account);
       spinner.succeed(`🧑‍🍳 Fee Receiver Account Changed to ${account} ✅ `);
@@ -319,7 +319,7 @@ task("settings:getFeeReceiver", "Get Fee Receiver Account")
     try {
       const settings = await ethers.getContractAt(
         "Settings",
-        networkConfig.settingsProxy
+        networkConfig.settingsProxy?? ""
       );
       const value = await settings.getFeeReceiver();
       spinner.succeed(`🧑‍🍳 Fee Receiver Account ${value} `);
@@ -340,7 +340,7 @@ task("settings:enableAccount", "Enable an account on the whitelist")
     try {
       const settings = await ethers.getContractAt(
         "Settings",
-        networkConfig.settingsProxy
+        networkConfig.settingsProxy?? ""
       );
       await settings.enableAccount(account, enabled=="true");
       spinner.succeed(`🧑‍🍳 Account ${account} now is enabled=${enabled} ✅ `);
@@ -361,7 +361,7 @@ task("settings:isAccountEnabled", "Enable an account on the whitelist")
     try {
       const settings = await ethers.getContractAt(
         "Settings",
-        networkConfig.settingsProxy
+        networkConfig.settingsProxy?? ""
       );
       const res = await settings.isAccountEnabled(account);
       spinner.succeed(`🧑‍🍳 Account ${account} is enabled? ${res} `);

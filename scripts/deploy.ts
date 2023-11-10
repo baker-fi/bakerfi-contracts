@@ -57,7 +57,7 @@ async function main() {
    *  Settings
    ********************************************/
   spinner.text = "Deploying BakerFi Settings";
-  const settings = await deploySettings(deployer.address, serviceRegistry, true); 
+  const { settings }= await deploySettings(deployer.address, serviceRegistry, true); 
   const BakerFiProxy = await hre.ethers.getContractFactory("BakerFiProxy");
   const Settings = await hre.ethers.getContractFactory("Settings");
   const settinsProxy = await BakerFiProxy.deploy(

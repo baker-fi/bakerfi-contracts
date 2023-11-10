@@ -59,7 +59,7 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
 
     await uniRouter.setPrice(884 * 1e6);
 
-    const settings = await deploySettings(owner.address, serviceRegistry);
+    const { settings } = await deploySettings(owner.address, serviceRegistry);
 
     // Deposit some WETH on Swapper
     await weth.deposit?.call("", { value: ethers.parseUnits("10000", 18) });

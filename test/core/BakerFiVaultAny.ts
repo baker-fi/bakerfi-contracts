@@ -70,7 +70,7 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
       ethers.parseUnits("10000", 18)
     );
 
-    const settings = await deploySettings(owner.address, serviceRegistry);
+    const { settings } = await deploySettings(owner.address, serviceRegistry);
 
     // 5. Deploy AAVEv3 Mock Pool
     const aave3Pool = await deployAaveV3(

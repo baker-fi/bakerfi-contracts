@@ -36,7 +36,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
       weth,
       FLASH_LENDER_DEPOSIT
     );
-    const settings = await deploySettings(owner.address, serviceRegistry);
+    const { settings } = await deploySettings(owner.address, serviceRegistry);
     // 2. Deploy stETH
     const stETH = await deployStEth(serviceRegistry, owner, STETH_MAX_SUPPLY);
     // 3. Deploy wstETH

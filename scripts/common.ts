@@ -292,19 +292,40 @@ export async function deploWSTETHToETHOracle(
   return oracle;
 }
 
-export async function deploySettings(owner: string, serviceRegistry, proxied?: boolean) {
+export async function deploySettings(
+  owner: string, 
+  serviceRegistry, 
+  proxied?: boolean,
+  proxyAdmin?: any
+) {
   const Settings = await ethers.getContractFactory("Settings");
   const settings = await Settings.deploy();
   await settings.waitForDeployment();
+  let proxy: any = null;  
   
-  if(!proxied){
+  if (proxied) {
+    const BakerFiProxy = await ethers.getContractFactory("BakerFiProxy");
+    proxy = await BakerFiProxy.deploy(
+      await settings.getAddress(),
+      await proxyAdmin.getAddress(),
+      Settings.interface.encodeFunctionData("initialize", [
+        owner,      
+      ])
+    );
+    await proxy.waitForDeployment();
+    await serviceRegistry.registerService(
+      ethers.keccak256(Buffer.from("Settings")),
+      await proxy.getAddress()
+    );
+  } else {
     await settings.initialize(owner);
     await serviceRegistry.registerService(
       ethers.keccak256(Buffer.from("Settings")),
       await settings.getAddress()
     );
   }
-  return settings;
+    
+  return { settings , proxy };
 }
 
 export async function deployMockERC20(

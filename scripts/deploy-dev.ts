@@ -76,22 +76,14 @@ async function main() {
 
   // Deploy Settings with a Proxy
   spinner.text = "Deploying Settings Proxied";  
-  const settings = await deploySettings(owner.address, serviceRegistry, true);
-  const BakerFiProxy = await ethers.getContractFactory("BakerFiProxy");
-  const Settings = await ethers.getContractFactory("Settings");
-  const settinsProxy = await BakerFiProxy.deploy(
-    await settings.getAddress(),
-    await proxyAdmin.getAddress(),
-    Settings.interface.encodeFunctionData("initialize", [owner.address])
+  const { settings, proxy: settingsProxy} = await deploySettings(
+    owner.address, 
+    serviceRegistry, 
+    true, 
+    proxyAdmin
   );
-  await settinsProxy.waitForDeployment();
-
-  await serviceRegistry.registerService(
-    ethers.keccak256(Buffer.from("Settings")),
-    await settinsProxy.getAddress()
-  );  
   result.push(["Settings", await settings.getAddress()])  
-  result.push(["Settings (Proxy)", await settinsProxy.getAddress()])  
+  result.push(["Settings (Proxy)", await settingsProxy.getAddress()])  
   
   // Deploy cbETH -> ETH Uniswap Router  
   spinner.text = "Deploying Uniswap Router Mock";  

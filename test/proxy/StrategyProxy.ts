@@ -26,7 +26,7 @@ describeif(network.name === "hardhat")("Strategy Proxy", function () {
     const AAVE_DEPOSIT = ethers.parseUnits("10000", 18);
     const serviceRegistry = await deployServiceRegistry(owner.address);
     const serviceRegistryAddress = await serviceRegistry.getAddress();
-    const settings = await deploySettings(owner.address, serviceRegistry);
+    const { settings }= await deploySettings(owner.address, serviceRegistry);
     const weth = await deployWETH(serviceRegistry);
     // 1. Deploy Flash Lender
     const flashLender = await deployFlashLender(
