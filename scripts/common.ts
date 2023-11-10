@@ -48,7 +48,7 @@ export async function deployVault(
   const vault = await Vault.deploy();
   await vault.waitForDeployment();
   
-  let proxy = null;  
+  let proxy: any = null;  
   if (proxied) {
     const BakerFiProxy = await ethers.getContractFactory("BakerFiProxy");
     proxy = await BakerFiProxy.deploy(
@@ -85,7 +85,7 @@ export async function deployAAVEv3StrategyWstETH(
   );
   const strategy = await AAVEv3Strategy.deploy();
   await strategy.waitForDeployment();
-  let proxy = null;  
+  let proxy: any = null;  
 
   if(proxied) {
     const BakerFiProxy = await ethers.getContractFactory("BakerFiProxy");
@@ -124,7 +124,7 @@ export async function deployAAVEv3StrategyAny(
   const AAVEv3Strategy = await ethers.getContractFactory("AAVEv3StrategyAny");
   const strategy = await AAVEv3Strategy.deploy();
   await strategy.waitForDeployment();
-  let proxy = null;  
+  let proxy: any = null;  
   if ( proxied ) {
     const BakerFiProxy = await ethers.getContractFactory("BakerFiProxy");
     proxy = await BakerFiProxy.deploy(
@@ -151,7 +151,7 @@ export async function deployAAVEv3StrategyAny(
   );
 
   }
-  return { strategy };
+  return { strategy , proxy};
 }
 
 export async function deployStEth(serviceRegistry, owner, maxSupply) {
@@ -265,7 +265,7 @@ export async function deployETHOracle(serviceRegistry, chainLinkAddress) {
   return oracle;
 }
 
-export async function deploCbETHToETHOracle(serviceRegistry, chainLinkAddress) {
+export async function deployAAVEv3StrategyWstETHdeploCbETHToETHOracle(serviceRegistry, chainLinkAddress) {
   const oracleContract = await ethers.getContractFactory("CbETHToETHOracle");
   const oracle = await oracleContract.deploy(chainLinkAddress);
   await oracle.waitForDeployment();
@@ -297,7 +297,7 @@ export async function deploySettings(owner: string, serviceRegistry, proxied?: b
   const settings = await Settings.deploy();
   await settings.waitForDeployment();
   
-  if(!proxied) {
+  if(!proxied){
     await settings.initialize(owner);
     await serviceRegistry.registerService(
       ethers.keccak256(Buffer.from("Settings")),

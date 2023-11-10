@@ -30,6 +30,14 @@ async function main() {
 
   spinner.text = "Getting Signers";
   const [deployer] = await hre.ethers.getSigners();
+
+  // Deploy Proxy Admin
+  spinner.text = "Deploying Proxy Admin";  
+  const BakerFiProxyAdmin = await hre.ethers.getContractFactory("BakerFiProxyAdmin");
+  const proxyAdmin = await BakerFiProxyAdmin.deploy(deployer.address);
+  await proxyAdmin.waitForDeployment();
+  result.push(["Proxy Admin", await proxyAdmin.getAddress()])  
+
   /********************************************
    *  Registry Service
    ********************************************/
@@ -49,8 +57,21 @@ async function main() {
    *  Settings
    ********************************************/
   spinner.text = "Deploying BakerFi Settings";
-  const settings = await deploySettings(deployer.address, serviceRegistry); 
-  result.push(["Settings", await settings.getAddress()]);  
+  const settings = await deploySettings(deployer.address, serviceRegistry, true); 
+  const BakerFiProxy = await hre.ethers.getContractFactory("BakerFiProxy");
+  const Settings = await hre.ethers.getContractFactory("Settings");
+  const settinsProxy = await BakerFiProxy.deploy(
+    await settings.getAddress(),
+    await proxyAdmin.getAddress(),
+    Settings.interface.encodeFunctionData("initialize", [deployer.address])
+  );
+  await settinsProxy.waitForDeployment();
+  await serviceRegistry.registerService(
+    hre.ethers.keccak256(Buffer.from("Settings")),
+    await settinsProxy.getAddress()
+  );  
+  result.push(["Settings", await settings.getAddress()])  
+  result.push(["Settings (Proxy)", await settinsProxy.getAddress()])  
   /********************************************
    *  Uniswap Router
    ********************************************/
@@ -123,34 +144,57 @@ async function main() {
    * STRATEGY Deploy
    ********************************************/
   spinner.text = "Deploying Strategy";  
-  const strategy = await deployStrategy(
+  const { strategy, proxy: strategyProxy } = await deployStrategy(
     config, 
     deployer, 
-    serviceRegistry
-  );
-  await serviceRegistry.registerService(
-    hre.ethers.keccak256(Buffer.from("Strategy")),
-    await strategy.getAddress() ,
+    serviceRegistry,
+    true, 
+    proxyAdmin
   );
   result.push(["Strategy",  await strategy.getAddress()]);
+  result.push(["Strategy (Proxy)",  await (strategyProxy as any).getAddress()]);
   /********************************************
    * BakerFi Vault 
    ********************************************/
   spinner.text = "Deploying BakerFi Vault 👩‍🍳";    
-  const { vault }= await deployVault(
+  const { vault, proxy: vaultProxy }= await deployVault(
         deployer.address, 
-      await serviceRegistry.getAddress(),
-      await strategy.getAddress() 
+        await serviceRegistry.getAddress(),
+        await (strategyProxy as any).getAddress(),
+        true, 
+        proxyAdmin
   );
+  result.push(["BakerFi Vault 📟",  await vault.getAddress()]);
+  result.push(["BakerFi Vault (Proxy)",  await (vaultProxy as any).getAddress()]);  
   /********************************************
    * Update the Default Settings
    ********************************************/
-  await strategy.transferOwnership(await vault.getAddress());
-  await settings.setLoanToValue(hre.ethers.parseUnits("800", 6));
-  result.push(["BakerFi Vault 📟",  await vault.getAddress()]);
+  await changeSettings(
+    spinner, 
+    await settinsProxy.getAddress(),
+    await (strategyProxy as any).getAddress(),
+    await (strategyProxy as any).getAddress()
+  ); 
   spinner.succeed("🧑‍🍳 BakerFi Served 🍰 ");
   console.table(result);
   process.exit(0);
+}
+
+async function changeSettings(
+  spinner: any,
+  settingsAddress: string,
+  strategyAddress: string,
+  vaultAddress: string,
+) {
+  const settings = await hre.ethers.getContractAt("Settings", settingsAddress);
+  const vault = await hre.ethers.getContractAt("BakerFiVault", vaultAddress);
+  const strategy = await hre.ethers.getContractAt("AAVEv3StrategyAny", strategyAddress);
+
+  spinner.text = "Transferring Ownership ...";    
+  await strategy.transferOwnership(await vault.getAddress());
+
+  spinner.text = "Changing Settigns ...";      
+  await settings.setLoanToValue(hre.ethers.parseUnits("800", 6));
 }
 
 async function deployFlashLendInfra(serviceRegistry, config: any) {
@@ -164,24 +208,30 @@ async function deployFlashLendInfra(serviceRegistry, config: any) {
   return flashLender;
 }
 
-async function deployStrategy(config: any, deployer, serviceRegistry) {
-  let strategy;
+async function deployStrategy(config: any, deployer, serviceRegistry, proxied: boolean, proxyAdmin): Promise<{
+  strategy?: any,
+  proxy?: any
+}> {
   switch (config.strategy.type) {
     case "base":
-        const obj = await deployAAVEv3StrategyAny(
+        const res = await deployAAVEv3StrategyAny(
         deployer.address,
         await serviceRegistry.getAddress(),
         config.strategy.collateral,
         config.strategy.oracle,
         config.swapFeeTier,
-        config.AAVEEModeCategory
+        config.AAVEEModeCategory,
+        proxied,
+        proxyAdmin
       );     
-      strategy = obj.strategy;
+      return res;
       break;
     default:
       break;
   }
-  return strategy;
+  return {
+
+  };
 }
 
 /**
