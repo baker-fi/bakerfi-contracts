@@ -5,6 +5,9 @@ pragma solidity ^0.8.18;
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IServiceRegistry} from "../interfaces/core/IServiceRegistry.sol";
 
+// 
+// !! The Constants that should be used to resolve the deployment contract addresses !!
+//
 bytes32 constant FLASH_LENDER_CONTRACT =         keccak256(bytes("FlashLender"));
 bytes32 constant WETH_CONTRACT =                 keccak256(bytes("WETH"));
 bytes32 constant ST_ETH_CONTRACT =               keccak256(bytes("stETH"));
@@ -20,7 +23,11 @@ bytes32 constant BALANCER_VAULT_CONTRACT =       keccak256(bytes("Balancer Vault
 bytes32 constant SETTINGS_CONTRACT =             keccak256(bytes("Settings"));
 bytes32 constant UNISWAP_QUOTER_CONTRACT =       keccak256(bytes("Uniswap Quoter"));
 bytes32 constant STRATEGY_CONTRACT =             keccak256(bytes("Strategy"));
-
+/**
+ * @title Service used to save the addresses used on the deployment
+ * @author 
+ * @notice 
+ */
 contract ServiceRegistry is Ownable, IServiceRegistry {
 
     event ServiceUnregistered(bytes32 nameHash);

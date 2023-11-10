@@ -33,18 +33,13 @@ import {UseIERC20} from "../hooks/UseIERC20.sol";
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import { ETH_USD_ORACLE_CONTRACT } from "../ServiceRegistry.sol";
+
 /**
- *
- * Strategy that does AAVE leverage/deleverage using flash loans
- * 
- *
- * TODO: Use the Uniswap Swapper directly to optimize gas consumption
- * TODO: Optimize Gas by set MAX Int allowances on initialization
- *
- * @title
+ * @title  Strategy that does AAVE leverage/deleverage using flash loans
  * @author Hélder Vasconcelos
  * @author Henrique Macedo 
- * @notice
+ * @notice The Contract is abstract and needs to be extended to implement the c
+ * conversion between WETH and the collateral
  */
 abstract contract AAVEv3StrategyBase is
     OwnableUpgradeable,
@@ -121,8 +116,8 @@ abstract contract AAVEv3StrategyBase is
         require(aaveV3().getUserEMode(address(this)) == eModeCategory, "Invalid Emode");
         require(wETH().approve(uniRouterA(), 2**256 - 1));
         require(ierc20().approve(uniRouterA(), 2**256 - 1));
-       // require(wETH().approve(flashLenderA(), 2**256 - 1)); ???
     }
+    
     // solhint-disable-next-line no-empty-blocks
     receive() external payable {}
 
