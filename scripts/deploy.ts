@@ -167,7 +167,7 @@ async function main() {
     spinner, 
     await settinsProxyDeploy.getAddress(),
     await (strategyProxy as any).getAddress(),
-    await (strategyProxy as any).getAddress()
+    await (vaultProxy as any).getAddress()
   ); 
   spinner.succeed("🧑‍🍳 BakerFi Served 🍰 ");
   console.table(result);

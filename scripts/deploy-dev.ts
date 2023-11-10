@@ -153,6 +153,12 @@ async function main() {
     true,
     proxyAdmin
   );
+  
+  await serviceRegistry.registerService(
+    ethers.keccak256(Buffer.from("Strategy")),
+    await strategyProxy.getAddress()
+  );
+
   result.push(["AAVEv3 Strategy WstETH", await strategy.getAddress()])  
   result.push(["AAVEv3 Strategy WstETH (Proxy)", strategyProxy &&  await (strategyProxy as any).getAddress()])  
   
@@ -161,7 +167,7 @@ async function main() {
   const { vault, proxy: vaultProxy } = await deployVault(
       owner.address, 
       await serviceRegistry.getAddress(),
-      await strategy.getAddress(),
+      await strategyProxy.getAddress(),
       true,
       proxyAdmin
   );
@@ -169,9 +175,10 @@ async function main() {
   result.push(["BakerFi Vault (Proxy)🕋", vaultProxy &&  await (vaultProxy as any).getAddress()])
   
   spinner.text = "Transferring Vault Ownership";  
-  const vaultProxied = await ethers.getContractAt("BakerFiVault", await (vaultProxy as any).getAddress());
-  await vaultProxied.transferOwnership(await vault.getAddress());
-
+  const strategyProxied = await ethers.getContractAt(
+    "AAVEv3StrategyWstETH", await (strategyProxy as any).getAddress()
+  );
+  await strategyProxied.transferOwnership(vaultProxy);
 
   spinner.succeed("🧑‍🍳 BakerFi Served 🍰 ");
   console.table(result);

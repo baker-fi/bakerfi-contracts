@@ -33,6 +33,7 @@ task("vault:deposit", "Deposit ETH on the vault")
       spinner.succeed(`Deposited ${account} ${amount} ETH 🧑‍🍳`);
     } catch (e) {
       console.log(e);
+      console.log(`Error: ${e.message} ${e} `);
       spinner.fail("Failed 💥");
     }
   });
@@ -53,7 +54,7 @@ task("vault:withdraw", "Burn brETH shares and receive ETH")
       await vault.connect(signer).withdraw(ethers.parseUnits(amount, 18));
       spinner.succeed(`Withdrawed ${account} ${amount} ETH 🧑‍🍳`);
     } catch (e) {
-      console.log(e);
+      console.log(e); 
       spinner.fail("Failed 💥");
     }
   });

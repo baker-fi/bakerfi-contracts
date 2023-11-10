@@ -37,12 +37,12 @@ export const deployConfigMap : {[key: string]: DeployConfig} =
         AAVEv3Pool: "0xE8A1e868E4736669b73B9E26BE22129bD6B4E83d", 
         wstETHETHOracle: "0x501F860caE70FA5058f1D33458F6066fdB62A591",
         ethUSDOracle: "0x57237193fA6B5fD3d3e8eC5d989dF73846cf7C1f",
+        settings: "0x26A76D21edD8049fd394786976EF578010569FcB", 
+        settingsProxy: "0xB7d0add4df75aa719bE464e860C8c40bb7FA2122",       
         strategy: "0xc2a603BcFa46e5616CEa164DA6A80cF62E080858",
         strategyProxy: "0xe33CA06EaaAF46A98C5631CF6c847fC50067E727",
-        vault: "0x203a091dAe3B98144885927b0A2cf7Ead341b2C6",  
-        vaultProxy: "0x4129eE2030194089cEECc34fE47AfFb381E9e45D",        
-        settings: "0x26A76D21edD8049fd394786976EF578010569FcB", 
-        settingsProxy: "0xB7d0add4df75aa719bE464e860C8c40bb7FA2122"       
+        vault: "0x4129eE2030194089cEECc34fE47AfFb381E9e45D",  
+        vaultProxy: "0xb99b2F8f3d121f2B491Cc61b84689a5638E106B4",        
     },
     "arbitrum": {
         serviceRegistry: "0xd68a2846168052C43Ae44591B6F67588D218b150",       
