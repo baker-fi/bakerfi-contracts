@@ -5,8 +5,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC3156FlashLenderUpgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashLenderUpgradeable.sol";
 import {IFlashLoans, IFlashLoanRecipient} from "../../interfaces/balancer/IFlashLoan.sol";
-import {BALANCER_VAULT} from "../Constants.sol";
-import {ServiceRegistry} from "../../core/ServiceRegistry.sol";
+import {ServiceRegistry, BALANCER_VAULT_CONTRACT} from "../../core/ServiceRegistry.sol";
 import {UseStrategy} from "../../core/hooks/UseStrategy.sol";
 import {IERC3156FlashBorrowerUpgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashBorrowerUpgradeable.sol";
 
@@ -22,7 +21,9 @@ contract BalancerFlashLender is IERC3156FlashLenderUpgradeable, IFlashLoanRecipi
     IFlashLoans private immutable _balancerVault;
 
     constructor(ServiceRegistry registry) {
-        _balancerVault = IFlashLoans(registry.getServiceFromHash(BALANCER_VAULT));
+        _balancerVault = IFlashLoans(registry.getServiceFromHash(
+            BALANCER_VAULT_CONTRACT
+        ));
         require(address(_balancerVault) != address(0), "Invalid Balancer Vault");
     }
 
@@ -65,7 +66,6 @@ contract BalancerFlashLender is IERC3156FlashLenderUpgradeable, IFlashLoanRecipi
         address asset = tokens[0];
         uint256 amount = amounts[0];
         uint256 fee = feeAmounts[0];
-
         // Transfer the loan received to borrower
         IERC20(asset).safeTransfer(borrower, amount);
 

@@ -9,14 +9,7 @@ import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {IQuoterV2} from "../../interfaces/uniswap/v3/IQuoterV2.sol";
 import {
-    ETH_USD_ORACLE, 
-    WETH_CONTRACT, 
-    PERCENTAGE_PRECISION, 
-    WSTETH_ETH_ORACLE, 
-    AAVE_V3, 
-    FLASH_LENDER, 
-    ST_ETH_CONTRACT, 
-    WST_ETH_CONTRACT
+    PERCENTAGE_PRECISION
 } from "../Constants.sol";
 import {Rebase, RebaseLibrary} from "../../libraries/BoringRebase.sol";
 import {IWETH} from "../../interfaces/tokens/IWETH.sol";
@@ -39,6 +32,7 @@ import {UseSwapper} from "../hooks/UseSwapper.sol";
 import {UseIERC20} from "../hooks/UseIERC20.sol";
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
+import { ETH_USD_ORACLE_CONTRACT } from "../ServiceRegistry.sol";
 /**
  *
  * Strategy that does AAVE leverage/deleverage using flash loans
@@ -117,7 +111,7 @@ abstract contract AAVEv3StrategyBase is
         __initUseUniQuoter(registry);
         __initUseSettings(registry);
         _collateralOracle = IOracle(registry.getServiceFromHash(collateralOracle));
-        _ethUSDOracle = IOracle(registry.getServiceFromHash(ETH_USD_ORACLE));
+        _ethUSDOracle = IOracle(registry.getServiceFromHash(ETH_USD_ORACLE_CONTRACT));
         _swapFeeTier = swapFeeTier;
         require(initialOwner != address(0), "Invalid Owner Address");
         require(address(_ethUSDOracle) != address(0), "Invalid ETH/USD Oracle");

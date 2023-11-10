@@ -5,6 +5,22 @@ pragma solidity ^0.8.18;
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IServiceRegistry} from "../interfaces/core/IServiceRegistry.sol";
 
+bytes32 constant FLASH_LENDER_CONTRACT =         keccak256(bytes("FlashLender"));
+bytes32 constant WETH_CONTRACT =                 keccak256(bytes("WETH"));
+bytes32 constant ST_ETH_CONTRACT =               keccak256(bytes("stETH"));
+bytes32 constant WST_ETH_CONTRACT =              keccak256(bytes("wstETH"));
+bytes32 constant AAVE_V3_CONTRACT =              keccak256(bytes("AAVE_V3"));
+bytes32 constant WSTETH_ETH_ORACLE_CONTRACT =    keccak256(bytes("wstETH/ETH Oracle"));
+bytes32 constant CBETH_ETH_ORACLE_CONTRACT =     keccak256(bytes("cbETH/ETH Oracle"));
+bytes32 constant ETH_USD_ORACLE_CONTRACT =       keccak256(bytes("ETH/USD Oracle"));
+bytes32 constant CBETH_ERC20_CONTRACT =          keccak256(bytes("cbETH"));
+bytes32 constant UNISWAP_ROUTER_CONTRACT =       keccak256(bytes("Uniswap Router"));
+bytes32 constant SWAPPER_HANDLER_CONTRACT =      keccak256(bytes("Swapper Handler"));
+bytes32 constant BALANCER_VAULT_CONTRACT =       keccak256(bytes("Balancer Vault"));
+bytes32 constant SETTINGS_CONTRACT =             keccak256(bytes("Settings"));
+bytes32 constant UNISWAP_QUOTER_CONTRACT =       keccak256(bytes("Uniswap Quoter"));
+bytes32 constant STRATEGY_CONTRACT =             keccak256(bytes("Strategy"));
+
 contract ServiceRegistry is Ownable, IServiceRegistry {
 
     event ServiceUnregistered(bytes32 nameHash);

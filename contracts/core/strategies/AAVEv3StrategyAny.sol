@@ -2,7 +2,6 @@
 pragma solidity ^0.8.18;
 
 import {AAVEv3StrategyBase} from "./AAVEv3StrategyBase.sol";
-import {CBETH_ERC20, CBETH_ETH_ORACLE} from "../Constants.sol";
 import {ServiceRegistry} from "../../core/ServiceRegistry.sol";
 import {UseWETH} from "../hooks/UseWETH.sol";
 import {UseOracle} from "../hooks/UseOracle.sol";

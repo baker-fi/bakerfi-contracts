@@ -2,8 +2,7 @@
 pragma solidity ^0.8.18;
 pragma experimental ABIEncoderV2;
 
-import {ServiceRegistry} from "../ServiceRegistry.sol";
-import {WETH_CONTRACT} from "../Constants.sol";
+import {ServiceRegistry, WETH_CONTRACT} from "../ServiceRegistry.sol";
 import {IWETH} from "../../interfaces/tokens/IWETH.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";

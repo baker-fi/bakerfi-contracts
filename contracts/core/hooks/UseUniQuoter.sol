@@ -2,8 +2,7 @@
 pragma solidity ^0.8.18;
 pragma experimental ABIEncoderV2;
 
-import {ServiceRegistry} from "../ServiceRegistry.sol";
-import {UNISWAP_QUOTER} from "../Constants.sol";
+import {ServiceRegistry, UNISWAP_QUOTER_CONTRACT} from "../ServiceRegistry.sol";
 import {IQuoterV2} from "../../interfaces/uniswap/v3/IQuoterV2.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -13,7 +12,7 @@ abstract contract UseUniQuoter is Initializable {
     IQuoterV2 private _quoter;
 
     function __initUseUniQuoter(ServiceRegistry registry) internal onlyInitializing  {
-        _quoter = IQuoterV2(registry.getServiceFromHash(UNISWAP_QUOTER));
+        _quoter = IQuoterV2(registry.getServiceFromHash(UNISWAP_QUOTER_CONTRACT));
         require(address(_quoter) != address(0), "Invalid Uniswap Quoter Contract");
     }
 
