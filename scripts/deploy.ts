@@ -6,7 +6,7 @@ import {
   deployAAVEv3StrategyAny,
   deploySettings,
   deployETHOracle,
-  deploCbETHToETHOracle,
+  deployCbETHToETHOracle,
   deploWSTETHToETHOracle,
   deployBalancerFL,
 } from "./common";
@@ -244,7 +244,7 @@ async function deployCollateralOracle(config: any, serviceRegistry) {
   let oracle;
   switch (config.oracle.type) {
     case "cbETH":
-      oracle = await deploCbETHToETHOracle(
+      oracle = await deployCbETHToETHOracle(
         serviceRegistry,
         config.oracle.chainLink
       );

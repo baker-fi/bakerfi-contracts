@@ -265,7 +265,7 @@ export async function deployETHOracle(serviceRegistry, chainLinkAddress) {
   return oracle;
 }
 
-export async function deployAAVEv3StrategyWstETHdeploCbETHToETHOracle(serviceRegistry, chainLinkAddress) {
+export async function deployCbETHToETHOracle(serviceRegistry, chainLinkAddress) {
   const oracleContract = await ethers.getContractFactory("CbETHToETHOracle");
   const oracle = await oracleContract.deploy(chainLinkAddress);
   await oracle.waitForDeployment();

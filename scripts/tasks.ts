@@ -24,7 +24,7 @@ task("vault:deposit", "Deposit ETH on the vault")
     try {     
         const vault = await ethers.getContractAt(
         "BakerFiVault",
-        networkConfig.vaultProxy
+        networkConfig.vaultProxy ?? ""
       );
       const signer = await getSignerOrThrow(ethers, account);      
       await vault.connect(signer).deposit(signer.address, {
