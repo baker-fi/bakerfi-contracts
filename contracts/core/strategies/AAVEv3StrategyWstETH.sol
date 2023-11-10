@@ -10,10 +10,10 @@ import {UseWstETH} from "../hooks/UseWstETH.sol";
 import {UseServiceRegistry} from "../hooks/UseServiceRegistry.sol";
 import {UseOracle} from "../hooks/UseOracle.sol";
 import {UseIERC20} from "../hooks/UseIERC20.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {IWStETH} from "../../interfaces/lido/IWStETH.sol";
-import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
@@ -24,9 +24,8 @@ import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/I
  * @notice
  */
 contract AAVEv3StrategyWstETH is Initializable, AAVEv3StrategyBase, UseWstETH, UseStETH {
-    using SafeERC20 for IERC20;
-    using Address for address payable;
-    
+    using SafeERC20Upgradeable for IERC20Upgradeable;
+    using AddressUpgradeable for address payable;
     // solhint-disable no-empty-blocks        
     function initialize(
         address initialOwner,
@@ -34,7 +33,14 @@ contract AAVEv3StrategyWstETH is Initializable, AAVEv3StrategyBase, UseWstETH, U
         uint24 swapFeeTier,
         uint8 eModeCategory
     )  public initializer {
-        __initializeAAVEv3StrategyBase(initialOwner, registry, WST_ETH_CONTRACT, WSTETH_ETH_ORACLE, swapFeeTier, eModeCategory);
+        __initializeAAVEv3StrategyBase(
+            initialOwner, 
+            registry, 
+            WST_ETH_CONTRACT, 
+            WSTETH_ETH_ORACLE, 
+            swapFeeTier, 
+            eModeCategory
+        );
         __initUseWstETH(registry);
         __initUseStETH(registry);
         require(stETH().approve(uniRouterA(), 2**256 - 1));

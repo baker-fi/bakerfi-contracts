@@ -2,8 +2,8 @@
 pragma solidity ^0.8.18;
 
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {IERC3156FlashBorrower} from "@openzeppelin/contracts/interfaces/IERC3156FlashBorrower.sol";
-import {IERC3156FlashLender} from "@openzeppelin/contracts/interfaces/IERC3156FlashLender.sol";
+import {IERC3156FlashBorrowerUpgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashBorrowerUpgradeable.sol";
+import {IERC3156FlashLenderUpgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashLenderUpgradeable.sol";
 import {ServiceRegistry} from "../../core/ServiceRegistry.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
@@ -38,7 +38,7 @@ import {UseServiceRegistry} from "../hooks/UseServiceRegistry.sol";
 import {UseSwapper} from "../hooks/UseSwapper.sol";
 import {UseIERC20} from "../hooks/UseIERC20.sol";
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 /**
  *
  * Strategy that does AAVE leverage/deleverage using flash loans
@@ -55,7 +55,7 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 abstract contract AAVEv3StrategyBase is
     OwnableUpgradeable,
     IStrategy,
-    IERC3156FlashBorrower,
+    IERC3156FlashBorrowerUpgradeable,
     UseServiceRegistry,
     UseWETH,
     UseIERC20,
@@ -88,8 +88,8 @@ abstract contract AAVEv3StrategyBase is
     bytes32 private constant _SUCCESS_MESSAGE = keccak256("ERC3156FlashBorrower.onFlashLoan");
 
     using SafeERC20Upgradeable for IERC20Upgradeable;
-    using Address for address;    
-    using Address for address payable;
+    using AddressUpgradeable for address;    
+    using AddressUpgradeable for address payable;
     
     uint256 internal _pendingAmount = 0;
     uint256 private _deployedAmount = 0;
@@ -173,10 +173,10 @@ abstract contract AAVEv3StrategyBase is
         uint256 loanAmount = leverage - msg.value;
         uint256 fee = flashLender().flashFee(wETHA(), loanAmount);
         //§uint256 allowance = wETH().allowance(address(this), flashLenderA());
-        require(wETH().approve(flashLenderA(), loanAmount + fee));
+        require(wETH().approve(flashLenderA(), loanAmount + fee));        
         require(
             flashLender().flashLoan(
-                IERC3156FlashBorrower(this),
+                IERC3156FlashBorrowerUpgradeable(this),
                 wETHA(),
                 loanAmount,
                 abi.encode(msg.value, msg.sender, FlashLoanAction.SUPPLY_BOORROW)
@@ -326,7 +326,7 @@ abstract contract AAVEv3StrategyBase is
         require(wETH().approve(flashLenderA(), deltaDebt + fee ));
         require(
             flashLender().flashLoan(
-                IERC3156FlashBorrower(this),
+                IERC3156FlashBorrowerUpgradeable(this),
                 wETHA(),
                 deltaDebt,
                 abi.encode(deltaDebt, address(0), FlashLoanAction.PAY_DEBT)
@@ -447,7 +447,7 @@ abstract contract AAVEv3StrategyBase is
         require(wETH().approve(flashLenderA(), deltaDebtInETH + fee ));
         require(
             flashLender().flashLoan(
-                IERC3156FlashBorrower(this),
+                IERC3156FlashBorrowerUpgradeable(this),
                 wETHA(),
                 deltaDebtInETH,
                 abi.encode(deltaCollateralInETH, receiver, FlashLoanAction.PAY_DEBT_WITHDRAW)

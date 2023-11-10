@@ -15,8 +15,8 @@ import {PERCENTAGE_PRECISION} from "./Constants.sol";
 import {ERC20PermitUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20PermitUpgradeable.sol";
 import {UseSettings} from "./hooks/UseSettings.sol";
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import {Address} from "@openzeppelin/contracts/utils/Address.sol";
-import {Initializable} from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**
  * BakerFi Vault
@@ -37,8 +37,8 @@ contract BakerFiVault is
 {
     using RebaseLibrary for Rebase;
     using SafeERC20Upgradeable for ERC20Upgradeable;
-    using Address for address;
-    using Address for address payable;
+    using AddressUpgradeable for address;
+    using AddressUpgradeable for address payable;
 
     string constant private _NAME = "Bread ETH";
     string constant private _SYMBOL = "brETH";
