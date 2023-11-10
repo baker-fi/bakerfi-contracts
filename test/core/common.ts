@@ -162,7 +162,9 @@ export async function deployOptimism() {
   // 4. Deploy Settings
   const { proxy: settingsProxyDeploy } = await deploySettings(
     deployer.address,
-    serviceRegistry
+    serviceRegistry,
+    true,
+    proxyAdmin
   );
 
   // 5. Register UniswapV3 Universal Router
@@ -285,7 +287,9 @@ export async function deployEthereum() {
   // Deploy Bakerfi Settings Contract
   const { proxy: settingsProxyDeploy } = await deploySettings(
     deployer.address,
-    serviceRegistry
+    serviceRegistry,
+    true,
+    proxyAdmin
   );
 
   // Register UniswapV3 Universal Router on Service Register
