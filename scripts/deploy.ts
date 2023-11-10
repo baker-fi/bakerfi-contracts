@@ -57,21 +57,15 @@ async function main() {
    *  Settings
    ********************************************/
   spinner.text = "Deploying BakerFi Settings";
-  const { settings }= await deploySettings(deployer.address, serviceRegistry, true); 
-  const BakerFiProxy = await hre.ethers.getContractFactory("BakerFiProxy");
-  const Settings = await hre.ethers.getContractFactory("Settings");
-  const settinsProxy = await BakerFiProxy.deploy(
-    await settings.getAddress(),
-    await proxyAdmin.getAddress(),
-    Settings.interface.encodeFunctionData("initialize", [deployer.address])
-  );
-  await settinsProxy.waitForDeployment();
-  await serviceRegistry.registerService(
-    hre.ethers.keccak256(Buffer.from("Settings")),
-    await settinsProxy.getAddress()
-  );  
+  const { settings, proxy: settinsProxyDeploy }= await deploySettings(
+    deployer.address, 
+    serviceRegistry, 
+    true, 
+    proxyAdmin
+  ); 
+    
   result.push(["Settings", await settings.getAddress()])  
-  result.push(["Settings (Proxy)", await settinsProxy.getAddress()])  
+  result.push(["Settings (Proxy)", await settinsProxyDeploy.getAddress()])  
   /********************************************
    *  Uniswap Router
    ********************************************/
@@ -171,7 +165,7 @@ async function main() {
    ********************************************/
   await changeSettings(
     spinner, 
-    await settinsProxy.getAddress(),
+    await settinsProxyDeploy.getAddress(),
     await (strategyProxy as any).getAddress(),
     await (strategyProxy as any).getAddress()
   ); 
