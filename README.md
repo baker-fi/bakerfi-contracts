@@ -1,6 +1,6 @@
 # Bakerfi Smart Contracts
 
-Recursive ETH Staking made easy
+Recursive ETH Staking made easy, amplify your yields with recursive based strategies based on lending markets (AAVEv3, ...).
 
 ## Features
 
