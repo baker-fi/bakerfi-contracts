@@ -136,7 +136,7 @@ npx hardhat console --network <network-name>
 Replace <network-name> with the desired network from your configuration.
 
 
-### Usefull Tasks 
+### Usefull Scripts
 
 **Export Flat File Contracts**
 
@@ -157,14 +157,13 @@ Please make sure to update tests as appropriate.
 
 ## Important Information 
 
-[Tasks](TASKS.md)
-[License](LICENSE)
+* [Tasks](TASKS.md)
+* [License](LICENSE)
 
 ### TODO - Smart Contracts 
 
-* Myhtril Check - Fix Vulnerability fixes: P2 - Going...
-* Optimization: Set MAX Int allowances on initialization - P3 Going...
-* Governance Token: P4
+* BPIE - Governance Token Setup
+* Governor - Controlled by BPIE Holders
 
 
 

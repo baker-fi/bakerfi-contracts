@@ -1,6 +1,5 @@
 ## BakerFi Tasks 
 
-
 ## Ethereum Balance 
 
 ```
