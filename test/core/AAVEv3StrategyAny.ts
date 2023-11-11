@@ -21,6 +21,7 @@ import BaseConfig from "../../scripts/config";
 describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
   
   async function deployFunction() {
+    
     const networkName = network.name;
     const config = BaseConfig[networkName];
     const [owner, otherAccount] = await ethers.getSigners();
@@ -29,7 +30,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
     const AAVE_DEPOSIT = ethers.parseUnits("10000", 18);
     const serviceRegistry = await deployServiceRegistry(owner.address);
     const serviceRegistryAddress = await serviceRegistry.getAddress();
-    const settings = await deploySettings(owner.address, serviceRegistry);
+    const { settings } = await deploySettings(owner.address, serviceRegistry);
     const weth = await deployWETH(serviceRegistry);
     // 1. Deploy Flash Lender
     const flashLender = await deployFlashLender(
@@ -80,7 +81,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
     await ethOracle.setLatestPrice(ethers.parseUnits("1", 18));
     await deployQuoterV2Mock(serviceRegistry);
 
-    const strategy = await deployAAVEv3StrategyAny(
+    const { strategy } = await deployAAVEv3StrategyAny(
       owner.address,
       serviceRegistryAddress,
       "cbETH",
@@ -225,7 +226,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
       ethers.keccak256(Buffer.from("FlashLender")),
       owner.address
     );
-    const strategy = await deployAAVEv3StrategyAny(
+    const { strategy } = await deployAAVEv3StrategyAny(
       owner.address,
       await serviceRegistry.getAddress(),
       "cbETH",
@@ -252,11 +253,11 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
     const { weth, serviceRegistry, strategy} =
     await loadFixture(deployFunction);
 
-
     const BorrowerAttacker = await ethers.getContractFactory("BorrowerAttacker");
-    const attacker = await BorrowerAttacker.deploy(
+    const attacker = await BorrowerAttacker.deploy();
+    await attacker.initialize(
       await serviceRegistry.getAddress()
-    );
+    )
 
     await strategy.deploy({
       value: ethers.parseUnits("10", 18),

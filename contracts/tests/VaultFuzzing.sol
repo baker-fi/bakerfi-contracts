@@ -4,10 +4,9 @@ pragma solidity ^0.8.18;
 pragma experimental ABIEncoderV2;
 
 import { BakerFiVault } from "../core/BakerFiVault.sol";
-import { ServiceRegistry } from "../core/ServiceRegistry.sol";
+import { ServiceRegistry, SETTINGS_CONTRACT} from "../core/ServiceRegistry.sol";
 import { Settings } from "../core/Settings.sol";
 import { StrategyMock } from "../mocks/StrategyMock.sol";
-import { SETTINGS } from "../core/Constants.sol";
 
 /**
  * 
@@ -22,12 +21,14 @@ contract VaultFuzzing {
     constructor() payable {
         StrategyMock strategy =  new StrategyMock();
         ServiceRegistry register = new ServiceRegistry(address(this));       
-        Settings settings = new Settings(address(this));       
+        Settings settings = new Settings();
+        settings.initialize(address(this));
         register.registerService(
-            SETTINGS,
+            SETTINGS_CONTRACT,
             address(settings)
         );
-        _vault = new BakerFiVault(
+        _vault = new BakerFiVault();
+        _vault.initialize(
             address(this),
             register,
             strategy

@@ -10,10 +10,11 @@ describeif(network.name === "hardhat")("Settings", function () {
     const [owner, otherAccount] = await ethers.getSigners();
     const serviceRegistry = await deployServiceRegistry(owner.address);
 
-    const settings = await deploySettings(
+    const { settings } = await deploySettings(
       otherAccount.address,
       serviceRegistry
     );
+    
     return { serviceRegistry, settings, otherAccount, owner };
   }
 

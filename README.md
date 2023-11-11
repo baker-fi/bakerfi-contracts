@@ -155,14 +155,15 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 Please make sure to update tests as appropriate.
 
-## License
-MIT
+## Important Information 
+
+[Tasks](TASKS.md)
+[License](LICENSE)
 
 ### TODO - Smart Contracts 
 
 * Myhtril Check - Fix Vulnerability fixes: P2 - Going...
 * Optimization: Set MAX Int allowances on initialization - P3 Going...
-* Support for Proxies: P3
 * Governance Token: P4
 
 

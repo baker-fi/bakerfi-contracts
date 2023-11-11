@@ -24,7 +24,7 @@ task("vault:deposit", "Deposit ETH on the vault")
     try {     
         const vault = await ethers.getContractAt(
         "BakerFiVault",
-        networkConfig.vault
+        networkConfig.vaultProxy ?? ""
       );
       const signer = await getSignerOrThrow(ethers, account);      
       await vault.connect(signer).deposit(signer.address, {
@@ -33,6 +33,7 @@ task("vault:deposit", "Deposit ETH on the vault")
       spinner.succeed(`Deposited ${account} ${amount} ETH 🧑‍🍳`);
     } catch (e) {
       console.log(e);
+      console.log(`Error: ${e.message} ${e} `);
       spinner.fail("Failed 💥");
     }
   });
@@ -48,12 +49,12 @@ task("vault:withdraw", "Burn brETH shares and receive ETH")
       const signer = await getSignerOrThrow(ethers, account);
       const vault = await ethers.getContractAt(
         "BakerFiVault",
-        networkConfig.vault
+        networkConfig.vaultProxy?? ""
       );
       await vault.connect(signer).withdraw(ethers.parseUnits(amount, 18));
       spinner.succeed(`Withdrawed ${account} ${amount} ETH 🧑‍🍳`);
     } catch (e) {
-      console.log(e);
+      console.log(e); 
       spinner.fail("Failed 💥");
     }
   });
@@ -66,7 +67,7 @@ task("vault:rebalance", "Burn brETH shares and receive ETH")
     try {
         const vault = await ethers.getContractAt(
           "BakerFiVault",
-          networkConfig.vault
+          networkConfig.vaultProxy?? ""
         );
         await vault.rebalance();
         spinner.succeed(`🧑‍🍳 Vault Rebalanced 🍰`);
@@ -86,7 +87,7 @@ task("vault:balance", "Prints an account's share balance")
     try {
         const vault = await ethers.getContractAt(
           "BakerFiVault",
-          networkConfig.vault
+          networkConfig.vaultProxy?? ""
         );
 
         const balance = await vault.balanceOf(account);
@@ -106,7 +107,7 @@ task("vault:assets", "Prints an account's share balance")
     try {
         const vault = await ethers.getContractAt(
           "BakerFiVault",
-          networkConfig.vault
+          networkConfig.vaultProxy?? ""
         );
         const balance = await vault.totalAssets();
         spinner.succeed(`🧑‍🍳 Vault Total Assets ${ethers.formatEther(balance)} brETH`);
@@ -126,7 +127,7 @@ task("vault:assets", "Prints an account's share balance")
     try {
         const vault = await ethers.getContractAt(
           "BakerFiVault",
-          networkConfig.vault
+          networkConfig.vaultProxy?? ""
         );
         const balance = await vault.tokenPerETH();
         spinner.succeed(`🧑‍🍳 Vault tokenPerETH ${ethers.formatEther(balance)}`);
@@ -147,7 +148,7 @@ task("settings:setLoanToValue", "Set Target Loan To value")
     try {
       const settings = await ethers.getContractAt(
         "Settings",
-        networkConfig.settings
+        networkConfig.settingsProxy?? ""
       );
       await settings.setLoanToValue(value);
       spinner.succeed(`🧑‍🍳 Target LTV Changed to ${value} ✅ `);
@@ -165,7 +166,7 @@ task("settings:getLoanToValue", "Set Target Loan To value")
     try {
       const settings = await ethers.getContractAt(
         "Settings",
-        networkConfig.settings
+        networkConfig.settingsProxy?? ""
       );
       const value = await settings.getLoanToValue();
       spinner.succeed(`🧑‍🍳 LTV = ${value} `);
@@ -185,7 +186,7 @@ task("settings:setMaxLoanToValue", "Set Max Target Loan To value")
     try {
       const settings = await ethers.getContractAt(
         "Settings",
-        networkConfig.settings
+        networkConfig.settingsProxy?? ""
       );
       await settings.setMaxLoanToValue(value);
       spinner.succeed(`🧑‍🍳 Max LTV Changed to  ${value} ✅ `);
@@ -204,7 +205,7 @@ task("settings:getMaxLoanToValue", "Get Max Target Loan To value")
     try {
       const settings = await ethers.getContractAt(
         "Settings",
-        networkConfig.settings
+        networkConfig.settingsProxy?? ""
       );
       const value = await settings.getMaxLoanToValue();
       spinner.succeed(`🧑‍🍳 Max LTV ${value} `);
@@ -224,7 +225,7 @@ task("settings:setWithdrawalFee", "Set Withdrawal Fee")
     try {
       const settings = await ethers.getContractAt(
         "Settings",
-        networkConfig.settings
+        networkConfig.settingsProxy?? ""
       );
       await settings.setWithdrawalFee(value);
       spinner.succeed(`🧑‍🍳 Withdrawal Fee Changed to ${value} ✅ `);
@@ -242,7 +243,7 @@ task("settings:getWithdrawalFee", "get Withdrawal Fee")
     try {
       const settings = await ethers.getContractAt(
         "Settings",
-        networkConfig.settings
+        networkConfig.settingsProxy?? ""
       );
       const value = await settings.getWithdrawalFee();
       spinner.succeed(`🧑‍🍳 Withdrawal Fee = ${value}`);
@@ -262,7 +263,7 @@ task("settings:setPerformanceFee", "Set Performance Fee")
     try {
       const settings = await ethers.getContractAt(
         "Settings",
-        networkConfig.settings
+        networkConfig.settingsProxy?? ""
       );
       await settings.setPerformanceFee(value);
       spinner.succeed(`🧑‍🍳 Performance Fee Changed to ${value} ✅ `);
@@ -280,7 +281,7 @@ task("settings:getPerformanceFee", "Get Performance Fee")
     try {
       const settings = await ethers.getContractAt(
         "Settings",
-        networkConfig.settings
+        networkConfig.settingsProxy?? ""
       );
       const value = await settings.getPerformanceFee();
       spinner.succeed(`🧑‍🍳 Performance Fee = ${value} `);
@@ -300,7 +301,7 @@ task("settings:setFeeReceiver", "Set Fee Receiver Accoutn")
     try {
       const settings = await ethers.getContractAt(
         "Settings",
-        networkConfig.settings
+        networkConfig.settingsProxy?? ""
       );
       await settings.setFeeReceiver(account);
       spinner.succeed(`🧑‍🍳 Fee Receiver Account Changed to ${account} ✅ `);
@@ -319,7 +320,7 @@ task("settings:getFeeReceiver", "Get Fee Receiver Account")
     try {
       const settings = await ethers.getContractAt(
         "Settings",
-        networkConfig.settings
+        networkConfig.settingsProxy?? ""
       );
       const value = await settings.getFeeReceiver();
       spinner.succeed(`🧑‍🍳 Fee Receiver Account ${value} `);
@@ -340,7 +341,7 @@ task("settings:enableAccount", "Enable an account on the whitelist")
     try {
       const settings = await ethers.getContractAt(
         "Settings",
-        networkConfig.settings
+        networkConfig.settingsProxy?? ""
       );
       await settings.enableAccount(account, enabled=="true");
       spinner.succeed(`🧑‍🍳 Account ${account} now is enabled=${enabled} ✅ `);
@@ -361,7 +362,7 @@ task("settings:isAccountEnabled", "Enable an account on the whitelist")
     try {
       const settings = await ethers.getContractAt(
         "Settings",
-        networkConfig.settings
+        networkConfig.settingsProxy?? ""
       );
       const res = await settings.isAccountEnabled(account);
       spinner.succeed(`🧑‍🍳 Account ${account} is enabled? ${res} `);
@@ -390,6 +391,69 @@ task("oracle:collateral", "Get the wstETH/ETH Price from Oracle")
     }
 });
 
+task("deploy:upgrade:settings", "Upgrade the settings Contract") 
+  .setAction(async ({}, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Upgrading Settings Contract`).start();
+    try {
+      const Settings = await ethers.getContractFactory("Settings");   
+      const settings = await Settings.deploy();
+      await settings.waitForDeployment();
+      const proxyAdmin = await ethers.getContractAt("ProxyAdmin", networkConfig?.proxyAdmin?? "");
+      await proxyAdmin.upgrade(
+        networkConfig.settingsProxy,
+        await settings.getAddress(),
+      )
+      spinner.succeed(`New Settings Contract is ${await settings.getAddress()}`);
+    } catch (e) {
+      console.log(e);
+      spinner.fail("Failed 💥");
+    }
+});
+
+task("deploy:upgrade:strategy", "Upgrade the settings Contract") 
+  .setAction(async ({}, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Upgrading strategy Contract`).start();
+    try {
+      const AAVEv3StrategyAny = await ethers.getContractFactory("AAVEv3StrategyAny");   
+      const strategy = await AAVEv3StrategyAny.deploy();
+      await strategy.waitForDeployment();
+      const proxyAdmin = await ethers.getContractAt("ProxyAdmin", networkConfig?.proxyAdmin?? "");
+      await proxyAdmin.upgrade(
+        networkConfig.strategyProxy,
+        await strategy.getAddress(),
+      )
+      spinner.succeed(`New Strategy Contract is ${await strategy.getAddress()}`);
+    } catch (e) {
+      console.log(e);
+      spinner.fail("Failed 💥");
+    }
+});
+
+
+task("deploy:upgrade:vault", "Upgrade the settings Contract") 
+  .setAction(async ({}, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Upgrading Vault Contract`).start();
+    try {
+      const BakerFiVault = await ethers.getContractFactory("BakerFiVault");   
+      const vault = await BakerFiVault.deploy();
+      await vault.waitForDeployment();
+      const proxyAdmin = await ethers.getContractAt("ProxyAdmin", networkConfig?.proxyAdmin?? "");
+      await proxyAdmin.upgrade(
+        networkConfig.vaultProxy,
+        await vault.getAddress(),
+      )
+      spinner.succeed(`New Vault Contract is ${await vault.getAddress()}`);
+    } catch (e) {
+      console.log(e);
+      spinner.fail("Failed 💥");
+    }
+});
 
 async function getSignerOrThrow(ethers, address) {
   const signers = await ethers.getSigners();

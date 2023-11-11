@@ -59,7 +59,7 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
 
     await uniRouter.setPrice(884 * 1e6);
 
-    const settings = await deploySettings(owner.address, serviceRegistry);
+    const { settings } = await deploySettings(owner.address, serviceRegistry);
 
     // Deposit some WETH on Swapper
     await weth.deposit?.call("", { value: ethers.parseUnits("10000", 18) });
@@ -81,13 +81,13 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");
     await ethOracle.setLatestPrice(ethers.parseUnits("1", 18));
 
-    const strategy = await deployAAVEv3StrategyWstETH(
+    const {strategy} = await deployAAVEv3StrategyWstETH(
       owner.address,
       serviceRegistryAddress,
       config.swapFeeTier,
       config.AAVEEModeCategory
     );
-    const vault = await deployVault(
+    const { vault } = await deployVault(
       owner.address,
       serviceRegistryAddress,
       await strategy.getAddress()
@@ -428,7 +428,8 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
   async function deployMockStrategyFunction() {
     const [owner, otherAccount, anotherAccount] = await ethers.getSigners();
     const Settings = await ethers.getContractFactory("Settings");
-    const settings = await Settings.deploy(owner);
+    const settings = await Settings.deploy();
+    await settings.initialize(owner);
     await settings.waitForDeployment();
     
     const serviceRegistry = await deployServiceRegistry(owner.address);
@@ -443,7 +444,8 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     );
 
     const BakerFiVault = await ethers.getContractFactory("BakerFiVault");
-    const vault = await BakerFiVault.deploy(
+    const vault = await BakerFiVault.deploy();
+    await vault.initialize(
       owner.address,
       await serviceRegistry.getAddress(),
       await strategy.getAddress()

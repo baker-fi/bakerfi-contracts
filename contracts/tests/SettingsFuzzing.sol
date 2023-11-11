@@ -9,7 +9,8 @@ contract SettingsFuzzing {
     Settings private settings;
 
     constructor() {
-        settings = new Settings(address(this));
+        settings = new Settings();
+        settings.initialize(address(this));
     }
 
     function changeMaxLTV(uint256  maxValue) public  {

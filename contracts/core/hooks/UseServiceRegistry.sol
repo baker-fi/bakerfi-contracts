@@ -5,12 +5,13 @@ pragma experimental ABIEncoderV2;
 
 import {ServiceRegistry} from "../ServiceRegistry.sol";
 import {IServiceRegistry} from "../../interfaces/core/IServiceRegistry.sol";
+import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-abstract contract UseServiceRegistry {
+abstract contract UseServiceRegistry is Initializable {
     
-    ServiceRegistry private immutable _registry;
+    ServiceRegistry private  _registry;
 
-    constructor(ServiceRegistry registry) {
+    function __initUseServiceRegistry(ServiceRegistry registry)  internal onlyInitializing {
         _registry = registry;
     }
 

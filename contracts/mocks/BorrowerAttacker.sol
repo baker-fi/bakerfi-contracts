@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
-import "@openzeppelin/contracts/interfaces/IERC3156FlashBorrower.sol";
+import "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashBorrowerUpgradeable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {ServiceRegistry} from "../core/ServiceRegistry.sol";
 import {UseFlashLender} from "../core/hooks/UseFlashLender.sol";
 import {UseStrategy} from "../core/hooks/UseStrategy.sol";
+import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-contract BorrowerAttacker is IERC3156FlashBorrower, 
+contract BorrowerAttacker is IERC3156FlashBorrowerUpgradeable, 
     UseFlashLender,
     UseStrategy {
     uint256 constant FLASH_LOAN_FEE_PRECISION = 100000;
@@ -19,9 +20,10 @@ contract BorrowerAttacker is IERC3156FlashBorrower,
 
     using SafeERC20 for IERC20;
 
-    constructor(ServiceRegistry registry) 
-        UseFlashLender(registry) 
-        UseStrategy(registry) {}   
+    function initialize(ServiceRegistry registry) public initializer {
+        __initUseFlashLender(registry);
+        __initUseStrategy(registry);
+    }
 
     function borrowed(address token) external view returns (uint256) {
         return _totalBorrowed[token];
@@ -47,7 +49,7 @@ contract BorrowerAttacker is IERC3156FlashBorrower,
         uint256 fee,
         bytes calldata data
     ) external override returns (bytes32) {
-        IERC3156FlashBorrower(strategyA()).onFlashLoan(
+        IERC3156FlashBorrowerUpgradeable(strategyA()).onFlashLoan(
             strategyA(),
             token,
             amount,

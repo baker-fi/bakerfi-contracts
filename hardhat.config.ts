@@ -57,7 +57,9 @@ const config: HardhatUserConfig = {
       `https://arbitrum-mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
       chainId: 42161,
       blockGasLimit: 900000,
-      accounts: [`${process.env.BAKERFI_PRIVATE_KEY}`],
+      ...process.env.BAKERFI_PRIVATE_KEY ? { 
+        accounts: [`${process.env.BAKERFI_PRIVATE_KEY}`]
+      }: {},
     },
     kovan: {
       url: `https://kovan.infura.io/v3/${process.env.INFURA_API_KEY}`,
@@ -161,10 +163,6 @@ const config: HardhatUserConfig = {
     src: "./contracts",
     path: "./flat",
     clear: true,
-  },
-  functionSelectors: {
-    separateContractSelectors: true, //separate by contract
-    orderedByValue: true, //order function selectors by hex value, least to greatest
   },
 };
 

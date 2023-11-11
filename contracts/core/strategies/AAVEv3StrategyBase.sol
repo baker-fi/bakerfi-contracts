@@ -1,22 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {IERC3156FlashBorrower} from "@openzeppelin/contracts/interfaces/IERC3156FlashBorrower.sol";
-import {IERC3156FlashLender} from "@openzeppelin/contracts/interfaces/IERC3156FlashLender.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {IERC3156FlashBorrowerUpgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashBorrowerUpgradeable.sol";
+import {IERC3156FlashLenderUpgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashLenderUpgradeable.sol";
 import {ServiceRegistry} from "../../core/ServiceRegistry.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {IQuoterV2} from "../../interfaces/uniswap/v3/IQuoterV2.sol";
 import {
-    ETH_USD_ORACLE, 
-    WETH_CONTRACT, 
-    PERCENTAGE_PRECISION, 
-    WSTETH_ETH_ORACLE, 
-    AAVE_V3, 
-    FLASH_LENDER, 
-    ST_ETH_CONTRACT, 
-    WST_ETH_CONTRACT
+    PERCENTAGE_PRECISION
 } from "../Constants.sol";
 import {Rebase, RebaseLibrary} from "../../libraries/BoringRebase.sol";
 import {IWETH} from "../../interfaces/tokens/IWETH.sol";
@@ -37,26 +30,21 @@ import {UseAAVEv3} from "../hooks/UseAAVEv3.sol";
 import {UseServiceRegistry} from "../hooks/UseServiceRegistry.sol";
 import {UseSwapper} from "../hooks/UseSwapper.sol";
 import {UseIERC20} from "../hooks/UseIERC20.sol";
-import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
+import { ETH_USD_ORACLE_CONTRACT } from "../ServiceRegistry.sol";
 
 /**
- *
- * Strategy that does AAVE leverage/deleverage using flash loans
- * 
- *
- * TODO: Use the Uniswap Swapper directly to optimize gas consumption
- * TODO: Optimize Gas by set MAX Int allowances on initialization
- *
- * @title
+ * @title  Strategy that does AAVE leverage/deleverage using flash loans
  * @author Hélder Vasconcelos
  * @author Henrique Macedo 
- * @notice
+ * @notice The Contract is abstract and needs to be extended to implement the c
+ * conversion between WETH and the collateral
  */
 abstract contract AAVEv3StrategyBase is
-    Ownable,
+    OwnableUpgradeable,
     IStrategy,
-    IERC3156FlashBorrower,
+    IERC3156FlashBorrowerUpgradeable,
     UseServiceRegistry,
     UseWETH,
     UseIERC20,
@@ -64,7 +52,7 @@ abstract contract AAVEv3StrategyBase is
     UseSwapper,
     UseFlashLender,
     UseUniQuoter,
-    ReentrancyGuard,
+    ReentrancyGuardUpgradeable,
     UseLeverage,
     UseSettings
 {
@@ -88,37 +76,37 @@ abstract contract AAVEv3StrategyBase is
 
     bytes32 private constant _SUCCESS_MESSAGE = keccak256("ERC3156FlashBorrower.onFlashLoan");
 
-    using SafeERC20 for IERC20;
-    using Address for address;    
-    using Address for address payable;
+    using SafeERC20Upgradeable for IERC20Upgradeable;
+    using AddressUpgradeable for address;    
+    using AddressUpgradeable for address payable;
     
     uint256 internal _pendingAmount = 0;
     uint256 private _deployedAmount = 0;
 
-    IOracle private immutable _collateralOracle;
-    IOracle private immutable _ethUSDOracle;
-    uint24 internal immutable _swapFeeTier;
+    IOracle private _collateralOracle;
+    IOracle private _ethUSDOracle;
+    uint24 internal _swapFeeTier;
 
-    constructor(
+    function __initializeAAVEv3StrategyBase(
         address initialOwner,
         ServiceRegistry registry,
         bytes32 collateralIERC20,
         bytes32 collateralOracle,
         uint24 swapFeeTier,
         uint8 eModeCategory
-    )
-        Ownable()
-        UseServiceRegistry(registry)
-        UseWETH(registry)
-        UseIERC20(registry, collateralIERC20)
-        UseAAVEv3(registry)
-        UseSwapper(registry)
-        UseFlashLender(registry)
-        UseUniQuoter(registry)
-        UseSettings(registry)
+    ) internal onlyInitializing
     {
+        __Ownable_init();
+        __initUseServiceRegistry(registry);
+        __initUseWETH(registry);        
+        __initUseIERC20(registry, collateralIERC20);
+        __initUseAAVEv3(registry);
+        __initUseSwapper(registry);
+        __initUseFlashLender(registry);
+        __initUseUniQuoter(registry);
+        __initUseSettings(registry);
         _collateralOracle = IOracle(registry.getServiceFromHash(collateralOracle));
-        _ethUSDOracle = IOracle(registry.getServiceFromHash(ETH_USD_ORACLE));
+        _ethUSDOracle = IOracle(registry.getServiceFromHash(ETH_USD_ORACLE_CONTRACT));
         _swapFeeTier = swapFeeTier;
         require(initialOwner != address(0), "Invalid Owner Address");
         require(address(_ethUSDOracle) != address(0), "Invalid ETH/USD Oracle");
@@ -128,9 +116,8 @@ abstract contract AAVEv3StrategyBase is
         require(aaveV3().getUserEMode(address(this)) == eModeCategory, "Invalid Emode");
         require(wETH().approve(uniRouterA(), 2**256 - 1));
         require(ierc20().approve(uniRouterA(), 2**256 - 1));
-    
-       // require(wETH().approve(flashLenderA(), 2**256 - 1)); ???
     }
+    
     // solhint-disable-next-line no-empty-blocks
     receive() external payable {}
 
@@ -175,10 +162,10 @@ abstract contract AAVEv3StrategyBase is
         uint256 loanAmount = leverage - msg.value;
         uint256 fee = flashLender().flashFee(wETHA(), loanAmount);
         //§uint256 allowance = wETH().allowance(address(this), flashLenderA());
-        require(wETH().approve(flashLenderA(), loanAmount + fee));
+        require(wETH().approve(flashLenderA(), loanAmount + fee));        
         require(
             flashLender().flashLoan(
-                IERC3156FlashBorrower(this),
+                IERC3156FlashBorrowerUpgradeable(this),
                 wETHA(),
                 loanAmount,
                 abi.encode(msg.value, msg.sender, FlashLoanAction.SUPPLY_BOORROW)
@@ -245,7 +232,7 @@ abstract contract AAVEv3StrategyBase is
     ) private {
         
         DataTypes.ReserveData memory reserve = aaveV3().getReserveData(ierc20A());
-        uint256 balanceOf = IERC20(reserve.aTokenAddress).balanceOf(address(this));
+        uint256 balanceOf = IERC20Upgradeable(reserve.aTokenAddress).balanceOf(address(this));
         uint256 convertedAmount = _fromWETH(withdrawAmountInETh);
         uint256 withdrawAmount = balanceOf > convertedAmount ? convertedAmount: balanceOf;
         _repay(wETHA(), repayAmount);
@@ -328,7 +315,7 @@ abstract contract AAVEv3StrategyBase is
         require(wETH().approve(flashLenderA(), deltaDebt + fee ));
         require(
             flashLender().flashLoan(
-                IERC3156FlashBorrower(this),
+                IERC3156FlashBorrowerUpgradeable(this),
                 wETHA(),
                 deltaDebt,
                 abi.encode(deltaDebt, address(0), FlashLoanAction.PAY_DEBT)
@@ -449,7 +436,7 @@ abstract contract AAVEv3StrategyBase is
         require(wETH().approve(flashLenderA(), deltaDebtInETH + fee ));
         require(
             flashLender().flashLoan(
-                IERC3156FlashBorrower(this),
+                IERC3156FlashBorrowerUpgradeable(this),
                 wETHA(),
                 deltaDebtInETH,
                 abi.encode(deltaCollateralInETH, receiver, FlashLoanAction.PAY_DEBT_WITHDRAW)

@@ -2,25 +2,25 @@
 pragma solidity ^0.8.18;
 pragma experimental ABIEncoderV2;
 
-import {ServiceRegistry} from "../ServiceRegistry.sol";
-import {SWAPPER_HANDLER} from "../Constants.sol";
+import {ServiceRegistry, UNISWAP_ROUTER_CONTRACT} from "../ServiceRegistry.sol";
 import {IServiceRegistry} from "../../interfaces/core/IServiceRegistry.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
 import {IV3SwapRouter} from "../../interfaces/uniswap/v3/ISwapRouter.sol";
-import {UNISWAP_ROUTER} from "../Constants.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-abstract contract UseSwapper is ISwapHandler {
+abstract contract UseSwapper is ISwapHandler, Initializable {
     
     using SafeERC20 for IERC20;
     
     event Swap(address indexed assetIn, address assetOut,  uint256 assetInAmount, uint256 assetOutAmount);
     error SwapFailed();
-    IV3SwapRouter private immutable _uniRouter;
+    
+    IV3SwapRouter private _uniRouter;
 
-    constructor(ServiceRegistry registry) {
-        _uniRouter = IV3SwapRouter(registry.getServiceFromHash(UNISWAP_ROUTER));
+    function __initUseSwapper(ServiceRegistry registry) internal onlyInitializing {
+        _uniRouter = IV3SwapRouter(registry.getServiceFromHash(UNISWAP_ROUTER_CONTRACT));
         require(address(_uniRouter) != address(0), "Invalid Uniswap Router");   
     }
 

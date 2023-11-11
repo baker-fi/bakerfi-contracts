@@ -2,20 +2,21 @@
 pragma solidity ^0.8.18;
 pragma experimental ABIEncoderV2;
 
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {Pausable} from "@openzeppelin/contracts/security/Pausable.sol";
-import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
+import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import {Rebase, RebaseLibrary} from "../libraries/BoringRebase.sol";
 import {ServiceRegistry} from "../core/ServiceRegistry.sol";
 import {ISwapHandler} from "../interfaces/core/ISwapHandler.sol";
 import {IVault} from "../interfaces/core/IVault.sol";
 import {IStrategy} from "../interfaces/core/IStrategy.sol";
-import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {PERCENTAGE_PRECISION} from "./Constants.sol";
-import {ERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
+import {ERC20PermitUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20PermitUpgradeable.sol";
 import {UseSettings} from "./hooks/UseSettings.sol";
-import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**
  * BakerFi Vault
@@ -27,25 +28,24 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
  * @notice
  */
 contract BakerFiVault is 
-    IVault, 
-    Ownable, 
-    Pausable, 
-    ERC20Permit, 
-    UseSettings, 
-    ReentrancyGuard 
+    OwnableUpgradeable,
+    PausableUpgradeable,     
+    ReentrancyGuardUpgradeable,
+    ERC20PermitUpgradeable, 
+    UseSettings,
+    IVault
 {
-
     using RebaseLibrary for Rebase;
-    using SafeERC20 for ERC20;
-    using Address for address;
-    using Address for address payable;
+    using SafeERC20Upgradeable for ERC20Upgradeable;
+    using AddressUpgradeable for address;
+    using AddressUpgradeable for address payable;
 
     string constant private _NAME = "Bread ETH";
     string constant private _SYMBOL = "brETH";
 
     // The System System register
-    ServiceRegistry private immutable _registry;
-    IStrategy private immutable _strategy;
+    ServiceRegistry private _registry;
+    IStrategy private _strategy;
 
     event Deposit(address indexed depositor, address indexed receiver, uint256 indexed amount, uint256 shares);
     event Withdraw(address indexed owner, uint256 amount, uint256 indexed shares);
@@ -61,11 +61,14 @@ contract BakerFiVault is
      * @param registry The Contract Registry address
      * @param strategy  The Strategy applied on this vault
      */
-    constructor(
+    function initialize(
         address initialOwner,
         ServiceRegistry registry,
         IStrategy strategy
-    ) ERC20Permit(_NAME) ERC20(_NAME, _SYMBOL) UseSettings(registry) {
+    ) public initializer {
+        __ERC20Permit_init(_NAME);
+        __ERC20_init(_NAME, _SYMBOL);
+        __initUseSettings(registry);
         require(initialOwner != address(0), "Invalid Owner Address");
         _transferOwnership(initialOwner);
         _registry = registry;
