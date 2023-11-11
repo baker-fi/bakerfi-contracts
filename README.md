@@ -155,12 +155,12 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 Please make sure to update tests as appropriate.
 
-## Important Information 
+## Documentation
 
 * [Tasks](TASKS.md)
 * [License](LICENSE)
 
-### TODO - Smart Contracts 
+## TODO 
 
 * BPIE - Governance Token Setup
 * Governor - Controlled by BPIE Holders
