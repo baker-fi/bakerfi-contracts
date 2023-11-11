@@ -68,9 +68,21 @@ This will execute the tests defined in the ./test directory.
 ## Deployment
 To deploy your smart contracts to a specific network, configure the network settings in the hardhat.config.js file. Then, run the deployment script using the following command:
 
+### Production 
 ```
 npx hardhat run --network <network-name> scripts/deploy.ts
 ```
+
+### Local Development (Ganache)
+
+```
+# Open a terminal to run Ganache
+npm run ganache:dev 
+# Open a separate terminal to run the deployment script
+npx hardhat run scripts/deploy-dev.ts
+```
+
+
 
 Replace <network-name> with the desired network from your configuration.
 
