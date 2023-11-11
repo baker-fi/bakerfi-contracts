@@ -9,6 +9,7 @@ Recursive ETH Staking made easy
 * Easy to Use Interface
 * Leverage based on Flash Loans
 * Liquid Yield Shares matETH 
+* Proxied Deployment for Settings, Vault and Strategies
 
 ## Integrations 
 * AAVE v3 
