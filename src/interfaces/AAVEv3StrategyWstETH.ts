@@ -3,8 +3,7 @@ import {ContractCallMethod} from '@taikai/dappkit';
 
 export interface AAVEv3StrategyWstETHMethods {
 
-
-    aaveV3(): ContractCallMethod<string>;
+  aaveV3(): ContractCallMethod<string>;
 
   aaveV3A(): ContractCallMethod<string>;
 

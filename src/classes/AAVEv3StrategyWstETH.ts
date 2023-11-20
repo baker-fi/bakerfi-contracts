@@ -227,4 +227,16 @@ export class AAVEv3StrategyWstETH
   ): XPromiseEvent<Events.SwapEvent> {
     return this.contract.self.getPastEvents("Swap", filter);
   }
+  
+  async getStrategyDeployEvents(
+    filter: PastEventOptions
+  ): XPromiseEvent<Events.StrategyDeployEvent> {
+    return this.contract.self.getPastEvents("StrategyDeploy", filter);
+  }
+
+  async getStrategyUndeployEvents(
+    filter: PastEventOptions
+  ): XPromiseEvent<Events.StrategyUndeployEvent> {
+    return this.contract.self.getPastEvents("StrategyUndeploy", filter);
+  }
 }
