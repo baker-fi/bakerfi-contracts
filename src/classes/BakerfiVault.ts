@@ -106,7 +106,7 @@ export class BakerFiVault extends Model<BakerFiVaultMethods> implements Deployab
   }
 
   async tokenPerETH() { 
-    return this.callTx(this.contract.methods.tokenPerETh());
+    return this.callTx(this.contract.methods.tokenPerETH());
   }
 
   async totalAssets() { 

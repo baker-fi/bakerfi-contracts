@@ -24,11 +24,11 @@ contract Settings is OwnableUpgradeable, ISettings {
     uint8   private                  _nrLoops; 
     EnumerableSet.AddressSet private _enabledAccounts;
 
-    event SetMaxLoanToValueChanged(uint256 indexed value);
+    event MaxLoanToValueChanged(uint256 indexed value);
     event LoanToValueChanged( uint256 indexed value);
     event WithdrawalFeeChanged(uint256 indexed value);
     event PerformanceFeeChanged( uint256 indexed value);
-    event FeeReceiverChanged( uint256 indexed value);
+    event FeeReceiverChanged( address indexed value);
     event NrLoopsChanged( uint256 indexed value);
     event AccountWhiteList( address indexed account, bool enabled );
 
@@ -67,7 +67,7 @@ contract Settings is OwnableUpgradeable, ISettings {
         require(maxLoanToValue <  PERCENTAGE_PRECISION, "Invalid percentage value");
         require(maxLoanToValue >= _loanToValue, "Invalid Max Loan");
         _maxLoanToValue = maxLoanToValue;
-        emit SetMaxLoanToValueChanged(_maxLoanToValue);
+        emit MaxLoanToValueChanged(_maxLoanToValue);
     }
 
     function getMaxLoanToValue() external view returns (uint256) {
@@ -109,7 +109,7 @@ contract Settings is OwnableUpgradeable, ISettings {
     function setFeeReceiver(address receiver) external onlyOwner {
         require(receiver != address(0), "Invalid Address");
         _feeReceiver = receiver;
-        emit FeeReceiverChanged(_performanceFee);
+        emit FeeReceiverChanged(_feeReceiver);
     }
 
     function getFeeReceiver() external view returns (address) {
