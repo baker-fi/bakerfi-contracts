@@ -49,10 +49,10 @@ contract Settings is OwnableUpgradeable, ISettings {
     function enableAccount(address account, bool enabled ) external onlyOwner {
         if(enabled) {
             require(!_enabledAccounts.contains(account), "Already Enabled");
-            _enabledAccounts.add(account);
+            require(_enabledAccounts.add(account));
         } else {
             require(_enabledAccounts.contains(account), "Not Enabled");
-            _enabledAccounts.remove(account);
+            require(_enabledAccounts.remove(account));
         }
         emit AccountWhiteList(account, enabled);
     }

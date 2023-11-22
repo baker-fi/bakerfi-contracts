@@ -11,7 +11,8 @@ import "hardhat-contract-sizer";
 import { HardhatUserConfig } from "hardhat/config";
 import { STAGING_ACCOUNTS_PKEYS} from "./constants/test-accounts";
 import {HardhatNetworkAccountUserConfig} from "hardhat/types/config";
-import "hardhat-tracer";
+//import "hardhat-tracer";
+import 'solidity-docgen';
 import "./scripts/tasks";
 import "hardhat-flat-exporter";
 
@@ -163,7 +164,19 @@ const config: HardhatUserConfig = {
     src: "./contracts",
     path: "./flat",
     clear: true,
-  },
+  }, 
+  docgen: {
+    outputDir: "doc",
+    pages: "files",
+    exclude: [
+      "mocks", 
+      "tests",
+      "interfaces/lido",
+      "interfaces/tokens",
+      "libraries/tokens/WETH.md",
+    ],
+    collapseNewlines: true
+  }
 };
 
 export default config;

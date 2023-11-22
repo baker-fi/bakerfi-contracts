@@ -90,12 +90,8 @@ contract BakerFiVault is
                     settings().getPerformanceFee() > 0
                 ) {           
                     uint256 updatedPos = totalAssets();
-                    uint256 feeInEth = uint256(balanceChange) * 
-                        settings().getPerformanceFee() / 
-                        PERCENTAGE_PRECISION;                    
-                    
-                    uint256 percToTreasury = feeInEth *  PERCENTAGE_PRECISION / updatedPos ;
-                    uint256 sharesToMint = percToTreasury * totalSupply() / PERCENTAGE_PRECISION;
+                    uint256 feeInEth = uint256(balanceChange) * settings().getPerformanceFee() ;                                           
+                    uint256 sharesToMint = feeInEth * totalSupply() / updatedPos  / PERCENTAGE_PRECISION;
                     _mint(settings().getFeeReceiver(), sharesToMint);
                 }
             }

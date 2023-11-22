@@ -157,6 +157,11 @@ Replace <network-name> with the desired network from your configuration.
 npm run export:flat
 ``` 
 
+**Generate Documentation**
+```
+npm run doc 
+```
+
 **Run Echidna for Testing**
 
 ```

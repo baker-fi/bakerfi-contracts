@@ -24,7 +24,7 @@ task("vault:deposit", "Deposit ETH on the vault")
     try {     
         const vault = await ethers.getContractAt(
         "BakerFiVault",
-        networkConfig.vaultProxy ?? ""
+        networkConfig.vaultProxy?? ""
       );
       const signer = await getSignerOrThrow(ethers, account);      
       await vault.connect(signer).deposit(signer.address, {
@@ -33,7 +33,6 @@ task("vault:deposit", "Deposit ETH on the vault")
       spinner.succeed(`Deposited ${account} ${amount} ETH 🧑‍🍳`);
     } catch (e) {
       console.log(e);
-      console.log(`Error: ${e.message} ${e} `);
       spinner.fail("Failed 💥");
     }
   });
@@ -54,7 +53,7 @@ task("vault:withdraw", "Burn brETH shares and receive ETH")
       await vault.connect(signer).withdraw(ethers.parseUnits(amount, 18));
       spinner.succeed(`Withdrawed ${account} ${amount} ETH 🧑‍🍳`);
     } catch (e) {
-      console.log(e); 
+      console.log(e);
       spinner.fail("Failed 💥");
     }
   });
@@ -312,6 +311,45 @@ task("settings:setFeeReceiver", "Set Fee Receiver Accoutn")
 });
 
 
+task("settings:getNrLoops", "Get Recursive Number of Loops")
+  .setAction(async ({}, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Gettting Nr Loop ${networkConfig.settings}`).start();
+    try {
+      const settings = await ethers.getContractAt(
+        "Settings",
+        networkConfig.settingsProxy?? ""
+      );
+      const value = await settings.getNrLoops();
+      spinner.succeed(`🧑‍🍳 Nr of Loops ${value} `);
+    } catch (e) {
+      console.log(e);
+      spinner.fail("Failed 💥");
+    }
+});
+
+
+task("settings:setNrLoops", "Set number of Loopps")
+  .addParam("value", "loop coount")
+  .setAction(async ({value}, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Settting Nr Of Loops to ${value}`).start();
+    try {
+      const settings = await ethers.getContractAt(
+        "Settings",
+        networkConfig.settingsProxy?? ""
+      );
+      await settings.setNrLoops(value);
+      spinner.succeed(`🧑‍🍳 Nr of Loops Changed to ${value} ✅ `);
+    } catch (e) {
+      console.log(e);
+      spinner.fail("Failed 💥");
+    }
+});
+
+
 task("settings:getFeeReceiver", "Get Fee Receiver Account")
   .setAction(async ({}, { ethers, network }) => {
     const networkName = network.name;
@@ -391,69 +429,6 @@ task("oracle:collateral", "Get the wstETH/ETH Price from Oracle")
     }
 });
 
-task("deploy:upgrade:settings", "Upgrade the settings Contract") 
-  .setAction(async ({}, { ethers, network }) => {
-    const networkName = network.name;
-    const networkConfig = DeployConfig[networkName];
-    const spinner = ora(`Upgrading Settings Contract`).start();
-    try {
-      const Settings = await ethers.getContractFactory("Settings");   
-      const settings = await Settings.deploy();
-      await settings.waitForDeployment();
-      const proxyAdmin = await ethers.getContractAt("ProxyAdmin", networkConfig?.proxyAdmin?? "");
-      await proxyAdmin.upgrade(
-        networkConfig.settingsProxy,
-        await settings.getAddress(),
-      )
-      spinner.succeed(`New Settings Contract is ${await settings.getAddress()}`);
-    } catch (e) {
-      console.log(e);
-      spinner.fail("Failed 💥");
-    }
-});
-
-task("deploy:upgrade:strategy", "Upgrade the settings Contract") 
-  .setAction(async ({}, { ethers, network }) => {
-    const networkName = network.name;
-    const networkConfig = DeployConfig[networkName];
-    const spinner = ora(`Upgrading strategy Contract`).start();
-    try {
-      const AAVEv3StrategyAny = await ethers.getContractFactory("AAVEv3StrategyAny");   
-      const strategy = await AAVEv3StrategyAny.deploy();
-      await strategy.waitForDeployment();
-      const proxyAdmin = await ethers.getContractAt("ProxyAdmin", networkConfig?.proxyAdmin?? "");
-      await proxyAdmin.upgrade(
-        networkConfig.strategyProxy,
-        await strategy.getAddress(),
-      )
-      spinner.succeed(`New Strategy Contract is ${await strategy.getAddress()}`);
-    } catch (e) {
-      console.log(e);
-      spinner.fail("Failed 💥");
-    }
-});
-
-
-task("deploy:upgrade:vault", "Upgrade the settings Contract") 
-  .setAction(async ({}, { ethers, network }) => {
-    const networkName = network.name;
-    const networkConfig = DeployConfig[networkName];
-    const spinner = ora(`Upgrading Vault Contract`).start();
-    try {
-      const BakerFiVault = await ethers.getContractFactory("BakerFiVault");   
-      const vault = await BakerFiVault.deploy();
-      await vault.waitForDeployment();
-      const proxyAdmin = await ethers.getContractAt("ProxyAdmin", networkConfig?.proxyAdmin?? "");
-      await proxyAdmin.upgrade(
-        networkConfig.vaultProxy,
-        await vault.getAddress(),
-      )
-      spinner.succeed(`New Vault Contract is ${await vault.getAddress()}`);
-    } catch (e) {
-      console.log(e);
-      spinner.fail("Failed 💥");
-    }
-});
 
 async function getSignerOrThrow(ethers, address) {
   const signers = await ethers.getSigners();
