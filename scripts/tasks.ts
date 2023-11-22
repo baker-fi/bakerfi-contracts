@@ -24,7 +24,7 @@ task("vault:deposit", "Deposit ETH on the vault")
     try {     
         const vault = await ethers.getContractAt(
         "BakerFiVault",
-        networkConfig.vaultProxy ?? ""
+        networkConfig.vaultProxy?? ""
       );
       const signer = await getSignerOrThrow(ethers, account);      
       await vault.connect(signer).deposit(signer.address, {
@@ -33,7 +33,6 @@ task("vault:deposit", "Deposit ETH on the vault")
       spinner.succeed(`Deposited ${account} ${amount} ETH 🧑‍🍳`);
     } catch (e) {
       console.log(e);
-      console.log(`Error: ${e.message} ${e} `);
       spinner.fail("Failed 💥");
     }
   });
@@ -54,7 +53,7 @@ task("vault:withdraw", "Burn brETH shares and receive ETH")
       await vault.connect(signer).withdraw(ethers.parseUnits(amount, 18));
       spinner.succeed(`Withdrawed ${account} ${amount} ETH 🧑‍🍳`);
     } catch (e) {
-      console.log(e); 
+      console.log(e);
       spinner.fail("Failed 💥");
     }
   });
@@ -305,6 +304,45 @@ task("settings:setFeeReceiver", "Set Fee Receiver Accoutn")
       );
       await settings.setFeeReceiver(account);
       spinner.succeed(`🧑‍🍳 Fee Receiver Account Changed to ${account} ✅ `);
+    } catch (e) {
+      console.log(e);
+      spinner.fail("Failed 💥");
+    }
+});
+
+
+task("settings:getNrLoops", "Get Recursive Number of Loops")
+  .setAction(async ({}, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Gettting Nr Loop ${networkConfig.settings}`).start();
+    try {
+      const settings = await ethers.getContractAt(
+        "Settings",
+        networkConfig.settingsProxy?? ""
+      );
+      const value = await settings.getNrLoops();
+      spinner.succeed(`🧑‍🍳 Nr of Loops ${value} `);
+    } catch (e) {
+      console.log(e);
+      spinner.fail("Failed 💥");
+    }
+});
+
+
+task("settings:setNrLoops", "Set number of Loopps")
+  .addParam("value", "loop coount")
+  .setAction(async ({value}, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Settting Nr Of Loops to ${value}`).start();
+    try {
+      const settings = await ethers.getContractAt(
+        "Settings",
+        networkConfig.settingsProxy?? ""
+      );
+      await settings.setNrLoops(value);
+      spinner.succeed(`🧑‍🍳 Nr of Loops Changed to ${value} ✅ `);
     } catch (e) {
       console.log(e);
       spinner.fail("Failed 💥");

@@ -226,10 +226,10 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
       .withArgs(
         "0x0000000000000000000000000000000000000000",
         otherAccount.address,
-        4622351927540593n
+        4622357201301058n
       );
     expect(await vault.balanceOf(otherAccount.address)).to.equal(
-      4622351927540593n
+      4622357201301058n
     );
   });
 

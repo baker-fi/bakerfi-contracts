@@ -16,6 +16,7 @@
     "test": "npx hardhat test",
     "solhint:check": "npx solhint  'contracts/**/*.sol'",
     "prebuild-manual": "sh scripts/build-models.sh",
+    "doc": "npx hardhat docgen",
     "test:gas": "REPORT_GAS=true npx hardhat test",
     "test:coverage": "REPORT_GAS=true npx hardhat coverage",
     "contract:size": "npx hardhat size-contracts",
@@ -49,6 +50,7 @@
     "ganache": "^7.9.0",
     "hardhat": "^2.16.1",
     "hardhat-contract-sizer": "^2.10.0",
+    "hardhat-docgen": "^1.3.0",
     "hardhat-flat-exporter": "^1.0.1",
     "hardhat-gas-reporter": "^1.0.9",
     "hardhat-tracer": "^2.6.0",
@@ -65,7 +67,8 @@
     "@sushiswap/bentobox-sdk": "^1.0.0-canary.13",
     "@taikai/dappkit": "^2.3.1",
     "dotenv": "^16.3.1",
-    "hardhat-generate-function-selectors": "^1.17.1"
+    "hardhat-generate-function-selectors": "^1.17.1",
+    "solidity-docgen": "^0.6.0-beta.36"
   },
   "contractSizer": {
     "alphaSort": true,
