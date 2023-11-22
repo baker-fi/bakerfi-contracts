@@ -429,6 +429,69 @@ task("oracle:collateral", "Get the wstETH/ETH Price from Oracle")
     }
 });
 
+task("deploy:upgrade:settings", "Upgrade the settings Contract") 
+  .setAction(async ({}, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Upgrading Settings Contract`).start();
+    try {
+      const Settings = await ethers.getContractFactory("Settings");   
+      const settings = await Settings.deploy();
+      await settings.waitForDeployment();
+      const proxyAdmin = await ethers.getContractAt("ProxyAdmin", networkConfig?.proxyAdmin?? "");
+      await proxyAdmin.upgrade(
+        networkConfig.settingsProxy,
+        await settings.getAddress(),
+      )
+      spinner.succeed(`New Settings Contract is ${await settings.getAddress()}`);
+    } catch (e) {
+      console.log(e);
+      spinner.fail("Failed 💥");
+    }
+});
+
+task("deploy:upgrade:strategy", "Upgrade the settings Contract") 
+  .setAction(async ({}, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Upgrading strategy Contract`).start();
+    try {
+      const AAVEv3StrategyAny = await ethers.getContractFactory("AAVEv3StrategyAny");   
+      const strategy = await AAVEv3StrategyAny.deploy();
+      await strategy.waitForDeployment();
+      const proxyAdmin = await ethers.getContractAt("ProxyAdmin", networkConfig?.proxyAdmin?? "");
+      await proxyAdmin.upgrade(
+        networkConfig.strategyProxy,
+        await strategy.getAddress(),
+      )
+      spinner.succeed(`New Strategy Contract is ${await strategy.getAddress()}`);
+    } catch (e) {
+      console.log(e);
+      spinner.fail("Failed 💥");
+    }
+});
+
+
+task("deploy:upgrade:vault", "Upgrade the settings Contract") 
+  .setAction(async ({}, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Upgrading Vault Contract`).start();
+    try {
+      const BakerFiVault = await ethers.getContractFactory("BakerFiVault");   
+      const vault = await BakerFiVault.deploy();
+      await vault.waitForDeployment();
+      const proxyAdmin = await ethers.getContractAt("ProxyAdmin", networkConfig?.proxyAdmin?? "");
+      await proxyAdmin.upgrade(
+        networkConfig.vaultProxy,
+        await vault.getAddress(),
+      )
+      spinner.succeed(`New Vault Contract is ${await vault.getAddress()}`);
+    } catch (e) {
+      console.log(e);
+      spinner.fail("Failed 💥");
+    }
+});
 
 async function getSignerOrThrow(ethers, address) {
   const signers = await ethers.getSigners();
