@@ -340,7 +340,7 @@ abstract contract AAVEv3StrategyBase is
             totalCollateralBaseInEth > totalDebtBaseInEth,
             "Collateral is lower that debt"
         );
-        uint256 ltv = 0;
+    
         uint256 deltaDebt = 0;
         // Local Copy to reduce the number of SLOADs
         uint256  deployedAmount = _deployedAmount;        
@@ -349,12 +349,10 @@ abstract contract AAVEv3StrategyBase is
             "Invalid DeltaDebt Calculated"
         );
 
-        if (totalDebtBaseInEth > 0) {
-            ltv = (totalDebtBaseInEth * PERCENTAGE_PRECISION) / totalCollateralBaseInEth;
-            if (ltv > settings().getMaxLoanToValue() && ltv < PERCENTAGE_PRECISION) {
+        uint256  ltv = (totalDebtBaseInEth * PERCENTAGE_PRECISION) / totalCollateralBaseInEth;        
+        if (ltv > settings().getMaxLoanToValue() && ltv < PERCENTAGE_PRECISION) {
                 // Pay Debt to rebalance the position
-                deltaDebt = _adjustDebt(totalCollateralBaseInEth, totalDebtBaseInEth);
-            }
+            deltaDebt = _adjustDebt(totalCollateralBaseInEth, totalDebtBaseInEth);
         }
         uint256 newDeployedAmount = totalCollateralBaseInEth -
             deltaDebt -
