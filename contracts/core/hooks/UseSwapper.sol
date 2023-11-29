@@ -10,6 +10,20 @@ import {IV3SwapRouter} from "../../interfaces/uniswap/v3/ISwapRouter.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
+/**
+ * @title UseSwapper
+ *
+ * @dev Abstract contract to integrate the use of Uniswap V3 
+ *      Provides functions to initialize, access and swap 
+ *      It allows any contract to swap an ERC-20 for another ERC-20 with a fixed
+ *      input amoun  or a fixed output amount of tokens.
+ * 
+ *      During the contract initialization it sets the uniswap router address from the 
+ *      service registry
+ *
+ * @author Chef Kenji <chef.kenji@layerx.xyz>
+ * @author Chef Kal-El <chef.kal-el@layerx.xyz>
+ */
 abstract contract UseSwapper is ISwapHandler, Initializable {
     
     using SafeERC20 for IERC20;
