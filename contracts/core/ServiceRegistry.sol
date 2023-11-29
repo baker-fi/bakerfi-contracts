@@ -24,6 +24,7 @@ bytes32 constant BALANCER_VAULT_CONTRACT =       keccak256(bytes("Balancer Vault
 bytes32 constant SETTINGS_CONTRACT =             keccak256(bytes("Settings"));
 bytes32 constant UNISWAP_QUOTER_CONTRACT =       keccak256(bytes("Uniswap Quoter"));
 bytes32 constant STRATEGY_CONTRACT =             keccak256(bytes("Strategy"));
+
 /**
  * @title BakerFi Service Registy
  * 
@@ -32,6 +33,7 @@ bytes32 constant STRATEGY_CONTRACT =             keccak256(bytes("Strategy"));
  *
  * @notice Service registry that could be used resolve a service address with the
  * name of the service.
+ * 
  * This contract inherits from the `Ownable` contract and implements the `IServiceRegistry` interface.
  * It serves as a registry for managing various services and dependencies within BakerFI System.
  */
