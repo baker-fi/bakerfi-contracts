@@ -2,7 +2,9 @@
 
 ## BalancerFlashLender
 
-Balancer Flash Loan Adapter
+_This contract implements the ERC-3156 Flash Lender interface and serves as 
+"Adapter" contract for the balancer flash loan interface. This approach allows us 
+to have a static interface independent of the flash loan provider._
 
 ### CALLBACK_SUCCESS
 
@@ -22,19 +24,19 @@ constructor(contract ServiceRegistry registry) public
 function maxFlashLoan(address token) external view returns (uint256)
 ```
 
-_The amount of currency available to be lended._
+_Function to get the maximum flash loan amount available for a given token._
 
 #### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| token | address | The loan currency. |
+| token | address | The address of the token for which the maximum flash loan amount is queried. |
 
 #### Return Values
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| [0] | uint256 | The amount of `token` that can be borrowed. |
+| [0] | uint256 | The maximum flash loan amount available for the specified token. |
 
 ### flashFee
 
@@ -48,17 +50,37 @@ function flashFee(address, uint256) external pure returns (uint256)
 function flashLoan(contract IERC3156FlashBorrowerUpgradeable borrower, address token, uint256 amount, bytes data) external returns (bool)
 ```
 
+_Function to initiate a flash loan from the Balancer Pool_
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| borrower | contract IERC3156FlashBorrowerUpgradeable | The address of the flash loan receiver. |
+| token | address | The address of the token being borrowed. |
+| amount | uint256 | The amount of tokens to be borrowed. |
+| data | bytes | Arbitrary data to be passed to the flash loan recipient. |
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | bool | The unique identifier for the flash loan operation. |
+
 ### receiveFlashLoan
 
 ```solidity
 function receiveFlashLoan(address[] tokens, uint256[] amounts, uint256[] feeAmounts, bytes userData) external
 ```
 
-_When `flashLoan` is called on the Vault, it invokes the `receiveFlashLoan` hook on the recipient.
+_Function to receive flash loans from the BalancerFlashLender contract._
 
-At the time of the call, the Vault will have transferred `amounts` for `tokens` to the recipient. Before this
-call returns, the recipient must have transferred `amounts` plus `feeAmounts` for each token back to the
-Vault, or else the entire flash loan will revert.
+#### Parameters
 
-`userData` is the same value passed in the `IVault.flashLoan` call._
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| tokens | address[] | An array of token addresses representing the borrowed tokens. |
+| amounts | uint256[] | An array of amounts representing the borrowed token amounts. |
+| feeAmounts | uint256[] | An array of fee amounts charged for each flash loan. |
+| userData | bytes | Arbitrary data passed from the BalancerFlashLender contract. |
 

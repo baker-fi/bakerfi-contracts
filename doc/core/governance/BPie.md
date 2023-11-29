@@ -2,8 +2,11 @@
 
 ## BPie
 
-Baker Pie , the BakerFi Governance ERC-20 Token 
-No Taxes and no Bullshit
+_Baker Pie , the BakerFi Governance ERC-20 Token 
+
+500M Total Supply 
+
+No Taxes and no Bullshit_
 
 ### constructor
 

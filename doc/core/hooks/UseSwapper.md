@@ -2,6 +2,14 @@
 
 ## UseSwapper
 
+_Abstract contract to integrate the use of Uniswap V3 
+     Provides functions to initialize, access and swap 
+     It allows any contract to swap an ERC-20 for another ERC-20 with a fixed
+     input amoun  or a fixed output amount of tokens.
+
+     During the contract initialization it sets the uniswap router address from the 
+     service registry_
+
 ### Swap
 
 ```solidity
