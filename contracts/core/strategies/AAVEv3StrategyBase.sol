@@ -36,8 +36,8 @@ import { ETH_USD_ORACLE_CONTRACT } from "../ServiceRegistry.sol";
 
 /**
  * @title  Strategy that does AAVE leverage/deleverage using flash loans
- * @author Hélder Vasconcelos
- * @author Henrique Macedo 
+ * @author Chef Kenji <chef.kenji@layerx.xyz>
+ * @author Chef Kal-EL <chef.kal-el@layerx.xyz>
  * @notice The Contract is abstract and needs to be extended to implement the c
  * conversion between WETH and the collateral
  */

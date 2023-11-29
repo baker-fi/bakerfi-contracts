@@ -10,8 +10,10 @@ import {UseStrategy} from "../../core/hooks/UseStrategy.sol";
 import {IERC3156FlashBorrowerUpgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashBorrowerUpgradeable.sol";
 
 /**
- *  Balancer Flash Loan Adapter
- *
+ * Balancer Flash Loan Adapter
+ * 
+ * @author Chef Kenji <chef.kenji@layerx.xyz>
+ * @author Chef Kal-EL <chef.kal-el@layerx.xyz>
  * */
 contract BalancerFlashLender is IERC3156FlashLenderUpgradeable, IFlashLoanRecipient {
     using SafeERC20 for IERC20;

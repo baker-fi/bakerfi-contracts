@@ -26,7 +26,8 @@ bytes32 constant STRATEGY_CONTRACT =             keccak256(bytes("Strategy"));
 
 /**
  * @title Service used to save the addresses used on the deployment
- * @author BakerFi
+ * @author Chef Kenji <chef.kenji@layerx.xyz>
+ * @author Chef Kal-EL <chef.kal-el@layerx.xyz>
  * @notice 
  */
 contract ServiceRegistry is Ownable, IServiceRegistry {

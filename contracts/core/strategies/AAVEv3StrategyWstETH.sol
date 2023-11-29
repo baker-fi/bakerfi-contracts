@@ -19,8 +19,8 @@ import { WST_ETH_CONTRACT, WSTETH_ETH_ORACLE_CONTRACT } from "../ServiceRegistry
 
 /**
  * @title WST used
- * @author Hélder Vasconcelos
- * @author Henrique Macedo 
+ * @author Chef Kenji <chef.kenji@layerx.xyz>
+ * @author Chef Kal-EL <chef.kal-el@layerx.xyz>
  * @notice
  */
 contract AAVEv3StrategyWstETH is Initializable, AAVEv3StrategyBase, UseWstETH, UseStETH {

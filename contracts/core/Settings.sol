@@ -8,7 +8,8 @@ import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableS
 
 /**
  * @title Protocol Settings Contract
- * @author BakerFi
+ * @author Chef Kenji <chef.kenji@layerx.xyz>
+ * @author Chef Kal-EL <chef.kal-el@layerx.xyz>
  * @notice The settings could only be Changed by the Owner and could be used by any contract 
  * by the system
  */

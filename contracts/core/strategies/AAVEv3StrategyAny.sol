@@ -15,8 +15,8 @@ import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/I
 
 /**
  * @title
- * @author Hélder Vasconcelos
- * @author Henrique Macedo 
+ * @author Chef Kenji <chef.kenji@layerx.xyz>
+ * @author Chef Kal-EL <chef.kal-el@layerx.xyz>
  * @notice
  */
 contract AAVEv3StrategyAny is Initializable, AAVEv3StrategyBase {

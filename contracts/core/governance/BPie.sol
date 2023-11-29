@@ -11,7 +11,8 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
  * Baker Pie , the BakerFi Governance ERC-20 Token 
  * No Taxes and no Bullshit
  * @title 
- * @author 
+ * @author Chef Kenji <chef.kenji@layerx.xyz>
+ * @author Chef Kal-EL <chef.kal-el@layerx.xyz>
  * @notice 
  */
 contract BPie is ERC20, Ownable, ERC20Permit, ERC20Votes{
