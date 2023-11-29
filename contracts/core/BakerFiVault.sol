@@ -26,20 +26,21 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
  * 
  * @dev The BakerFi vault deployed to any supported chain (Arbitrum One, Optimism, Ethereum,...)
  * 
- * This is vault where the users deposit their ETH and receive a share of the pool brETH. 
- * A share of the pool is an ERC-20 Token (transferable) and could be used to withdraw their 
- * owned amount of the pool that could contain (Assets + Yield ). This vault could use a IStrategy 
- * to deploy the capital and receive an yield.
+ * This is smart contract where the users deposit their ETH and receives a share of the pool <x>brETH. 
+ * A share of the pool is an ERC-20 Token (transferable) and could be used to later to withdraw their 
+ * owned amount of the pool that could contain (Assets + Yield ). This vault could use a customized IStrategy 
+ * to deploy the capital and harvest an yield.
  * 
  * The Contract is able to charge a performance and withdraw fee that is send to the treasury 
- * owned account.
+ * owned account when the fees are set by the deploy owner.
  *
  * The Vault is Pausable by the the governor and is using the settings contract to retrieve base 
  * performance, withdraw fees and other kind of settings.
  * 
  * During the beta phase only whitelisted addresses are able to deposit and withdraw
  *  
- * The Contract is upgradable and can use a BakerProxy in front of 
+ * The Contract is upgradable and can use a BakerProxy in front of.
+ * 
  */
 contract BakerFiVault is 
     OwnableUpgradeable,
