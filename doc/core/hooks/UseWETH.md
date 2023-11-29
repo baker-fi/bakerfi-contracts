@@ -2,10 +2,10 @@
 
 ## UseWETH
 
-### __initUseWETH
+### _initUseWETH
 
 ```solidity
-function __initUseWETH(contract ServiceRegistry registry) internal
+function _initUseWETH(contract ServiceRegistry registry) internal
 ```
 
 ### wETH

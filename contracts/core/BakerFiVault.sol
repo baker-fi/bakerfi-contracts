@@ -22,7 +22,7 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
  * @title BakerFi Vault 🧑‍🍳
  * @author Chef Kenji <chef.kenji@layerx.xyz>
  * @author Chef Kal-EL <chef.kal-el@layerx.xyz>
- * @notice Vault Goal
+ * @dev
  * 
  * This is vault where the users deposit their ETH and receive a share of the pool brETH. 
  * A share of the pool is an ERC-20 Token (transferable) and could be used to withdraw their 
@@ -166,10 +166,15 @@ contract BakerFiVault is
                     settings().getFeeReceiver() != address(this) &&
                     settings().getFeeReceiver() != address(0) && 
                     settings().getPerformanceFee() > 0
-                ) {           
-                    uint256 updatedPos = totalAssets();
-                    uint256 feeInEth = uint256(balanceChange) * settings().getPerformanceFee() ;                                           
-                    uint256 sharesToMint = feeInEth * totalSupply() / updatedPos  / PERCENTAGE_PRECISION;
+                ) {          
+                    /**
+                     *   feeInEth       -------------- totalAssets()
+                     *   sharesToMint   -------------- totalSupply()
+                     *    
+                     *   sharesToMint = feeInEth * totalSupply() / totalAssets();
+                     */
+                    uint256 feeInEthScaled = uint256(balanceChange) * settings().getPerformanceFee();                                           
+                    uint256 sharesToMint = feeInEthScaled * totalSupply() / totalAssets()  / PERCENTAGE_PRECISION;
                     _mint(settings().getFeeReceiver(), sharesToMint);
                 }
             }

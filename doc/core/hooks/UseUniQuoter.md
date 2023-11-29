@@ -2,10 +2,10 @@
 
 ## UseUniQuoter
 
-### __initUseUniQuoter
+### _initUseUniQuoter
 
 ```solidity
-function __initUseUniQuoter(contract ServiceRegistry registry) internal
+function _initUseUniQuoter(contract ServiceRegistry registry) internal
 ```
 
 ### uniQuoter

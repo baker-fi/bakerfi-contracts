@@ -2,10 +2,10 @@
 
 ## UseIERC20
 
-### __initUseIERC20
+### _initUseIERC20
 
 ```solidity
-function __initUseIERC20(contract ServiceRegistry registry, bytes32 name) internal
+function _initUseIERC20(contract ServiceRegistry registry, bytes32 name) internal
 ```
 
 ### ierc20

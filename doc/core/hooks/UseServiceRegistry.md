@@ -2,10 +2,10 @@
 
 ## UseServiceRegistry
 
-### __initUseServiceRegistry
+### _initUseServiceRegistry
 
 ```solidity
-function __initUseServiceRegistry(contract ServiceRegistry registry) internal
+function _initUseServiceRegistry(contract ServiceRegistry registry) internal
 ```
 
 ### registerSvc

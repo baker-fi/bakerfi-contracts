@@ -2,10 +2,10 @@
 
 ## UseAAVEv3
 
-### __initUseAAVEv3
+### _initUseAAVEv3
 
 ```solidity
-function __initUseAAVEv3(contract ServiceRegistry registry) internal
+function _initUseAAVEv3(contract ServiceRegistry registry) internal
 ```
 
 ### aaveV3

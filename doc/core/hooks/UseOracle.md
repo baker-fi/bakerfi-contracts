@@ -2,10 +2,10 @@
 
 ## UseOracle
 
-### __initUseOracle
+### _initUseOracle
 
 ```solidity
-function __initUseOracle(contract ServiceRegistry registry, bytes32 oracleName) internal
+function _initUseOracle(contract ServiceRegistry registry, bytes32 oracleName) internal
 ```
 
 ### oracle

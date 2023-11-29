@@ -2,10 +2,10 @@
 
 ## UseWstETH
 
-### __initUseWstETH
+### _initUseWstETH
 
 ```solidity
-function __initUseWstETH(contract ServiceRegistry registry) internal
+function _initUseWstETH(contract ServiceRegistry registry) internal
 ```
 
 ### wstETH

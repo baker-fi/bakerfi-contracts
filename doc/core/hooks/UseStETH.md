@@ -2,10 +2,10 @@
 
 ## UseStETH
 
-### __initUseStETH
+### _initUseStETH
 
 ```solidity
-function __initUseStETH(contract ServiceRegistry registry) internal
+function _initUseStETH(contract ServiceRegistry registry) internal
 ```
 
 ### stETH

@@ -2,10 +2,10 @@
 
 ## UseStrategy
 
-### __initUseStrategy
+### _initUseStrategy
 
 ```solidity
-function __initUseStrategy(contract ServiceRegistry registry) internal
+function _initUseStrategy(contract ServiceRegistry registry) internal
 ```
 
 ### strategy

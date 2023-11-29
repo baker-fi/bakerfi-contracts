@@ -67,10 +67,10 @@ uint256 _pendingAmount
 uint24 _swapFeeTier
 ```
 
-### __initializeAAVEv3StrategyBase
+### _initializeAAVEv3StrategyBase
 
 ```solidity
-function __initializeAAVEv3StrategyBase(address initialOwner, contract ServiceRegistry registry, bytes32 collateralIERC20, bytes32 collateralOracle, uint24 swapFeeTier, uint8 eModeCategory) internal
+function _initializeAAVEv3StrategyBase(address initialOwner, contract ServiceRegistry registry, bytes32 collateralIERC20, bytes32 collateralOracle, uint24 swapFeeTier, uint8 eModeCategory) internal
 ```
 
 ### receive

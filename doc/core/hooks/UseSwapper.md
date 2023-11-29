@@ -14,10 +14,10 @@ event Swap(address assetIn, address assetOut, uint256 assetInAmount, uint256 ass
 error SwapFailed()
 ```
 
-### __initUseSwapper
+### _initUseSwapper
 
 ```solidity
-function __initUseSwapper(contract ServiceRegistry registry) internal
+function _initUseSwapper(contract ServiceRegistry registry) internal
 ```
 
 ### uniRouter

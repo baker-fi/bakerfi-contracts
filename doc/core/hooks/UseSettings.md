@@ -2,10 +2,10 @@
 
 ## UseSettings
 
-### __initUseSettings
+### _initUseSettings
 
 ```solidity
-function __initUseSettings(contract ServiceRegistry registry) internal
+function _initUseSettings(contract ServiceRegistry registry) internal
 ```
 
 ### settings
