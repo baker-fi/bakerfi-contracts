@@ -19,7 +19,7 @@ contract FlashBorrowerMock is IERC3156FlashBorrowerUpgradeable, UseFlashLender {
 
 
     function initialize(ServiceRegistry registry)public initializer {
-         __initUseFlashLender(registry);
+         _initUseFlashLender(registry);
     }   
 
     function borrowed(address token) external view returns (uint256) {

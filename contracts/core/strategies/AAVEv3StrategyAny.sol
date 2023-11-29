@@ -31,7 +31,7 @@ contract AAVEv3StrategyAny is Initializable, AAVEv3StrategyBase {
         uint24 swapFeeTier,
         uint8 eModeCategory        
     ) public initializer {
-        __initializeAAVEv3StrategyBase(
+        _initializeAAVEv3StrategyBase(
             initialOwner,
             registry, 
             collateral, 

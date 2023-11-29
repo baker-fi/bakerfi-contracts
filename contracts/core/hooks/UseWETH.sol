@@ -13,7 +13,7 @@ abstract contract UseWETH is Initializable {
     IWETH private _wETH;
     using SafeERC20 for IERC20;
 
-    function __initUseWETH(ServiceRegistry registry) internal onlyInitializing  {
+    function _initUseWETH(ServiceRegistry registry) internal onlyInitializing  {
         _wETH = IWETH(registry.getServiceFromHash(WETH_CONTRACT));
         require(address(_wETH) != address(0), "Invalid Wrapped ETH Contract");
     }

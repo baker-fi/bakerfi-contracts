@@ -9,7 +9,7 @@ import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/I
 abstract contract UseStETH is Initializable  {
     IERC20 private _stETH;
 
-    function __initUseStETH(ServiceRegistry registry) internal onlyInitializing {
+    function _initUseStETH(ServiceRegistry registry) internal onlyInitializing {
         _stETH = IERC20(registry.getServiceFromHash(ST_ETH_CONTRACT));
         require(address(_stETH) != address(0), "Invalid St ETH Contract");
     }

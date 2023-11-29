@@ -10,7 +10,7 @@ import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/I
 abstract contract UseStrategy is Initializable  {
     IStrategy private _strategy;
 
-    function __initUseStrategy(ServiceRegistry registry) internal onlyInitializing {
+    function _initUseStrategy(ServiceRegistry registry) internal onlyInitializing {
         _strategy = IStrategy(registry.getServiceFromHash(STRATEGY_CONTRACT));
         require(address(_strategy) != address(0), "Invalid Strategy Contract");
     }

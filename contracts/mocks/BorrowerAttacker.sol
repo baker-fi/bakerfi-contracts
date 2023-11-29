@@ -21,8 +21,8 @@ contract BorrowerAttacker is IERC3156FlashBorrowerUpgradeable,
     using SafeERC20 for IERC20;
 
     function initialize(ServiceRegistry registry) public initializer {
-        __initUseFlashLender(registry);
-        __initUseStrategy(registry);
+        _initUseFlashLender(registry);
+        _initUseStrategy(registry);
     }
 
     function borrowed(address token) external view returns (uint256) {

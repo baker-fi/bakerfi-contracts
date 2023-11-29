@@ -68,7 +68,7 @@ contract BakerFiVault is
     ) public initializer {
         __ERC20Permit_init(_NAME);
         __ERC20_init(_NAME, _SYMBOL);
-        __initUseSettings(registry);
+        _initUseSettings(registry);
         require(initialOwner != address(0), "Invalid Owner Address");
         _transferOwnership(initialOwner);
         _registry = registry;
@@ -140,8 +140,13 @@ contract BakerFiVault is
     function withdraw(uint256 shares) external override nonReentrant onlyWhiteListed returns (uint256 amount) {
         require(balanceOf(msg.sender) >= shares, "No Enough balance to withdraw");
         require(shares > 0, "Cannot Withdraw Zero Shares");
-        uint256 percentageToBurn = shares * PERCENTAGE_PRECISION / totalSupply();
-        uint256 withdrawAmount = totalAssets() * percentageToBurn / PERCENTAGE_PRECISION;
+        /**
+         *   withdrawAmount -------------- totalAssets()
+         *   shares         -------------- totalSupply()
+         *    
+         *   withdrawAmount = share * totalAssets() / totalSupply()
+         */
+        uint256 withdrawAmount = shares * totalAssets() / totalSupply();
         require(withdrawAmount > 0, "No Assets to withdraw");
         amount = _strategy.undeploy(withdrawAmount);
         uint256 fee = 0;
