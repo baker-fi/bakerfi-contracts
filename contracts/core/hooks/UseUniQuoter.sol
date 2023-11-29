@@ -11,7 +11,7 @@ abstract contract UseUniQuoter is Initializable {
     
     IQuoterV2 private _quoter;
 
-    function __initUseUniQuoter(ServiceRegistry registry) internal onlyInitializing  {
+    function _initUseUniQuoter(ServiceRegistry registry) internal onlyInitializing  {
         _quoter = IQuoterV2(registry.getServiceFromHash(UNISWAP_QUOTER_CONTRACT));
         require(address(_quoter) != address(0), "Invalid Uniswap Quoter Contract");
     }

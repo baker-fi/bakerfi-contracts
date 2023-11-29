@@ -13,7 +13,7 @@ abstract contract UseFlashLender is Initializable{
     
     IERC3156FlashLenderUpgradeable private _fLender;
 
-    function __initUseFlashLender(ServiceRegistry registry) internal onlyInitializing {
+    function _initUseFlashLender(ServiceRegistry registry) internal onlyInitializing {
         _fLender = IERC3156FlashLenderUpgradeable(registry.getServiceFromHash(FLASH_LENDER_CONTRACT));
         require(address(_fLender) != address(0), "Invalid Flash Lender Contract");
     }

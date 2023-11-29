@@ -15,7 +15,7 @@ abstract contract UseAAVEv3 is Initializable {
 
     IPoolV3 private _aavev3;
 
-    function __initUseAAVEv3(ServiceRegistry registry) internal onlyInitializing {
+    function _initUseAAVEv3(ServiceRegistry registry) internal onlyInitializing {
         _aavev3 = IPoolV3(registry.getServiceFromHash(AAVE_V3_CONTRACT));
         require(address(_aavev3) != address(0), "Invalid AAVE v3 Contract");
     }

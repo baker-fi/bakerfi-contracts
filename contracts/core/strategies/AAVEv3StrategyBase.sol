@@ -87,7 +87,7 @@ abstract contract AAVEv3StrategyBase is
     IOracle private _ethUSDOracle;
     uint24 internal _swapFeeTier;
 
-    function __initializeAAVEv3StrategyBase(
+    function _initializeAAVEv3StrategyBase(
         address initialOwner,
         ServiceRegistry registry,
         bytes32 collateralIERC20,
@@ -97,14 +97,14 @@ abstract contract AAVEv3StrategyBase is
     ) internal onlyInitializing
     {
         __Ownable_init();
-        __initUseServiceRegistry(registry);
-        __initUseWETH(registry);        
-        __initUseIERC20(registry, collateralIERC20);
-        __initUseAAVEv3(registry);
-        __initUseSwapper(registry);
-        __initUseFlashLender(registry);
-        __initUseUniQuoter(registry);
-        __initUseSettings(registry);
+        _initUseServiceRegistry(registry);
+        _initUseWETH(registry);        
+        _initUseIERC20(registry, collateralIERC20);
+        _initUseAAVEv3(registry);
+        _initUseSwapper(registry);
+        _initUseFlashLender(registry);
+        _initUseUniQuoter(registry);
+        _initUseSettings(registry);
         _collateralOracle = IOracle(registry.getServiceFromHash(collateralOracle));
         _ethUSDOracle = IOracle(registry.getServiceFromHash(ETH_USD_ORACLE_CONTRACT));
         _swapFeeTier = swapFeeTier;
@@ -340,7 +340,7 @@ abstract contract AAVEv3StrategyBase is
             totalCollateralBaseInEth > totalDebtBaseInEth,
             "Collateral is lower that debt"
         );
-        uint256 ltv = 0;
+    
         uint256 deltaDebt = 0;
         // Local Copy to reduce the number of SLOADs
         uint256  deployedAmount = _deployedAmount;        
@@ -349,12 +349,10 @@ abstract contract AAVEv3StrategyBase is
             "Invalid DeltaDebt Calculated"
         );
 
-        if (totalDebtBaseInEth > 0) {
-            ltv = (totalDebtBaseInEth * PERCENTAGE_PRECISION) / totalCollateralBaseInEth;
-            if (ltv > settings().getMaxLoanToValue() && ltv < PERCENTAGE_PRECISION) {
+        uint256  ltv = (totalDebtBaseInEth * PERCENTAGE_PRECISION) / totalCollateralBaseInEth;        
+        if (ltv > settings().getMaxLoanToValue() && ltv < PERCENTAGE_PRECISION) {
                 // Pay Debt to rebalance the position
-                deltaDebt = _adjustDebt(totalCollateralBaseInEth, totalDebtBaseInEth);
-            }
+            deltaDebt = _adjustDebt(totalCollateralBaseInEth, totalDebtBaseInEth);
         }
         uint256 newDeployedAmount = totalCollateralBaseInEth -
             deltaDebt -

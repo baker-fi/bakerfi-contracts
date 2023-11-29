@@ -33,7 +33,7 @@ contract AAVEv3StrategyWstETH is Initializable, AAVEv3StrategyBase, UseWstETH, U
         uint24 swapFeeTier,
         uint8 eModeCategory
     )  public initializer {
-        __initializeAAVEv3StrategyBase(
+        _initializeAAVEv3StrategyBase(
             initialOwner, 
             registry, 
             WST_ETH_CONTRACT, 
@@ -41,8 +41,8 @@ contract AAVEv3StrategyWstETH is Initializable, AAVEv3StrategyBase, UseWstETH, U
             swapFeeTier, 
             eModeCategory
         );
-        __initUseWstETH(registry);
-        __initUseStETH(registry);
+        _initUseWstETH(registry);
+        _initUseStETH(registry);
         require(stETH().approve(uniRouterA(), 2**256 - 1));
     }
     // solhint-enable no-empty-blocks    

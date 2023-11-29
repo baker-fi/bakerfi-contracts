@@ -11,7 +11,7 @@ import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/I
 contract UseIERC20 is Initializable  {
     IERC20 private _ierc20;
 
-    function __initUseIERC20(ServiceRegistry registry, bytes32 name) internal onlyInitializing  {
+    function _initUseIERC20(ServiceRegistry registry, bytes32 name) internal onlyInitializing  {
         _ierc20 = IERC20(registry.getServiceFromHash(name));
         require(address(_ierc20) != address(0), "Invalid IERC20 Contract");
     }

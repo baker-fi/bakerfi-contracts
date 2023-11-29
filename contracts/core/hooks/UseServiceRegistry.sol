@@ -11,7 +11,7 @@ abstract contract UseServiceRegistry is Initializable {
     
     ServiceRegistry private  _registry;
 
-    function __initUseServiceRegistry(ServiceRegistry registry)  internal onlyInitializing {
+    function _initUseServiceRegistry(ServiceRegistry registry)  internal onlyInitializing {
         _registry = registry;
     }
 

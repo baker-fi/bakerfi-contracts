@@ -19,7 +19,7 @@ abstract contract UseSwapper is ISwapHandler, Initializable {
     
     IV3SwapRouter private _uniRouter;
 
-    function __initUseSwapper(ServiceRegistry registry) internal onlyInitializing {
+    function _initUseSwapper(ServiceRegistry registry) internal onlyInitializing {
         _uniRouter = IV3SwapRouter(registry.getServiceFromHash(UNISWAP_ROUTER_CONTRACT));
         require(address(_uniRouter) != address(0), "Invalid Uniswap Router");   
     }
@@ -49,7 +49,6 @@ abstract contract UseSwapper is ISwapHandler, Initializable {
                     amountOutMinimum: 0,
                     fee: fee,
                     recipient: address(this),
-                   // deadline: block.timestamp,
                     sqrtPriceLimitX96: 0
                 })
             );

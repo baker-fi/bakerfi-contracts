@@ -16,7 +16,7 @@ abstract contract UseWstETH is Initializable {
     
     using SafeERC20 for IERC20;
 
-    function __initUseWstETH(ServiceRegistry registry) internal onlyInitializing {
+    function _initUseWstETH(ServiceRegistry registry) internal onlyInitializing {
         _wstETH = IWStETH(registry.getServiceFromHash(WST_ETH_CONTRACT));
         _stETHToken = IERC20(registry.getServiceFromHash(ST_ETH_CONTRACT));
         require(address(_wstETH) != address(0), "Invalid WstETH Contract");
