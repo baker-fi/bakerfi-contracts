@@ -19,9 +19,11 @@ import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/Addr
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**
- * @title BakerFi Vault 🧑‍🍳
+ * @title BakerFi Vault 🏦🧑‍🍳
+ *
  * @author Chef Kenji <chef.kenji@layerx.xyz>
  * @author Chef Kal-EL <chef.kal-el@layerx.xyz>
+ * 
  * @dev The BakerFi vault deployed to any supported chain (Arbitrum One, Optimism, Ethereum,...)
  * 
  * This is vault where the users deposit their ETH and receive a share of the pool brETH. 
@@ -36,6 +38,8 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
  * performance, withdraw fees and other kind of settings.
  * 
  * During the beta phase only whitelisted addresses are able to deposit and withdraw
+ *  
+ * The Contract is upgradable and can use a BakerProxy in front of 
  */
 contract BakerFiVault is 
     OwnableUpgradeable,
