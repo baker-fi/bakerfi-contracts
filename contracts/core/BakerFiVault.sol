@@ -22,7 +22,7 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
  * @title BakerFi Vault 🧑‍🍳
  * @author Chef Kenji <chef.kenji@layerx.xyz>
  * @author Chef Kal-EL <chef.kal-el@layerx.xyz>
- * @dev
+ * @dev The BakerFi vault deployed to any supported chain (Arbitrum One, Optimism, Ethereum,...)
  * 
  * This is vault where the users deposit their ETH and receive a share of the pool brETH. 
  * A share of the pool is an ERC-20 Token (transferable) and could be used to withdraw their 
