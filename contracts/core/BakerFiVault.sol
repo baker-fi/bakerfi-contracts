@@ -85,31 +85,6 @@ contract BakerFiVault is
     IStrategy       private _strategy;
 
     /**
-     * @dev Emitted when a ETH deposit is made to the contract.
-     *
-     * This event provides information about the depositor, receiver, deposited amount,
-     * and the corresponding number of shares minted as a result of the deposit.
-     *
-     * @param depositor The address initiating the deposit.
-     * @param receiver The address receiving the minted shares.
-     * @param amount The amount of Ether deposited.
-     * @param shares The number of shares minted for the deposit.
-     */
-    event Deposit(address indexed depositor, address indexed receiver, uint256 indexed amount, uint256 shares);
-    
-    /**
-     * @dev Emitted when a withdrawal is made from the contract.
-     *
-     * This event provides information about the owner initiating the withdrawal, the withdrawn amount,
-     * and the corresponding number of shares burned as a result of the withdrawal.
-     *
-     * @param owner The address initiating the withdrawal.
-     * @param amount The amount of Ether withdrawn after fees.
-     * @param shares The number of shares burned for the withdrawal.
-     */    
-    event Withdraw(address indexed owner, uint256 amount, uint256 indexed shares);
-
-    /**
      * @dev Modifier to restrict access to addresses that are whitelisted.
      *
      * This modifier ensures that only addresses listed in the account whitelist

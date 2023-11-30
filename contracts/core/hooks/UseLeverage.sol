@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 import {PERCENTAGE_PRECISION, MAX_LOOPS} from "../Constants.sol";
 
-abstract contract UseLeverage {
+contract UseLeverage {
     /**
      * @dev Calculates the leverage ratio based on the provided parameters.
      * 

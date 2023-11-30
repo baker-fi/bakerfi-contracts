@@ -20,7 +20,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
  * 
  * No Taxes and no Bullshit 
  */
-contract BPie is ERC20, Ownable, ERC20Permit, ERC20Votes{
+contract BPie is ERC20, Ownable, ERC20Permit, ERC20Votes {
 
     string private constant _NAME = "Baker Pie";
     string private constant _SYMBOL = "BPIE";

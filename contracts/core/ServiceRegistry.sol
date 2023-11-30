@@ -40,25 +40,6 @@ bytes32 constant STRATEGY_CONTRACT =             keccak256(bytes("Strategy"));
 contract ServiceRegistry is Ownable, IServiceRegistry {
 
     /**
-     * @dev Emitted when a service is unregistered from the ServiceRegistry.
-     *
-     * This event provides the name hash of the unregistered service.
-     *
-     * @param nameHash The hash of the name of the unregistered service.
-     */
-    event ServiceUnregistered(bytes32 nameHash);
-
-    /**
-     * @dev Emitted when a service is registered in the ServiceRegistry.
-     *
-     * This event provides the name hash of the registered service and its address.
-     *
-     * @param nameHash The hash of the name of the registered service.
-     * @param service The address of the registered service.
-     */
-    event ServiceRegistered(bytes32 nameHash, address service);
-
-    /**
      * @dev A mapping of name hashes to service addresses.
      *
      * This private mapping stores the relationship between name hashes and the corresponding service addresses.
@@ -77,7 +58,6 @@ contract ServiceRegistry is Ownable, IServiceRegistry {
         require(ownerToSet != address(0), "Invalid Owner Address");
         _transferOwnership(ownerToSet);
     }
-
     /**
      * @dev Registers a new service in the ServiceRegistry.
      *

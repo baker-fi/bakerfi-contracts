@@ -1,7 +1,16 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.18;
 
+/**
+ * @title Generic Swapper Handler
+ * 
+ * @author Chef Kenji <chef.kenji@layerx.xyz>
+ * @author Chef Kal-EL <chef.kal-el@layerx.xyz>
+ * 
+ * @dev A contract that converts one token to another 
+ */
 abstract contract ISwapHandler {
+    
     /// @notice Params for swaps using SwapHub contract and swap handlers
     /// @param underlyingIn sold token address
     /// @param underlyingOut bought token address
@@ -21,6 +30,7 @@ abstract contract ISwapHandler {
         bytes payload;
     }
 
+    // @notice The type of swap 
     enum SwapType {
         EXACT_INPUT,
         EXACT_OUTPUT
