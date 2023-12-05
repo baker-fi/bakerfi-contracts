@@ -9,8 +9,7 @@ contract StrategyMock is IStrategy {
     using Address for address payable;
     uint256                  _debRatio = 50; // 100
     int256                   _havestPerCall  = 0; // 100
-    event StrategyAmountUpdate(uint256 indexed newDeployment);
-    
+
     function deploy() external payable override returns (uint256 amountAdded) {
         emit StrategyAmountUpdate(msg.value);
         return msg.value;

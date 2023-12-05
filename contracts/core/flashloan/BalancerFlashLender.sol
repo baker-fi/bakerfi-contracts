@@ -10,9 +10,16 @@ import {UseStrategy} from "../../core/hooks/UseStrategy.sol";
 import {IERC3156FlashBorrowerUpgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashBorrowerUpgradeable.sol";
 
 /**
- *  Balancer Flash Loan Adapter
- *
- * */
+ * @title Balancer Flash Loan Balancer Adapter
+ * 
+ * @author Chef Kenji <chef.kenji@layerx.xyz>
+ * @author Chef Kal-EL <chef.kal-el@layerx.xyz>
+ * 
+ * @dev This contract implements the ERC-3156 Flash Lender interface and serves as 
+ * "Adapter" contract for the balancer flash loan interface. This approach allows us 
+ * to have a static interface independent of the flash loan provider.
+ * 
+ */
 contract BalancerFlashLender is IERC3156FlashLenderUpgradeable, IFlashLoanRecipient {
     using SafeERC20 for IERC20;
 
@@ -27,14 +34,29 @@ contract BalancerFlashLender is IERC3156FlashLenderUpgradeable, IFlashLoanRecipi
         require(address(_balancerVault) != address(0), "Invalid Balancer Vault");
     }
 
+    /**
+     * @dev Function to get the maximum flash loan amount available for a given token.
+     * @param token The address of the token for which the maximum flash loan amount is queried.
+     * @return The maximum flash loan amount available for the specified token.
+     */
     function maxFlashLoan(address token) external view override returns (uint256) {
         return IERC20(token).balanceOf(address(_balancerVault));
     }
 
+    
     function flashFee(address, uint256) external pure override returns (uint256) {
         return 0;
     }
 
+    /**
+     * @dev Function to initiate a flash loan from the Balancer Pool
+     * 
+     * @param borrower The address of the flash loan receiver.
+     * @param token The address of the token being borrowed.
+     * @param amount The amount of tokens to be borrowed.
+     * @param data Arbitrary data to be passed to the flash loan recipient.
+     * @return The unique identifier for the flash loan operation.
+     */
     function flashLoan(
         IERC3156FlashBorrowerUpgradeable borrower,
         address token,
@@ -51,6 +73,13 @@ contract BalancerFlashLender is IERC3156FlashLenderUpgradeable, IFlashLoanRecipi
         return true;
     }
 
+    /**
+     * @dev Function to receive flash loans from the BalancerFlashLender contract.
+     * @param tokens An array of token addresses representing the borrowed tokens.
+     * @param amounts An array of amounts representing the borrowed token amounts.
+     * @param feeAmounts An array of fee amounts charged for each flash loan.
+     * @param userData Arbitrary data passed from the BalancerFlashLender contract.
+     */
     function receiveFlashLoan(
         address[] memory tokens,
         uint256[] memory amounts,

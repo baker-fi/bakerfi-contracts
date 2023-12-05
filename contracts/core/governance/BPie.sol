@@ -8,13 +8,19 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 
 /**
- * Baker Pie , the BakerFi Governance ERC-20 Token 
- * No Taxes and no Bullshit
- * @title 
- * @author 
- * @notice 
+ * 
+ * @title BPIE ERC-20 Token
+ *
+ * @author Chef Kenji <chef.kenji@layerx.xyz>
+ * @author Chef Kal-EL <chef.kal-el@layerx.xyz>
+ * 
+ * @dev Baker Pie , the BakerFi Governance ERC-20 Token 
+ * 
+ * 500M Total Supply 
+ * 
+ * No Taxes and no Bullshit 
  */
-contract BPie is ERC20, Ownable, ERC20Permit, ERC20Votes{
+contract BPie is ERC20, Ownable, ERC20Permit, ERC20Votes {
 
     string private constant _NAME = "Baker Pie";
     string private constant _SYMBOL = "BPIE";

@@ -92,11 +92,27 @@ bytes32 STRATEGY_CONTRACT
 
 ## ServiceRegistry
 
+Service registry that could be used resolve a service address with the
+name of the service.
+
+This contract inherits from the `Ownable` contract and implements the `IServiceRegistry` interface.
+It serves as a registry for managing various services and dependencies within BakerFI System.
+
 ### ServiceUnregistered
 
 ```solidity
 event ServiceUnregistered(bytes32 nameHash)
 ```
+
+_Emitted when a service is unregistered from the ServiceRegistry.
+
+This event provides the name hash of the unregistered service._
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| nameHash | bytes32 | The hash of the name of the unregistered service. |
 
 ### ServiceRegistered
 
@@ -104,11 +120,32 @@ event ServiceUnregistered(bytes32 nameHash)
 event ServiceRegistered(bytes32 nameHash, address service)
 ```
 
+_Emitted when a service is registered in the ServiceRegistry.
+
+This event provides the name hash of the registered service and its address._
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| nameHash | bytes32 | The hash of the name of the registered service. |
+| service | address | The address of the registered service. |
+
 ### constructor
 
 ```solidity
 constructor(address ownerToSet) public
 ```
+
+_Constructor for the ServiceRegistry contract.
+
+It sets the initial owner of the contract and emits an {OwnershipTransferred} event._
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| ownerToSet | address | The address to be set as the initial owner of the contract. |
 
 ### registerService
 
@@ -116,14 +153,18 @@ constructor(address ownerToSet) public
 function registerService(bytes32 serviceNameHash, address serviceAddress) external
 ```
 
-Register a Service contrat
+_Registers a new service in the ServiceRegistry.
+
+This function can only be called by the owner of the contract.
+It associates the specified service name hash with its corresponding address in the _services mapping.
+Emits a {ServiceRegistered} event upon successful registration._
 
 #### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| serviceNameHash | bytes32 | Service Name's Keccak256 |
-| serviceAddress | address | Contract Address |
+| serviceNameHash | bytes32 | The hash of the name of the service to be registered. |
+| serviceAddress | address | The address of the service to be registered. Requirements: - The service with the specified name hash must not be already registered. |
 
 ### unregisterService
 
@@ -131,13 +172,17 @@ Register a Service contrat
 function unregisterService(bytes32 serviceNameHash) external
 ```
 
-Unregister a service name
+_Unregisters an existing service from the ServiceRegistry.
+
+This function can only be called by the owner of the contract.
+It disassociates the specified service name hash from its corresponding address in the _services mapping.
+Emits a {ServiceUnregistered} event upon successful unregistration._
 
 #### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| serviceNameHash | bytes32 | Service Name keccak256 |
+| serviceNameHash | bytes32 | The hash of the name of the service to be unregistered. Requirements: - The service with the specified name hash must exist. |
 
 ### getServiceNameHash
 
@@ -145,13 +190,21 @@ Unregister a service name
 function getServiceNameHash(string name) external pure returns (bytes32)
 ```
 
-Gets the Contract address for the service name provided
+_Computes the name hash for a given service name.
+
+This function is externally callable and returns the keccak256 hash of the provided service name._
 
 #### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| name | string | Service Name |
+| name | string | The name of the service for which the name hash is to be computed. |
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | bytes32 | serviceNameHash The keccak256 hash of the provided service name. |
 
 ### getService
 
@@ -159,15 +212,41 @@ Gets the Contract address for the service name provided
 function getService(string serviceName) external view returns (address)
 ```
 
+_Retrieves the address of a registered service by its name.
+
+This function is externally callable and returns the address associated with the specified service name._
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| serviceName | string | The name of the service for which the address is to be retrieved. |
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | address | serviceAddress The address of the registered service. |
+
 ### getServiceFromHash
 
 ```solidity
 function getServiceFromHash(bytes32 serviceHash) external view returns (address)
 ```
 
+_Retrieves the address of a registered service by its name hash.
+
+This function is externally callable and returns the address associated with the specified service name hash._
+
 #### Parameters
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| serviceHash | bytes32 | Service Name keccak256 |
+| serviceHash | bytes32 | The keccak256 hash of the service name for which the address is to be retrieved. |
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | address | serviceAddress The address of the registered service. |
 

@@ -35,10 +35,43 @@ import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/Addr
 import { ETH_USD_ORACLE_CONTRACT } from "../ServiceRegistry.sol";
 
 /**
- * @title  Strategy that does AAVE leverage/deleverage using flash loans
- * @author Hélder Vasconcelos
- * @author Henrique Macedo 
- * @notice The Contract is abstract and needs to be extended to implement the c
+ * @title AAVE v3 Recursive Staking Strategy
+ * 
+ * @author Chef Kenji <chef.kenji@layerx.xyz>
+ * @author Chef Kal-EL <chef.kal-el@layerx.xyz>
+ * 
+ * @dev This contract implements a strategy and could be used to deploy ETH on a AAVE with  
+ * the a recursive staking strategy and receive an amplified yield 
+ * 
+ * The Strategy interacts with :
+ * 
+ * ✅ BalancerFlashLender to request a flash loan from Balancer
+ * ✅ Uniswap to convert from collateral token to WETH 
+ * ✅ Uniswap Quoter to reqques a precise price token 
+ * ✅ AAVE as the lending/borrow market 
+ * 
+ * The APY of this strategy depends on the followwin factors:
+ * 
+ *  ✅ Lido APY 
+ *  ✅ AAVE v3 Borrow Rate 
+ *  ✅ Target Loan to Value 
+ *  ✅ Number of Loops on the recursive Strategy 
+ * 
+ *  Flow Deposit:
+ *  1) Deploy X amount of ETH
+ *  2) Borrow Y Amount of ETH
+ *  3) Deposit X+Y amount of Collateral in AAVE 
+ *  4) Borrow Y ETH From AAVE to pay the flash loan 
+ *  5) Ends up with X+Y Amount of Collateral and Y of Debt
+ *    
+ *  LeverageRatio = LeverageFunc(numberOfLoops, LTV)
+ *  APY ~=  LidoAPY - (LidoAPY-AAVE_Borrow_Rate)*(1-leverateRatio);
+ * 
+ *  This strategy could work for 
+ *  rETH/WETH
+ *  awstETH/WETH
+ * 
+ * @notice The Contract is abstract and needs to be extended to implement the
  * conversion between WETH and the collateral
  */
 abstract contract AAVEv3StrategyBase is
@@ -62,12 +95,6 @@ abstract contract AAVEv3StrategyBase is
         PAY_DEBT
     }
 
-    event StrategyDeploy(address indexed from , uint256 indexed amount);
-    event StrategyUndeploy(address indexed from, uint256 indexed amount);  
-    event StrategyProfit(uint256 indexed amount);
-    event StrategyLoss(uint256 indexed amount);
-    event StrategyAmountUpdate(uint256 indexed newDeployment);
-
     struct FlashLoanData {
         uint256 originalAmount;
         address receiver;
@@ -87,6 +114,26 @@ abstract contract AAVEv3StrategyBase is
     IOracle private _ethUSDOracle;
     uint24 internal _swapFeeTier;
 
+    /**
+     * @dev Internal function to initialize the AAVEv3 strategy base.
+     *
+     * This function is used for the initial setup of the AAVEv3 strategy base contract, including ownership transfer,
+     * service registry initialization, setting oracles, configuring AAVEv3 parameters, and approving allowances.
+     *
+     * @param initialOwner The address to be set as the initial owner of the AAVEv3 strategy base contract.
+     * @param registry The service registry contract address to be used for initialization.
+     * @param collateralIERC20 The hash representing the collateral ERC20 token in the service registry.
+     * @param collateralOracle The hash representing the collateral/ETH oracle in the service registry.
+     * @param swapFeeTier The swap fee tier for Uniswap.
+     * @param eModeCategory The EMode category for the AAVEv3 strategy.
+     *
+     * Requirements:
+     * - The caller must be in the initializing state.
+     * - The initial owner address must not be the zero address.
+     * - The ETH/USD oracle and collateral/ETH oracle addresses must be valid.
+     * - The EMode category must be successfully set for the AAVEv3 strategy.
+     * - Approval allowances must be successfully set for WETH and the collateral ERC20 token for UniSwap.
+     */
     function _initializeAAVEv3StrategyBase(
         address initialOwner,
         ServiceRegistry registry,
@@ -118,9 +165,27 @@ abstract contract AAVEv3StrategyBase is
         require(ierc20().approve(uniRouterA(), 2**256 - 1));
     }
     
-    // solhint-disable-next-line no-empty-blocks
+    /**
+     * @dev Fallback function to receive Ether.
+     *
+     * This function is automatically called when the contract receives Ether without a specific function call.
+     * It allows the contract to accept incoming Ether transactions.
+     */
     receive() external payable {}
 
+    /**
+     * @dev Retrieves the position details including total collateral, total debt, and loan-to-value ratio.
+     *
+     * This function is externally callable and returns the total collateral in Ether, total debt in Ether,
+     * and the loan-to-value ratio for the AAVEv3 strategy.
+     *
+     * @return totalCollateralInEth The total collateral in Ether.
+     * @return totalDebtInEth The total debt in Ether.
+     * @return loanToValue The loan-to-value ratio calculated as (totalDebtInEth * PERCENTAGE_PRECISION) / totalCollateralInEth.
+     *
+     * Requirements:
+     * - The AAVEv3 strategy must be properly configured and initialized.
+     */
     function getPosition()
         external
         view
@@ -135,8 +200,16 @@ abstract contract AAVEv3StrategyBase is
     }
 
     /**
-     * Current capital owned by Share Holders
-     * The amount of capital is equal to Total Collateral Value - Total Debt Value
+     * @dev Retrieves the total owned assets by the Strategy in ETH
+     *
+     * This function is externally callable and returns the total owned assets in Ether, calculated as the difference
+     * between total collateral and total debt. If the total collateral is less than or equal to the total debt, the
+     * total owned assets is set to 0.
+     *
+     * @return totalOwnedAssets The total owned assets in Ether.
+     *
+     * Requirements:
+     * - The AAVEv3 strategy must be properly configured and initialized.
      */
     function deployed() public view returns (uint256 totalOwnedAssets) {
         (uint256 totalCollateralInEth, uint256 totalDebtInEth) = _getPosition();
@@ -144,7 +217,18 @@ abstract contract AAVEv3StrategyBase is
     }
 
     /**
-     * Deploy new Capital on the pool making it productive on the Lido
+     * @dev Deploys funds in the AAVEv3 strategy 
+     *
+     * This function is externally callable only by the owner, and it involves the following steps:
+     * 1. Wraps the received Ether into WETH.
+     * 2. Initiates a WETH flash loan to leverage the deposited amount.
+     *
+     * @return deployedAmount The amount deployed in the AAVEv3 strategy after leveraging.
+     *
+     * Requirements:
+     * - The caller must be the owner of the contract.
+     * - The received Ether amount must not be zero.
+     * - The AAVEv3 strategy must be properly configured and initialized.
      */
     function deploy() external payable onlyOwner nonReentrant returns (uint256 deployedAmount) {
         require(msg.value != 0, "No Zero deposit Allowed");
@@ -180,7 +264,18 @@ abstract contract AAVEv3StrategyBase is
     }
 
     /**
+     * @dev Executes the supply and borrow operations on AAVE, converting assets from WETH.
      *
+     * This function is private and is used internally in the AAVEv3 strategy for depositing collateral
+     * and borrowing ETH on the AAVE platform. It involves converting assets from WETH to the respective
+     * tokens, supplying collateral, and borrowing ETH. The strategy owned value is logged on the  `StrategyDeploy` event.
+     *
+     * @param amount The amount to be supplied to AAVE (collateral) in WETH.
+     * @param loanAmount The amount to be borrowed from AAVE in WETH.
+     * @param fee The fee amount in WETH associated with the flash loan.
+     *
+     * Requirements:
+     * - The AAVEv3 strategy must be properly configured and initialized.
      */
     function _supplyBorrow(uint256 amount, uint256 loanAmount, uint256 fee) private {
         uint256 collateralIn = _convertFromWETH(amount + loanAmount);
@@ -191,6 +286,20 @@ abstract contract AAVEv3StrategyBase is
         emit StrategyDeploy(msg.sender, _pendingAmount);
     }
 
+    /**
+     * @dev Repays the debt on AAVEv3 strategy, handling the withdrawal and swap operations.
+     *
+     * This private function is used internally to repay the debt on the AAVEv3 strategy. It involves repaying
+     * the debt on AAVE, obtaining a quote for the required collateral, withdrawing the collateral from AAVE, and
+     * swapping the collateral to obtain the necessary WETH. The leftover WETH after the swap is deposited back
+     * into AAVE if there are any. The function emits the `StrategyUndeploy` event after the debt repayment.
+     *
+     * @param debtAmount The amount of debt in WETH to be repaid on AAVE.
+     * @param fee The fee amount in WETH associated with the debt repayment.
+     *
+     * Requirements:
+     * - The AAVEv3 strategy must be properly configured and initialized.
+     */
     function _payDebt(uint256 debtAmount, uint256 fee) private {
         _repay(wETHA(), debtAmount);
         // Get a Quote to know how much collateral i require to pay debt
@@ -222,7 +331,20 @@ abstract contract AAVEv3StrategyBase is
     }
 
     /**
+     * @dev Repays a specified amount, withdraws collateral, and sends the remaining ETH to the specified receiver.
      *
+     * This private function is used internally to repay a specified amount on AAVE, withdraw collateral, and send
+     * the remaining ETH to the specified receiver. It involves checking the available balance, repaying the debt on
+     * AAVE, withdrawing the specified amount of collateral, converting collateral to WETH, unwrapping WETH, and finally
+     * sending the remaining ETH to the receiver. The function emits the `StrategyUndeploy` event after the operation.
+     *
+     * @param withdrawAmountInETh The amount of collateral to be withdrawn in WETH.
+     * @param repayAmount The amount of debt in WETH to be repaid on AAVE.
+     * @param fee The fee amount in WETH associated with the operation.
+     * @param receiver The address to receive the remaining ETH after debt repayment and withdrawal.
+     *
+     * Requirements:
+     * - The AAVEv3 strategy must be properly configured and initialized.
      */
     function _repayAndWithdraw(
         uint256 withdrawAmountInETh,
@@ -257,13 +379,25 @@ abstract contract AAVEv3StrategyBase is
     }
 
     /**
-     * Flash Loan Callback  
+     * @dev Handles the execution of actions after receiving a flash loan.
      *
-     * @param initiator Flash Loan Requester
-     * @param token Asset requested on the loan
-     * @param amount Amount of the loan
-     * @param fee  Fee to be paid to flash lender
-     * @param callData Call data passed by the requester
+     * This function is part of the IERC3156FlashBorrower interface and is called by the flash lender contract
+     * after a flash loan is initiated. It validates the loan parameters, ensures that the initiator is the
+     * contract itself, and executes specific actions based on the provided FlashLoanAction. The supported actions
+     * include supplying and borrowing funds, repaying debt and withdrawing collateral, and simply repaying debt.
+     * The function returns a bytes32 success message after the actions are executed.
+     *
+     * @param initiator The address that initiated the flash loan.
+     * @param token The address of the token being flash borrowed (should be WETH in this case).
+     * @param amount The total amount of tokens being flash borrowed.
+     * @param fee The fee amount associated with the flash loan.
+     * @param callData Additional data encoded for specific actions, including the original amount, action type, and receiver address.
+     *
+     * Requirements:
+     * - The flash loan sender must be the expected flash lender contract.
+     * - The initiator must be the contract itself to ensure trust.
+     * - Only WETH flash loans are allowed.
+     * - The contract must be properly configured and initialized.
      */
     function onFlashLoan(
         address initiator,
@@ -287,13 +421,21 @@ abstract contract AAVEv3StrategyBase is
         }
         return _SUCCESS_MESSAGE;
     }
-
     /**
-     * The primary purpose of the undeploy method is to allow users to burn shares and receive the attached ETH value to the sahres. 
+     * @dev Initiates the undeployment of a specified amount, sending the resulting ETH to the contract owner.
+     *
+     * This function allows the owner of the contract to undeploy a specified amount, which involves
+     * withdrawing the corresponding collateral, converting it to WETH, unwrapping WETH, and finally
+     * sending the resulting ETH to the contract owner. The undeployment is subject to reentrancy protection.
+     * The function returns the amount of ETH undeployed to the contract owner.
      * The method is designed to ensure that the collateralization ratio (collateral value to debt value) remains within acceptable limits. 
      * It leverages a flash loan mechanism to obtain additional funds temporarily, covering any necessary adjustments required to maintain 
      * the desired collateralization ratio.
-     * @param amount Amount undeployed
+     *
+     * @param amount The amount of collateral to undeploy.
+     *
+     * Requirements:
+     * - The caller must be the owner of the contract.
      */
     function undeploy(
         uint256 amount
@@ -325,9 +467,24 @@ abstract contract AAVEv3StrategyBase is
     }
 
     /**
-     * Harvest a profit when there is a difference between the amount the strategy
-     * predicts that is deployed and the real value
-     * 
+     * @dev Harvests the strategy by rebalancing the collateral and debt positions.
+     *
+     * This function allows the owner of the contract to harvest the strategy by rebalancing the collateral
+     * and debt positions. It calculates the current collateral and debt positions, checks if the collateral
+     * is higher than the debt, adjusts the debt if needed to maintain the loan-to-value (LTV) within the specified
+     * range, and logs profit or loss based on changes in the deployed amount. The function returns the balance change
+     * as an int256 value.
+     *
+     * Requirements:
+     * - The caller must be the owner of the contract.
+     * - The contract must be properly configured and initialized.
+     *
+     * Emits:
+     * - StrategyProfit: If the strategy achieves a profit.
+     * - StrategyLoss: If the strategy incurs a loss.
+     * - StrategyAmountUpdate: Whenever the deployed amount is updated.
+     *
+     * @return balanceChange The change in strategy balance as an int256 value.
      */
     function harvest() external override onlyOwner nonReentrant returns (int256 balanceChange) {
         (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition();
@@ -382,6 +539,15 @@ abstract contract AAVEv3StrategyBase is
       
     }
 
+    /**
+     * @dev Retrieves the current collateral and debt positions of the contract.
+     *
+     * This internal function provides a view into the current collateral and debt positions of the contract
+     * by querying the Aave V3 protocol. It calculates the positions in ETH based on the current ETH/USD exchange rate.
+     *
+     * @return totalCollateralInEth The total collateral position in ETH.
+     * @return totalDebtInEth The total debt position in ETH.
+     */
     function _getPosition()
         internal
         view
@@ -402,11 +568,18 @@ abstract contract AAVEv3StrategyBase is
     }
 
     /**
-     * Undeploy an amount from the current position returning ETH to the
-     * owner of the shares
+     * @dev Initiates the undeployment process by adjusting the contract's position and performing a flash loan.
      *
-     * @param amount The Amount undeployed from the position
-     * @param receiver The Receiver of the amount witdrawed
+     * This private function calculates the necessary adjustments to the contract's position to accommodate the requested
+     * undeployment amount. It then uses a flash loan to perform the required operations, including paying off debt and
+     * withdrawing ETH. The resulting undeployed amount is updated, and the contract's deployed amount is adjusted accordingly.
+     *
+     * @param amount The amount of ETH to undeploy.
+     * @param receiver The address to receive the undeployed ETH.
+     * @return undeployedAmount The actual undeployed amount of ETH.
+     *
+     * Requirements:
+     * - The contract must have a collateral margin greater than the debt to initiate undeployment.
      */
     function _undeploy(
         uint256 amount,
@@ -451,18 +624,50 @@ abstract contract AAVEv3StrategyBase is
         emit StrategyAmountUpdate( _deployedAmount);  
         // Pending amount is not cleared to save gas      
         //_pendingAmount = 0;
-    }
+    }   
 
+    /**
+     * @dev Internal function to convert the specified amount from WETH to the underlying collateral.
+     *
+     * This function is virtual and intended to be overridden in derived contracts for customized implementation.
+     *
+     * @param amount The amount to convert from WETH.
+     * @return uint256 The converted amount in the underlying collateral.
+     */
     function _convertFromWETH(uint256 amount) internal virtual returns (uint256);
 
+    /**
+     * @dev Internal function to convert the specified amount to WETH from the underlying collateral.
+     *
+     * This function is virtual and intended to be overridden in derived contracts for customized implementation.
+     *
+     * @param amount The amount to convert to WETH.
+     * @return uint256 The converted amount in WETH.
+     */
     function _convertToWETH(uint256 amount) internal virtual returns (uint256);
 
+    /**
+     * @dev Internal function to convert the specified amount in the underlying collateral to WETH.
+     *
+     * This function calculates the equivalent amount in WETH based on the latest price from the collateral oracle.
+     *
+     * @param amountIn The amount in the underlying collateral.
+     * @return amountOut The equivalent amount in WETH.
+     */
     function _toWETH(uint256 amountIn) internal view returns (uint256 amountOut) {
         amountOut =
             (amountIn * _collateralOracle.getLatestPrice()) /
             _collateralOracle.getPrecision();
     }
 
+    /**
+     * @dev Internal function to convert the specified amount in WETH to the underlying collateral.
+     *
+     * This function calculates the equivalent amount in the underlying collateral based on the latest price from the collateral oracle.
+     *
+     * @param amountIn The amount in WETH.
+     * @return amountOut The equivalent amount in the underlying collateral.
+     */
     function _fromWETH(uint256 amountIn) internal view returns (uint256 amountOut) {
         amountOut =
             (amountIn * _collateralOracle.getPrecision()) /

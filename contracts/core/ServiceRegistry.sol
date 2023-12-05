@@ -5,9 +5,10 @@ pragma solidity ^0.8.18;
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IServiceRegistry} from "../interfaces/core/IServiceRegistry.sol";
 
-// 
-// !! The Constants that should be used to resolve the deployment contract addresses !!
-//
+/**
+* @dev The Constants used for servive names 
+* Attention: These are the constants that should be used to resolve the deployment contract addresses !!
+*/
 bytes32 constant FLASH_LENDER_CONTRACT =         keccak256(bytes("FlashLender"));
 bytes32 constant WETH_CONTRACT =                 keccak256(bytes("WETH"));
 bytes32 constant ST_ETH_CONTRACT =               keccak256(bytes("stETH"));
@@ -25,30 +26,50 @@ bytes32 constant UNISWAP_QUOTER_CONTRACT =       keccak256(bytes("Uniswap Quoter
 bytes32 constant STRATEGY_CONTRACT =             keccak256(bytes("Strategy"));
 
 /**
- * @title Service used to save the addresses used on the deployment
- * @author BakerFi
- * @notice 
+ * @title BakerFi Service Registy
+ * 
+ * @author Chef Kenji <chef.kenji@layerx.xyz>
+ * @author Chef Kal-EL <chef.kal-el@layerx.xyz>
+ *
+ * @notice Service registry that could be used resolve a service address with the
+ * name of the service.
+ * 
+ * This contract inherits from the `Ownable` contract and implements the `IServiceRegistry` interface.
+ * It serves as a registry for managing various services and dependencies within BakerFI System.
  */
 contract ServiceRegistry is Ownable, IServiceRegistry {
 
-    event ServiceUnregistered(bytes32 nameHash);
-    event ServiceRegistered(bytes32 nameHash, address service);
-    
+    /**
+     * @dev A mapping of name hashes to service addresses.
+     *
+     * This private mapping stores the relationship between name hashes and the corresponding service addresses.
+     */
     mapping(bytes32 => address) private _services;
 
     /**
-     * 
+     * @dev Constructor for the ServiceRegistry contract.
+     *
+     * It sets the initial owner of the contract and emits an {OwnershipTransferred} event.
+     *
+     * @param ownerToSet The address to be set as the initial owner of the contract.
      */
     constructor(address ownerToSet) Ownable()
     {
         require(ownerToSet != address(0), "Invalid Owner Address");
         _transferOwnership(ownerToSet);
     }
-
     /**
-     * Register a Service contrat 
-     * @param serviceNameHash Service Name's Keccak256
-     * @param serviceAddress Contract Address 
+     * @dev Registers a new service in the ServiceRegistry.
+     *
+     * This function can only be called by the owner of the contract.
+     * It associates the specified service name hash with its corresponding address in the _services mapping.
+     * Emits a {ServiceRegistered} event upon successful registration.
+     *
+     * @param serviceNameHash The hash of the name of the service to be registered.
+     * @param serviceAddress The address of the service to be registered.
+     *
+     * Requirements:
+     * - The service with the specified name hash must not be already registered.
      */
     function registerService(
         bytes32 serviceNameHash,
@@ -63,8 +84,16 @@ contract ServiceRegistry is Ownable, IServiceRegistry {
     }
 
     /**
-     * Unregister a service name 
-     * @param serviceNameHash Service Name keccak256 
+     * @dev Unregisters an existing service from the ServiceRegistry.
+     *
+     * This function can only be called by the owner of the contract.
+     * It disassociates the specified service name hash from its corresponding address in the _services mapping.
+     * Emits a {ServiceUnregistered} event upon successful unregistration.
+     *
+     * @param serviceNameHash The hash of the name of the service to be unregistered.
+     *
+     * Requirements:
+     * - The service with the specified name hash must exist.
      */
     function unregisterService(bytes32 serviceNameHash) external onlyOwner {
         require(
@@ -75,8 +104,12 @@ contract ServiceRegistry is Ownable, IServiceRegistry {
         emit ServiceUnregistered(serviceNameHash);
     }
     /**
-     * Gets the Contract address for the service name provided
-     * @param name  Service Name
+     * @dev Computes the name hash for a given service name.
+     *
+     * This function is externally callable and returns the keccak256 hash of the provided service name.
+     *
+     * @param name The name of the service for which the name hash is to be computed.
+     * @return serviceNameHash The keccak256 hash of the provided service name.
      */
     function getServiceNameHash(
         string memory name
@@ -85,15 +118,24 @@ contract ServiceRegistry is Ownable, IServiceRegistry {
     }
     
     /**
-     * 
+     * @dev Retrieves the address of a registered service by its name.
+     *
+     * This function is externally callable and returns the address associated with the specified service name.
+     *
+     * @param serviceName The name of the service for which the address is to be retrieved.
+     * @return serviceAddress The address of the registered service.
      */
     function getService(string memory serviceName) external view returns (address) {
         return _services[keccak256(abi.encodePacked(serviceName))];
     }
 
     /**
-     * 
-     * @param serviceHash Service Name keccak256 
+     * @dev Retrieves the address of a registered service by its name hash.
+     *
+     * This function is externally callable and returns the address associated with the specified service name hash.
+     *
+     * @param serviceHash The keccak256 hash of the service name for which the address is to be retrieved.
+     * @return serviceAddress The address of the registered service.
      */
     function getServiceFromHash(bytes32  serviceHash) external view returns (address) {
         return _services[serviceHash];

@@ -2,10 +2,10 @@
 
 ## UseFlashLender
 
-### __initUseFlashLender
+### _initUseFlashLender
 
 ```solidity
-function __initUseFlashLender(contract ServiceRegistry registry) internal
+function _initUseFlashLender(contract ServiceRegistry registry) internal
 ```
 
 ### flashLender

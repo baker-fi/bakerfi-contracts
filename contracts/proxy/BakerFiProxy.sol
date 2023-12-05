@@ -4,7 +4,8 @@ pragma solidity ^0.8.18;
 import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 /**
  * @title  
- * @author BakerFi 
+ * @author Chef Kenji <chef.kenji@layerx.xyz>
+ * @author Chef Kal-EL <chef.kal-el@layerx.xyz>
  * @notice 
  */
 contract BakerFiProxy is TransparentUpgradeableProxy {
