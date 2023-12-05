@@ -60,8 +60,8 @@ export const deployConfigMap : {[key: string]: DeployConfig} =
         strategyProxy: "0x40aB23988835bdA372deA30690CCCC3419580548",
         vault: "0xA804f7dB9Df7C185a3Ea9221b70E655858B93a81",      
         vaultProxy: "0x5c1b2312FaE6c0d61B6A15A8093842E9fE5b1e44",          
-        settings: "0xBd7f910A074D9d35789a47FF0962b5706D7855dF",
-        settingsProxy: "0x4a5c5FDf4A42AA62945D037DCc636Bded4ea6bf1"            
+        settings: "0x4a5c5FDf4A42AA62945D037DCc636Bded4ea6bf1",
+        settingsProxy: "0xBd7f910A074D9d35789a47FF0962b5706D7855dF"            
     }
 }
 
