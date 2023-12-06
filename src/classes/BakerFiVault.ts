@@ -1,8 +1,8 @@
 import {Model, Web3Connection, Web3ConnectionOptions, Deployable, XPromiseEvent} from '@taikai/dappkit';
 
 import BakerFiVaultJson from '../../artifacts/contracts/core/BakerFiVault.sol/BakerFiVault.json';
-import { BakerFiVaultMethods } from '@interfaces/BakerfiVault';
-import * as Events from '@events/BakerfiVault'
+import { BakerFiVaultMethods } from '@interfaces/BakerFiVault';
+import * as Events from '@events/BakerFiVault'
 import {PastEventOptions} from 'web3-eth-contract';
 import {AbiItem} from 'web3-utils';
 

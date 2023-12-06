@@ -311,7 +311,7 @@ contract Settings is OwnableUpgradeable, ISettings {
      * - The new number of loops must be less than the maximum allowed number of loops.
      */
     function setNrLoops(uint8 nrLoops) external onlyOwner {
-        require(nrLoops <  MAX_LOOPS, "Invalid Number of Loops");
+        require(nrLoops <=  MAX_LOOPS, "Invalid Number of Loops");
         _nrLoops = nrLoops;
         emit NrLoopsChanged( _nrLoops);
     }

@@ -381,6 +381,8 @@ task("settings:enableAccount", "Enable an account on the whitelist")
         "Settings",
         networkConfig.settingsProxy?? ""
       );
+      const owner = await settings.owner();
+      console.log(`owner = ${owner}`);
       await settings.enableAccount(account, enabled=="true");
       spinner.succeed(`🧑‍🍳 Account ${account} now is enabled=${enabled} ✅ `);
     } catch (e) {
