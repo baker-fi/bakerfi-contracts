@@ -24,7 +24,7 @@ contract BPie is ERC20, Ownable, ERC20Permit, ERC20Votes {
 
     string private constant _NAME = "Baker Pie";
     string private constant _SYMBOL = "BPIE";
-    uint256 private immutable _MAX_SUPPLY = 500*1e18; // 500M
+    uint256 private immutable _MAX_SUPPLY = 500_000_000*1e18; // 500M
 
     constructor(address initialOwner)
         ERC20(_NAME, _SYMBOL)
