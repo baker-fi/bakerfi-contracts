@@ -21,8 +21,8 @@ import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/I
  *      During the contract initialization it sets the uniswap router address from the 
  *      service registry
  *
- * @author Chef Kenji <chef.kenji@layerx.xyz>
- * @author Chef Kal-El <chef.kal-el@layerx.xyz>
+ * @author Chef Kenji <chef.kenji@bakerfi.xyz>
+ * @author Chef Kal-El <chef.kal-el@bakerfi.xyz>
  */
 abstract contract UseSwapper is ISwapHandler, Initializable {
     

@@ -109,7 +109,7 @@ task("vault:assets", "Prints an account's share balance")
           networkConfig.vaultProxy?? ""
         );
         const balance = await vault.totalAssets();
-        spinner.succeed(`🧑‍🍳 Vault Total Assets ${ethers.formatEther(balance)} brETH`);
+        spinner.succeed(`🧑‍🍳 Vault Total Assets ${ethers.formatEther(balance)} ETH`);
       } catch (e) {
         console.log(e);
         spinner.fail("Failed 💥");

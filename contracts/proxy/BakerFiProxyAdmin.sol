@@ -6,8 +6,8 @@ import { BakerFiProxy } from "./BakerFiProxy.sol";
 
 /**
  * @title  
- * @author Chef Kenji <chef.kenji@layerx.xyz>
- * @author Chef Kal-EL <chef.kal-el@layerx.xyz>
+ * @author Chef Kenji <chef.kenji@bakerfi.xyz>
+ * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
  * @notice 
  */
 contract BakerFiProxyAdmin is ProxyAdmin { 

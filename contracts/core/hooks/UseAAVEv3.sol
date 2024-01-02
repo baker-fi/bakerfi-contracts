@@ -14,8 +14,8 @@ import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/I
  * @dev Abstract contract to integrate the use of AAVE v3 (Aave Protocol V2).
  *      Provides functions to initialize, access, supply, and borrow assets.
  *
- * @author Chef Kenji <chef.kenji@layerx.xyz>
- * @author Chef Kal-El <chef.kal-el@layerx.xyz>
+ * @author Chef Kenji <chef.kenji@bakerfi.xyz>
+ * @author Chef Kal-El <chef.kal-el@bakerfi.xyz>
  * 
  */
 abstract contract UseAAVEv3 is Initializable {

@@ -14,8 +14,8 @@ import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/I
  * @dev Abstract contract to integrate the use of Wrapped Ether (WETH).
  *      Provides functions to initialize, access, and unwrap WETH.
  *
- * @author Chef Kenji <chef.kenji@layerx.xyz>
- * @author Chef Kal-El <chef.kal-el@layerx.xyz>
+ * @author Chef Kenji <chef.kenji@bakerfi.xyz>
+ * @author Chef Kal-El <chef.kal-el@bakerfi.xyz>
  */
 abstract contract UseWETH is Initializable {
     IWETH private _wETH;

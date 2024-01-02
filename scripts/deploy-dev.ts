@@ -12,6 +12,7 @@ import {
   deployWStEth,
   deployAAVEv3StrategyWstETH,
   deploySettings,
+  deployBPIE,
 } from "./common";
 
 import BaseConfig from "./config";
@@ -45,13 +46,18 @@ async function main() {
   const BakerFiProxyAdmin = await ethers.getContractFactory("BakerFiProxyAdmin");
   const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
   await proxyAdmin.waitForDeployment();
-  result.push(["Proxy Admin", await proxyAdmin.getAddress()])  
+  result.push(["Proxy Admin", await proxyAdmin.getAddress()])  ;
   
   // 1. Deploy the Service Registry
   const serviceRegistry = await deployServiceRegistry(owner.address);
   spinner.text = "Deploying Registry";
   //console.log(" Service Registry =", await serviceRegistry.getAddress());
   result.push(["Service Registry", await serviceRegistry.getAddress()])  
+
+  // 2. Deploy BPIE
+  spinner.text = "Deploying BPIE";
+  const bpie = await deployBPIE(serviceRegistry);
+  result.push(["BPIE", await bpie.getAddress()])  
   
   // 3. Deploy the WETH 
   spinner.text = "Deploying WETH";

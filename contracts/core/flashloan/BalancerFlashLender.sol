@@ -12,8 +12,8 @@ import {IERC3156FlashBorrowerUpgradeable} from "@openzeppelin/contracts-upgradea
 /**
  * @title Balancer Flash Loan Balancer Adapter
  * 
- * @author Chef Kenji <chef.kenji@layerx.xyz>
- * @author Chef Kal-EL <chef.kal-el@layerx.xyz>
+ * @author Chef Kenji <chef.kenji@bakerfi.xyz>
+ * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
  * 
  * @dev This contract implements the ERC-3156 Flash Lender interface and serves as 
  * "Adapter" contract for the balancer flash loan interface. This approach allows us 

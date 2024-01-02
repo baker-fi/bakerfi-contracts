@@ -16,8 +16,8 @@ import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/I
 /**
  * @title  AAVE v3 Recursive Staking Strategy for anyETH/WETH
  * 
- * @author Chef Kenji <chef.kenji@layerx.xyz>
- * @author Chef Kal-EL <chef.kal-el@layerx.xyz>
+ * @author Chef Kenji <chef.kenji@bakerfi.xyz>
+ * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
  * 
  * @dev This strategy is used by the bakerfi vault to deploy ETH capital 
  * on aave money market.

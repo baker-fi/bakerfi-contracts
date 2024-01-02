@@ -11,7 +11,7 @@ import { StrategyMock } from "../mocks/StrategyMock.sol";
 /**
  * 
  * @title 
- * @author Chef Kenji <chef.kenji@layerx.xyz>
+ * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @notice 
  */
 contract VaultFuzzing {
