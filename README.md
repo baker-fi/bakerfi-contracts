@@ -180,8 +180,8 @@ Please make sure to update tests as appropriate.
 
 ## TODO 
 
-* BPIE - Governance Token Setup
-* Governor - Controlled by BPIE Holders
+* BKR - Baker Governance Tokn Setup
+* Governor - Controlled by BRK Holders
 
 
 

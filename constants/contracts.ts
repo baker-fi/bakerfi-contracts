@@ -20,7 +20,7 @@ export type DeployConfig = {
     vaultProxy?: string;
     settings: string;    
     settingsProxy?: string;
-
+    bkr?: string;
 }
 
 export const deployConfigMap : {[key: string]: DeployConfig} = 
@@ -42,7 +42,8 @@ export const deployConfigMap : {[key: string]: DeployConfig} =
         strategy: "0xc2a603BcFa46e5616CEa164DA6A80cF62E080858",
         strategyProxy: "0xe33CA06EaaAF46A98C5631CF6c847fC50067E727",
         vault: "0x4129eE2030194089cEECc34fE47AfFb381E9e45D",  
-        vaultProxy: "0xb99b2F8f3d121f2B491Cc61b84689a5638E106B4",        
+        vaultProxy: "0xb99b2F8f3d121f2B491Cc61b84689a5638E106B4",   
+        bkr: "0x9F5c44Edc6AD6F2036aA4ADFA4DA92C78EE1A101"    
     },
     "arbitrum": {
         proxyAdmin: "0xa641256b225e215c559cdC58F8757ad7140A2723",

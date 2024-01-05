@@ -12,7 +12,7 @@ import {
   deployWStEth,
   deployAAVEv3StrategyWstETH,
   deploySettings,
-  deployBPIE,
+  deployBKR,
 } from "./common";
 
 import BaseConfig from "./config";
@@ -54,10 +54,6 @@ async function main() {
   //console.log(" Service Registry =", await serviceRegistry.getAddress());
   result.push(["Service Registry", await serviceRegistry.getAddress()])  
 
-  // 2. Deploy BPIE
-  spinner.text = "Deploying BPIE";
-  const bpie = await deployBPIE(serviceRegistry);
-  result.push(["BPIE", await bpie.getAddress()])  
   
   // 3. Deploy the WETH 
   spinner.text = "Deploying WETH";
@@ -185,6 +181,11 @@ async function main() {
     "AAVEv3StrategyWstETH", await (strategyProxy as any).getAddress()
   );
   await strategyProxied.transferOwnership(vaultProxy);
+
+  // 2. Deploy BKR
+  spinner.text = "Deploying BKR";
+  const bkr = await deployBKR(owner.address, serviceRegistry);
+  result.push(["BKR", await bkr.getAddress()])  
 
   spinner.succeed("🧑‍🍳 BakerFi Served 🍰 ");
   console.table(result);

@@ -30,16 +30,16 @@ export async function deployWETH(serviceRegistry) {
   return weth;
 }
 
-export async function deployBPIE(serviceRegistry) {
-  const BPIE = await ethers.getContractFactory("BPie");
-  const bpie = await BPIE.deploy();
-  await bpie.waitForDeployment();
+export async function deployBKR(owner, serviceRegistry) {
+  const BKR = await ethers.getContractFactory("BKR");
+  const bkr = await BKR.deploy(owner);
+  await bkr.waitForDeployment();
 
   await serviceRegistry.registerService(
-    ethers.keccak256(Buffer.from("BPIE")),
-    await bpie.getAddress()
+    ethers.keccak256(Buffer.from("BKR")),
+    await bkr.getAddress()
   );
-  return bpie;
+  return bkr;
 }
 
 export async function deployServiceRegistry(owner: string) {
