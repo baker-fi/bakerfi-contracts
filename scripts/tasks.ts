@@ -520,7 +520,7 @@ task("settings:setMaxDeposit", "Set Max Deposit")
         networkConfig.settingsProxy?? ""
       );
       await settings.setMaxDepositInETH(value);
-      spinner.succeed(`🧑‍🍳 Max Deposit In ETH Changed to ${value} ✅ `);
+      spinner.succeed(`🧑‍🍳 Max Deposit In ETH is ${value} ✅ `);
     } catch (e) {
       console.log(e);
       spinner.fail("Failed 💥");
@@ -528,11 +528,11 @@ task("settings:setMaxDeposit", "Set Max Deposit")
 });
 
 
-task("settings:getFeeReceiver", "Get Fee Receiver Account")
+task("settings:getMaxDeposit", "Get Fee Receiver Account")
   .setAction(async ({}, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
-    const spinner = ora(`Gettting Fee Revceiver`).start();
+    const spinner = ora(`Gettting Max Deposit in ETH`).start();
     try {
       const settings = await ethers.getContractAt(
         "Settings",
