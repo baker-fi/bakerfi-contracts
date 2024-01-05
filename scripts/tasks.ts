@@ -505,3 +505,43 @@ async function getSignerOrThrow(ethers, address) {
   }
   return signer;
 }
+
+
+
+task("settings:setMaxDeposit", "Set Max Deposit")
+  .addParam("value", "Max Deposit")
+  .setAction(async ({value}, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Settting Max Deposit in ETH ${value}`).start();
+    try {
+      const settings = await ethers.getContractAt(
+        "Settings",
+        networkConfig.settingsProxy?? ""
+      );
+      await settings.setMaxDepositInETH(value);
+      spinner.succeed(`🧑‍🍳 Max Deposit In ETH Changed to ${value} ✅ `);
+    } catch (e) {
+      console.log(e);
+      spinner.fail("Failed 💥");
+    }
+});
+
+
+task("settings:getFeeReceiver", "Get Fee Receiver Account")
+  .setAction(async ({}, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Gettting Fee Revceiver`).start();
+    try {
+      const settings = await ethers.getContractAt(
+        "Settings",
+        networkConfig.settingsProxy?? ""
+      );
+      const value = await settings.getMaxDepositInETH();
+      spinner.succeed(`🧑‍🍳 Max Deposit in ETH ${value} `);
+    } catch (e) {
+      console.log(e);
+      spinner.fail("Failed 💥");
+    }
+});
