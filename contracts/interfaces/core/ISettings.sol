@@ -76,6 +76,12 @@ interface ISettings {
     event AccountWhiteList(address indexed account, bool enabled);
 
     /**
+     * @dev Emitted when the Maximum Deposit ETH is changed 
+     * @param value The new amount that is allowed to be deposited
+     */
+    event MaxDepositInETHChanged(uint256 indexed value);
+
+    /**
      * @dev Sets the maximum allowed loan-to-value ratio.
      *
      * @param maxLoanToValue The new maximum allowed loan-to-value ratio to be set.
@@ -164,5 +170,10 @@ interface ISettings {
      * @return enabled A boolean indicating whether the account is enabled (true) or not (false) in the whitelist.
      */
     function isAccountEnabled(address account) external view returns (bool);
+    
+
+    function getMaxDepositInETH() external view returns (uint256);
+
+    function setMaxDepositInETH(uint256 value) external;
 
 }

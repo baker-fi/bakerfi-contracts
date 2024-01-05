@@ -30,6 +30,7 @@ describeif(network.name === "hardhat")("Settings", function () {
     expect(await settings.getFeeReceiver()).to.equal(
       "0x0000000000000000000000000000000000000000"
     );
+    expect(await settings.getMaxDepositInETH()).to.equal(0);
   });
 
   it("Change Loan to Value", async function () {
@@ -159,6 +160,22 @@ describeif(network.name === "hardhat")("Settings", function () {
     await expect(
       settings.connect(otherAccount).enableAccount(otherAccount.address, false)
    ).to.be.revertedWith("Not Enabled");
+  });
+
+
+  it("Change Max Deposit", async function () {
+    const { settings, otherAccount } = await loadFixture(deployFunction);
+    await settings.connect(otherAccount).setMaxDepositInETH(ethers.parseUnits("1", 17));
+    expect(await settings.connect(otherAccount).getMaxDepositInETH()).to.equal(
+      ethers.parseUnits("1", 17)
+    );
+  });
+
+  it("Only Owner can change max deposit", async function () {
+    const { settings} = await loadFixture(deployFunction);
+    await expect(settings.setMaxDepositInETH(ethers.parseUnits("1", 17))).to.be.revertedWith(
+      "Ownable: caller is not the owner"
+    );
   });
 
 });
