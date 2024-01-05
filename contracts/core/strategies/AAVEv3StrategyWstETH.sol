@@ -20,8 +20,8 @@ import { WST_ETH_CONTRACT, WSTETH_ETH_ORACLE_CONTRACT } from "../ServiceRegistry
 /**
  * @title  AAVE v3 Recursive Staking Strategy for awstETH/WETH on EThereum 
  *
- * @author Chef Kenji <chef.kenji@layerx.xyz>
- * @author Chef Kal-EL <chef.kal-el@layerx.xyz>
+ * @author Chef Kenji <chef.kenji@bakerfi.xyz>
+ * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
  *
  * @dev This strategy requires access to for Lido Finance contracts that run 
  * exclusively on Ethereum 

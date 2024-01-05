@@ -4,8 +4,8 @@ pragma solidity ^0.8.18;
 /**
  * @title BakerFi Service Registy Interface
  * 
- * @author Chef Kenji <chef.kenji@layerx.xyz>
- * @author Chef Kal-EL <chef.kal-el@layerx.xyz>
+ * @author Chef Kenji <chef.kenji@bakerfi.xyz>
+ * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
  */
 interface IServiceRegistry {
 

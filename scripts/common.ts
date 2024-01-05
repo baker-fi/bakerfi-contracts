@@ -30,6 +30,18 @@ export async function deployWETH(serviceRegistry) {
   return weth;
 }
 
+export async function deployBKR(owner, serviceRegistry) {
+  const BKR = await ethers.getContractFactory("BKR");
+  const bkr = await BKR.deploy(owner);
+  await bkr.waitForDeployment();
+
+  await serviceRegistry.registerService(
+    ethers.keccak256(Buffer.from("BKR")),
+    await bkr.getAddress()
+  );
+  return bkr;
+}
+
 export async function deployServiceRegistry(owner: string) {
   const ServiceRegistry = await ethers.getContractFactory("ServiceRegistry");
   const serviceRegistry = await ServiceRegistry.deploy(owner);

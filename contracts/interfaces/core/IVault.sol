@@ -3,8 +3,8 @@ pragma solidity ^0.8.18;
 
 /**
  * @title BakerFi IVault 🏦🧑‍🍳
- * @author Chef Kenji <chef.kenji@layerx.xyz>
- * @author Chef Kal-EL <chef.kal-el@layerx.xyz>
+ * @author Chef Kenji <chef.kenji@bakerfi.xyz>
+ * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
  * */
 abstract contract IVault {    
     /**

@@ -12,8 +12,8 @@ import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/I
 /**
  * @title UseWstETH
  *
- * @author Chef Kenji <chef.kenji@layerx.xyz>
- * @author Chef Kal-EL <chef.kal-el@layerx.xyz>
+ * @author Chef Kenji <chef.kenji@bakerfi.xyz>
+ * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
  * 
  * @dev Abstract contract to integrate the use of Wrapped stETH (WstETH).
  *      Provides functions to initialize, access to wstETH interface, unwrap, and wrap WstETH.

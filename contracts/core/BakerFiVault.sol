@@ -21,8 +21,8 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 /**
  * @title BakerFi Vault 🏦🧑‍🍳
  *
- * @author Chef Kenji <chef.kenji@layerx.xyz>
- * @author Chef Kal-EL <chef.kal-el@layerx.xyz>
+ * @author Chef Kenji <chef.kenji@bakerfi.xyz>
+ * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
  * 
  * @dev The BakerFi vault deployed to any supported chain (Arbitrum One, Optimism, Ethereum,...)
  * 

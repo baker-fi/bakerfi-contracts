@@ -37,8 +37,8 @@ import { ETH_USD_ORACLE_CONTRACT } from "../ServiceRegistry.sol";
 /**
  * @title AAVE v3 Recursive Staking Strategy
  * 
- * @author Chef Kenji <chef.kenji@layerx.xyz>
- * @author Chef Kal-EL <chef.kal-el@layerx.xyz>
+ * @author Chef Kenji <chef.kenji@bakerfi.xyz>
+ * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
  * 
  * @dev This contract implements a strategy and could be used to deploy ETH on a AAVE with  
  * the a recursive staking strategy and receive an amplified yield 

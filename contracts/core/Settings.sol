@@ -10,8 +10,8 @@ import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableS
  * 
  * @notice The settings could only be changed by the Owner and could be used by any contract by the system.
  * 
- * @author Chef Kenji <chef.kenji@layerx.xyz>
- * @author Chef Kal-EL <chef.kal-el@layerx.xyz>
+ * @author Chef Kenji <chef.kenji@bakerfi.xyz>
+ * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
  * 
  * @dev The `Settings` contract is used to manage protocol settings.
  * It extends the `OwnableUpgradeable` contract and implements the `ISettings` interface.

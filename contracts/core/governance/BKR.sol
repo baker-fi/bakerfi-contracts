@@ -9,21 +9,21 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 
 /**
  * 
- * @title BPIE ERC-20 Token
+ * @title BKR ERC-20 Token
  *
- * @author Chef Kenji <chef.kenji@layerx.xyz>
- * @author Chef Kal-EL <chef.kal-el@layerx.xyz>
+ * @author Chef Kenji <chef.kenji@bakerfi.xyz>
+ * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
  * 
- * @dev Baker Pie , the BakerFi Governance ERC-20 Token 
+ * @dev Baker, the BakerFi Governance ERC-20 Token 
  * 
  * 500M Total Supply 
  * 
  * No Taxes and no Bullshit 
  */
-contract BPie is ERC20, Ownable, ERC20Permit, ERC20Votes {
+contract BKR is ERC20, Ownable, ERC20Permit, ERC20Votes {
 
-    string private constant _NAME = "Baker Pie";
-    string private constant _SYMBOL = "BPIE";
+    string private constant _NAME = "Baker";
+    string private constant _SYMBOL = "BKR";
     uint256 private immutable _MAX_SUPPLY = 500_000_000*1e18; // 500M
 
     constructor(address initialOwner)
