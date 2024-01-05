@@ -78,6 +78,11 @@ contract Settings is OwnableUpgradeable, ISettings {
     EnumerableSet.AddressSet private _enabledAccounts;
 
     /**
+     * @dev Max Allowed ETH Deposit per Wallet
+     */
+    uint256 private _maxDepositInETH;
+
+    /**
      * @dev Initializes the contract.
      *
      * This function is used for the initial setup of the contract, setting the owner, withdrawal fee,
@@ -99,6 +104,7 @@ contract Settings is OwnableUpgradeable, ISettings {
         _loanToValue =  800 * 1e6; // 80%
         _maxLoanToValue = 850 * 1e6; // 85%     
         _nrLoops = 10; 
+        _maxDepositInETH = 0 ;
     }
 
     /**
@@ -314,6 +320,15 @@ contract Settings is OwnableUpgradeable, ISettings {
         require(nrLoops <=  MAX_LOOPS, "Invalid Number of Loops");
         _nrLoops = nrLoops;
         emit NrLoopsChanged( _nrLoops);
+    }
+
+    function getMaxDepositInETH() external view returns (uint256) {
+        return _maxDepositInETH;
+    }
+
+    function setMaxDepositInETH(uint256 value) external onlyOwner {
+        _maxDepositInETH = value;
+        emit MaxDepositInETHChanged(value);
     }
 
 }

@@ -520,5 +520,47 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
   });
 
 
+  
+  it("Deposit - Success Deposit When the value is under the max", async () => {
+    const { owner, vault, settings} = await loadFixture(deployFunction);
+    await settings.setMaxDepositInETH(ethers.parseUnits("1", 18));    
+    const depositAmount = ethers.parseUnits("1", 17);    
+    expect(await vault.deposit(owner.address, { value: depositAmount }));    
+    expect(await vault.balanceOf(owner.address)).to.equal(99149335319756800n);   
+  });
+
+  it("Deposit - Failed Deposit When the value is over the max", async () => {
+    const { owner, vault, settings} = await loadFixture(deployFunction);
+    await settings.setMaxDepositInETH(ethers.parseUnits("1", 18));    
+    const depositAmount = ethers.parseUnits("10", 18);    
+    await expect(
+      vault.deposit(owner.address, { value: depositAmount })
+    ).to.be.revertedWith( "Max Deposit Reached");
+  });
+
+  it("Deposit - Failed Deposit When the second deposit exceeds the max", async () => {
+    
+    const { owner, vault, settings} = await loadFixture(deployFunction);
+    await settings.setMaxDepositInETH(ethers.parseUnits("1", 18));    
+
+    expect(await vault.deposit(owner.address, { value: ethers.parseUnits("5", 17) }));    
+    expect(await vault.balanceOf(owner.address)).to.equal(495746676598784000n);   
+    await expect(
+      vault.deposit(owner.address, { value: ethers.parseUnits("6", 17) })
+    ).to.be.revertedWith( "Max Deposit Reached");
+
+  });
+
+  it("Deposit - Success Deposit When the value is under the max", async () => {
+    const { owner, vault, settings} = await loadFixture(deployFunction);
+    await settings.setMaxDepositInETH(ethers.parseUnits("1", 18));    
+    const depositAmount = ethers.parseUnits("1", 17);    
+    expect(await vault.deposit(owner.address, { value: depositAmount }));    
+    expect(await vault.balanceOf(owner.address)).to.equal(99149335319756800n); 
+    expect(await vault.deposit(owner.address, { value: depositAmount }));    
+    expect(await vault.balanceOf(owner.address)).to.equal(198298665959270620n); 
+    expect(await vault.deposit(owner.address, { value: depositAmount }));    
+    expect(await vault.balanceOf(owner.address)).to.equal(297447999258662723n); 
+  });
 
 });

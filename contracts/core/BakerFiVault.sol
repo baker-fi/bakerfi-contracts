@@ -193,7 +193,13 @@ contract BakerFiVault is
             || (total.base > 0 && total.elastic > 0), 
             "Invalid Assets/Shares state"
         );
-
+        // Verify if the Deposit Value exceeds the maximum per wallet
+        uint256 maxDeposit = settings().getMaxDepositInETH();
+        if ( maxDeposit > 0 ) {
+            uint256 afterDeposit = msg.value + (balanceOf(msg.sender) * _tokenPerETH() /1e18);
+            require(afterDeposit <= maxDeposit, "Max Deposit Reached");
+        }
+        
         bytes memory result = (address(_strategy)).functionCallWithValue(
             abi.encodeWithSignature("deploy()"), 
             msg.value
@@ -294,6 +300,10 @@ contract BakerFiVault is
      * @return rate The calculated token-to-ETH exchange rate.
      */
     function tokenPerETH() external override  view returns (uint256) {
+        return _tokenPerETH();
+    }
+    
+    function _tokenPerETH() internal  view returns (uint256) {
         uint256 position = totalAssets();
         if (totalSupply() == 0 || position == 0) {
             return 1 ether;
