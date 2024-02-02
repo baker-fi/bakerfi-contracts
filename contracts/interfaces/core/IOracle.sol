@@ -10,10 +10,10 @@ pragma solidity ^0.8.18;
  * @dev Interface for an Oracle providing price information with a precision.
  */
 interface IOracle {
-    
+
     struct Price {
         uint256 price;
-        uint  lastUpdate;
+        uint lastUpdate;
     }
 
     /**

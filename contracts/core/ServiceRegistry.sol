@@ -25,6 +25,7 @@ bytes32 constant BALANCER_VAULT_CONTRACT =       keccak256(bytes("Balancer Vault
 bytes32 constant SETTINGS_CONTRACT =             keccak256(bytes("Settings"));
 bytes32 constant UNISWAP_QUOTER_CONTRACT =       keccak256(bytes("Uniswap Quoter"));
 bytes32 constant STRATEGY_CONTRACT =             keccak256(bytes("Strategy"));
+bytes32 constant PYTH_CONTRACT =                 keccak256(bytes("Pyth"));
 
 /**
  * @title BakerFi Service Registy

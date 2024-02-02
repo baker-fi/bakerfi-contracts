@@ -48,7 +48,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
       await cbETH.getAddress()
     );
 
-    await uniRouter.setPrice(885 * 1e6);
+    await uniRouter.setPrice(8665 * 1e5);
     // Register Uniswap Router
     await serviceRegistry.registerService(
       ethers.keccak256(Buffer.from("Uniswap Router")),
@@ -75,10 +75,13 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
       serviceRegistry,
       AAVE_DEPOSIT
     );
-    // Deploy cbETH/ETH Oracle
+    
     const oracle = await deployOracleMock(serviceRegistry, "cbETH/ETH Oracle");
     const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");
-    await ethOracle.setLatestPrice(ethers.parseUnits("1", 18));
+    
+    await oracle.setLatestPrice(ethers.parseUnits("2660", 18));
+    await ethOracle.setLatestPrice(ethers.parseUnits("2305", 18));
+
     await deployQuoterV2Mock(serviceRegistry);
 
     const { strategy } = await deployAAVEv3StrategyAny(
@@ -119,11 +122,11 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
       })
     ).to.changeEtherBalances([owner.address], [ethers.parseUnits("10", 18)]);
     expect(await strategy.getPosition()).to.deep.equal([
-      45707317950000000000n,
-      35740737730000000000n,
-      781947822n,
+      45702851552764668112n,
+      35740737736704000000n,
+      782024239n,
     ]);
-    expect(await strategy.deployed()).to.equal(9966580220000000000n);
+    expect(await strategy.deployed()).to.equal(9962113816060668112n);
   });
 
   it("Test Undeploy", async function () {
@@ -134,16 +137,16 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
       value: ethers.parseUnits("10", 18),
     });
     expect(await strategy.getPosition()).to.deep.equal([
-      45707317950000000000n,
-      35740737730000000000n,
-      781947822n,
+      45702851552764668112n,
+      35740737736704000000n,
+      782024239n,
     ]);
-    expect(await strategy.deployed()).to.equal(9966580220000000000n);
+    expect(await strategy.deployed()).to.equal(9962113816060668112n);
     // Receive ~=5 ETH
     await  expect(
       strategy.undeploy(ethers.parseUnits("5", 18))
     ).to.changeEtherBalances(
-      [owner.address], [4980923249912189805n]
+      [owner.address], [4983156389718359984n]
     );
   
   });

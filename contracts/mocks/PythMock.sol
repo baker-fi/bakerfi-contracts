@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
-pragma solidity ^0.8.0;
-import {IPyth} from "./IPyth.sol";
-import "./PythStructs.sol";
-//import "hardhat/console.sol";
+pragma solidity ^0.8.18;
+import {IPyth} from "../interfaces/pyth/IPyth.sol";
+import "../interfaces/pyth/PythStructs.sol";
+
 
 /**
  * 

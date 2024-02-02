@@ -8,7 +8,6 @@ import {AbiCoder} from "ethers";
 describeif(network.name === "hardhat")("Pyth Oracle Tests", function () {
     
     async function deployFunction() {
-        const [deployer, otherAccount] = await ethers.getSigners();
         const PythMock = await ethers.getContractFactory("PythMock");
         const pythMock = await PythMock.deploy();
         await pythMock.waitForDeployment();

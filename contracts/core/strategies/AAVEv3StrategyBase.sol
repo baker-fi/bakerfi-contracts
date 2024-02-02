@@ -34,6 +34,7 @@ import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/se
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import { ETH_USD_ORACLE_CONTRACT } from "../ServiceRegistry.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "hardhat/console.sol";
 
 /**
  * @title AAVE v3 Recursive Staking Strategy
@@ -279,10 +280,14 @@ abstract contract AAVEv3StrategyBase is
      * - The AAVEv3 strategy must be properly configured and initialized.
      */
     function _supplyBorrow(uint256 amount, uint256 loanAmount, uint256 fee) private {
-        uint256 collateralIn = _convertFromWETH(amount + loanAmount);
+       // console.log("Supply to Converts ", amount + loanAmount);        
+        uint256 collateralIn = _convertFromWETH(amount + loanAmount);   
+        //console.log("Deposit in WSETH", collateralIn);               
         // Deposit on AAVE Collateral and Borrow ETH
         _supplyAndBorrow(ierc20A(), collateralIn, wETHA(), loanAmount + fee);
+        //console.log("Debt in ETH",  loanAmount + fee);            
         uint256 collateralInETH = _toWETH(collateralIn);       
+        //console.log("collateralDeposited in ETH", collateralInETH);                          
         _pendingAmount = collateralInETH - loanAmount - fee;        
         emit StrategyDeploy(msg.sender, _pendingAmount);
     }
@@ -562,11 +567,11 @@ abstract contract AAVEv3StrategyBase is
 
         uint256 wethBalance = IERC20(wethReserve.variableDebtTokenAddress).balanceOf(address(this));
         uint256 collateralBalance = IERC20(colleteralReserve.aTokenAddress).balanceOf(address(this));
-
-        uint256 ethPrice = _ethUSDOracle.getLatestPrice().price;
+             
         if (collateralBalance != 0) {
+            uint256 ethPrice = _ethUSDOracle.getLatestPrice().price;
             uint256 collateralPrice = _collateralOracle.getLatestPrice().price;
-            totalCollateralInEth = (collateralBalance * ethPrice) / collateralPrice;
+            totalCollateralInEth = (collateralBalance * collateralPrice) / ethPrice ;
         }
         if (wethBalance != 0) {
             totalDebtInEth = wethBalance;

@@ -55,7 +55,8 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
       ethers.keccak256(Buffer.from("Uniswap Router")),
       await uniRouter.getAddress()
     );
-    await uniRouter.setPrice(885 * 1e6);
+    
+    await uniRouter.setPrice(8665 * 1e5);
 
     await stETH.approve(await wstETH.getAddress(), WRAP_ST_ETH_DEPOSIT);
     await wstETH.wrap(WRAP_ST_ETH_DEPOSIT);
@@ -78,9 +79,12 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
 
     await deployQuoterV2Mock(serviceRegistry);
     // 6. Deploy wstETH/ETH Oracle
-    const oracle = await deployOracleMock(serviceRegistry, "wstETH/ETH Oracle");
+    const oracle = await deployOracleMock(serviceRegistry, "wstETH/USD Oracle");
     const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");
-    await ethOracle.setLatestPrice(ethers.parseUnits("1", 18));
+
+    await oracle.setLatestPrice(ethers.parseUnits("2660", 18));
+    await ethOracle.setLatestPrice(ethers.parseUnits("2305", 18));
+
     const { strategy } = await deployAAVEv3StrategyWstETH(
       owner.address,
       serviceRegistryAddress,
@@ -119,32 +123,34 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
         value: ethers.parseUnits("10", 18),
       })
     ).to.changeEtherBalances([owner.address], [ethers.parseUnits("10", 18)]);
+    
     expect(await strategy.getPosition()).to.deep.equal([
-      45655671260000000000n,
-      35740737730000000000n,
-      782832378n,
+      45702851552764668112n,
+      35740737736704000000n,
+      782024239n,
     ]);
-    expect(await strategy.deployed()).to.equal(9914933530000000000n);
+    expect(await strategy.deployed()).to.equal(9962113816060668112n);
   });
 
   it("Harvest Profit - No Debt Adjust", async function () {
-    const { owner, strategy, aave3Pool } = await loadFixture(deployFunction);
+    const { owner, strategy, aave3Pool, oracle } = await loadFixture(deployFunction);
     // Deploy 10 ETH
     await strategy.deploy({
       value: ethers.parseUnits("10", 18),
     });
     // Increment the Collateral value by 10%
-    await aave3Pool.setCollateralPerEth(1130 * 1e6 * 1.1);
+    await oracle.setLatestPrice(ethers.parseUnits("2926", 18));
+    await aave3Pool.setCollateralPerEth(1154 * 1e6 * 1.1);
 
     expect(strategy.harvest())
       .to.emit(strategy, "StrategyProfit")
-      .withArgs(4969613303000000000n);
-    expect(await strategy.getPosition()).to.deep.equal([
-      50221238390000000000n,
-      35740737730000000000n,
-      711665798n,
+      .withArgs(4969613303000000000n);    
+      expect(await strategy.getPosition()).to.deep.equal([
+        50273136708041134924n,
+        35740737736704000000n,
+        710931126n,
     ]);
-    expect(await strategy.deployed()).to.equal(14480500660000000000n);
+    expect(await strategy.deployed()).to.equal(14532398971337134924n);
   });
 
   it("Harvest Loss - No Debt Adjust", async function () {
@@ -157,28 +163,27 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
     });
 
     expect(await strategy.getPosition()).to.deep.equal([
-      45655671260000000000n,
-      35740737730000000000n,
-      782832378n,
+      45702851552764668112n,
+      35740737736704000000n,
+      782024239n,
     ]);
 
-    expect(await strategy.deployed()).to.equal(9914933530000000000n);
+    expect(await strategy.deployed()).to.equal(9962113816060668112n);
 
     // Increment the Collateral value by 10%
-    await aave3Pool.setCollateralPerEth(1130 * 1e6 * 0.98);
-    await oracle.setLatestPrice(1130 * 1e6 * 0.98);
+    await oracle.setLatestPrice(ethers.parseUnits("2606", 18));
 
     await expect(strategy.harvest())
       .to.emit(strategy, "StrategyLoss")
-      .withArgs(913113421975680000n);
+      .withArgs(927802249567403037n);
 
     expect(await strategy.getPosition()).to.deep.equal([
-      44742557840000000000n,
-      35740737730000000000n,
-      798808549n,
+      44775049303197265075n, 
+      35740737736704000000n, 
+      798228886n
     ]);
 
-    expect(await strategy.deployed()).to.equal(9001820110000000000n);
+    expect(await strategy.deployed()).to.equal(9034311566493265075n);
   });
 
   it("Harvest - Debt Adjust", async function () {
@@ -189,29 +194,26 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
       value: ethers.parseUnits("10", 18),
     });
     // Descrease the Collateral value by 10%
-
-    await aave3Pool.setCollateralPerEth(1130 * 1e6 * 0.9);
-    await oracle.setLatestPrice(1130 * 1e6 * 0.9);
-
+    await oracle.setLatestPrice(ethers.parseUnits("2394", 18));
     await settings.setMaxLoanToValue(800 * 1e6);
 
     expect(await strategy.getPosition()).to.deep.equal([
-      41090104140000000000n,
-      35740737730000000000n,
-      869813753n,
+      41132566397488201301n, 
+      35740737736704000000n, 
+      868915821n
     ]);
 
     await expect(strategy.harvest())
       .to.emit(strategy, "StrategyAmountUpdate")
-      .withArgs(5349366410000000000n);
+      .withArgs(5391828660784201301n);
 
     expect(await strategy.getPosition()).to.deep.equal([
-      26488409310000000000n,
-      21397465640000000000n,
-      807804854n,
+      26397162466518195135n, 
+      21567314643136805200n, 
+      817031552n
     ]);
 
-    expect(await strategy.deployed()).to.equal(5090943670000000000n);
+    expect(await strategy.deployed()).to.equal(4829847823381389935n);
   });
 
   it("Harvest Loss - Collateral Value is lower than debt", async function () {
@@ -222,9 +224,9 @@ describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
       value: ethers.parseUnits("10", 18),
     });
     // Increment the Collateral value by 10%
-    await aave3Pool.setCollateralPerEth(1130 * 1e6 * 0.5);
+    await aave3Pool.setCollateralPerEth(1154 * 1e6 * 0.5);
 
-    await oracle.setLatestPrice(1130 * 1e6 * 0.5);
+    await oracle.setLatestPrice(1154 * 1e6 * 0.5);
 
     await expect(strategy.harvest()).to.be.revertedWith(
       "Collateral is lower that debt"

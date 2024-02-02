@@ -14,7 +14,7 @@ contract WstETHMock is IWStETH, ERC20 {
     IERC20 _stETH;
 
     // StETH -> WSTETH 0.86
-    uint256 private _exchangeRate = 884*(1e6);
+    uint256 private _exchangeRate = 8665*(1e5);
     uint256 public PRICE_PRECISION = 1000*(1e6);
 
     constructor(IERC20 stETH)

@@ -17,7 +17,8 @@ import {
 } from "../../scripts/common";
 import BaseConfig from "../../scripts/config";
 
-describeif(network.name === "hardhat")("BakerFi Vault", function () {
+//describeif(network.name === "hardhat")
+describe.only("BakerFi Vault", function () {
   
   async function deployFunction() {
     const networkName = network.name;
@@ -57,7 +58,7 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
       await uniRouter.getAddress()
     );
 
-    await uniRouter.setPrice(884 * 1e6);
+    await uniRouter.setPrice(8665 * 1e5);
 
     const { settings } = await deploySettings(owner.address, serviceRegistry);
 
@@ -75,11 +76,13 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
       AAVE_DEPOSIT
     );
     // 6. Deploy wstETH/ETH Oracle
-    const oracle = await deployOracleMock(serviceRegistry, "wstETH/ETH Oracle");
+    const oracle = await deployOracleMock(serviceRegistry, "wstETH/USD Oracle");
     await deployQuoterV2Mock(serviceRegistry);
-
     const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");
-    await ethOracle.setLatestPrice(ethers.parseUnits("1", 18));
+
+    await oracle.setLatestPrice(ethers.parseUnits("2660", 18));
+    await ethOracle.setLatestPrice(ethers.parseUnits("2305", 18));
+
 
     const {strategy} = await deployAAVEv3StrategyWstETH(
       owner.address,
@@ -133,19 +136,19 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
         owner.address,
         owner.address,
         ethers.parseUnits("10", 18),
-        9986343597383680000n
+        9962113816060668112n
       )
       .to.changeEtherBalances([owner.address], [-ethers.parseUnits("10", 18)]);
 
     expect(await vault.symbol()).to.equal("brETH");
     expect(await vault.name()).to.equal("Bread ETH");
-    expect(await vault.balanceOf(owner.address)).to.equal(9914933531975680000n);
-    expect((await strategy.getPosition())[0]).to.equal(45655671260000000000n);
-    expect((await strategy.getPosition())[1]).to.equal(35740737730000000000n);
-    expect(await vault.totalAssets()).to.equal(9914933530000000000n);
-    expect((await strategy.getPosition())[2]).to.equal(782832378);
-    expect(await vault.totalSupply()).to.equal(9914933531975680000n);
-    expect(await vault.tokenPerETH()).to.equal(1000000000199263060n);
+    expect(await vault.balanceOf(owner.address)).to.equal(9962113816060668112n);
+    expect((await strategy.getPosition())[0]).to.equal(45702851552764668112n);
+    expect((await strategy.getPosition())[1]).to.equal(35740737736704000000n);
+    expect(await vault.totalAssets()).to.equal(9962113816060668112n);
+    expect((await strategy.getPosition())[2]).to.equal(782024239);
+    expect(await vault.totalSupply()).to.equal(9962113816060668112n);
+    expect(await vault.tokenPerETH()).to.equal(1000000000000000000n);
   });
 
   it("Withdraw - 1 brETH", async function () {
@@ -160,14 +163,14 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     await expect(vault.withdraw(ethers.parseUnits("1", 18)))
       .to.emit(vault, "Withdraw")
       .withArgs(owner.address, 4969613303000000000n, ethers.parseUnits("1", 18))
-      .to.changeEtherBalances([owner.address], [1001373754928851603n]);
-    expect(await vault.balanceOf(owner.address)).to.equal(8914933531975680000n);
-    expect((await strategy.getPosition())[0]).to.equal(41050933260000000000n);
-    expect((await strategy.getPosition())[1]).to.equal(32135999730000000000n);
-    expect(await vault.totalAssets()).to.equal(8914933530000000000n);
-    expect((await strategy.getPosition())[2]).to.equal(782832378n);
-    expect(await vault.totalSupply()).to.equal(8914933531975680000n);
-    expect(await vault.tokenPerETH()).to.equal(1000000000221614664n);
+      .to.changeEtherBalances([owner.address], [996631271986539459n]);
+    expect(await vault.balanceOf(owner.address)).to.equal(8962113816060668112n);
+    expect((await strategy.getPosition())[0]).to.equal(41115185511636981793n);
+    expect((await strategy.getPosition())[1]).to.equal(32153071688990855996n);
+    expect(await vault.totalAssets()).to.equal(8962113822646125797n);
+    expect((await strategy.getPosition())[2]).to.equal(782024239n);
+    expect(await vault.totalSupply()).to.equal(8962113816060668112n);
+    expect(await vault.tokenPerETH()).to.equal(999999999265189238n);
   });
 
   it("Deposit - 0 ETH", async function () {
@@ -206,30 +209,31 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
   });
 
   it("Harvest Profit on Rebalance", async function () {
-    const { owner, vault, otherAccount, aave3Pool, strategy, settings } =
+    const { owner, vault, oracle, otherAccount, aave3Pool, strategy, settings } =
       await loadFixture(deployFunction);
     await vault.deposit(owner.address, {
       value: ethers.parseUnits("10", 18),
     });
 
-    expect(await vault.totalAssets()).to.equal(9914933530000000000n);
-    expect((await strategy.getPosition())[0]).to.equal(45655671260000000000n);
-    expect((await strategy.getPosition())[1]).to.equal(35740737730000000000n);
+    expect(await vault.totalAssets()).to.equal(9962113816060668112n);
+    expect((await strategy.getPosition())[0]).to.equal(45702851552764668112n);
+    expect((await strategy.getPosition())[1]).to.equal(35740737736704000000n);
     // =~1% Increase in Value
-    await aave3Pool.setCollateralPerEth(1142 * 1e6);
-    expect(await vault.totalAssets()).to.equal(10399772520000000000n);
-    expect((await strategy.getPosition())[0]).to.equal(46140510250000000000n);
-    expect((await strategy.getPosition())[1]).to.equal(35740737730000000000n);
+    await oracle.setLatestPrice(ethers.parseUnits("2686", 18));
+
+    expect(await vault.totalAssets()).to.equal(10408833417704232537n);
+    expect((await strategy.getPosition())[0]).to.equal(46149571154408232537n);
+    expect((await strategy.getPosition())[1]).to.equal(35740737736704000000n);
     await settings.setFeeReceiver(otherAccount.address);
     await expect(vault.rebalance())
       .to.emit(vault, "Transfer")
       .withArgs(
         "0x0000000000000000000000000000000000000000",
         otherAccount.address,
-        4622357201301058n
+        4275475777976299n
       );
     expect(await vault.balanceOf(otherAccount.address)).to.equal(
-      4622357201301058n
+      4275475777976299n
     );
   });
 
