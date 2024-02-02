@@ -33,6 +33,7 @@ import {UseIERC20} from "../hooks/UseIERC20.sol";
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import { ETH_USD_ORACLE_CONTRACT } from "../ServiceRegistry.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * @title AAVE v3 Recursive Staking Strategy
@@ -130,7 +131,7 @@ abstract contract AAVEv3StrategyBase is
      * Requirements:
      * - The caller must be in the initializing state.
      * - The initial owner address must not be the zero address.
-     * - The ETH/USD oracle and collateral/ETH oracle addresses must be valid.
+     * - The ETH/USD oracle and collateral/USD oracle addresses must be valid.
      * - The EMode category must be successfully set for the AAVEv3 strategy.
      * - Approval allowances must be successfully set for WETH and the collateral ERC20 token for UniSwap.
      */
@@ -555,15 +556,20 @@ abstract contract AAVEv3StrategyBase is
     {
         totalCollateralInEth = 0;
         totalDebtInEth = 0;
-        (uint256 totalCollateralBase, uint256 totalDebtBase, , , , ) = aaveV3().getUserAccountData(
-            address(this)
-        );
-        uint256 price = _ethUSDOracle.getLatestPrice();
-        if (totalCollateralBase != 0) {
-            totalCollateralInEth = (totalCollateralBase * 1e28) / price;
+
+        (DataTypes.ReserveData memory wethReserve) =  (aaveV3().getReserveData(wETHA()));
+        (DataTypes.ReserveData memory colleteralReserve) = (aaveV3().getReserveData(ierc20A()));
+
+        uint256 wethBalance = IERC20(wethReserve.variableDebtTokenAddress).balanceOf(address(this));
+        uint256 collateralBalance = IERC20(colleteralReserve.aTokenAddress).balanceOf(address(this));
+
+        uint256 ethPrice = _ethUSDOracle.getLatestPrice().price;
+        if (collateralBalance != 0) {
+            uint256 collateralPrice = _collateralOracle.getLatestPrice().price;
+            totalCollateralInEth = (collateralBalance * ethPrice) / collateralPrice;
         }
-        if (totalDebtBase != 0) {
-            totalDebtInEth = (totalDebtBase * 1e28) / price;
+        if (wethBalance != 0) {
+            totalDebtInEth = wethBalance;
         }
     }
 
@@ -656,8 +662,8 @@ abstract contract AAVEv3StrategyBase is
      */
     function _toWETH(uint256 amountIn) internal view returns (uint256 amountOut) {
         amountOut =
-            (amountIn * _collateralOracle.getLatestPrice()) /
-            _collateralOracle.getPrecision();
+            (amountIn * _collateralOracle.getLatestPrice().price) /
+            _ethUSDOracle.getLatestPrice().price;
     }
 
     /**
@@ -670,8 +676,8 @@ abstract contract AAVEv3StrategyBase is
      */
     function _fromWETH(uint256 amountIn) internal view returns (uint256 amountOut) {
         amountOut =
-            (amountIn * _collateralOracle.getPrecision()) /
-            _collateralOracle.getLatestPrice();
+            (amountIn * _ethUSDOracle.getLatestPrice().price) /
+            _collateralOracle.getLatestPrice().price;
     }
     
 }

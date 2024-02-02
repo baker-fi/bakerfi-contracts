@@ -16,8 +16,9 @@ contract OracleMock is IOracle {
     }
 
     //  WSETH/ETH
-    function getLatestPrice() external override view returns (uint256) {
-       return _exchangeRate;
+    function getLatestPrice() external override view returns (IOracle.Price memory price) {
+       price.price = _exchangeRate;
+       price.lastUpdate = block.timestamp;
     }
 
     function setLatestPrice(uint256 exchangeRate ) external {
