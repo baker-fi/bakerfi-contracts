@@ -18,9 +18,7 @@ import {
 } from "../../scripts/common";
 import BaseConfig from "../../scripts/config";
 
-//describeif(network.name === "hardhat")
-describe.only
-("BakerFi Any Vault", function () {
+describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
   
   async function deployFunction() {
     const [owner, otherAccount, anotherAccount] = await ethers.getSigners();
