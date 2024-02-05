@@ -1,6 +1,7 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers, network } from "hardhat";
+import { time } from "@nomicfoundation/hardhat-network-helpers";
 import {
   deployServiceRegistry,
   deployCbETH,
@@ -108,6 +109,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
       flashLender,
       strategy,
       oracle,
+      ethOracle,
       settings,
       config,
     };
@@ -272,7 +274,35 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
         ethers.parseUnits("1", 18),        
       )
     ).to.be.revertedWith("Invalid Flash loan sender");
-
   })
-  
+
+  it("Rebalance - Fails with outdated prices", async ()=> {    
+    const { weth, serviceRegistry, settings, strategy, oracle, ethOracle} =
+    await loadFixture(deployFunction);    
+    // Deposit 10 ETH
+    await strategy.deploy({
+      value: ethers.parseUnits("10", 18),
+    });
+    await settings.setOraclePriceMaxAge(60);
+    // advance time by one hour and mine a new block
+    await time.increase(3600);
+    await expect(
+      strategy.harvest()
+    ).to.be.revertedWith("Oracle Price is outdated");
+  })
+
+  it("Rebalance - Success when the price is updated", async ()=> {    
+    const { weth, serviceRegistry, settings, strategy, oracle, ethOracle} =
+    await loadFixture(deployFunction);    
+    // Deposit 10 ETH
+    await strategy.deploy({
+      value: ethers.parseUnits("10", 18),
+    });
+    await settings.setOraclePriceMaxAge(4800);
+    // advance time by one hour and mine a new block
+    await time.increase(3600);
+    await strategy.harvest()
+    expect(true).to.be.equal(true);
+  });
+
 });

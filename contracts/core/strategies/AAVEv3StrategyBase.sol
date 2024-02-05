@@ -34,7 +34,6 @@ import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/se
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import { ETH_USD_ORACLE_CONTRACT } from "../ServiceRegistry.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "hardhat/console.sol";
 
 /**
  * @title AAVE v3 Recursive Staking Strategy
@@ -280,14 +279,10 @@ abstract contract AAVEv3StrategyBase is
      * - The AAVEv3 strategy must be properly configured and initialized.
      */
     function _supplyBorrow(uint256 amount, uint256 loanAmount, uint256 fee) private {
-       // console.log("Supply to Converts ", amount + loanAmount);        
         uint256 collateralIn = _convertFromWETH(amount + loanAmount);   
-        //console.log("Deposit in WSETH", collateralIn);               
         // Deposit on AAVE Collateral and Borrow ETH
         _supplyAndBorrow(ierc20A(), collateralIn, wETHA(), loanAmount + fee);
-        //console.log("Debt in ETH",  loanAmount + fee);            
         uint256 collateralInETH = _toWETH(collateralIn);       
-        //console.log("collateralDeposited in ETH", collateralInETH);                          
         _pendingAmount = collateralInETH - loanAmount - fee;        
         emit StrategyDeploy(msg.sender, _pendingAmount);
     }
@@ -575,8 +570,8 @@ abstract contract AAVEv3StrategyBase is
             IOracle.Price memory ethPrice = _ethUSDOracle.getLatestPrice();
             IOracle.Price memory collateralPrice = _collateralOracle.getLatestPrice();
             require(priceMaxAge == 0 || 
-                (priceMaxAge > 0  && (ethPrice.lastUpdate  > (block.timestamp - priceMaxAge) )) ||
-                (priceMaxAge > 0  && (collateralPrice.lastUpdate > (block.timestamp - priceMaxAge)))
+                (priceMaxAge > 0  && (ethPrice.lastUpdate  >= (block.timestamp - priceMaxAge) )) ||
+                (priceMaxAge > 0  && (collateralPrice.lastUpdate >= (block.timestamp - priceMaxAge)))
             , "Oracle Price is outdated");
             totalCollateralInEth = (collateralBalance * collateralPrice.price) / ethPrice.price ;
         }
