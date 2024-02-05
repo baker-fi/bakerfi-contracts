@@ -10,6 +10,12 @@ pragma solidity ^0.8.18;
  * @dev Interface for an Oracle providing price information with a precision.
  */
 interface IOracle {
+
+    struct Price {
+        uint256 price;
+        uint lastUpdate;
+    }
+
     /**
      * @notice Retrieves the precision of the price information provided by the Oracle.
      * @dev This function is view-only and does not modify the state of the contract.
@@ -22,5 +28,6 @@ interface IOracle {
      * @dev This function is view-only and does not modify the state of the contract.
      * @return The latest price from the Oracle as a uint256.
      */
-    function getLatestPrice() external view returns (uint256);
+    function getLatestPrice() external view returns (Price memory);
+
 }

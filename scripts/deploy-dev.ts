@@ -123,7 +123,7 @@ async function main() {
       ethers.keccak256(Buffer.from("Uniswap Router")),
       await uniRouter.getAddress()
   );
-  await uniRouter.setPrice(884 * 1e6);   
+  await uniRouter.setPrice(8665 * 1e5);
   result.push(["Uniswap Router Mock", await uniRouter.getAddress()])  
 
   // 8. Deploy AAVE Mock Service
@@ -136,13 +136,14 @@ async function main() {
   const uniQuoter = await deployQuoterV2Mock(serviceRegistry);
   result.push(["Uniswap Quoter", await uniQuoter.getAddress()])  
 
-  spinner.text = "Deploying wstETH/ETH Oracle";  
-  const oracle = await deployOracleMock(serviceRegistry, "wstETH/ETH Oracle");
-  result.push(["wstETH/ETH Oracle", await oracle.getAddress()])  
+  spinner.text = "Deploying wstETH/USD Oracle";  
+  const oracle = await deployOracleMock(serviceRegistry, "wstETH/USD Oracle");
+  await oracle.setLatestPrice(ethers.parseUnits("2660", 18));
+  result.push(["wstETH/USD Oracle", await oracle.getAddress()])  
 
   spinner.text = "Deploying ETH/USD Oracle ";  
   const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");    
-  await ethOracle.setLatestPrice(ethers.parseUnits("1", 18)); 
+  await ethOracle.setLatestPrice(ethers.parseUnits("2305", 18));
   result.push(["ETH/USD Oracle", await ethOracle.getAddress()])  
 
   // Deploying Proxied Strategy
