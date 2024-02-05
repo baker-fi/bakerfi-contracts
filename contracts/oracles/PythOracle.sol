@@ -31,7 +31,7 @@ contract PythOracle is IOracle {
      * Get the Internal Price from Pyth Smart Contract
      */
     function _getPriceInternal() private view returns (IOracle.Price memory outPrice) {        
-        PythStructs.Price memory price = _pyth.getPrice(_priceID);
+        PythStructs.Price memory price = _pyth.getPriceUnsafe(_priceID);
     
         if (price.expo >= 0) {
             outPrice.price = uint64(price.price) * uint256(10**(_precisison+uint32(price.expo)));

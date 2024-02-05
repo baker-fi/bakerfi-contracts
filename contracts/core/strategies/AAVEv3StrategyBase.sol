@@ -193,7 +193,7 @@ abstract contract AAVEv3StrategyBase is
         view
         returns (uint256 totalCollateralInEth, uint256 totalDebtInEth, uint256 loanToValue)
     {
-        (totalCollateralInEth, totalDebtInEth) = _getPosition();
+        (totalCollateralInEth, totalDebtInEth) = _getPosition(0);
         if (totalCollateralInEth == 0) {
             loanToValue = 0;
         } else {
@@ -214,7 +214,7 @@ abstract contract AAVEv3StrategyBase is
      * - The AAVEv3 strategy must be properly configured and initialized.
      */
     function deployed() public view returns (uint256 totalOwnedAssets) {
-        (uint256 totalCollateralInEth, uint256 totalDebtInEth) = _getPosition();
+        (uint256 totalCollateralInEth, uint256 totalDebtInEth) = _getPosition(0);
         totalOwnedAssets = totalCollateralInEth > totalDebtInEth ? (totalCollateralInEth - totalDebtInEth): 0;
     }
 
@@ -493,7 +493,10 @@ abstract contract AAVEv3StrategyBase is
      * @return balanceChange The change in strategy balance as an int256 value.
      */
     function harvest() external override onlyOwner nonReentrant returns (int256 balanceChange) {
-        (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition();
+
+        (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition(
+            settings().getOraclePriceMaxAge()
+        );
         
         if (totalCollateralBaseInEth == 0 || 
             totalDebtBaseInEth == 0) {
@@ -554,7 +557,7 @@ abstract contract AAVEv3StrategyBase is
      * @return totalCollateralInEth The total collateral position in ETH.
      * @return totalDebtInEth The total debt position in ETH.
      */
-    function _getPosition()
+    function _getPosition(uint priceMaxAge)
         internal
         view
         returns (uint256 totalCollateralInEth, uint256 totalDebtInEth)
@@ -569,9 +572,13 @@ abstract contract AAVEv3StrategyBase is
         uint256 collateralBalance = IERC20(colleteralReserve.aTokenAddress).balanceOf(address(this));
              
         if (collateralBalance != 0) {
-            uint256 ethPrice = _ethUSDOracle.getLatestPrice().price;
-            uint256 collateralPrice = _collateralOracle.getLatestPrice().price;
-            totalCollateralInEth = (collateralBalance * collateralPrice) / ethPrice ;
+            IOracle.Price memory ethPrice = _ethUSDOracle.getLatestPrice();
+            IOracle.Price memory collateralPrice = _collateralOracle.getLatestPrice();
+            require(priceMaxAge == 0 || 
+                (priceMaxAge > 0  && (ethPrice.lastUpdate  > (block.timestamp - priceMaxAge) )) ||
+                (priceMaxAge > 0  && (collateralPrice.lastUpdate > (block.timestamp - priceMaxAge)))
+            , "Oracle Price is outdated");
+            totalCollateralInEth = (collateralBalance * collateralPrice.price) / ethPrice.price ;
         }
         if (wethBalance != 0) {
             totalDebtInEth = wethBalance;
@@ -596,7 +603,7 @@ abstract contract AAVEv3StrategyBase is
         uint256 amount,
         address payable receiver
     ) private returns (uint256 undeployedAmount) {
-        (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition();
+        (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition(0);
         // When the position is in liquidation state revert the transaction
         require(
             totalCollateralBaseInEth > totalDebtBaseInEth, 

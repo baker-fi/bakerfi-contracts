@@ -29,4 +29,5 @@ interface IOracle {
      * @return The latest price from the Oracle as a uint256.
      */
     function getLatestPrice() external view returns (Price memory);
+
 }
