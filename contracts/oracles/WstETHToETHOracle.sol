@@ -18,10 +18,9 @@ contract WstETHToETHOracle is IOracle {
     function getPrecision() external pure override returns (uint256) {
         return _PRECISION;
     }
-    
+
     //  WSETH/ETH
-    function getLatestPrice() external override view returns (IOracle.Price memory price) {
-        price.price = uint256(_stETHToETHPriceFeed.latestAnswer());
-        price.lastUpdate = _stETHToETHPriceFeed.latestTimestamp();
+    function getLatestPrice() external override view returns (uint256) {
+        return uint256(_stETHToETHPriceFeed.latestAnswer());
     }
 }

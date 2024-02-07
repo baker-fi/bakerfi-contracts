@@ -15,7 +15,7 @@ import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ER
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import { WST_ETH_CONTRACT, WSTETH_USD_ORACLE_CONTRACT } from "../ServiceRegistry.sol";
+import { WST_ETH_CONTRACT, WSTETH_ETH_ORACLE_CONTRACT } from "../ServiceRegistry.sol";
 
 /**
  * @title  AAVE v3 Recursive Staking Strategy for awstETH/WETH on EThereum 
@@ -44,7 +44,7 @@ contract AAVEv3StrategyWstETH is Initializable, AAVEv3StrategyBase, UseWstETH, U
             initialOwner, 
             registry, 
             WST_ETH_CONTRACT, 
-            WSTETH_USD_ORACLE_CONTRACT, 
+            WSTETH_ETH_ORACLE_CONTRACT, 
             swapFeeTier, 
             eModeCategory
         );

@@ -66,4 +66,4 @@ export const deployConfigMap : {[key: string]: DeployConfig} =
     }
 }
 
-export default deployConfigMap; 
+export default deployConfigMap;

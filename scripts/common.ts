@@ -266,18 +266,6 @@ export async function deployOracleMock(serviceRegistry, name) {
   return oracle;
 }
 
-
-export async function deployPythMock(serviceRegistry) {
-  const PythMock = await ethers.getContractFactory("PythMock");
-  const pyth = await PythMock.deploy();
-  await pyth.waitForDeployment();
-  await serviceRegistry.registerService(
-    ethers.keccak256(Buffer.from("Pyth")),
-    await pyth.getAddress()
-  );
-  return pyth;
-}
-
 export async function deployETHOracle(serviceRegistry, chainLinkAddress) {
   const oracleContract = await ethers.getContractFactory("ETHOracle");
   const oracle = await oracleContract.deploy(chainLinkAddress);

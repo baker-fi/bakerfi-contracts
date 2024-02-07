@@ -79,12 +79,6 @@ interface ISettings {
      * @dev Emitted when the Maximum Deposit ETH is changed 
      * @param value The new amount that is allowed to be deposited
      */
-    event OraclePriceMaxAgeChanged(uint indexed value);
-
-    /**
-     * @dev Emitted when the Maximum Deposit ETH is changed 
-     * @param value The new amount that is allowed to be deposited
-     */
     event MaxDepositInETHChanged(uint256 indexed value);
 
     /**
@@ -182,7 +176,4 @@ interface ISettings {
 
     function setMaxDepositInETH(uint256 value) external;
 
-    function setOraclePriceMaxAge(uint value) external;
-
-    function getOraclePriceMaxAge() external view returns (uint);
 }

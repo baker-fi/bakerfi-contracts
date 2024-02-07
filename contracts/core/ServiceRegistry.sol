@@ -15,8 +15,8 @@ bytes32 constant ST_ETH_CONTRACT =               keccak256(bytes("stETH"));
 bytes32 constant WST_ETH_CONTRACT =              keccak256(bytes("wstETH"));
 bytes32 constant BKR_CONTRACT =                  keccak256(bytes("BKR"));
 bytes32 constant AAVE_V3_CONTRACT =              keccak256(bytes("AAVE_V3"));
-bytes32 constant WSTETH_USD_ORACLE_CONTRACT =    keccak256(bytes("wstETH/USD Oracle"));
-bytes32 constant CBETH_USD_ORACLE_CONTRACT =     keccak256(bytes("cbETH/USD Oracle"));
+bytes32 constant WSTETH_ETH_ORACLE_CONTRACT =    keccak256(bytes("wstETH/ETH Oracle"));
+bytes32 constant CBETH_ETH_ORACLE_CONTRACT =     keccak256(bytes("cbETH/ETH Oracle"));
 bytes32 constant ETH_USD_ORACLE_CONTRACT =       keccak256(bytes("ETH/USD Oracle"));
 bytes32 constant CBETH_ERC20_CONTRACT =          keccak256(bytes("cbETH"));
 bytes32 constant UNISWAP_ROUTER_CONTRACT =       keccak256(bytes("Uniswap Router"));
@@ -25,7 +25,6 @@ bytes32 constant BALANCER_VAULT_CONTRACT =       keccak256(bytes("Balancer Vault
 bytes32 constant SETTINGS_CONTRACT =             keccak256(bytes("Settings"));
 bytes32 constant UNISWAP_QUOTER_CONTRACT =       keccak256(bytes("Uniswap Quoter"));
 bytes32 constant STRATEGY_CONTRACT =             keccak256(bytes("Strategy"));
-bytes32 constant PYTH_CONTRACT =                 keccak256(bytes("Pyth"));
 
 /**
  * @title BakerFi Service Registy

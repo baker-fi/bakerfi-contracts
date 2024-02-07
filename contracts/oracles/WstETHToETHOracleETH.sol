@@ -24,12 +24,10 @@ contract WstETHToETHOracleETH is IOracle {
     }
 
     //  WSETH/ETH
-    function getLatestPrice() external override view returns (IOracle.Price memory price) {
+    function getLatestPrice() external override view returns (uint256) {
         uint256 wstETHToStETH = uint256(_wstETH.stEthPerToken());
         assert(wstETHToStETH > 0);
         uint256 stETHToETH = uint256(_stETHToETHPriceFeed.latestAnswer());
-        price.price = wstETHToStETH * stETHToETH / _PRECISION;
-        price.lastUpdate = _stETHToETHPriceFeed.latestTimestamp();
+        return wstETHToStETH * stETHToETH / _PRECISION;
     }
-
 }
