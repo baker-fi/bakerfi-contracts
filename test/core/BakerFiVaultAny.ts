@@ -54,7 +54,7 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
       await uniRouter.getAddress()
     );
 
-    await uniRouter.setPrice(8665 * 1e5);
+    await uniRouter.setPrice(885 * 1e6);
 
     // Deposit ETH on Uniswap Mock Router
     await weth.deposit?.call("", { value: ethers.parseUnits("10000", 18) });
@@ -81,18 +81,15 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
     );
 
     // 6. Deploy wstETH/ETH Oracle
-    const oracle = await deployOracleMock(serviceRegistry, "cbETH/USD Oracle");
+    const oracle = await deployOracleMock(serviceRegistry, "cbETH/ETH Oracle");
     const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");
-    
-    await oracle.setLatestPrice(ethers.parseUnits("2660", 18));
-    await ethOracle.setLatestPrice(ethers.parseUnits("2305", 18));
-
+    await ethOracle.setLatestPrice(ethers.parseUnits("1", 18));
     await deployQuoterV2Mock(serviceRegistry);
     const { strategy } = await deployAAVEv3StrategyAny(
       owner.address,
       serviceRegistryAddress,
       "cbETH",
-      "cbETH/USD Oracle",
+      "cbETH/ETH Oracle",
       config.swapFeeTier,
       config.AAVEEModeCategory
     );
@@ -136,7 +133,7 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
         await cbETH.getAddress(),
         await strategy.getAddress(),
         await strategy.getAddress(),
-        39603410838016000000n,
+        40448953943040000000n,
         0
       )
       .to.emit(aave3Pool, "Borrow")
@@ -183,7 +180,7 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
       })
     )
       .to.emit(strategy, "StrategyAmountUpdate")
-      .withArgs(9962113816060668112n);
+      .withArgs(9966580218931200000n);
 
     await expect(
       vault.deposit(owner.address, {
@@ -191,14 +188,14 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
       })
     )
       .to.emit(strategy, "StrategyAmountUpdate")
-      .withArgs(19924227632121336224n);
+      .withArgs(19933160437862400000n);
     await expect(
       vault.deposit(owner.address, {
         value: ethers.parseUnits("10", 18),
       })
     )
       .to.emit(strategy, "StrategyAmountUpdate")
-      .withArgs( 29886341448182004336n);
+      .withArgs( 29899740656793600000n);
   });
 
   it("convertToShares - 1ETH", async function () {
@@ -209,7 +206,7 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
     });
 
     expect(await vault.convertToShares(ethers.parseUnits("1", 18))).to.equal(
-      1000000000000000000n
+      999999999892761611n
     );
   });
 
@@ -220,7 +217,7 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
       value: ethers.parseUnits("10", 18),
     });
     expect(await vault.convertToAssets(ethers.parseUnits("1", 18))).to.equal(
-      1000000000000000000n
+      1000000000107238388n
     );
   });
 

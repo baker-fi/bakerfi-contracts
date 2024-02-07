@@ -20,8 +20,7 @@ contract ETHOracle is IOracle {
     }
 
     //  cbETH/ETH
-    function getLatestPrice() external override view returns (IOracle.Price memory price) {
-        price.price = uint256(_ethPriceFeed.latestAnswer()*1e10);
-        price.lastUpdate = _ethPriceFeed.latestTimestamp();
+    function getLatestPrice() external override view returns (uint256) {
+        return uint256(_ethPriceFeed.latestAnswer()*1e10);
     }
 }

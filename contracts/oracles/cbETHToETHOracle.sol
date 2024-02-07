@@ -21,8 +21,7 @@ contract CbETHToETHOracle is IOracle {
     }
 
     //  cbETH/ETH
-    function getLatestPrice() external override view returns (IOracle.Price memory price) {
-        price.price = uint256(_stCbETHToETHPriceFeed.latestAnswer());
-        price.lastUpdate = _stCbETHToETHPriceFeed.latestTimestamp();
+    function getLatestPrice() external override view returns (uint256) {
+        return uint256(_stCbETHToETHPriceFeed.latestAnswer());
     }
 }
