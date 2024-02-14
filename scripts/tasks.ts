@@ -1,6 +1,11 @@
 import ora from "ora";
+import { ErrorDecoder } from 'ethers-decode-error'
 import { task } from "hardhat/config";
 import DeployConfig from "../constants/contracts";
+import {pythFeedIds} from "../constants/contracts";
+import {PriceServiceConnection} from "@pythnetwork/price-service-client";
+
+
 
 task("balance", "Prints an account's balance")
   .addParam("account", "The account's address")
@@ -544,4 +549,53 @@ task("settings:getMaxDeposit", "Get Fee Receiver Account")
       console.log(e);
       spinner.fail("Failed 💥");
     }
+});
+
+
+task("pyth:priceUpdate", "Update Required Prices")
+.setAction(async ({}, { ethers, network }) => {
+  const networkName = network.name;
+  const networkConfig = DeployConfig[networkName];
+  const spinner = ora(`Pyth Price Updates`).start();
+  try {
+
+    const connection = new PriceServiceConnection(
+      "https://hermes.pyth.network", {
+      priceFeedRequestConfig: {
+        // Provide this option to retrieve signed price updates for on-chain contracts.
+        // Ignore this option for off-chain use.
+        binary: true,
+      },
+    }); // See Hermes endpoints section below for other endpoints
+
+    const priceIds = [
+      // You can find the ids of prices at https://pyth.network/developers/price-feed-ids
+      pythFeedIds.CBETH_USD_FEED_ID, // BTC/USD price id
+      pythFeedIds.ETH_USD_FEED_ID,
+      pythFeedIds.WSETH_USD_FEED_ID, // ETH/USD price id
+    ];
+    // Get the latest values of the price feeds as json objects.
+    // If you set `binary: true` above, then this method also returns signed price updates for the on-chain Pyth contract.
+    const currentPrices = await connection.getLatestPriceFeeds(priceIds);
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    // You can also call this function to get price updates for the on-chain contract directly.   
+    const pyth = await ethers.getContractAt(
+      "IPyth",
+      networkConfig.pyth?? ""
+    );
+   
+    const vaas = currentPrices?.map(feed=>Buffer.from(feed.vaa, 'base64'));
+
+    console.log("Updating Prices...");
+    const fee = await pyth.getUpdateFee(vaas);
+
+    console.log("Feee", fee);
+    await pyth.updatePriceFeeds(vaas, { value: fee});
+
+    spinner.succeed(`🧑‍🍳 Pyth Price Updates`);
+  } catch (e) {
+    console.log(`${e.reason} - ${e.code}`);
+    spinner.fail("Failed 💥");
+  }
 });

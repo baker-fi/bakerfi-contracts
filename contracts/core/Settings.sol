@@ -111,7 +111,7 @@ contract Settings is OwnableUpgradeable, ISettings {
         _maxLoanToValue = 850 * 1e6; // 85%     
         _nrLoops = 10; 
         _maxDepositInETH = 0 ;
-        _oraclePriceMaxAge = 0; 
+        _oraclePriceMaxAge = 300;  // 5 Minutes Prices 
     }
 
     /**
