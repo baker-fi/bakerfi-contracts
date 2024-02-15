@@ -19,7 +19,7 @@ abstract contract UseOracle is Initializable {
         return _oracle;
     }
 
-    function getLastPrice() public view returns (uint256) {
+    function getLastPrice() public view returns (IOracle.Price memory) {
         return _oracle.getLatestPrice();
     }
 }

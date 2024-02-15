@@ -6,8 +6,8 @@ import {
   deployAAVEv3StrategyAny,
   deploySettings,
   deployETHOracle,
-  deployCbETHToETHOracle,
-  deploWSTETHToETHOracle,
+  deployCbETHToUSDOracle,
+  deployWSTETHToUSDOracle,
   deployBalancerFL,
 } from "./common";
 
@@ -125,14 +125,21 @@ async function main() {
   /********************************************
    * <Collateral>/USD Deploy
    ********************************************/
-  spinner.text = "Deploying Collateral/ETH Oracle";       
-  const colETHOracle = await deployCollateralOracle(config, serviceRegistry);
-  result.push(["Collateral/ETH Oracle",  await colETHOracle.getAddress()]);
+  spinner.text = "Deploying Collateral/USD Oracle";       
+  const colETHOracle = await deployCollateralOracle(
+    config, 
+    serviceRegistry,
+    config.pyth,
+  );
+  result.push(["Collateral/USDC Oracle",  await colETHOracle.getAddress()]);
   /********************************************
    * ETH/USD Deploy
    ********************************************/
   spinner.text = "Deploying ETH/USD Oracle";   
-  const ethUSDOracle = await deployETHOracle(serviceRegistry, config.ethOracle);
+  const ethUSDOracle = await deployETHOracle(
+    serviceRegistry, 
+    config.pyth
+  );
   result.push(["ETH/USD Oracle",  await ethUSDOracle.getAddress()]);  
   /********************************************
    * STRATEGY Deploy
@@ -234,20 +241,20 @@ async function deployStrategy(config: any, deployer, serviceRegistry, proxied: b
  * @param serviceRegistry 
  * @returns 
  */
-async function deployCollateralOracle(config: any, serviceRegistry) {
+async function deployCollateralOracle(config: any, serviceRegistry, pyth) {
   let oracle;
   switch (config.oracle.type) {
     case "cbETH":
-      oracle = await deployCbETHToETHOracle(
+      oracle = await deployCbETHToUSDOracle(
         serviceRegistry,
-        config.oracle.chainLink
+        pyth,
       );
       break;
 
     case "wstETH": 
-      oracle = await deploWSTETHToETHOracle(
+      oracle = await deployWSTETHToUSDOracle(
         serviceRegistry,
-        config.oracle.chainLink
+        pyth
       );
     break;
     default:

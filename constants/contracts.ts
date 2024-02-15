@@ -21,7 +21,16 @@ export type DeployConfig = {
     settings: string;    
     settingsProxy?: string;
     bkr?: string;
+    pyth?: string;
+    wstETHETHOracleFeedId?: string;
+    ethUSDOracleFeedId?: string;
 }
+
+export const pythFeedIds = {
+    ETH_USD_FEED_ID: "0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace",
+    CBETH_USD_FEED_ID: "0x15ecddd26d49e1a8f1de9376ebebc03916ede873447c1255d2d5891b92ce5717",
+    WSETH_USD_FEED_ID: "0x6df640f3b8963d8f8358f791f352b8364513f6ab1cca5ed3f1f7b5448980e784"
+};
 
 export const deployConfigMap : {[key: string]: DeployConfig} = 
 {
@@ -62,8 +71,9 @@ export const deployConfigMap : {[key: string]: DeployConfig} =
         vault: "0x3a6f7a481ad94eb03d229b846002561dc2742449",      
         vaultProxy: "0x5c1b2312FaE6c0d61B6A15A8093842E9fE5b1e44",          
         settings: "0xb0bbF58c8199F3CA383F0535b6a58A6E5Bbd587B",
-        settingsProxy: "0xBd7f910A074D9d35789a47FF0962b5706D7855dF"            
+        settingsProxy: "0xBd7f910A074D9d35789a47FF0962b5706D7855dF",
+        pyth: "0xff1a0f4744e8582df1ae09d5611b887b6a12925c",  
     }
 }
 
-export default deployConfigMap;
+export default deployConfigMap; 

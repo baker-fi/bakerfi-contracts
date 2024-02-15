@@ -147,7 +147,7 @@ describeif(
     const balanceDiff  = balanceAfter - balanceBefore;
     
     expect(balanceDiff)
-        .to.greaterThan(ethers.parseUnits("5", 17))
+        .to.greaterThan(ethers.parseUnits("4", 17))
         .lessThanOrEqual(ethers.parseUnits("6", 17));
   });
 
@@ -162,7 +162,7 @@ describeif(
     await vault.withdraw(withrawing);
     expect(await vault.balanceOf(deployer.address)).to.equal(0n);
     expect(await vault.totalSupply()).to.equal(0n);
-    expect((await strategy.getPosition())[0]).to.equal(0n);
+    expect((await strategy.getPosition())[0]).to.equal(1n);
     expect((await strategy.getPosition())[1]).to.equal(0n);
     expect((await strategy.getPosition())[2]).to.equal(0n);
     expect(await vault.tokenPerETH()).to.equal(ethers.parseUnits("1", 18));

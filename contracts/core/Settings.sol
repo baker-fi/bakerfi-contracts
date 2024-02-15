@@ -82,6 +82,12 @@ contract Settings is OwnableUpgradeable, ISettings {
      */
     uint256 private _maxDepositInETH;
 
+
+    /**
+     * @dev Max Age for sensitive price operations
+     */
+    uint private _oraclePriceMaxAge;
+
     /**
      * @dev Initializes the contract.
      *
@@ -105,6 +111,7 @@ contract Settings is OwnableUpgradeable, ISettings {
         _maxLoanToValue = 850 * 1e6; // 85%     
         _nrLoops = 10; 
         _maxDepositInETH = 0 ;
+        _oraclePriceMaxAge = 300;  // 5 Minutes Prices 
     }
 
     /**
@@ -329,6 +336,16 @@ contract Settings is OwnableUpgradeable, ISettings {
     function setMaxDepositInETH(uint256 value) external onlyOwner {
         _maxDepositInETH = value;
         emit MaxDepositInETHChanged(value);
+    }
+
+
+    function setOraclePriceMaxAge(uint value) external onlyOwner {
+        _oraclePriceMaxAge = value;
+        emit OraclePriceMaxAgeChanged(value);
+    }
+
+     function getOraclePriceMaxAge() external view returns (uint) {
+        return _oraclePriceMaxAge;
     }
 
 }

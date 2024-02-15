@@ -1,3 +1,9 @@
+export const feeds  = {
+    ETHUSDFeedId: "0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace",
+    CBETHUSDFeedId: "0x15ecddd26d49e1a8f1de9376ebebc03916ede873447c1255d2d5891b92ce5717",
+    WSETHUSDFeedId: "0x6df640f3b8963d8f8358f791f352b8364513f6ab1cca5ed3f1f7b5448980e784"
+};
+
 export default {    
     "ethereum_devnet": {
         uniswapRouter: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", // Validated 
@@ -15,7 +21,7 @@ export default {
         strategy: "wstETH",        
         swapFeeTier: 100,        
         AAVEPool: "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2", // Validated      
-
+        pyth: "0x4305FB66699C3B2702D4d05CF36551390A4c69C6",
     },
     "base_devnet": {
         uniswapRouter: "0x2626664c2603336E57B271c5C0b26F421741e481", // Validated 
@@ -31,7 +37,8 @@ export default {
         AAVEEModeCategory: 1,       
         strategy: "base",        
         swapFeeTier: 500,        
-        AAVEPool: "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5", // Validated       
+        AAVEPool: "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5", // Validated      
+        pyth: "0x8250f4aF4B972684F7b336503E2D6dFeDeB1487a", 
     },
     "optimism_devnet": {
         uniswapRouter: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", // Validated 
@@ -48,6 +55,7 @@ export default {
         AAVEEModeCategory: 2,        
         swapFeeTier: 100,        
         AAVEPool: "0x794a61358d6845594f94dc1db02a252b5b4814ad", // Validated   
+        pyth: "0xff1a0f4744e8582DF1aE09D5611b887B6a12925C"
     }, 
     "hardhat": {
         AAVEEModeCategory: 0,
@@ -89,11 +97,12 @@ export default {
         strategy: {
             type: "base",
             collateral: "wstETH",
-            oracle: "wstETH/ETH Oracle"
+            oracle: "wstETH/USD Oracle"
         },     
         AAVEEModeCategory: 2,        
         swapFeeTier: 100,        
         AAVEPool: "0x794a61358D6845594F94dc1DB02A252b5b4814aD", // Validated   
+        pyth: "0xff1a0f4744e8582df1ae09d5611b887b6a12925c",
     },
     "arbitrum": {
         uniswapRouter: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", // Validated 
@@ -109,11 +118,12 @@ export default {
         strategy: {
             type: "base",
             collateral: "wstETH",
-            oracle: "wstETH/ETH Oracle"
+            oracle: "wstETH/USD Oracle"
         },     
         AAVEEModeCategory: 2,        
         swapFeeTier: 100,        
         AAVEPool: "0x794a61358D6845594F94dc1DB02A252b5b4814aD", // Validated   
+        pyth: "0xff1a0f4744e8582df1ae09d5611b887b6a12925c",
     },
 }
 

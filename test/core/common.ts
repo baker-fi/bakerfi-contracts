@@ -6,13 +6,14 @@ import {
   deployAAVEv3StrategyAny,
   deployETHOracle,
   deployUniSwapper,
-  deployCbETHToETHOracle,
-  deploWSTETHToETHOracle,
+  deployCbETHToUSDOracle,
+  deployWSTETHToUSDOracle,
   deployAAVEv3StrategyWstETH,
   deploySettings,
 } from "../../scripts/common";
 
 import BaseConfig from "../../scripts/config";
+import ora from "ora";
 
 export async function deployBase() {
   const [deployer, otherAccount] = await ethers.getSigners();
@@ -63,9 +64,9 @@ export async function deployBase() {
     config.cbETH
   );
   // 9. Deploy the Oracle
-  const oracle = await deployCbETHToETHOracle(
+  const oracle = await deployCbETHToUSDOracle(
     serviceRegistry,
-    config.oracle.chainLink
+    config.pyth
   );
 
   await serviceRegistry.registerService(
@@ -81,14 +82,14 @@ export async function deployBase() {
 
   // 11. Flash Lender Adapter
   await deployBalancerFL(serviceRegistry);
-  await deployETHOracle(serviceRegistry, config.ethOracle);
+  await deployETHOracle(serviceRegistry, config.pyth);
 
   // 12. Deploy the Strategy
   const { proxy: strategyProxyDeploy } = await deployAAVEv3StrategyAny(
     deployer.address,
     await serviceRegistry.getAddress(),
     "cbETH",
-    "cbETH/ETH Oracle",
+    "cbETH/USD Oracle",
     config.swapFeeTier,
     config.AAVEEModeCategory,
     true,
@@ -167,6 +168,9 @@ export async function deployOptimism() {
     proxyAdmin
   );
 
+  const settings = await ethers.getContractAt("Settings", await settingsProxyDeploy.getAddress());
+  await settings.setOraclePriceMaxAge(0);
+
   // 5. Register UniswapV3 Universal Router
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from("Uniswap Router")),
@@ -185,9 +189,9 @@ export async function deployOptimism() {
     config.wstETH
   );
   // 9. Deploy the Oracle
-  const oracle = await deploWSTETHToETHOracle(
+   await deployWSTETHToUSDOracle(
     serviceRegistry,
-    config.oracle.chainLink
+    config.pyth
   );
 
   await serviceRegistry.registerService(
@@ -204,19 +208,21 @@ export async function deployOptimism() {
   // 11. Flash Lender Adapter
   await deployBalancerFL(serviceRegistry);
 
-  await deployETHOracle(serviceRegistry, config.ethOracle);
-
+  await deployETHOracle(serviceRegistry, config.pyth);
+  
   // 12. Deploy the Strategy
   const { proxy: strategyProxyDeploy } = await deployAAVEv3StrategyAny(
     deployer.address,
     await serviceRegistry.getAddress(),
     "wstETH",
-    "wstETH/ETH Oracle",
+    "wstETH/USD Oracle",
     config.swapFeeTier,
     config.AAVEEModeCategory,
     true,
     proxyAdmin
   );
+
+
 
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from("Strategy")),
@@ -331,8 +337,8 @@ export async function deployEthereum() {
 
   // 11. Flash Lender Adapter
   await deployBalancerFL(serviceRegistry);
-
-  await deployETHOracle(serviceRegistry, config.ethOracle);
+  
+  await deployETHOracle(serviceRegistry, config.pyth);
 
   // 12. Deploy the Strategy
   const { proxy: strategyProxyDeploy } = await deployAAVEv3StrategyWstETH(

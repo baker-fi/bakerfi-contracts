@@ -1,6 +1,7 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers, network } from "hardhat";
+import { time } from "@nomicfoundation/hardhat-network-helpers";
 import {
   deployServiceRegistry,
   deployCbETH,
@@ -48,7 +49,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
       await cbETH.getAddress()
     );
 
-    await uniRouter.setPrice(885 * 1e6);
+    await uniRouter.setPrice(8665 * 1e5);
     // Register Uniswap Router
     await serviceRegistry.registerService(
       ethers.keccak256(Buffer.from("Uniswap Router")),
@@ -75,10 +76,13 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
       serviceRegistry,
       AAVE_DEPOSIT
     );
-    // Deploy cbETH/ETH Oracle
+    
     const oracle = await deployOracleMock(serviceRegistry, "cbETH/ETH Oracle");
     const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");
-    await ethOracle.setLatestPrice(ethers.parseUnits("1", 18));
+    
+    await oracle.setLatestPrice(ethers.parseUnits("2660", 18));
+    await ethOracle.setLatestPrice(ethers.parseUnits("2305", 18));
+
     await deployQuoterV2Mock(serviceRegistry);
 
     const { strategy } = await deployAAVEv3StrategyAny(
@@ -105,6 +109,7 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
       flashLender,
       strategy,
       oracle,
+      ethOracle,
       settings,
       config,
     };
@@ -119,11 +124,11 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
       })
     ).to.changeEtherBalances([owner.address], [ethers.parseUnits("10", 18)]);
     expect(await strategy.getPosition()).to.deep.equal([
-      45707317950000000000n,
-      35740737730000000000n,
-      781947822n,
+      45702851552764668112n,
+      35740737736704000000n,
+      782024239n,
     ]);
-    expect(await strategy.deployed()).to.equal(9966580220000000000n);
+    expect(await strategy.deployed()).to.equal(9962113816060668112n);
   });
 
   it("Test Undeploy", async function () {
@@ -134,16 +139,16 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
       value: ethers.parseUnits("10", 18),
     });
     expect(await strategy.getPosition()).to.deep.equal([
-      45707317950000000000n,
-      35740737730000000000n,
-      781947822n,
+      45702851552764668112n,
+      35740737736704000000n,
+      782024239n,
     ]);
-    expect(await strategy.deployed()).to.equal(9966580220000000000n);
+    expect(await strategy.deployed()).to.equal(9962113816060668112n);
     // Receive ~=5 ETH
     await  expect(
       strategy.undeploy(ethers.parseUnits("5", 18))
     ).to.changeEtherBalances(
-      [owner.address], [4980923249912189805n]
+      [owner.address], [4983156389718359984n]
     );
   
   });
@@ -269,7 +274,35 @@ describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
         ethers.parseUnits("1", 18),        
       )
     ).to.be.revertedWith("Invalid Flash loan sender");
-
   })
-  
+
+  it("Rebalance - Fails with outdated prices", async ()=> {    
+    const { weth, serviceRegistry, settings, strategy, oracle, ethOracle} =
+    await loadFixture(deployFunction);    
+    // Deposit 10 ETH
+    await strategy.deploy({
+      value: ethers.parseUnits("10", 18),
+    });
+    await settings.setOraclePriceMaxAge(60);
+    // advance time by one hour and mine a new block
+    await time.increase(3600);
+    await expect(
+      strategy.harvest()
+    ).to.be.revertedWith("Oracle Price is outdated");
+  })
+
+  it("Rebalance - Success when the price is updated", async ()=> {    
+    const { weth, serviceRegistry, settings, strategy, oracle, ethOracle} =
+    await loadFixture(deployFunction);    
+    // Deposit 10 ETH
+    await strategy.deploy({
+      value: ethers.parseUnits("10", 18),
+    });
+    await settings.setOraclePriceMaxAge(4800);
+    // advance time by one hour and mine a new block
+    await time.increase(3600);
+    await strategy.harvest()
+    expect(true).to.be.equal(true);
+  });
+
 });

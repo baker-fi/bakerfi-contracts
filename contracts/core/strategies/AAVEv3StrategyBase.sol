@@ -33,6 +33,7 @@ import {UseIERC20} from "../hooks/UseIERC20.sol";
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import { ETH_USD_ORACLE_CONTRACT } from "../ServiceRegistry.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * @title AAVE v3 Recursive Staking Strategy
@@ -130,7 +131,7 @@ abstract contract AAVEv3StrategyBase is
      * Requirements:
      * - The caller must be in the initializing state.
      * - The initial owner address must not be the zero address.
-     * - The ETH/USD oracle and collateral/ETH oracle addresses must be valid.
+     * - The ETH/USD oracle and collateral/USD oracle addresses must be valid.
      * - The EMode category must be successfully set for the AAVEv3 strategy.
      * - Approval allowances must be successfully set for WETH and the collateral ERC20 token for UniSwap.
      */
@@ -191,7 +192,7 @@ abstract contract AAVEv3StrategyBase is
         view
         returns (uint256 totalCollateralInEth, uint256 totalDebtInEth, uint256 loanToValue)
     {
-        (totalCollateralInEth, totalDebtInEth) = _getPosition();
+        (totalCollateralInEth, totalDebtInEth) = _getPosition(0);
         if (totalCollateralInEth == 0) {
             loanToValue = 0;
         } else {
@@ -212,7 +213,7 @@ abstract contract AAVEv3StrategyBase is
      * - The AAVEv3 strategy must be properly configured and initialized.
      */
     function deployed() public view returns (uint256 totalOwnedAssets) {
-        (uint256 totalCollateralInEth, uint256 totalDebtInEth) = _getPosition();
+        (uint256 totalCollateralInEth, uint256 totalDebtInEth) = _getPosition(0);
         totalOwnedAssets = totalCollateralInEth > totalDebtInEth ? (totalCollateralInEth - totalDebtInEth): 0;
     }
 
@@ -278,7 +279,7 @@ abstract contract AAVEv3StrategyBase is
      * - The AAVEv3 strategy must be properly configured and initialized.
      */
     function _supplyBorrow(uint256 amount, uint256 loanAmount, uint256 fee) private {
-        uint256 collateralIn = _convertFromWETH(amount + loanAmount);
+        uint256 collateralIn = _convertFromWETH(amount + loanAmount);   
         // Deposit on AAVE Collateral and Borrow ETH
         _supplyAndBorrow(ierc20A(), collateralIn, wETHA(), loanAmount + fee);
         uint256 collateralInETH = _toWETH(collateralIn);       
@@ -487,7 +488,10 @@ abstract contract AAVEv3StrategyBase is
      * @return balanceChange The change in strategy balance as an int256 value.
      */
     function harvest() external override onlyOwner nonReentrant returns (int256 balanceChange) {
-        (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition();
+
+        (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition(
+            settings().getOraclePriceMaxAge()
+        );
         
         if (totalCollateralBaseInEth == 0 || 
             totalDebtBaseInEth == 0) {
@@ -548,22 +552,31 @@ abstract contract AAVEv3StrategyBase is
      * @return totalCollateralInEth The total collateral position in ETH.
      * @return totalDebtInEth The total debt position in ETH.
      */
-    function _getPosition()
+    function _getPosition(uint priceMaxAge)
         internal
         view
         returns (uint256 totalCollateralInEth, uint256 totalDebtInEth)
     {
         totalCollateralInEth = 0;
         totalDebtInEth = 0;
-        (uint256 totalCollateralBase, uint256 totalDebtBase, , , , ) = aaveV3().getUserAccountData(
-            address(this)
-        );
-        uint256 price = _ethUSDOracle.getLatestPrice();
-        if (totalCollateralBase != 0) {
-            totalCollateralInEth = (totalCollateralBase * 1e28) / price;
+
+        (DataTypes.ReserveData memory wethReserve) =  (aaveV3().getReserveData(wETHA()));
+        (DataTypes.ReserveData memory colleteralReserve) = (aaveV3().getReserveData(ierc20A()));
+
+        uint256 wethBalance = IERC20(wethReserve.variableDebtTokenAddress).balanceOf(address(this));
+        uint256 collateralBalance = IERC20(colleteralReserve.aTokenAddress).balanceOf(address(this));
+             
+        if (collateralBalance != 0) {
+            IOracle.Price memory ethPrice = _ethUSDOracle.getLatestPrice();
+            IOracle.Price memory collateralPrice = _collateralOracle.getLatestPrice();
+            require(priceMaxAge == 0 || 
+                (priceMaxAge > 0  && (ethPrice.lastUpdate  >= (block.timestamp - priceMaxAge) )) ||
+                (priceMaxAge > 0  && (collateralPrice.lastUpdate >= (block.timestamp - priceMaxAge)))
+            , "Oracle Price is outdated");
+            totalCollateralInEth = (collateralBalance * collateralPrice.price) / ethPrice.price ;
         }
-        if (totalDebtBase != 0) {
-            totalDebtInEth = (totalDebtBase * 1e28) / price;
+        if (wethBalance != 0) {
+            totalDebtInEth = wethBalance;
         }
     }
 
@@ -585,7 +598,7 @@ abstract contract AAVEv3StrategyBase is
         uint256 amount,
         address payable receiver
     ) private returns (uint256 undeployedAmount) {
-        (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition();
+        (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition(0);
         // When the position is in liquidation state revert the transaction
         require(
             totalCollateralBaseInEth > totalDebtBaseInEth, 
@@ -656,8 +669,8 @@ abstract contract AAVEv3StrategyBase is
      */
     function _toWETH(uint256 amountIn) internal view returns (uint256 amountOut) {
         amountOut =
-            (amountIn * _collateralOracle.getLatestPrice()) /
-            _collateralOracle.getPrecision();
+            (amountIn * _collateralOracle.getLatestPrice().price) /
+            _ethUSDOracle.getLatestPrice().price;
     }
 
     /**
@@ -670,8 +683,8 @@ abstract contract AAVEv3StrategyBase is
      */
     function _fromWETH(uint256 amountIn) internal view returns (uint256 amountOut) {
         amountOut =
-            (amountIn * _collateralOracle.getPrecision()) /
-            _collateralOracle.getLatestPrice();
+            (amountIn * _ethUSDOracle.getLatestPrice().price) /
+            _collateralOracle.getLatestPrice().price;
     }
     
 }

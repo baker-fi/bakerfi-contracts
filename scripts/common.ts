@@ -1,4 +1,5 @@
 import { ethers } from "hardhat";
+import {feeds} from "./config";
 
 export async function deployFlashLender(
   serviceRegistry,
@@ -266,9 +267,27 @@ export async function deployOracleMock(serviceRegistry, name) {
   return oracle;
 }
 
-export async function deployETHOracle(serviceRegistry, chainLinkAddress) {
-  const oracleContract = await ethers.getContractFactory("ETHOracle");
-  const oracle = await oracleContract.deploy(chainLinkAddress);
+
+export async function deployPythMock(serviceRegistry) {
+  const PythMock = await ethers.getContractFactory("PythMock");
+  const pyth = await PythMock.deploy();
+  await pyth.waitForDeployment();
+  await serviceRegistry.registerService(
+    ethers.keccak256(Buffer.from("Pyth")),
+    await pyth.getAddress()
+  );
+  return pyth;
+}
+
+export async function deployETHOracle(
+  serviceRegistry, 
+  pyth
+) {
+  const oracleContract = await ethers.getContractFactory("PythOracle");
+  const oracle = await oracleContract.deploy(
+    feeds.ETHUSDFeedId,
+    pyth
+  );
   await oracle.waitForDeployment();
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from("ETH/USD Oracle")),
@@ -277,28 +296,36 @@ export async function deployETHOracle(serviceRegistry, chainLinkAddress) {
   return oracle;
 }
 
-export async function deployCbETHToETHOracle(serviceRegistry, chainLinkAddress) {
-  const oracleContract = await ethers.getContractFactory("CbETHToETHOracle");
-  const oracle = await oracleContract.deploy(chainLinkAddress);
+export async function deployCbETHToUSDOracle(
+  serviceRegistry, 
+  pyth
+) {
+  const oracleContract = await ethers.getContractFactory("PythOracle");
+  const oracle = await oracleContract.deploy(
+    feeds.CBETHUSDFeedId,
+    pyth
+  );
   await oracle.waitForDeployment();
   await serviceRegistry.registerService(
-    ethers.keccak256(Buffer.from("cbETH/ETH Oracle")),
+    ethers.keccak256(Buffer.from("cbETH/USD Oracle")),
     await oracle.getAddress()
   );
+
   return oracle;
 }
 
-export async function deploWSTETHToETHOracle(
+export async function deployWSTETHToUSDOracle(
   serviceRegistry,
-  chainLinkAddress
+  pyth
 ) {
-  const WSETHToETH = await ethers.getContractFactory("WstETHToETHOracle");
+  const WSETHToETH = await ethers.getContractFactory("PythOracle");
   const oracle = await WSETHToETH.deploy(
-    chainLinkAddress
+    feeds.WSETHUSDFeedId,
+    pyth
   );
   await oracle.waitForDeployment();
   await serviceRegistry.registerService(
-    ethers.keccak256(Buffer.from("wstETH/ETH Oracle")),
+    ethers.keccak256(Buffer.from("wstETH/USD Oracle")),
     await oracle.getAddress()
   );
   return oracle;
