@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
 
-contract BakeryGovernor is
+contract BakerFiGovernor is
     Governor,
     GovernorCompatibilityBravo,
     GovernorVotes,
@@ -15,14 +15,14 @@ contract BakeryGovernor is
     GovernorTimelockControl
 {
 
-    uint8 private constant MIN_QUORUM = 4 ;// 4%
-    uint256 private constant VOTING_DELAY =  7200 ; // 1 day
-    uint256 private constant VOTING_PERIOD =  50400 ; // 1 day
+    uint8 private constant MIN_QUORUM = 10 ;// 4%
+    uint256 private constant VOTING_DELAY =  1 days ; // 1 day
+    uint256 private constant VOTING_PERIOD =  1 weeks ; // 1 day
 
     constructor(
         IVotes _token,
         TimelockController _timelock
-    ) Governor("BakeryGovernor") 
+    ) Governor("BakerFiGovernor") 
       GovernorVotes(_token) 
       GovernorVotesQuorumFraction(MIN_QUORUM) 
       GovernorTimelockControl(_timelock) {}
