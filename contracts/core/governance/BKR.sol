@@ -22,7 +22,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
  */
 contract BKR is ERC20, Ownable, ERC20Permit, ERC20Votes {
 
-    string private constant _NAME = "Baker";
+    string private constant _NAME = "BakerFi";
     string private constant _SYMBOL = "BKR";
     uint256 private immutable _MAX_SUPPLY = 500_000_000*1e18; // 500M
 
