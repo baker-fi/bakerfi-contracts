@@ -168,6 +168,12 @@ npm run doc
 echidna . --config echidna.yaml  --contract VaultFuzzing
 ```
 
+**Verify a contract** 
+
+```
+npx hardhat verify --network mainnet <contract_address> <args>...
+```
+
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
