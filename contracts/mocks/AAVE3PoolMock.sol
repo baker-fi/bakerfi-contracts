@@ -86,8 +86,8 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
     function supply(
         address asset,
         uint256 amount,
-        address onBehalfOf,
-        uint16 referralCode
+        address,
+        uint16
     ) external override {
         require(asset == address(_collateralToken), "Invalid Token for supply");
         require(amount > 0, "Amount must be greater than 0");
@@ -112,7 +112,7 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
     function withdraw(
         address asset,
         uint256 amount,
-        address to
+        address
     ) external override returns (uint256) {
         require(asset == address(_collateralToken));
         require(asset == address(_collateralToken));
@@ -127,8 +127,8 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
     function borrow(
         address asset,
         uint256 amount,
-        uint256 interestRateMode,
-        uint16 referralCode,
+        uint256,
+        uint16,
         address onBehalfOf
     ) external override {
         require(users[msg.sender].depositAmount - users[msg.sender].borrowedAmount >= amount, "Not Enough Balance to Borrow");
@@ -141,7 +141,7 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
     function repay(
         address asset,
         uint256 amount,
-        uint256 interestRateMode,
+        uint256,
         address onBehalfOf
     ) external override returns (uint256) {
         users[msg.sender].borrowedAmount -= amount;
@@ -164,13 +164,14 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
     ) external override returns (uint256) {}
 
     function repayWithATokens(
-        address asset,
+        address,
         uint256 amount,
-        uint256 interestRateMode
+        uint256
     ) external override returns (uint256) {
         users[msg.sender].depositAmount-= amount;
         users[msg.sender].borrowedAmount -= amount*_collateralPerEth/1e9;
         _burn(msg.sender, amount);
+        return amount;
     }
 
     function swapBorrowRateMode(address asset, uint256 interestRateMode) external override {}
@@ -315,7 +316,7 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
         _emode = categoryId;
     }
 
-    function getUserEMode(address user) external view override returns (uint256) {
+    function getUserEMode(address) external view override returns (uint256) {
          return _emode;
     }
 

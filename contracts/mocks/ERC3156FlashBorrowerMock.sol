@@ -36,11 +36,11 @@ contract FlashBorrowerMock is IERC3156FlashBorrowerUpgradeable, UseFlashLender {
     }
 
     function onFlashLoan(
-        address initiator,
+        address,
         address token,
         uint256 amount,
-        uint256 fee,
-        bytes calldata data
+        uint256,
+        bytes calldata
     ) external override returns (bytes32) {
         _totalBorrowed[token]+=amount;
         return CALLBACK_SUCCESS;

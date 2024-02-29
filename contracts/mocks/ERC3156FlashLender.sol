@@ -28,11 +28,11 @@ contract MockFlashLender is IERC3156FlashLender {
         _flashLoanFee = fee;
     }
      
-    function maxFlashLoan(address token) external view override returns (uint256) {
+    function maxFlashLoan(address) external view override returns (uint256) {
         return _asset.balanceOf(address(this));
     }
 
-    function flashFee(address token, uint256 amount) external view  override returns (uint256) {
+    function flashFee(address, uint256 amount) external view  override returns (uint256) {
         return amount * _flashLoanFee / PERCENTAGE_PRECISION;
     }
 
