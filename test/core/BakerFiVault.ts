@@ -129,15 +129,16 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
   it("Deposit 10TH", async function () {
     const { owner, vault, strategy} = await loadFixture(deployFunction);
     const depositAmount = ethers.parseUnits("10", 18);
-    await expect(vault.deposit(owner.address, { value: depositAmount }))
+    const tx = vault.deposit(owner.address, { value: depositAmount });
+    await expect(tx)
       .to.emit(vault, "Deposit")
       .withArgs(
         owner.address,
         owner.address,
         ethers.parseUnits("10", 18),
         9962113816060668112n
-      )
-      .to.changeEtherBalances([owner.address], [-ethers.parseUnits("10", 18)]);
+      );
+    await expect(tx).to.changeEtherBalances([owner.address], [-ethers.parseUnits("10", 18)]);
 
     expect(await vault.symbol()).to.equal("brETH");
     expect(await vault.name()).to.equal("Bread ETH");
@@ -158,11 +159,11 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     await vault.deposit(owner.address, {
       value: depositAmount,
     });
-
-    await expect(vault.withdraw(ethers.parseUnits("1", 18)))
+    const tx = vault.withdraw(ethers.parseUnits("1", 18));
+    await expect(tx)
       .to.emit(vault, "Withdraw")
-      .withArgs(owner.address, 4969613303000000000n, ethers.parseUnits("1", 18))
-      .to.changeEtherBalances([owner.address], [996631271986539459n]);
+      .withArgs(owner.address, 996631271986539459n, ethers.parseUnits("1", 18));
+    await expect(tx).to.changeEtherBalances([owner.address], [996631271986539459n]);
     expect(await vault.balanceOf(owner.address)).to.equal(8962113816060668112n);
     expect((await strategy.getPosition())[0]).to.equal(41115185511636981793n);
     expect((await strategy.getPosition())[1]).to.equal(32153071688990855996n);
@@ -307,11 +308,11 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     await vault.deposit(owner.address, {
       value: depositAmount,
     });
-
-    await expect(vault.withdraw(ethers.parseUnits("5", 18)))
+    const tx = vault.withdraw(ethers.parseUnits("5", 18));
+    await expect(tx)
       .to.emit(vault, "Withdraw")
-      .withArgs("0x0000000000000000000000000000000000000000", 0n, 0n)
-      .to.changeEtherBalances([owner.address], [5001090809999999998n]);
+      .withArgs("0xf15CC0ccBdDA041e2508B829541917823222F364", 5001090809999999998n, 5000000000000000000n);
+    await expect(tx).to.changeEtherBalances([owner.address], [5001090809999999998n]);
   });
 
   it("Adjust Debt with No Flash Loan Fees", async () => {

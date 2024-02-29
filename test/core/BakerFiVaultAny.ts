@@ -125,13 +125,12 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
     const { owner, vault, weth, aave3Pool, strategy, cbETH, flashLender } =
       await loadFixture(deployFunction);
     await flashLender.setFlashLoanFee(0);
-    await expect(
-      await vault.deposit(owner.address, {
-        value: ethers.parseUnits("10", 18),
-      })
-    )
-      .to.changeEtherBalances([owner.address], [ethers.parseUnits("-10", 18)])
-      .to.emit(aave3Pool, "Supply")
+    const tx =  await vault.deposit(owner.address, {
+      value: ethers.parseUnits("10", 18),
+    });
+    await expect(tx)
+      .to.changeEtherBalances([owner.address], [ethers.parseUnits("-10", 18)]);
+    await expect(tx).to.emit(aave3Pool, "Supply")
       .withArgs(
         await cbETH.getAddress(),
         await strategy.getAddress(),
@@ -139,7 +138,7 @@ describeif(network.name === "hardhat")("BakerFi Any Vault", function () {
         39603410838016000000n,
         0
       )
-      .to.emit(aave3Pool, "Borrow")
+    await expect(tx).to.emit(aave3Pool, "Borrow")
       .withArgs(
         await weth.getAddress(),
         await strategy.getAddress(),
