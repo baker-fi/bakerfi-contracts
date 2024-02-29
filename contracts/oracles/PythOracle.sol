@@ -23,7 +23,7 @@ contract PythOracle is IOracle {
     /**
      * Get the Price precision
      */
-    function getPrecision() public view returns (uint256) {
+    function getPrecision() public pure returns (uint256) {
         return _precisison;
     }
 

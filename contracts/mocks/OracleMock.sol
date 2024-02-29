@@ -15,7 +15,7 @@ contract OracleMock is IOracle {
         _lastUpdate = block.timestamp;
     }
 
-    function getPrecision() external view override returns (uint256) {
+    function getPrecision() external pure override returns (uint256) {
         return PRICE_PRECISION;
     }
 

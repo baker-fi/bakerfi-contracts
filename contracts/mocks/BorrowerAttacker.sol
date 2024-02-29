@@ -43,11 +43,11 @@ contract BorrowerAttacker is IERC3156FlashBorrowerUpgradeable,
     }
 
     function onFlashLoan(
-        address initiator,
+        address,
         address token,
         uint256 amount,
-        uint256 fee,
-        bytes calldata data
+        uint256,
+        bytes calldata
     ) external override returns (bytes32) {
         IERC3156FlashBorrowerUpgradeable(strategyA()).onFlashLoan(
             strategyA(),

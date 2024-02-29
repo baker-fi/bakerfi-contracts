@@ -17,10 +17,10 @@ contract WstETHMock is IWStETH, ERC20 {
     uint256 private _exchangeRate = 8665*(1e5);
     uint256 public PRICE_PRECISION = 1000*(1e6);
 
-    constructor(IERC20 stETH)
+    constructor(IERC20 stETHToken)
         ERC20("Wrapped liquid staked Ether 2.0", "wstETH")
     {
-        _stETH = stETH;
+        _stETH = stETHToken;
     }
 
    receive() external payable {

@@ -31,10 +31,9 @@ contract QuoterV2Mock is IQuoterV2 {
      
     }
 
-    function quoteExactInputSingle(
-        QuoteExactInputSingleParams memory params
-    )
+    function quoteExactInputSingle(QuoteExactInputSingleParams memory params)
         external
+        view
         returns (
             uint256 amountOut,
             uint160 sqrtPriceX96After,
@@ -65,6 +64,7 @@ contract QuoterV2Mock is IQuoterV2 {
         QuoteExactOutputSingleParams memory params
     )
         external
+        view
         returns (
             uint256 amountIn,
             uint160 sqrtPriceX96After,
