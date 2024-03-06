@@ -10,7 +10,7 @@ pragma solidity ^0.8.18;
  * @notice Deploys ETH and harvests yield 
  * 
  */
-interface IStrategy {
+abstract contract IStrategy {
         /**
      * @dev Emitted when a strategy is deployed.
      *
@@ -64,14 +64,14 @@ interface IStrategy {
      * @return deployedAmount The amount deployed in the AAVEv3 strategy after leveraging.
      *
      */
-    function deploy() external payable returns (uint256 deployedAmount);
+    function deploy(uint256 amount) virtual internal returns (uint256 deployedAmount);
 
     /**
      * @notice Harvests the strategy by yield and rebalances the strategy
      *
      * @return balanceChange The change in strategy balance as an int256 value.
      */
-    function harvest() external returns (int256 balanceChange);
+    function harvest() virtual internal  returns (int256 balanceChange);
     
     /**
      * @dev Initiates the undeployment process by adjusting the contract's position and performing a flash loan.
@@ -81,12 +81,12 @@ interface IStrategy {
      */
     function undeploy(
         uint256 amount
-    ) external returns (uint256 undeployedAmount);
+    ) virtual internal  returns (uint256 undeployedAmount);
 
     /**
      * @dev Retrieves the total owned assets by the Strategy in ETH
      *
      * @return assets The total owned assets in Ether.
      */ 
-    function deployed() external view returns (uint256 assets);    
+    function deployed() virtual internal view returns (uint256 assets);    
 }

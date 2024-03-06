@@ -10,23 +10,23 @@ contract StrategyMock is IStrategy {
     uint256                  _debRatio = 50; // 100
     int256                   _havestPerCall  = 0; // 100
 
-    function deploy() external payable override returns (uint256 amountAdded) {
-        emit StrategyAmountUpdate(msg.value);
+    function deploy(uint256 amount) virtual internal override returns (uint256 amountAdded) {
+        emit StrategyAmountUpdate(amount);
         return msg.value;
     }
 
-    function harvest() external view override returns (int256 balanceChange) {
+    function harvest() virtual internal view override returns (int256 balanceChange) {
         return _havestPerCall;
     }
 
-    function undeploy(uint256 amount) external override returns (uint256 actualAmount) {
+    function undeploy(uint256 amount) virtual internal override returns (uint256 actualAmount) {
         require(address(this).balance >= amount);
         payable(msg.sender).sendValue(amount);
         emit StrategyAmountUpdate(address(this).balance- amount);
         return amount;
     }
 
-    function deployed() external view override returns (uint256 actualAmount) {
+    function deployed() virtual internal view override returns (uint256 actualAmount) {
         uint256 col = address(this).balance;
         uint256 deb = col * _debRatio / 100;        
         actualAmount =  col >= deb ? col- deb : 0;

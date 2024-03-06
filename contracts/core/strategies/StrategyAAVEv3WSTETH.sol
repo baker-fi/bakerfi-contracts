@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import {AAVEv3StrategyBase} from "./AAVEv3StrategyBase.sol";
+import {StrategyAAVEv3Base} from "./StrategyAAVEv3Base.sol";
 import {ServiceRegistry} from "../../core/ServiceRegistry.sol";
 import {UseWETH} from "../hooks/UseWETH.sol";
 import {UseStETH} from "../hooks/UseStETH.sol";
@@ -30,17 +30,19 @@ import { WST_ETH_CONTRACT, WSTETH_USD_ORACLE_CONTRACT } from "../ServiceRegistry
  * mechanisms to convert from collateral token to debt token.
  * 
  */
-contract AAVEv3StrategyWstETH is Initializable, AAVEv3StrategyBase, UseWstETH, UseStETH {
+contract StrategyAAVEv3WSTETH is StrategyAAVEv3Base, UseWstETH, UseStETH {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using AddressUpgradeable for address payable;
     // solhint-disable no-empty-blocks        
-    function initialize(
+    
+    function initializeStrategy(
         address initialOwner,
         ServiceRegistry registry,
         uint24 swapFeeTier,
         uint8 eModeCategory
     )  public initializer {
-        _initializeAAVEv3StrategyBase(
+        
+        initializeStrategyBase(
             initialOwner, 
             registry, 
             WST_ETH_CONTRACT, 

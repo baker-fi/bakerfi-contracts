@@ -5,19 +5,18 @@ pragma experimental ABIEncoderV2;
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import {Rebase, RebaseLibrary} from "../libraries/BoringRebase.sol";
-import {ServiceRegistry} from "../core/ServiceRegistry.sol";
-import {ISwapHandler} from "../interfaces/core/ISwapHandler.sol";
-import {IVault} from "../interfaces/core/IVault.sol";
-import {IStrategy} from "../interfaces/core/IStrategy.sol";
+import {Rebase, RebaseLibrary} from "../../libraries/BoringRebase.sol";
+import {ServiceRegistry} from "../../core/ServiceRegistry.sol";
+import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
+import {IStrategyVault} from "../../interfaces/core/IStrategyVault.sol";
+import {StrategyAAVEv3} from "../strategies/StrategyAAVEv3.sol";
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
-import {PERCENTAGE_PRECISION} from "./Constants.sol";
+import {PERCENTAGE_PRECISION} from "../Constants.sol";
 import {ERC20PermitUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20PermitUpgradeable.sol";
-import {UseSettings} from "./hooks/UseSettings.sol";
+import {UseSettings} from "../hooks/UseSettings.sol";
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-
 /**
  * @title BakerFi Vault 🏦🧑‍🍳
  *
@@ -42,14 +41,14 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
  * The Contract is upgradable and can use a BakerProxy in front of.
  * 
  */
-contract BakerFiVault is 
-    OwnableUpgradeable,
+abstract contract VaultBase is 
     PausableUpgradeable,     
-    ReentrancyGuardUpgradeable,
     ERC20PermitUpgradeable, 
-    UseSettings,
-    IVault
+    ReentrancyGuardUpgradeable,
+    IStrategyVault,
+    UseSettings
 {
+
     using RebaseLibrary for Rebase;
     using SafeERC20Upgradeable for ERC20Upgradeable;
     using AddressUpgradeable for address;
@@ -82,7 +81,7 @@ contract BakerFiVault is
      * This private state variable holds the reference to the IStrategy contract,
      * which defines the strategy for managing assets within the current contract.
      */
-    IStrategy       private _strategy;
+   // IStrategy       private _strategy;
 
     /**
      * @dev Modifier to restrict access to addresses that are whitelisted.
@@ -96,34 +95,14 @@ contract BakerFiVault is
       _;
     }
 
-    /**
-     * @dev Initializes the contract with specified parameters.
-     *
-     * This function is designed to be called only once during the contract deployment.
-     * It sets up the initial state of the contract, including ERC20 and ERC20Permit
-     * initializations, ownership transfer, and configuration of the ServiceRegistry
-     * and Strategy.
-     *
-     * @param initialOwner The address that will be set as the initial owner of the contract.
-     * @param registry The ServiceRegistry contract to be associated with this contract.
-     * @param strategy The IStrategy contract to be set as the strategy for this contract.
-     *
-     * Emits an {OwnershipTransferred} event and initializes ERC20 and ERC20Permit features.
-     * It also ensures that the initialOwner is a valid address and sets up the ServiceRegistry
-     * and Strategy for the contract.
-     */
-    function initialize(
-        address initialOwner,
-        ServiceRegistry registry,
-        IStrategy strategy
-    ) public initializer {
-        __ERC20Permit_init(_NAME);
-        __ERC20_init(_NAME, _SYMBOL);
+
+    function initializeBaseVault(
+        ServiceRegistry registry
+    ) public {              
         _initUseSettings(registry);
-        require(initialOwner != address(0), "Invalid Owner Address");
-        _transferOwnership(initialOwner);
+        __ERC20Permit_init(_NAME);
+        __ERC20_init(_NAME, _SYMBOL);        
         _registry = registry;
-        _strategy = strategy;
     }
 
     /**
@@ -140,7 +119,7 @@ contract BakerFiVault is
     function rebalance() external override nonReentrant returns (int256 balanceChange)  {
         uint256 currentPos = totalAssets();
         if (currentPos > 0) {
-            balanceChange = _strategy.harvest();           
+            balanceChange = harvest();           
             if (balanceChange > 0) {
                 if (
                     settings().getFeeReceiver() != address(this) &&
@@ -199,13 +178,8 @@ contract BakerFiVault is
             uint256 afterDeposit = msg.value + (balanceOf(msg.sender) * _tokenPerETH() /1e18);
             require(afterDeposit <= maxDeposit, "Max Deposit Reached");
         }
-        
-        bytes memory result = (address(_strategy)).functionCallWithValue(
-            abi.encodeWithSignature("deploy()"), 
-            msg.value
-        );
        
-        uint256 amount = abi.decode(result, (uint256));
+        uint256 amount = deploy(msg.value);
         shares = total.toBase(amount, false);
         _mint(receiver, shares);
         emit Deposit(msg.sender, receiver, msg.value, shares);
@@ -236,7 +210,7 @@ contract BakerFiVault is
          */
         uint256 withdrawAmount = shares * totalAssets() / totalSupply();
         require(withdrawAmount > 0, "No Assets to withdraw");
-        amount = _strategy.undeploy(withdrawAmount);
+        amount = undeploy(withdrawAmount);
         uint256 fee = 0;
         // Withdraw ETh to Receiver and pay withdrawal Fees
         if (settings().getWithdrawalFee() != 0  && settings().getFeeReceiver() != address(0)) {
@@ -259,7 +233,7 @@ contract BakerFiVault is
      * @return amount The total assets under management by the strategy.
      */
     function totalAssets() public override view returns (uint256 amount) {
-        amount = _strategy.deployed();
+        amount = deployed();
     } 
 
     /**
@@ -310,4 +284,7 @@ contract BakerFiVault is
         }
         return totalSupply() * 1 ether / position;
     }
+
+
+
 }

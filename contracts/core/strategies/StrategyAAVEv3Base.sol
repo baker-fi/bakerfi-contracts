@@ -30,7 +30,6 @@ import {UseAAVEv3} from "../hooks/UseAAVEv3.sol";
 import {UseServiceRegistry} from "../hooks/UseServiceRegistry.sol";
 import {UseSwapper} from "../hooks/UseSwapper.sol";
 import {UseIERC20} from "../hooks/UseIERC20.sol";
-import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import { ETH_USD_ORACLE_CONTRACT } from "../ServiceRegistry.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -75,7 +74,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
  * @notice The Contract is abstract and needs to be extended to implement the
  * conversion between WETH and the collateral
  */
-abstract contract AAVEv3StrategyBase is
+abstract contract StrategyAAVEv3Base is
     OwnableUpgradeable,
     IStrategy,
     IERC3156FlashBorrowerUpgradeable,
@@ -86,7 +85,6 @@ abstract contract AAVEv3StrategyBase is
     UseSwapper,
     UseFlashLender,
     UseUniQuoter,
-    ReentrancyGuardUpgradeable,
     UseLeverage,
     UseSettings
 {
@@ -135,7 +133,7 @@ abstract contract AAVEv3StrategyBase is
      * - The EMode category must be successfully set for the AAVEv3 strategy.
      * - Approval allowances must be successfully set for WETH and the collateral ERC20 token for UniSwap.
      */
-    function _initializeAAVEv3StrategyBase(
+    function initializeStrategyBase(
         address initialOwner,
         ServiceRegistry registry,
         bytes32 collateralIERC20,
@@ -166,14 +164,6 @@ abstract contract AAVEv3StrategyBase is
         require(ierc20().approve(uniRouterA(), 2**256 - 1));
     }
     
-    /**
-     * @dev Fallback function to receive Ether.
-     *
-     * This function is automatically called when the contract receives Ether without a specific function call.
-     * It allows the contract to accept incoming Ether transactions.
-     */
-    receive() external payable {}
-
     /**
      * @dev Retrieves the position details including total collateral, total debt, and loan-to-value ratio.
      *
@@ -212,7 +202,7 @@ abstract contract AAVEv3StrategyBase is
      * Requirements:
      * - The AAVEv3 strategy must be properly configured and initialized.
      */
-    function deployed() public view returns (uint256 totalOwnedAssets) {
+    function deployed() virtual internal override view  returns (uint256 totalOwnedAssets) {
         (uint256 totalCollateralInEth, uint256 totalDebtInEth) = _getPosition(0);
         totalOwnedAssets = totalCollateralInEth > totalDebtInEth ? (totalCollateralInEth - totalDebtInEth): 0;
     }
@@ -231,7 +221,7 @@ abstract contract AAVEv3StrategyBase is
      * - The received Ether amount must not be zero.
      * - The AAVEv3 strategy must be properly configured and initialized.
      */
-    function deploy() external payable onlyOwner nonReentrant returns (uint256 deployedAmount) {
+    function deploy(uint256 amount) virtual internal override onlyOwner returns (uint256 deployedAmount) {
         require(msg.value != 0, "No Zero deposit Allowed");
         // 1. Wrap Ethereum
         address(wETHA()).functionCallWithValue(
@@ -244,7 +234,7 @@ abstract contract AAVEv3StrategyBase is
             settings().getLoanToValue(), 
             settings().getNrLoops()
         );
-        uint256 loanAmount = leverage - msg.value;
+        uint256 loanAmount = leverage - amount;
         uint256 fee = flashLender().flashFee(wETHA(), loanAmount);
         //§uint256 allowance = wETH().allowance(address(this), flashLenderA());
         require(wETH().approve(flashLenderA(), loanAmount + fee));        
@@ -253,7 +243,7 @@ abstract contract AAVEv3StrategyBase is
                 IERC3156FlashBorrowerUpgradeable(this),
                 wETHA(),
                 loanAmount,
-                abi.encode(msg.value, msg.sender, FlashLoanAction.SUPPLY_BOORROW)
+                abi.encode(amount, msg.sender, FlashLoanAction.SUPPLY_BOORROW)
             ),
             "Failed to run Flash Loan"
         );
@@ -440,7 +430,7 @@ abstract contract AAVEv3StrategyBase is
      */
     function undeploy(
         uint256 amount
-    ) external onlyOwner nonReentrant returns (uint256 undeployedAmount) {
+    ) virtual internal override onlyOwner returns (uint256 undeployedAmount) {
         undeployedAmount = _undeploy(amount, payable(msg.sender));
     }
 
@@ -487,7 +477,7 @@ abstract contract AAVEv3StrategyBase is
      *
      * @return balanceChange The change in strategy balance as an int256 value.
      */
-    function harvest() external override onlyOwner nonReentrant returns (int256 balanceChange) {
+    function harvest() virtual internal override onlyOwner returns (int256 balanceChange) {
 
         (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition(
             settings().getOraclePriceMaxAge()
