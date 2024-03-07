@@ -190,7 +190,7 @@ async function changeSettings(
   vaultAddress: string,
 ) {
   const settings = await hre.ethers.getContractAt("Settings", settingsAddress);
-  const vault = await hre.ethers.getContractAt("BakerFiVault", vaultAddress);
+  const vault = await hre.ethers.getContractAt("Vault", vaultAddress);
   const strategy = await hre.ethers.getContractAt("StrategyAAVEv3", strategyAddress);
 
   spinner.text = "Transferring Ownership ...";    

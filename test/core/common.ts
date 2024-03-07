@@ -124,7 +124,7 @@ export async function deployBase() {
     await strategyProxyDeploy.getAddress()
   );
   const vaultProxy = await ethers.getContractAt(
-    "BakerFiVault",
+    "Vault",
     await vaultProxyDeploy.getAddress()
   );
 
@@ -255,7 +255,7 @@ export async function deployOptimism() {
     await strategyProxyDeploy.getAddress()
   );
   const vaultProxy = await ethers.getContractAt(
-    "BakerFiVault",
+    "Vault",
     await vaultProxyDeploy.getAddress()
   );
 
@@ -383,7 +383,7 @@ export async function deployEthereum() {
     await strategyProxyDeploy.getAddress()
   );
   const vaultProxy = await ethers.getContractAt(
-    "BakerFiVault",
+    "Vault",
     await vaultProxyDeploy.getAddress()
   );
 

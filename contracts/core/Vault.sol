@@ -42,7 +42,7 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
  * The Contract is upgradable and can use a BakerProxy in front of.
  * 
  */
-contract BakerFiVault is 
+contract Vault is 
     OwnableUpgradeable,
     PausableUpgradeable,     
     ReentrancyGuardUpgradeable,
