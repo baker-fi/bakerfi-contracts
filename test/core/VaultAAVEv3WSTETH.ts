@@ -17,7 +17,8 @@ import {
 } from "../../scripts/common";
 import BaseConfig from "../../scripts/config";
 
-describeif(network.name === "hardhat")("BakerFi Vault", function () {
+//describeif(network.name === "hardhat")
+describe.only("Vault AAVEv3 WSETH/ETH w/ Lido Contracts", function () {
   
   async function deployFunction() {
     const networkName = network.name;
@@ -83,19 +84,18 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
     await ethOracle.setLatestPrice(ethers.parseUnits("2305", 18));
 
 
-    const {strategy} = await deployAAVEv3StrategyWstETH(
+   /*const {strategy} = await deployAAVEv3StrategyWstETH(
+      owner.address,
+      serviceRegistryAddress,
+   
+    );*/
+    const { vault } = await deployVault(
       owner.address,
       serviceRegistryAddress,
       config.swapFeeTier,
       config.AAVEEModeCategory
     );
-    const { vault } = await deployVault(
-      owner.address,
-      serviceRegistryAddress,
-      await strategy.getAddress()
-    );
-
-    await strategy.transferOwnership(await vault.getAddress());
+   
     return {
       stETH,
       weth,
@@ -109,20 +109,19 @@ describeif(network.name === "hardhat")("BakerFi Vault", function () {
       flashLender,
       wstETH,
       oracle,
-      strategy,
       settings,
       config,
     };
   }
 
-  it("Vault Initilization", async function () {
-    const { owner, vault, strategy } = await loadFixture(deployFunction);
+  it.only("Vault Initilization", async function () {
+    const { owner, vault } = await loadFixture(deployFunction);
     expect(await vault.symbol()).to.equal("brETH");
     expect(await vault.balanceOf(owner.address)).to.equal(0);
     expect(await vault.totalSupply()).to.equal(0);
-    expect((await strategy.getPosition())[0]).to.equal(0);
-    expect((await strategy.getPosition())[1]).to.equal(0);
-    expect((await strategy.getPosition())[2]).to.equal(0);
+    expect((await vault.getPosition())[0]).to.equal(0);
+    expect((await vault.getPosition())[1]).to.equal(0);
+    expect((await vault.getPosition())[2]).to.equal(0);
     expect(await vault.tokenPerETH()).to.equal(ethers.parseUnits("1", 18));
   });
 

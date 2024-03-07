@@ -53,11 +53,12 @@ export async function deployServiceRegistry(owner: string) {
 export async function deployVault(
   owner: string,
   serviceRegistry: string,
-  strategy: string,
+  swapFreeTier: number,
+  emodeCategory: number,
   proxied?: boolean,
   proxyAdmin?: any
 ) {
-  const Vault = await ethers.getContractFactory("BakerFiVault");
+  const Vault = await ethers.getContractFactory("VaultAAVEv3WSTETH");
   const vault = await Vault.deploy();
   await vault.waitForDeployment();
   
@@ -69,16 +70,22 @@ export async function deployVault(
       await proxyAdmin.getAddress(),
       Vault.interface.encodeFunctionData("initialize", [
         owner, 
+        "Bread ETH",
+        "brETH",
         serviceRegistry, 
-        strategy
+        swapFreeTier,
+        emodeCategory
       ])
     );
     await (proxy as any).waitForDeployment();
   } else {
     await vault.initialize(
       owner, 
+      "Bread ETH",
+      "brETH",
       serviceRegistry, 
-      strategy
+      swapFreeTier,
+      emodeCategory
     );
    
   }
