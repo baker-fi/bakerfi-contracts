@@ -56,14 +56,18 @@ contract VaultAAVEv3 is
 
     function initialize(
         address initialOwner,
+        string calldata tokenName,
+        string calldata tokenSymbol,
         ServiceRegistry registry,
         bytes32 collateral,
         bytes32 oracle,
         uint24 swapFeeTier,
         uint8 eModeCategory   
     ) public initializer {
-          // Initialize the Strategy
-        initializeBaseVault(          
+        // Initialize the Vault Base Class 
+        initializeVaultBase(          
+            tokenName,
+            tokenSymbol,
             registry
         );    
         initializeStrategy( 
@@ -74,6 +78,7 @@ contract VaultAAVEv3 is
             swapFeeTier, 
             eModeCategory
         );
+
     }
 
 }

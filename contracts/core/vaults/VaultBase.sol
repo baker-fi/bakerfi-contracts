@@ -55,34 +55,12 @@ abstract contract VaultBase is
     using AddressUpgradeable for address payable;
 
     /**
-     * @dev The name of the ERC-20 token.
-     *
-     * This private constant string represents the name of the ERC-20 token used for the vault shares.
-     */
-    string constant private _NAME = "Bread ETH";
-
-    /**
-     * @dev The symbol of the ERC-20 token.
-     *
-     * This private constant string represents the symbol of the ERC-20 token used the vault shares.
-     */
-    string constant private _SYMBOL = "brETH";
-
-    /**
      * @dev The ServiceRegistry contract used for managing service-related dependencies.
      * 
      * This private state variable holds the reference to the ServiceRegistry contract
      * that is utilized within the current contract for managing various service dependencies.
      */
     ServiceRegistry private _registry;
-    /**
-     * @dev The IStrategy contract representing the strategy for managing assets.
-     * 
-     * This private state variable holds the reference to the IStrategy contract,
-     * which defines the strategy for managing assets within the current contract.
-     */
-   // IStrategy       private _strategy;
-
     /**
      * @dev Modifier to restrict access to addresses that are whitelisted.
      *
@@ -95,13 +73,14 @@ abstract contract VaultBase is
       _;
     }
 
-
-    function initializeBaseVault(
+    function initializeVaultBase(
+        string calldata tokenName,
+        string calldata tokenSymbol,
         ServiceRegistry registry
     ) public {              
         _initUseSettings(registry);
-        __ERC20Permit_init(_NAME);
-        __ERC20_init(_NAME, _SYMBOL);        
+        __ERC20Permit_init(tokenName);
+        __ERC20_init(tokenName, tokenSymbol);        
         _registry = registry;
     }
 

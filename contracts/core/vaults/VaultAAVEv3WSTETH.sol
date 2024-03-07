@@ -56,12 +56,16 @@ contract VaultAAVEv3WSTETH is
 
     function initialize(
         address initialOwner,
+        string calldata tokenName,
+        string calldata tokenSymbol,
         ServiceRegistry registry,
         uint24 swapFeeTier,
         uint8 eModeCategory
     ) public initializer {
-        
-        initializeBaseVault(          
+         // Initialize the Vault Base Class 
+        initializeVaultBase(   
+            tokenName,     
+            tokenSymbol, 
             registry
         );   
         initializeStrategy( 

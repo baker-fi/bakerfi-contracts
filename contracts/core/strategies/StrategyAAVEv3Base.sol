@@ -155,13 +155,14 @@ abstract contract StrategyAAVEv3Base is
         _ethUSDOracle = IOracle(registry.getServiceFromHash(ETH_USD_ORACLE_CONTRACT));
         _swapFeeTier = swapFeeTier;
         require(initialOwner != address(0), "Invalid Owner Address");
-        require(address(_ethUSDOracle) != address(0), "Invalid ETH/USD Oracle");
-        require(address(_collateralOracle) != address(0), "Invalid <Collateral>/ETH Oracle");
         _transferOwnership(initialOwner);
+        require(address(_ethUSDOracle) != address(0), "Invalid ETH/USD Oracle");
+        require(address(_collateralOracle) != address(0), "Invalid <Collateral>/ETH Oracle");        
         aaveV3().setUserEMode(eModeCategory);
         require(aaveV3().getUserEMode(address(this)) == eModeCategory, "Invalid Emode");
         require(wETH().approve(uniRouterA(), 2**256 - 1));
         require(ierc20().approve(uniRouterA(), 2**256 - 1));
+
     }
     
     /**

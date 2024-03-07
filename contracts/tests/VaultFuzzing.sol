@@ -28,8 +28,10 @@ contract VaultFuzzing {
             address(settings)
         );
         _vault = new VaultAAVEv3WSTETH();
-        _vault.initialize(
+        _vault.initialize(            
             address(this),
+            "breadETH",
+            "bETH",
             register,
             0, 
             0
