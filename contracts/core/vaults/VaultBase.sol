@@ -154,7 +154,7 @@ abstract contract VaultBase is
         // Verify if the Deposit Value exceeds the maximum per wallet
         uint256 maxDeposit = settings().getMaxDepositInETH();
         if ( maxDeposit > 0 ) {
-            uint256 afterDeposit = msg.value + (balanceOf(msg.sender) * _tokenPerETH() /1e18);
+            uint256 afterDeposit = msg.value + (balanceOf(msg.sender) * tokenPerETH() /1e18);
             require(afterDeposit <= maxDeposit, "Max Deposit Reached");
         }
        
@@ -251,19 +251,13 @@ abstract contract VaultBase is
      * and the total assets under management by the strategy.
      *
      * @return rate The calculated token-to-ETH exchange rate.
-     */
-    function tokenPerETH() external override  view returns (uint256) {
-        return _tokenPerETH();
-    }
-    
-    function _tokenPerETH() internal  view returns (uint256) {
+     */    
+    function tokenPerETH() public  override view returns (uint256) {
         uint256 position = totalAssets();
         if (totalSupply() == 0 || position == 0) {
             return 1 ether;
         }
         return totalSupply() * 1 ether / position;
     }
-
-
 
 }
