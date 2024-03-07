@@ -17,7 +17,7 @@ import {
 } from "../../scripts/common";
 import BaseConfig from "../../scripts/config";
 
-describeif(network.name === "hardhat")("BakerFi Vault Main Net WSTETH/ETH", function () {
+describeif(network.name === "hardhat")("BakerFi Vault Main Net wstETH/ETH", function () {
   
   async function deployFunction() {
     const networkName = network.name;
