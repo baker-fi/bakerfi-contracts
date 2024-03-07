@@ -55,6 +55,8 @@ describeif(network.name === "hardhat")("Vault Proxy", function () {
       await proxyAdmin.getAddress(),
       BakerFiVault.interface.encodeFunctionData("initialize", [
         deployer.address,
+        "Bread ETH",
+        "brETH",
         await serviceRegistry.getAddress(),
         await strategy.getAddress()
       ])

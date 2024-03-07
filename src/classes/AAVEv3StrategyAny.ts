@@ -6,13 +6,13 @@ import {
   XPromiseEvent,
 } from "@taikai/dappkit";
 
-import AAVEv3StrategyAnyJson from "../../artifacts/contracts/core/strategies/AAVEv3StrategyAny.sol/AAVEv3StrategyAny.json";
-import { AAVEv3StrategyAnyMethods } from "src/interfaces/AAVEv3StrategyAny";
-import * as Events from "@events/AAVEv3StrategyAny";
+import AAVEv3StrategyAnyJson from "../../artifacts/contracts/core/strategies/StrategyAAVEv3.sol/StrategyAAVEv3.json";
+import { AAVEv3StrategyAnyMethods } from "src/interfaces/StrategyAAVEv3";
+import * as Events from "@events/StrategyAAVEv3";
 import { PastEventOptions } from "web3-eth-contract";
 import { AbiItem } from "web3-utils";
 
-export class AAVEv3StrategyAny
+export class StrategyAAVEv3
   extends Model<AAVEv3StrategyAnyMethods>
   implements Deployable
 {

@@ -30,6 +30,8 @@ contract VaultFuzzing {
         _vault = new BakerFiVault();
         _vault.initialize(
             address(this),
+            "Bread ETH",
+            "brETH",
             register,
             strategy
         );

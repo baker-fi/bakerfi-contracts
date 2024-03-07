@@ -463,8 +463,8 @@ task("deploy:upgrade:strategy", "Upgrade the settings Contract")
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Upgrading strategy Contract`).start();
     try {
-      const AAVEv3StrategyAny = await ethers.getContractFactory("AAVEv3StrategyAny");   
-      const strategy = await AAVEv3StrategyAny.deploy();
+      const StrategyAAVEv3 = await ethers.getContractFactory("StrategyAAVEv3");   
+      const strategy = await StrategyAAVEv3.deploy();
       await strategy.waitForDeployment();
       const proxyAdmin = await ethers.getContractAt("ProxyAdmin", networkConfig?.proxyAdmin?? "");
       await proxyAdmin.upgrade(

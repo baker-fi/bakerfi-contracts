@@ -75,7 +75,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
  * @notice The Contract is abstract and needs to be extended to implement the
  * conversion between WETH and the collateral
  */
-abstract contract AAVEv3StrategyBase is
+abstract contract StrategyAAVEv3Base is
     OwnableUpgradeable,
     IStrategy,
     IERC3156FlashBorrowerUpgradeable,
@@ -135,7 +135,7 @@ abstract contract AAVEv3StrategyBase is
      * - The EMode category must be successfully set for the AAVEv3 strategy.
      * - Approval allowances must be successfully set for WETH and the collateral ERC20 token for UniSwap.
      */
-    function _initializeAAVEv3StrategyBase(
+    function _initializeStrategyAAVEv3Base(
         address initialOwner,
         ServiceRegistry registry,
         bytes32 collateralIERC20,

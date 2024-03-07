@@ -1,6 +1,6 @@
 # Solidity API
 
-## AAVEv3StrategyBase
+## StrategyAAVEv3Base
 
 The Contract is abstract and needs to be extended to implement the
 conversion between WETH and the collateral
@@ -134,7 +134,7 @@ This event provides information about the new deployment amount of the strategy.
 struct FlashLoanData {
   uint256 originalAmount;
   address receiver;
-  enum AAVEv3StrategyBase.FlashLoanAction action;
+  enum StrategyAAVEv3Base.FlashLoanAction action;
 }
 ```
 
@@ -150,10 +150,10 @@ uint256 _pendingAmount
 uint24 _swapFeeTier
 ```
 
-### _initializeAAVEv3StrategyBase
+### _initializeStrategyAAVEv3Base
 
 ```solidity
-function _initializeAAVEv3StrategyBase(address initialOwner, contract ServiceRegistry registry, bytes32 collateralIERC20, bytes32 collateralOracle, uint24 swapFeeTier, uint8 eModeCategory) internal
+function _initializeStrategyAAVEv3Base(address initialOwner, contract ServiceRegistry registry, bytes32 collateralIERC20, bytes32 collateralOracle, uint24 swapFeeTier, uint8 eModeCategory) internal
 ```
 
 _Internal function to initialize the AAVEv3 strategy base.

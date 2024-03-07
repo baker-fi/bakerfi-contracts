@@ -160,6 +160,8 @@ async function main() {
   spinner.text = "Deploying BakerFi Vault 👩‍🍳";    
   const { vault, proxy: vaultProxy }= await deployVault(
         deployer.address, 
+        config.vaultSharesName,
+        config.vaultSharesSymbol,
         await serviceRegistry.getAddress(),
         await (strategyProxy as any).getAddress(),
         true, 
@@ -189,7 +191,7 @@ async function changeSettings(
 ) {
   const settings = await hre.ethers.getContractAt("Settings", settingsAddress);
   const vault = await hre.ethers.getContractAt("BakerFiVault", vaultAddress);
-  const strategy = await hre.ethers.getContractAt("AAVEv3StrategyAny", strategyAddress);
+  const strategy = await hre.ethers.getContractAt("StrategyAAVEv3", strategyAddress);
 
   spinner.text = "Transferring Ownership ...";    
   await strategy.transferOwnership(await vault.getAddress());
