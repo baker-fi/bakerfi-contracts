@@ -22,6 +22,16 @@ import {IERC3156FlashBorrowerUpgradeable} from "@openzeppelin/contracts-upgradea
  * 
  */
 contract BalancerFlashLender is IERC3156FlashLenderUpgradeable, IFlashLoanRecipient {
+
+    error InvalidVaultAddress();
+    error InvalidBorrower();
+    error InvalidFlashLoadLender();
+    error InvalidTokenList();
+    error InvalidAmountList();
+    error InvalidFeesAmount();
+    error BorrowerCallbackFailed();
+    error NoAllowanceToPayDebt();
+
     using SafeERC20 for IERC20;
 
     bytes32 public constant CALLBACK_SUCCESS = keccak256("ERC3156FlashBorrower.onFlashLoan");
@@ -34,7 +44,9 @@ contract BalancerFlashLender is IERC3156FlashLenderUpgradeable, IFlashLoanRecipi
         _balancerVault = IVault(registry.getServiceFromHash(
             BALANCER_VAULT_CONTRACT
         ));
-        require(address(_balancerVault) != address(0), "Invalid Balancer Vault");
+        if (address(_balancerVault) == address(0)) {
+            revert InvalidVaultAddress();
+        }
     }
 
     /**
@@ -71,7 +83,7 @@ contract BalancerFlashLender is IERC3156FlashLenderUpgradeable, IFlashLoanRecipi
         uint256 amount,
         bytes calldata data
     ) external override returns (bool) {
-        require(msg.sender == address(borrower), "Invalid Borrower");
+        if(msg.sender != address(borrower)) revert InvalidBorrower();
         address[] memory tokens = new address[](1);
         tokens[0] = token;
         uint256[] memory amounts = new uint256[](1);
@@ -94,33 +106,33 @@ contract BalancerFlashLender is IERC3156FlashLenderUpgradeable, IFlashLoanRecipi
         uint256[] memory feeAmounts,
         bytes memory userData
     ) external {
-        require(msg.sender == address(_balancerVault), "Invalid Flash Loan Lender");
-        require(tokens.length == 1, "Invalid Token List");
-        require(amounts.length == 1, "Invalid Amount List");
-        require(feeAmounts.length == 1, "Invalid Fees Amount");
+        if (msg.sender != address(_balancerVault)) revert InvalidFlashLoadLender();
+        if (tokens.length != 1) revert InvalidTokenList();
+        if (amounts.length != 1) revert InvalidAmountList();
+        if (feeAmounts.length != 1) revert InvalidFeesAmount();
+
         (address borrower, bytes memory originalCallData) = abi.decode(userData, (address, bytes));
-        //require(borrower == address(this), "Invalid Flash Borrower");
         address asset = tokens[0];
         uint256 amount = amounts[0];
         uint256 fee = feeAmounts[0];
         // Transfer the loan received to borrower
         IERC20(asset).safeTransfer(borrower, amount);
 
-        require(
+        if(
             IERC3156FlashBorrowerUpgradeable(borrower).onFlashLoan(
                 borrower,
                 tokens[0],
                 amounts[0],
                 feeAmounts[0],
                 originalCallData
-            ) == CALLBACK_SUCCESS,
-            "FlashBorrower: Callback failed"
-        );
+            ) != CALLBACK_SUCCESS) 
+        {
+            revert BorrowerCallbackFailed();
+        }
         // Verify that this contract is able to pay the debt
-        require(
-            IERC20(asset).allowance(address(borrower), address(this)) >= fee + amount,
-            "No allowance to pay debt"
-        );
+        if( IERC20(asset).allowance(address(borrower), address(this)) < fee + amount) {
+           revert NoAllowanceToPayDebt();
+        }
         // Return the loan + fee to the vault
         IERC20(asset).safeTransferFrom(address(borrower), address(_balancerVault), amount + fee);
     }
