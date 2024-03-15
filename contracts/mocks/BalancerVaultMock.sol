@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 import {IFlashLoanRecipient, IFlashLoans } from "../interfaces/balancer/IFlashLoan.sol";
+import {IProtocolFeesCollector} from "../interfaces/balancer/IProtocolFeesCollector.sol";
+import {IVault } from "../interfaces/balancer/IVault.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract BalancerVaultMock is IFlashLoans {
+
+contract BalancerVaultMock is IVault, IProtocolFeesCollector{
     
     IERC20 private immutable _flashLoanToken;
 
@@ -12,6 +15,14 @@ contract BalancerVaultMock is IFlashLoans {
     ) {
        _flashLoanToken = flashLoanToken; 
     }
+
+    function getProtocolFeesCollector() external view returns (IProtocolFeesCollector) {
+        return this;
+    }
+
+     function getFlashLoanFeePercentage() external pure returns (uint256) {
+        return 0;
+     }
 
     function flashLoan(
         address recipient,

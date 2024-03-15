@@ -5,6 +5,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC3156FlashLenderUpgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashLenderUpgradeable.sol";
 import {IFlashLoans, IFlashLoanRecipient} from "../../interfaces/balancer/IFlashLoan.sol";
+import {IVault} from "../../interfaces/balancer/IVault.sol";
 import {ServiceRegistry, BALANCER_VAULT_CONTRACT} from "../../core/ServiceRegistry.sol";
 import {UseStrategy} from "../../core/hooks/UseStrategy.sol";
 import {IERC3156FlashBorrowerUpgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashBorrowerUpgradeable.sol";
@@ -25,10 +26,10 @@ contract BalancerFlashLender is IERC3156FlashLenderUpgradeable, IFlashLoanRecipi
 
     bytes32 public constant CALLBACK_SUCCESS = keccak256("ERC3156FlashBorrower.onFlashLoan");
 
-    IFlashLoans private immutable _balancerVault;
+    IVault private immutable _balancerVault;
 
     constructor(ServiceRegistry registry) {
-        _balancerVault = IFlashLoans(registry.getServiceFromHash(
+        _balancerVault = IVault(registry.getServiceFromHash(
             BALANCER_VAULT_CONTRACT
         ));
         require(address(_balancerVault) != address(0), "Invalid Balancer Vault");
@@ -44,8 +45,13 @@ contract BalancerFlashLender is IERC3156FlashLenderUpgradeable, IFlashLoanRecipi
     }
 
     
-    function flashFee(address, uint256) external pure override returns (uint256) {
-        return 0;
+    function flashFee(address, uint256 amount) external view override returns (uint256) {
+        uint256 perc = _balancerVault.getProtocolFeesCollector().getFlashLoanFeePercentage();
+        if ( perc == 0 || amount == 0) {
+            return 0;
+        }
+
+        return amount * perc / 1e18;
     }
 
     /**
