@@ -26,6 +26,8 @@ contract BalancerFlashLender is IERC3156FlashLenderUpgradeable, IFlashLoanRecipi
 
     bytes32 public constant CALLBACK_SUCCESS = keccak256("ERC3156FlashBorrower.onFlashLoan");
 
+    uint256 private constant BALANCER_MAX_FEE_PERCENTAGE = 1e18; // 100%
+
     IVault private immutable _balancerVault;
 
     constructor(ServiceRegistry registry) {
@@ -51,7 +53,7 @@ contract BalancerFlashLender is IERC3156FlashLenderUpgradeable, IFlashLoanRecipi
             return 0;
         }
 
-        return amount * perc / 1e18;
+        return amount * perc / BALANCER_MAX_FEE_PERCENTAGE;
     }
 
     /**
