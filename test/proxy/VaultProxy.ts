@@ -44,8 +44,8 @@ describeif(network.name === "hardhat")("Vault Proxy", function () {
     );
         
     // Deploy Vault Default Implementation
-    const BakerFiVault = await ethers.getContractFactory("BakerFiVault");
-    const vault = await BakerFiVault.deploy();
+    const Vault = await ethers.getContractFactory("Vault");
+    const vault = await Vault.deploy();
     await vault.waitForDeployment();
 
     // Vault Proxy Deployment 
@@ -53,8 +53,10 @@ describeif(network.name === "hardhat")("Vault Proxy", function () {
     const proxyDeployment = await BakerFiProxy.deploy(
       await vault.getAddress(),
       await proxyAdmin.getAddress(),
-      BakerFiVault.interface.encodeFunctionData("initialize", [
+      Vault.interface.encodeFunctionData("initialize", [
         deployer.address,
+        "Bread ETH",
+        "brETH",
         await serviceRegistry.getAddress(),
         await strategy.getAddress()
       ])
@@ -62,7 +64,7 @@ describeif(network.name === "hardhat")("Vault Proxy", function () {
     
     await proxyDeployment.waitForDeployment();    
 
-    const vaultProxy = await BakerFiVault.attach(await proxyDeployment.getAddress());
+    const vaultProxy = await Vault.attach(await proxyDeployment.getAddress());
 
     return { deployer, settings, vaultProxy, proxyAdmin, otherAccount, proxyDeployment};
   }

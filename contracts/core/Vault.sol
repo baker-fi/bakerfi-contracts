@@ -42,7 +42,7 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
  * The Contract is upgradable and can use a BakerProxy in front of.
  * 
  */
-contract BakerFiVault is 
+contract Vault is 
     OwnableUpgradeable,
     PausableUpgradeable,     
     ReentrancyGuardUpgradeable,
@@ -54,20 +54,6 @@ contract BakerFiVault is
     using SafeERC20Upgradeable for ERC20Upgradeable;
     using AddressUpgradeable for address;
     using AddressUpgradeable for address payable;
-
-    /**
-     * @dev The name of the ERC-20 token.
-     *
-     * This private constant string represents the name of the ERC-20 token used for the vault shares.
-     */
-    string constant private _NAME = "Bread ETH";
-
-    /**
-     * @dev The symbol of the ERC-20 token.
-     *
-     * This private constant string represents the symbol of the ERC-20 token used the vault shares.
-     */
-    string constant private _SYMBOL = "brETH";
 
     /**
      * @dev The ServiceRegistry contract used for managing service-related dependencies.
@@ -114,11 +100,13 @@ contract BakerFiVault is
      */
     function initialize(
         address initialOwner,
+        string calldata tokenName,
+        string calldata tokenSymbol,
         ServiceRegistry registry,
         IStrategy strategy
     ) public initializer {
-        __ERC20Permit_init(_NAME);
-        __ERC20_init(_NAME, _SYMBOL);
+        __ERC20Permit_init(tokenName);
+        __ERC20_init(tokenName, tokenSymbol);
         _initUseSettings(registry);
         require(initialOwner != address(0), "Invalid Owner Address");
         _transferOwnership(initialOwner);

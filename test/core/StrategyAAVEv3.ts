@@ -19,7 +19,7 @@ import { describeif } from "../common";
 
 import BaseConfig from "../../scripts/config";
 
-describeif(network.name === "hardhat")("AAVEv3StrategyAny", function () {
+describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
   
   async function deployFunction() {
     

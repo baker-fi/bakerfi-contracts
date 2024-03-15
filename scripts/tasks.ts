@@ -28,7 +28,7 @@ task("vault:deposit", "Deposit ETH on the vault")
     const spinner = ora(`Depositing ${account} ${amount}`).start();      
     try {     
         const vault = await ethers.getContractAt(
-        "BakerFiVault",
+        "Vault",
         networkConfig.vaultProxy?? ""
       );
       const signer = await getSignerOrThrow(ethers, account);      
@@ -52,7 +52,7 @@ task("vault:withdraw", "Burn brETH shares and receive ETH")
     try {
       const signer = await getSignerOrThrow(ethers, account);
       const vault = await ethers.getContractAt(
-        "BakerFiVault",
+        "Vault",
         networkConfig.vaultProxy?? ""
       );
       await vault.connect(signer).withdraw(ethers.parseUnits(amount, 18));
@@ -70,7 +70,7 @@ task("vault:rebalance", "Burn brETH shares and receive ETH")
     const spinner = ora(`Rebalancing Vault ${account} `).start();
     try {
         const vault = await ethers.getContractAt(
-          "BakerFiVault",
+          "Vault",
           networkConfig.vaultProxy?? ""
         );
         await vault.rebalance();
@@ -90,7 +90,7 @@ task("vault:balance", "Prints an account's share balance")
     const signers = await ethers.getSigners();
     try {
         const vault = await ethers.getContractAt(
-          "BakerFiVault",
+          "Vault",
           networkConfig.vaultProxy?? ""
         );
 
@@ -110,7 +110,7 @@ task("vault:assets", "Prints an account's share balance")
     const spinner = ora(`Geeting Vault Assets`).start();
     try {
         const vault = await ethers.getContractAt(
-          "BakerFiVault",
+          "Vault",
           networkConfig.vaultProxy?? ""
         );
         const balance = await vault.totalAssets();
@@ -130,7 +130,7 @@ task("vault:assets", "Prints an account's share balance")
     const spinner = ora(`Geeting Vault Assets`).start();
     try {
         const vault = await ethers.getContractAt(
-          "BakerFiVault",
+          "Vault",
           networkConfig.vaultProxy?? ""
         );
         const balance = await vault.tokenPerETH();
@@ -463,8 +463,8 @@ task("deploy:upgrade:strategy", "Upgrade the settings Contract")
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Upgrading strategy Contract`).start();
     try {
-      const AAVEv3StrategyAny = await ethers.getContractFactory("AAVEv3StrategyAny");   
-      const strategy = await AAVEv3StrategyAny.deploy();
+      const StrategyAAVEv3 = await ethers.getContractFactory("StrategyAAVEv3");   
+      const strategy = await StrategyAAVEv3.deploy();
       await strategy.waitForDeployment();
       const proxyAdmin = await ethers.getContractAt("ProxyAdmin", networkConfig?.proxyAdmin?? "");
       await proxyAdmin.upgrade(
@@ -485,8 +485,8 @@ task("deploy:upgrade:vault", "Upgrade the settings Contract")
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Upgrading Vault Contract`).start();
     try {
-      const BakerFiVault = await ethers.getContractFactory("BakerFiVault");   
-      const vault = await BakerFiVault.deploy();
+      const Vault = await ethers.getContractFactory("Vault");   
+      const vault = await Vault.deploy();
       await vault.waitForDeployment();
       const proxyAdmin = await ethers.getContractAt("ProxyAdmin", networkConfig?.proxyAdmin?? "");
       await proxyAdmin.upgrade(

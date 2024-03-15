@@ -104,6 +104,8 @@ export async function deployBase() {
   // 13. Deploy the Vault
   const { proxy: vaultProxyDeploy } = await deployVault(
     deployer.address,
+    "Bread ETH",
+    "brETH",
     await serviceRegistry.getAddress(),
     await strategyProxyDeploy.getAddress(),
     true,
@@ -118,11 +120,11 @@ export async function deployBase() {
     await settingsProxyDeploy.getAddress()
   );
   const strategyProxy = await ethers.getContractAt(
-    "AAVEv3StrategyAny",
+    "StrategyAAVEv3",
     await strategyProxyDeploy.getAddress()
   );
   const vaultProxy = await ethers.getContractAt(
-    "BakerFiVault",
+    "Vault",
     await vaultProxyDeploy.getAddress()
   );
 
@@ -232,6 +234,8 @@ export async function deployOptimism() {
   // 13. Deploy the Vault
   const { proxy: vaultProxyDeploy } = await deployVault(
     deployer.address,
+    "Bread ETH",
+    "brETH",
     await serviceRegistry.getAddress(),
     await strategyProxyDeploy.getAddress(),
     true,
@@ -247,11 +251,11 @@ export async function deployOptimism() {
     await settingsProxyDeploy.getAddress()
   );
   const strategyProxy = await ethers.getContractAt(
-    "AAVEv3StrategyAny",
+    "StrategyAAVEv3",
     await strategyProxyDeploy.getAddress()
   );
   const vaultProxy = await ethers.getContractAt(
-    "BakerFiVault",
+    "Vault",
     await vaultProxyDeploy.getAddress()
   );
 
@@ -358,6 +362,8 @@ export async function deployEthereum() {
   // 13. Deploy the Vault
   const { proxy: vaultProxyDeploy } = await deployVault(
     deployer.address,
+    "Bread ETH",
+    "brETH",
     await serviceRegistry.getAddress(),
     await strategyProxyDeploy.getAddress(),
     true,
@@ -377,7 +383,7 @@ export async function deployEthereum() {
     await strategyProxyDeploy.getAddress()
   );
   const vaultProxy = await ethers.getContractAt(
-    "BakerFiVault",
+    "Vault",
     await vaultProxyDeploy.getAddress()
   );
 

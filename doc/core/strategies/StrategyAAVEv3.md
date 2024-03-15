@@ -1,13 +1,13 @@
 # Solidity API
 
-## AAVEv3StrategyAny
+## StrategyAAVEv3
 
 _This strategy is used by the bakerfi vault to deploy ETH capital 
 on aave money market.
 
 The Collateral could be cbETH, wstETH, rETH against and the debt is always WETH
 
-The strategy inherits all the business logic from AAVEv3StrategyBase and could be deployed
+The strategy inherits all the business logic from StrategyAAVEv3Base and could be deployed
 on Optimism, Arbitrum , Base and Ethereum._
 
 ### initialize

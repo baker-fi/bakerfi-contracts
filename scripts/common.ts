@@ -52,12 +52,14 @@ export async function deployServiceRegistry(owner: string) {
 
 export async function deployVault(
   owner: string,
+  tokenName: string,
+  tokenSymbol: string,
   serviceRegistry: string,
   strategy: string,
   proxied?: boolean,
   proxyAdmin?: any
 ) {
-  const Vault = await ethers.getContractFactory("BakerFiVault");
+  const Vault = await ethers.getContractFactory("Vault");
   const vault = await Vault.deploy();
   await vault.waitForDeployment();
   
@@ -69,6 +71,8 @@ export async function deployVault(
       await proxyAdmin.getAddress(),
       Vault.interface.encodeFunctionData("initialize", [
         owner, 
+        tokenName,
+        tokenSymbol,
         serviceRegistry, 
         strategy
       ])
@@ -77,6 +81,8 @@ export async function deployVault(
   } else {
     await vault.initialize(
       owner, 
+      tokenName,
+      tokenSymbol,
       serviceRegistry, 
       strategy
     );
@@ -93,10 +99,10 @@ export async function deployAAVEv3StrategyWstETH(
   proxied?: boolean,
   proxyAdmin?: any
 ) {
-  const AAVEv3Strategy = await ethers.getContractFactory(
+  const StrategyAAVEv3 = await ethers.getContractFactory(
     "AAVEv3StrategyWstETH"
   );
-  const strategy = await AAVEv3Strategy.deploy();
+  const strategy = await StrategyAAVEv3.deploy();
   await strategy.waitForDeployment();
   let proxy: any = null;  
 
@@ -105,7 +111,7 @@ export async function deployAAVEv3StrategyWstETH(
     proxy = await BakerFiProxy.deploy(
       await strategy.getAddress(),
       await proxyAdmin.getAddress(),
-      AAVEv3Strategy.interface.encodeFunctionData("initialize", [
+      StrategyAAVEv3.interface.encodeFunctionData("initialize", [
         owner, 
         serviceRegistry,
         swapFreeTier,
@@ -134,8 +140,8 @@ export async function deployAAVEv3StrategyAny(
   proxied?: boolean,
   proxyAdmin?: any
 ) {
-  const AAVEv3Strategy = await ethers.getContractFactory("AAVEv3StrategyAny");
-  const strategy = await AAVEv3Strategy.deploy();
+  const StrategyAAVEv3 = await ethers.getContractFactory("StrategyAAVEv3");
+  const strategy = await StrategyAAVEv3.deploy();
   await strategy.waitForDeployment();
   let proxy: any = null;  
   if ( proxied ) {
@@ -143,7 +149,7 @@ export async function deployAAVEv3StrategyAny(
     proxy = await BakerFiProxy.deploy(
       await strategy.getAddress(),
       await proxyAdmin.getAddress(),
-      AAVEv3Strategy.interface.encodeFunctionData("initialize", [
+      StrategyAAVEv3.interface.encodeFunctionData("initialize", [
         owner,
         serviceRegistry,
         ethers.keccak256(Buffer.from(collateral)),

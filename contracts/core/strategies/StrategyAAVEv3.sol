@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import {AAVEv3StrategyBase} from "./AAVEv3StrategyBase.sol";
+import {StrategyAAVEv3Base} from "./StrategyAAVEv3Base.sol";
 import {ServiceRegistry} from "../../core/ServiceRegistry.sol";
 import {UseWETH} from "../hooks/UseWETH.sol";
 import {UseOracle} from "../hooks/UseOracle.sol";
@@ -24,10 +24,10 @@ import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/I
  * 
  * The Collateral could be cbETH, wstETH, rETH against and the debt is always WETH
  * 
- * The strategy inherits all the business logic from AAVEv3StrategyBase and could be deployed
+ * The strategy inherits all the business logic from StrategyAAVEv3Base and could be deployed
  * on Optimism, Arbitrum , Base and Ethereum.
  */
-contract AAVEv3StrategyAny is Initializable, AAVEv3StrategyBase {
+contract StrategyAAVEv3 is Initializable, StrategyAAVEv3Base {
     using SafeERC20 for IERC20;
 
     // solhint-disable no-empty-blocks  
@@ -39,7 +39,7 @@ contract AAVEv3StrategyAny is Initializable, AAVEv3StrategyBase {
         uint24 swapFeeTier,
         uint8 eModeCategory        
     ) public initializer {
-        _initializeAAVEv3StrategyBase(
+        _initializeStrategyAAVEv3Base(
             initialOwner,
             registry, 
             collateral, 

@@ -22,6 +22,8 @@ export default {
         swapFeeTier: 100,        
         AAVEPool: "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2", // Validated      
         pyth: "0x4305FB66699C3B2702D4d05CF36551390A4c69C6",
+        vaultSharesName: "AAVEv3 Bread ETH",
+        vaultSharesSymbol: "AAVEv3brETH",
     },
     "base_devnet": {
         uniswapRouter: "0x2626664c2603336E57B271c5C0b26F421741e481", // Validated 
@@ -39,6 +41,8 @@ export default {
         swapFeeTier: 500,        
         AAVEPool: "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5", // Validated      
         pyth: "0x8250f4aF4B972684F7b336503E2D6dFeDeB1487a", 
+        vaultSharesName: "Base AAVEv3 Bread ETH",
+        vaultSharesSymbol: "baseAAVEv3brETH",
     },
     "optimism_devnet": {
         uniswapRouter: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", // Validated 
@@ -55,7 +59,9 @@ export default {
         AAVEEModeCategory: 2,        
         swapFeeTier: 100,        
         AAVEPool: "0x794a61358d6845594f94dc1db02a252b5b4814ad", // Validated   
-        pyth: "0xff1a0f4744e8582DF1aE09D5611b887B6a12925C"
+        pyth: "0xff1a0f4744e8582DF1aE09D5611b887B6a12925C",
+        vaultSharesName: "Optimism AAVEv3 Bread ETH",
+        vaultSharesSymbol: "optAAVEv3brETH",
     }, 
     "hardhat": {
         AAVEEModeCategory: 0,
@@ -82,6 +88,8 @@ export default {
         strategy: "0x73BD7624C015046229e7e59fF128D67b3D5e6dB2",        
         vault: "0x334a1f3C8C9c6CD670273cD80349505dB37aFc65",
         AAVEPool: "0xF8D0e82B1EE3EEc7AEcDAa4E1c94E29fe3Db712E",      
+        vaultSharesName: "Local AAVEv3 Bread ETH",
+        vaultSharesSymbol: "localAAVEv3brETH",
     },
     "arbitrum_devnet": {
         uniswapRouter: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", // Validated 
@@ -103,6 +111,8 @@ export default {
         swapFeeTier: 100,        
         AAVEPool: "0x794a61358D6845594F94dc1DB02A252b5b4814aD", // Validated   
         pyth: "0xff1a0f4744e8582df1ae09d5611b887b6a12925c",
+        vaultSharesName: "Arbitrum AAVEv3 Bread ETH",
+        vaultSharesSymbol: "arbAAAv3ETH",
     },
     "arbitrum": {
         uniswapRouter: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", // Validated 
@@ -124,6 +134,8 @@ export default {
         swapFeeTier: 100,        
         AAVEPool: "0x794a61358D6845594F94dc1DB02A252b5b4814aD", // Validated   
         pyth: "0xff1a0f4744e8582df1ae09d5611b887b6a12925c",
+        vaultSharesName: "Arbitrum AAVEv3 Bread ETH",
+        vaultSharesSymbol: "arbAAAv3ETH",
     },
 }
 

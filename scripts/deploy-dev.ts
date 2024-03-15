@@ -169,6 +169,8 @@ async function main() {
   // 10. Deploy the Proxiec Vault attached to Leverage Lib
   const { vault, proxy: vaultProxy } = await deployVault(
       owner.address, 
+      config.vaultSharesName,
+      config.vaultSharesSymbol,
       await serviceRegistry.getAddress(),
       await strategyProxy.getAddress(),
       true,

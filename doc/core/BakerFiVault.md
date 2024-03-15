@@ -1,6 +1,6 @@
 # Solidity API
 
-## BakerFiVault
+## Vault
 
 _The BakerFi vault deployed to any supported chain (Arbitrum One, Optimism, Ethereum,...)
 

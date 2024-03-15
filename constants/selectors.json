@@ -1,5 +1,5 @@
 {
-  "BakerFiVault": {
+  "Vault": {
     "0x019de48a": "transferOwnership",
     "0x075d54b4": "name",
     "0x0be60888": "totalAssets",
@@ -258,7 +258,7 @@
     "0xf9e3790d": "calculateDebtToPay",
     "0xfc8d8d34": "uniQuoterA"
   },
-  "AAVEv3StrategyBase": {
+  "StrategyAAVEv3Base": {
     "0x019de48a": "transferOwnership",
     "0x07bcca65": "wETH",
     "0x0be60888": "totalAssets",

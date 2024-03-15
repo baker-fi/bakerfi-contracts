@@ -16,7 +16,7 @@ import {
 import { describeif } from "../common";
 import BaseConfig from "../../scripts/config";
 
-describeif(network.name === "hardhat")("AAVEv3StrategyWstETH", function () {
+describeif(network.name === "hardhat")("Strategy Mainnet wstETH/ETH", function () {
   async function deployFunction() {
     const networkName = network.name;
     const chainId = network.config.chainId;
