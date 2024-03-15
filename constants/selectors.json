@@ -1,5 +1,5 @@
 {
-  "BakerFiVault": {
+  "Vault": {
     "0x019de48a": "transferOwnership",
     "0x075d54b4": "name",
     "0x0be60888": "totalAssets",

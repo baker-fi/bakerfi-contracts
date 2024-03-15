@@ -17,7 +17,7 @@ import {
 } from "../../scripts/common";
 import BaseConfig from "../../scripts/config";
 
-describeif(network.name === "hardhat")("BakerFi Vault Main Net WSTETH/ETH", function () {
+describeif(network.name === "hardhat")("BakerFi Vault Main Net wstETH/ETH", function () {
   
   async function deployFunction() {
     const networkName = network.name;
@@ -446,8 +446,8 @@ describeif(network.name === "hardhat")("BakerFi Vault Main Net WSTETH/ETH", func
       await settings.getAddress()
     );
 
-    const BakerFiVault = await ethers.getContractFactory("BakerFiVault");
-    const vault = await BakerFiVault.deploy();
+    const Vault = await ethers.getContractFactory("Vault");
+    const vault = await Vault.deploy();
     await vault.initialize(
       owner.address,
       "Bread ETH",

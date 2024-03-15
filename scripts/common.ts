@@ -59,7 +59,7 @@ export async function deployVault(
   proxied?: boolean,
   proxyAdmin?: any
 ) {
-  const Vault = await ethers.getContractFactory("BakerFiVault");
+  const Vault = await ethers.getContractFactory("Vault");
   const vault = await Vault.deploy();
   await vault.waitForDeployment();
   
