@@ -13,6 +13,7 @@
       "private-vars-leading-underscore": "warn",
       "modifier-name-mixedcase": "warn",
       "quotes": ["error","double"],
+      "immutable-vars-naming": ["warn",{"immutablesAsConstants":false}],
       "prettier/prettier": "on",
       "constructor-syntax": "warn"
     }

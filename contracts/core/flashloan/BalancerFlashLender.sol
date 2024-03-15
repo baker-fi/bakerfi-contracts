@@ -3,35 +3,48 @@ pragma solidity ^0.8.18;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {IERC3156FlashLenderUpgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashLenderUpgradeable.sol";
-import {IFlashLoans, IFlashLoanRecipient} from "../../interfaces/balancer/IFlashLoan.sol";
+import {IERC3156FlashLenderUpgradeable} from 
+    "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashLenderUpgradeable.sol";
+import {IFlashLoanRecipient} from "../../interfaces/balancer/IFlashLoan.sol";
+import {IVault} from "../../interfaces/balancer/IVault.sol";
 import {ServiceRegistry, BALANCER_VAULT_CONTRACT} from "../../core/ServiceRegistry.sol";
-import {UseStrategy} from "../../core/hooks/UseStrategy.sol";
-import {IERC3156FlashBorrowerUpgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashBorrowerUpgradeable.sol";
+import {IERC3156FlashBorrowerUpgradeable} from 
+    "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashBorrowerUpgradeable.sol";
 
 /**
  * @title Balancer Flash Loan Balancer Adapter
- * 
+ *
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
- * 
- * @dev This contract implements the ERC-3156 Flash Lender interface and serves as 
- * "Adapter" contract for the balancer flash loan interface. This approach allows us 
+ *
+ * @dev This contract implements the ERC-3156 Flash Lender interface and serves as
+ * "Adapter" contract for the balancer flash loan interface. This approach allows us
  * to have a static interface independent of the flash loan provider.
- * 
+ *
  */
 contract BalancerFlashLender is IERC3156FlashLenderUpgradeable, IFlashLoanRecipient {
+    error InvalidVaultAddress();
+    error InvalidBorrower();
+    error InvalidFlashLoadLender();
+    error InvalidTokenList();
+    error InvalidAmountList();
+    error InvalidFeesAmount();
+    error BorrowerCallbackFailed();
+    error NoAllowanceToPayDebt();
+
     using SafeERC20 for IERC20;
 
     bytes32 public constant CALLBACK_SUCCESS = keccak256("ERC3156FlashBorrower.onFlashLoan");
 
-    IFlashLoans private immutable _balancerVault;
+    uint256 private constant _BALANCER_MAX_FEE_PERCENTAGE = 1e18; // 100%
+
+    IVault private immutable _balancerVault;
 
     constructor(ServiceRegistry registry) {
-        _balancerVault = IFlashLoans(registry.getServiceFromHash(
-            BALANCER_VAULT_CONTRACT
-        ));
-        require(address(_balancerVault) != address(0), "Invalid Balancer Vault");
+        _balancerVault = IVault(registry.getServiceFromHash(BALANCER_VAULT_CONTRACT));
+        if (address(_balancerVault) == address(0)) {
+            revert InvalidVaultAddress();
+        }
     }
 
     /**
@@ -43,14 +56,18 @@ contract BalancerFlashLender is IERC3156FlashLenderUpgradeable, IFlashLoanRecipi
         return IERC20(token).balanceOf(address(_balancerVault));
     }
 
-    
-    function flashFee(address, uint256) external pure override returns (uint256) {
-        return 0;
+    function flashFee(address, uint256 amount) external view override returns (uint256) {
+        uint256 perc = _balancerVault.getProtocolFeesCollector().getFlashLoanFeePercentage();
+        if (perc == 0 || amount == 0) {
+            return 0;
+        }
+
+        return (amount * perc) / _BALANCER_MAX_FEE_PERCENTAGE;
     }
 
     /**
      * @dev Function to initiate a flash loan from the Balancer Pool
-     * 
+     *
      * @param borrower The address of the flash loan receiver.
      * @param token The address of the token being borrowed.
      * @param amount The amount of tokens to be borrowed.
@@ -63,7 +80,7 @@ contract BalancerFlashLender is IERC3156FlashLenderUpgradeable, IFlashLoanRecipi
         uint256 amount,
         bytes calldata data
     ) external override returns (bool) {
-        require(msg.sender == address(borrower), "Invalid Borrower");
+        if (msg.sender != address(borrower)) revert InvalidBorrower();
         address[] memory tokens = new address[](1);
         tokens[0] = token;
         uint256[] memory amounts = new uint256[](1);
@@ -86,35 +103,34 @@ contract BalancerFlashLender is IERC3156FlashLenderUpgradeable, IFlashLoanRecipi
         uint256[] memory feeAmounts,
         bytes memory userData
     ) external {
-        require(msg.sender == address(_balancerVault), "Invalid Flash Loan Lender");
-        require(tokens.length == 1, "Invalid Token List");
-        require(amounts.length == 1, "Invalid Amount List");
-        require(feeAmounts.length == 1, "Invalid Fees Amount");
+        if (msg.sender != address(_balancerVault)) revert InvalidFlashLoadLender();
+        if (tokens.length != 1) revert InvalidTokenList();
+        if (amounts.length != 1) revert InvalidAmountList();
+        if (feeAmounts.length != 1) revert InvalidFeesAmount();
+
         (address borrower, bytes memory originalCallData) = abi.decode(userData, (address, bytes));
-        //require(borrower == address(this), "Invalid Flash Borrower");
         address asset = tokens[0];
         uint256 amount = amounts[0];
         uint256 fee = feeAmounts[0];
         // Transfer the loan received to borrower
         IERC20(asset).safeTransfer(borrower, amount);
 
-        require(
+        if (
             IERC3156FlashBorrowerUpgradeable(borrower).onFlashLoan(
                 borrower,
                 tokens[0],
                 amounts[0],
                 feeAmounts[0],
                 originalCallData
-            ) == CALLBACK_SUCCESS,
-            "FlashBorrower: Callback failed"
-        );
+            ) != CALLBACK_SUCCESS
+        ) {
+            revert BorrowerCallbackFailed();
+        }
         // Verify that this contract is able to pay the debt
-        require(
-            IERC20(asset).allowance(address(borrower), address(this)) >= fee + amount,
-            "No allowance to pay debt"
-        );
+        if (IERC20(asset).allowance(address(borrower), address(this)) < fee + amount) {
+            revert NoAllowanceToPayDebt();
+        }
         // Return the loan + fee to the vault
         IERC20(asset).safeTransferFrom(address(borrower), address(_balancerVault), amount + fee);
     }
-
 }
