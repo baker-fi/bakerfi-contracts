@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
-import {IFlashLoanRecipient, IFlashLoans } from "../interfaces/balancer/IFlashLoan.sol";
+import {IFlashLoanRecipient} from "../interfaces/balancer/IFlashLoan.sol";
 import {IProtocolFeesCollector} from "../interfaces/balancer/IProtocolFeesCollector.sol";
-import {IVault } from "../interfaces/balancer/IVault.sol";
+import {IVault} from "../interfaces/balancer/IVault.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract BalancerVaultMock is IVault, IProtocolFeesCollector{
