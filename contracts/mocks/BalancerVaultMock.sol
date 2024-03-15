@@ -5,10 +5,15 @@ import {IProtocolFeesCollector} from "../interfaces/balancer/IProtocolFeesCollec
 import {IVault } from "../interfaces/balancer/IVault.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-
 contract BalancerVaultMock is IVault, IProtocolFeesCollector{
     
     IERC20 private immutable _flashLoanToken;
+
+    error InvalidTokenList();
+    error InvalidAmountList();
+    error InvalidToken();
+    error NoEnoughBalance();
+    error LoanNotPaid();
 
     constructor(
         IERC20 flashLoanToken
@@ -30,11 +35,11 @@ contract BalancerVaultMock is IVault, IProtocolFeesCollector{
         uint256[] memory amounts,
         bytes memory userData
     ) external override {
-        require(tokens.length == 1, "Invalid Tokens Len");
-        require(amounts.length == 1, "Invalid Amounts Len");
-        require(tokens[0]== address(_flashLoanToken), "Invalid Flash Loan requested");
+        if(tokens.length != 1) revert InvalidTokenList();
+        if(amounts.length != 1) revert InvalidAmountList();
+        if(tokens[0]!= address(_flashLoanToken)) revert InvalidToken();
         uint256 balanceBefore = _flashLoanToken.balanceOf(address(this));        
-        require(balanceBefore > amounts[0] , "Not Enough Balance");
+        if(balanceBefore <= amounts[0]) revert NoEnoughBalance();
         uint256[] memory fees = new uint256[](1);
         _flashLoanToken.transfer(recipient, amounts[0]);
         IFlashLoanRecipient(recipient).receiveFlashLoan(
@@ -44,6 +49,6 @@ contract BalancerVaultMock is IVault, IProtocolFeesCollector{
             userData
         );
         uint256 balanceAfter = _flashLoanToken.balanceOf(address(this));        
-        require(balanceAfter == balanceBefore, "Flash Loan not returned");
+        if(balanceAfter < balanceBefore) revert LoanNotPaid();
     }
 }

@@ -4,10 +4,9 @@ pragma solidity ^0.8.18;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC3156FlashLenderUpgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashLenderUpgradeable.sol";
-import {IFlashLoans, IFlashLoanRecipient} from "../../interfaces/balancer/IFlashLoan.sol";
+import {IFlashLoanRecipient} from "../../interfaces/balancer/IFlashLoan.sol";
 import {IVault} from "../../interfaces/balancer/IVault.sol";
 import {ServiceRegistry, BALANCER_VAULT_CONTRACT} from "../../core/ServiceRegistry.sol";
-import {UseStrategy} from "../../core/hooks/UseStrategy.sol";
 import {IERC3156FlashBorrowerUpgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashBorrowerUpgradeable.sol";
 
 /**
@@ -36,7 +35,7 @@ contract BalancerFlashLender is IERC3156FlashLenderUpgradeable, IFlashLoanRecipi
 
     bytes32 public constant CALLBACK_SUCCESS = keccak256("ERC3156FlashBorrower.onFlashLoan");
 
-    uint256 private constant BALANCER_MAX_FEE_PERCENTAGE = 1e18; // 100%
+    uint256 private constant _BALANCER_MAX_FEE_PERCENTAGE = 1e18; // 100%
 
     IVault private immutable _balancerVault;
 
@@ -65,7 +64,7 @@ contract BalancerFlashLender is IERC3156FlashLenderUpgradeable, IFlashLoanRecipi
             return 0;
         }
 
-        return amount * perc / BALANCER_MAX_FEE_PERCENTAGE;
+        return amount * perc / _BALANCER_MAX_FEE_PERCENTAGE;
     }
 
     /**

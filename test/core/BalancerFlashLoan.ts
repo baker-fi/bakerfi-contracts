@@ -92,7 +92,7 @@ describeif(network.name === "hardhat")("Balancer Flash Loan", function () {
     const fl = await deployBalancerFL(serviceRegistry);
 
     const borrower = await deployFlashBorrowerMock(serviceRegistry);
-    return { owner, otherAccount, weth, borrower, config, fl };
+    return { owner, otherAccount, weth, borrower, config, fl, balancerVault};
   }
 
   it("Borrow 10ETH", async () => {
@@ -117,12 +117,12 @@ describeif(network.name === "hardhat")("Balancer Flash Loan", function () {
   });
 
   it("No Enough Balance to borrow", async () => {
-    const { weth, owner, fl, config, borrower } = await loadFixture(
+    const { weth, balancerVault, fl, config, borrower } = await loadFixture(
       deployFunction
     );
     await expect(
       borrower.flashme(await weth.getAddress(), ethers.parseUnits("10000", 18))
-    ).to.be.revertedWith("Not Enough Balance");
+    ).to.be.revertedWithCustomError(balancerVault, "NoEnoughBalance");
   });
 
   it("Flash Fee 0", async () => {
