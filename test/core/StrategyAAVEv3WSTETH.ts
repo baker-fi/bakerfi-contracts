@@ -41,7 +41,7 @@ describeif(network.name === "hardhat")("Strategy Mainnet wstETH/ETH", function (
       FLASH_LENDER_DEPOSIT
     );
     const { proxy: settingsProxy } = await deploySettings(
-      owner.address, serviceRegistry, true,
+      owner.address, serviceRegistry,
       proxyAdmin
     );
     const pSettings = await ethers.getContractAt(
@@ -101,7 +101,6 @@ describeif(network.name === "hardhat")("Strategy Mainnet wstETH/ETH", function (
       serviceRegistryAddress,
       config.swapFeeTier,
       config.AAVEEModeCategory,
-      true,
       proxyAdmin
     );
 

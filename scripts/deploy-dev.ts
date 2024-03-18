@@ -81,7 +81,6 @@ async function main() {
   const { settings, proxy: settingsProxy} = await deploySettings(
     owner.address, 
     serviceRegistry, 
-    true, 
     proxyAdmin
   );
   result.push(["Settings", await settings.getAddress()])  
@@ -153,7 +152,6 @@ async function main() {
     await serviceRegistry.getAddress(), 
     config.swapFeeTier,
     config.AAVEEModeCategory,
-    true,
     proxyAdmin
   );
   
@@ -173,7 +171,6 @@ async function main() {
       config.vaultSharesSymbol,
       await serviceRegistry.getAddress(),
       await strategyProxy.getAddress(),
-      true,
       proxyAdmin
   );
   result.push(["BakerFi Vault 🕋", await vault.getAddress()])

@@ -60,7 +60,6 @@ async function main() {
   const { settings, proxy: settinsProxyDeploy }= await deploySettings(
     deployer.address, 
     serviceRegistry, 
-    true, 
     proxyAdmin
   ); 
     
@@ -224,7 +223,6 @@ async function deployStrategy(config: any, deployer, serviceRegistry, proxied: b
         config.strategy.oracle,
         config.swapFeeTier,
         config.AAVEEModeCategory,
-        proxied,
         proxyAdmin
       );     
       return res;

@@ -18,7 +18,6 @@ describeif(network.name === "hardhat")
     const {  proxy } = await deploySettings(
       otherAccount.address,
       serviceRegistry,
-      true,
       proxyAdmin
     );   
 

@@ -38,7 +38,6 @@ export async function deployBase() {
   const { proxy: settingsProxyDeploy } = await deploySettings(
     deployer.address,
     serviceRegistry,
-    true,
     proxyAdmin
   );
 
@@ -92,7 +91,6 @@ export async function deployBase() {
     "cbETH/USD Oracle",
     config.swapFeeTier,
     config.AAVEEModeCategory,
-    true,
     proxyAdmin
   );
 
@@ -166,7 +164,6 @@ export async function deployOptimism() {
   const { proxy: settingsProxyDeploy } = await deploySettings(
     deployer.address,
     serviceRegistry,
-    true,
     proxyAdmin
   );
 
@@ -220,7 +217,6 @@ export async function deployOptimism() {
     "wstETH/USD Oracle",
     config.swapFeeTier,
     config.AAVEEModeCategory,
-    true,
     proxyAdmin
   );
 
@@ -298,7 +294,6 @@ export async function deployEthereum() {
   const { proxy: settingsProxyDeploy } = await deploySettings(
     deployer.address,
     serviceRegistry,
-    true,
     proxyAdmin
   );
 
@@ -350,7 +345,6 @@ export async function deployEthereum() {
     await serviceRegistry.getAddress(),
     config.swapFeeTier,
     config.AAVEEModeCategory,
-    true,
     proxyAdmin
   );
 

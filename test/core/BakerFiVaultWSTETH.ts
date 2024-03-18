@@ -65,7 +65,7 @@ describeif(network.name === "hardhat")
     await uniRouter.setPrice(8665 * 1e5);
 
     const { proxy: settingsProxy } = await deploySettings(
-      owner.address, serviceRegistry, true,
+      owner.address, serviceRegistry,
       proxyAdmin
     );
     const pSettings = await ethers.getContractAt(
@@ -99,7 +99,6 @@ describeif(network.name === "hardhat")
       serviceRegistryAddress,
       config.swapFeeTier,
       config.AAVEEModeCategory,
-      true, 
       proxyAdmin
     );
     
@@ -466,7 +465,7 @@ describeif(network.name === "hardhat")
     
     const serviceRegistry = await deployServiceRegistry(owner.address);
     const { proxy: settingsProxy } = await deploySettings(
-      owner.address, serviceRegistry, true,
+      owner.address, serviceRegistry,
       proxyAdmin
     );
     const pSettings = await ethers.getContractAt(

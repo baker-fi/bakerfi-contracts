@@ -39,7 +39,7 @@ describeif(network.name === "hardhat")
     await proxyAdmin.waitForDeployment();
 
     const { proxy: settingsProxy } = await deploySettings(
-      owner.address, serviceRegistry, true,
+      owner.address, serviceRegistry,
       proxyAdmin
       );
     const pSettings = await ethers.getContractAt(
@@ -106,7 +106,6 @@ describeif(network.name === "hardhat")
       "cbETH/ETH Oracle",
       config.swapFeeTier,
       config.AAVEEModeCategory,
-      true,
       proxyAdmin
     );
     const pStrategy = await ethers.getContractAt(
@@ -259,7 +258,6 @@ describeif(network.name === "hardhat")
       "cbETH/ETH Oracle",
       config.swapFeeTier,
       config.AAVEEModeCategory,
-      true,
       proxyAdmin
     );
     const pStrategy = await ethers.getContractAt(

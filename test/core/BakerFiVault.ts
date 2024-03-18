@@ -74,7 +74,7 @@ describeif(network.name === "hardhat")
       ethers.parseUnits("10000", 18)
     );
 
-    const { proxy: settingsProxy } = await deploySettings(owner.address, serviceRegistry, true,
+    const { proxy: settingsProxy } = await deploySettings(owner.address, serviceRegistry,
       proxyAdmin);
     const pSettings = await ethers.getContractAt(
         "Settings",
@@ -106,7 +106,6 @@ describeif(network.name === "hardhat")
       "cbETH/USD Oracle",
       config.swapFeeTier,
       config.AAVEEModeCategory,
-      true, 
       proxyAdmin
     );
 

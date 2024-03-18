@@ -56,38 +56,26 @@ export async function deployVault(
   tokenSymbol: string,
   serviceRegistry: string,
   strategy: string,
-  proxied?: boolean,
   proxyAdmin?: any
 ) {
   const Vault = await ethers.getContractFactory("Vault");
   const vault = await Vault.deploy();
   await vault.waitForDeployment();
   
-  let proxy: any = null;  
-  if (proxied) {
-    const BakerFiProxy = await ethers.getContractFactory("BakerFiProxy");
-    proxy = await BakerFiProxy.deploy(
-      await vault.getAddress(),
-      await proxyAdmin.getAddress(),
-      Vault.interface.encodeFunctionData("initialize", [
-        owner, 
-        tokenName,
-        tokenSymbol,
-        serviceRegistry, 
-        strategy
-      ])
-    );
-    await (proxy as any).waitForDeployment();
-  } else {
-    await vault.initialize(
+
+  const BakerFiProxy = await ethers.getContractFactory("BakerFiProxy");
+  const proxy = await BakerFiProxy.deploy(
+    await vault.getAddress(),
+    await proxyAdmin.getAddress(),
+    Vault.interface.encodeFunctionData("initialize", [
       owner, 
       tokenName,
       tokenSymbol,
       serviceRegistry, 
       strategy
-    );
-   
-  }
+    ])
+  );
+  await (proxy as any).waitForDeployment();
   return { proxy , vault };
 }
 
@@ -96,37 +84,25 @@ export async function deployStrategyAAVEv3WstETH(
   serviceRegistry: string,
   swapFreeTier: number,
   emodeCategory: number,
-  proxied?: boolean,
   proxyAdmin?: any
 ) {
   const StrategyAAVEv3 = await ethers.getContractFactory(
     "StrategyAAVEv3WstETH"
   );
   const strategy = await StrategyAAVEv3.deploy();
-  await strategy.waitForDeployment();
-  let proxy: any = null;  
-
-  if(proxied) {
-    const BakerFiProxy = await ethers.getContractFactory("BakerFiProxy");
-    proxy = await BakerFiProxy.deploy(
-      await strategy.getAddress(),
-      await proxyAdmin.getAddress(),
-      StrategyAAVEv3.interface.encodeFunctionData("initialize", [
-        owner, 
-        serviceRegistry,
-        swapFreeTier,
-        emodeCategory
-      ])
-    );
-    await (proxy as any).waitForDeployment();
-  } else {
-    await strategy.initialize(
+  await strategy.waitForDeployment(); 
+  const BakerFiProxy = await ethers.getContractFactory("BakerFiProxy");
+  const proxy = await BakerFiProxy.deploy(
+    await strategy.getAddress(),
+    await proxyAdmin.getAddress(),
+    StrategyAAVEv3.interface.encodeFunctionData("initialize", [
       owner, 
       serviceRegistry,
       swapFreeTier,
       emodeCategory
-    );
-  }
+    ])
+  );
+  await (proxy as any).waitForDeployment(); 
   return { strategy , proxy };
 }
 
@@ -137,39 +113,25 @@ export async function deployAAVEv3StrategyAny(
   oracle: string,
   swapFreeTier: number,
   emodeCategory: number,
-  proxied?: boolean,
   proxyAdmin?: any
 ) {
   const StrategyAAVEv3 = await ethers.getContractFactory("StrategyAAVEv3");
   const strategy = await StrategyAAVEv3.deploy();
   await strategy.waitForDeployment();
-  let proxy: any = null;  
-  if ( proxied ) {
-    const BakerFiProxy = await ethers.getContractFactory("BakerFiProxy");
-    proxy = await BakerFiProxy.deploy(
-      await strategy.getAddress(),
-      await proxyAdmin.getAddress(),
-      StrategyAAVEv3.interface.encodeFunctionData("initialize", [
-        owner,
-        serviceRegistry,
-        ethers.keccak256(Buffer.from(collateral)),
-        ethers.keccak256(Buffer.from(oracle)),
-        swapFreeTier,
-        emodeCategory
-      ])
-    );
-    await (proxy as any).waitForDeployment();
-  } else {
-  await strategy.initialize(
+  const BakerFiProxy = await ethers.getContractFactory("BakerFiProxy");
+  const proxy = await BakerFiProxy.deploy(
+    await strategy.getAddress(),
+    await proxyAdmin.getAddress(),
+    StrategyAAVEv3.interface.encodeFunctionData("initialize", [
     owner,
     serviceRegistry,
     ethers.keccak256(Buffer.from(collateral)),
     ethers.keccak256(Buffer.from(oracle)),
     swapFreeTier,
     emodeCategory
+  ])
   );
-
-  }
+  await ( proxy as any).waitForDeployment();
   return { strategy , proxy};
 }
 
@@ -340,36 +302,24 @@ export async function deployWSTETHToUSDOracle(
 export async function deploySettings(
   owner: string, 
   serviceRegistry, 
-  proxied?: boolean,
   proxyAdmin?: any
 ) {
   const Settings = await ethers.getContractFactory("Settings");
   const settings = await Settings.deploy();
-  await settings.waitForDeployment();
-  let proxy: any = null;  
-  
-  if (proxied) {
-    const BakerFiProxy = await ethers.getContractFactory("BakerFiProxy");
-    proxy = await BakerFiProxy.deploy(
-      await settings.getAddress(),
-      await proxyAdmin.getAddress(),
-      Settings.interface.encodeFunctionData("initialize", [
-        owner,      
-      ])
-    );
-    await proxy.waitForDeployment();
-    await serviceRegistry.registerService(
-      ethers.keccak256(Buffer.from("Settings")),
-      await proxy.getAddress()
-    );
-  } else {
-    await settings.initialize(owner);
-    await serviceRegistry.registerService(
-      ethers.keccak256(Buffer.from("Settings")),
-      await settings.getAddress()
-    );
-  }
-    
+  await settings.waitForDeployment();  
+  const BakerFiProxy = await ethers.getContractFactory("BakerFiProxy");
+  const proxy = await BakerFiProxy.deploy(
+    await settings.getAddress(),
+    await proxyAdmin.getAddress(),
+    Settings.interface.encodeFunctionData("initialize", [
+      owner,      
+    ])
+  );
+  await proxy.waitForDeployment();
+  await serviceRegistry.registerService(
+    ethers.keccak256(Buffer.from("Settings")),
+    await proxy.getAddress()
+  );     
   return { settings , proxy };
 }
 
