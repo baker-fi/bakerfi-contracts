@@ -11,7 +11,7 @@ import {
     deployFlashLender,
     deployOracleMock,
     deployWETH,
-    deployAAVEv3StrategyWstETH,
+    deployStrategyAAVEv3WstETH,
     deploySettings,
     deployQuoterV2Mock,
   } from "../../scripts/common";

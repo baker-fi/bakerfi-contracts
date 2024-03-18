@@ -99,19 +99,24 @@ describeif(network.name === "hardhat")
 
     await deployQuoterV2Mock(serviceRegistry);
 
-    const { strategy } = await deployAAVEv3StrategyAny(
+    const { proxy: proxyStrategy } = await deployAAVEv3StrategyAny(
       owner.address,
       serviceRegistryAddress,
       "cbETH",
       "cbETH/ETH Oracle",
       config.swapFeeTier,
-      config.AAVEEModeCategory
+      config.AAVEEModeCategory,
+      true,
+      proxyAdmin
     );
-
+    const pStrategy = await ethers.getContractAt(
+      "StrategyAAVEv3",
+      await proxyStrategy.getAddress()
+    );
 
     await serviceRegistry.registerService(
       ethers.keccak256(Buffer.from("Strategy")),
-      await strategy.getAddress()
+      await proxyStrategy.getAddress()
     );
     return {
       cbETH,
@@ -121,7 +126,7 @@ describeif(network.name === "hardhat")
       serviceRegistry,
       aave3Pool,
       flashLender,
-      strategy,
+      strategy: pStrategy,
       oracle,
       ethOracle,
       settings: pSettings,
@@ -237,7 +242,9 @@ describeif(network.name === "hardhat")
   it("onFlashLoan - Invalid Flash Loan Asset", async () => {
     const { owner, serviceRegistry, otherAccount, aave3Pool, config } =
       await loadFixture(deployFunction);
-
+    const BakerFiProxyAdmin = await ethers.getContractFactory("BakerFiProxyAdmin");
+    const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
+    await proxyAdmin.waitForDeployment();
     await serviceRegistry.unregisterService(
       ethers.keccak256(Buffer.from("FlashLender"))
     );
@@ -245,18 +252,24 @@ describeif(network.name === "hardhat")
       ethers.keccak256(Buffer.from("FlashLender")),
       owner.address
     );
-    const { strategy } = await deployAAVEv3StrategyAny(
+    const { proxy: proxyStrategy } = await deployAAVEv3StrategyAny(
       owner.address,
       await serviceRegistry.getAddress(),
       "cbETH",
       "cbETH/ETH Oracle",
       config.swapFeeTier,
-      config.AAVEEModeCategory
+      config.AAVEEModeCategory,
+      true,
+      proxyAdmin
+    );
+    const pStrategy = await ethers.getContractAt(
+      "StrategyAAVEv3",
+      await proxyStrategy.getAddress()
     );
 
     await expect(
-      strategy.onFlashLoan(
-        await strategy.getAddress(),
+      pStrategy.onFlashLoan(
+        await proxyStrategy.getAddress(),
         otherAccount.address,
         ethers.parseUnits("10", 18),
         0,

@@ -10,7 +10,7 @@ import {
   deployWETH,
   deployOracleMock,
   deployWStEth,
-  deployAAVEv3StrategyWstETH,
+  deployStrategyAAVEv3WstETH,
   deploySettings,
   deployBKR,
 } from "./common";
@@ -147,8 +147,8 @@ async function main() {
   result.push(["ETH/USD Oracle", await ethOracle.getAddress()])  
 
   // Deploying Proxied Strategy
-  spinner.text = "Deploying AAVEv3StrategyWstETH";  
-  const { strategy, proxy: strategyProxy } = await deployAAVEv3StrategyWstETH( 
+  spinner.text = "Deploying StrategyAAVEv3WstETH";  
+  const { strategy, proxy: strategyProxy } = await deployStrategyAAVEv3WstETH( 
     owner.address,
     await serviceRegistry.getAddress(), 
     config.swapFeeTier,
@@ -181,7 +181,7 @@ async function main() {
   
   spinner.text = "Transferring Vault Ownership";  
   const strategyProxied = await ethers.getContractAt(
-    "AAVEv3StrategyWstETH", await (strategyProxy as any).getAddress()
+    "StrategyAAVEv3WstETH", await (strategyProxy as any).getAddress()
   );
   await strategyProxied.transferOwnership(vaultProxy);
 

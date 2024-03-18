@@ -11,7 +11,7 @@ import {
   deployFlashLender,
   deployOracleMock,
   deployWETH,
-  deployAAVEv3StrategyWstETH,
+  deployStrategyAAVEv3WstETH,
   deploySettings,
   deployQuoterV2Mock,
 } from "../../scripts/common";
@@ -94,11 +94,18 @@ describeif(network.name === "hardhat")
     await ethOracle.setLatestPrice(ethers.parseUnits("2305", 18));
 
 
-    const {strategy} = await deployAAVEv3StrategyWstETH(
+    const {proxy: proxyStrategy} = await deployStrategyAAVEv3WstETH(
       owner.address,
       serviceRegistryAddress,
       config.swapFeeTier,
-      config.AAVEEModeCategory
+      config.AAVEEModeCategory,
+      true, 
+      proxyAdmin
+    );
+    
+    const pStrategy = await ethers.getContractAt(
+      "StrategyAAVEv3WstETH",
+      await proxyStrategy.getAddress()
     );
 
     const { proxy } = await deployVault(
@@ -106,7 +113,7 @@ describeif(network.name === "hardhat")
       "Bread ETH",
       "brETH",
       serviceRegistryAddress,
-      await strategy.getAddress(),
+      await proxyStrategy.getAddress(),
       true, 
       proxyAdmin
     );
@@ -116,7 +123,7 @@ describeif(network.name === "hardhat")
       await proxy.getAddress()
     );
 
-    await strategy.transferOwnership(await proxy.getAddress());
+    await pStrategy.transferOwnership(await proxy.getAddress());
     return {
       stETH,
       weth,
@@ -130,7 +137,7 @@ describeif(network.name === "hardhat")
       flashLender,
       wstETH,
       oracle,
-      strategy,
+      strategy: pStrategy,
       settings: pSettings,
       config,
     };

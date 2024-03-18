@@ -91,7 +91,7 @@ export async function deployVault(
   return { proxy , vault };
 }
 
-export async function deployAAVEv3StrategyWstETH(
+export async function deployStrategyAAVEv3WstETH(
   owner: string,
   serviceRegistry: string,
   swapFreeTier: number,
@@ -100,7 +100,7 @@ export async function deployAAVEv3StrategyWstETH(
   proxyAdmin?: any
 ) {
   const StrategyAAVEv3 = await ethers.getContractFactory(
-    "AAVEv3StrategyWstETH"
+    "StrategyAAVEv3WstETH"
   );
   const strategy = await StrategyAAVEv3.deploy();
   await strategy.waitForDeployment();

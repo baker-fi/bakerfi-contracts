@@ -30,6 +30,11 @@ import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/I
 contract StrategyAAVEv3 is Initializable, StrategyAAVEv3Base {
     using SafeERC20 for IERC20;
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
     // solhint-disable no-empty-blocks  
     function initialize(
         address initialOwner,

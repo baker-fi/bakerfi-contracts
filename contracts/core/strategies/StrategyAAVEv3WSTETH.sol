@@ -30,9 +30,15 @@ import { WST_ETH_CONTRACT, WSTETH_USD_ORACLE_CONTRACT } from "../ServiceRegistry
  * mechanisms to convert from collateral token to debt token.
  * 
  */
-contract AAVEv3StrategyWstETH is Initializable, StrategyAAVEv3Base, UseWstETH, UseStETH {
+contract StrategyAAVEv3WstETH is Initializable, StrategyAAVEv3Base, UseWstETH, UseStETH {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using AddressUpgradeable for address payable;
+
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
     // solhint-disable no-empty-blocks        
     function initialize(
         address initialOwner,

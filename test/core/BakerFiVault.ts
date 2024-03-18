@@ -99,26 +99,33 @@ describeif(network.name === "hardhat")
     await deployQuoterV2Mock(serviceRegistry);
 
 
-    const { strategy } = await deployAAVEv3StrategyAny(
+    const { proxy: proxyStrategy } = await deployAAVEv3StrategyAny(
       owner.address,
       serviceRegistryAddress,
       "cbETH",
       "cbETH/USD Oracle",
       config.swapFeeTier,
-      config.AAVEEModeCategory
-    );
-
-    const { proxy, vault } = await deployVault(      
-      owner.address,
-      "Bread ETH",
-      "brETH",
-      serviceRegistryAddress,
-      await strategy.getAddress(),
+      config.AAVEEModeCategory,
       true, 
       proxyAdmin
     );
 
-    await strategy.transferOwnership(await proxy.getAddress());
+    const pStrategy = await ethers.getContractAt(
+      "StrategyAAVEv3",
+      await proxyStrategy.getAddress()
+    );
+
+    const { proxy  } = await deployVault(      
+      owner.address,
+      "Bread ETH",
+      "brETH",
+      serviceRegistryAddress,
+      await proxyStrategy.getAddress(),
+      true, 
+      proxyAdmin
+    );
+
+    await pStrategy.transferOwnership(await proxy.getAddress());
     const pVault = await ethers.getContractAt(
       "Vault",
       await proxy.getAddress()
@@ -135,7 +142,7 @@ describeif(network.name === "hardhat")
       flashLender,
       uniRouter,
       oracle,
-      strategy,
+      strategy: pStrategy,
       settings: pSettings,
     };
   }

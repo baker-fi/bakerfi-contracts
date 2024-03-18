@@ -10,7 +10,7 @@ import {
   deployFlashLender,
   deployOracleMock,
   deployWETH,
-  deployAAVEv3StrategyWstETH,
+  deployStrategyAAVEv3WstETH,
   deployQuoterV2Mock,
 } from "../../scripts/common";
 import { describeif } from "../common";
@@ -96,11 +96,18 @@ describeif(network.name === "hardhat")("Strategy Mainnet wstETH/ETH", function (
     await oracle.setLatestPrice(ethers.parseUnits("2660", 18));
     await ethOracle.setLatestPrice(ethers.parseUnits("2305", 18));
 
-    const { strategy } = await deployAAVEv3StrategyWstETH(
+    const { proxy: proxyStrategy } = await deployStrategyAAVEv3WstETH(
       owner.address,
       serviceRegistryAddress,
       config.swapFeeTier,
-      config.AAVEEModeCategory
+      config.AAVEEModeCategory,
+      true,
+      proxyAdmin
+    );
+
+    const pStrategy = await ethers.getContractAt(
+      "StrategyAAVEv3WstETH",
+      await proxyStrategy.getAddress()
     );
 
     return {
@@ -114,7 +121,7 @@ describeif(network.name === "hardhat")("Strategy Mainnet wstETH/ETH", function (
       config,
       flashLender,
       wstETH,
-      strategy,
+      strategy: pStrategy,
       oracle,
       settings: pSettings,
     };

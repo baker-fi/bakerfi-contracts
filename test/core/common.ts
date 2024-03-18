@@ -8,7 +8,7 @@ import {
   deployUniSwapper,
   deployCbETHToUSDOracle,
   deployWSTETHToUSDOracle,
-  deployAAVEv3StrategyWstETH,
+  deployStrategyAAVEv3WstETH,
   deploySettings,
 } from "../../scripts/common";
 
@@ -345,7 +345,7 @@ export async function deployEthereum() {
   await deployETHOracle(serviceRegistry, config.pyth);
 
   // 12. Deploy the Strategy
-  const { proxy: strategyProxyDeploy } = await deployAAVEv3StrategyWstETH(
+  const { proxy: strategyProxyDeploy } = await deployStrategyAAVEv3WstETH(
     deployer.address,
     await serviceRegistry.getAddress(),
     config.swapFeeTier,
@@ -379,7 +379,7 @@ export async function deployEthereum() {
     await settingsProxyDeploy.getAddress()
   );
   const strategyProxy = await ethers.getContractAt(
-    "AAVEv3StrategyWstETH",
+    "StrategyAAVEv3WstETH",
     await strategyProxyDeploy.getAddress()
   );
   const vaultProxy = await ethers.getContractAt(
