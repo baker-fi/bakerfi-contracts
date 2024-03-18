@@ -31,6 +31,9 @@ describeif(network.name === "hardhat")
     const serviceRegistry = await deployServiceRegistry(owner.address);
     const serviceRegistryAddress = await serviceRegistry.getAddress();
     const weth = await deployWETH(serviceRegistry);
+    const BakerFiProxyAdmin = await ethers.getContractFactory("BakerFiProxyAdmin");
+    const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
+    await proxyAdmin.waitForDeployment();
 
     // Deploy Flash Lender
     const flashLender = await deployFlashLender(
@@ -71,7 +74,12 @@ describeif(network.name === "hardhat")
       ethers.parseUnits("10000", 18)
     );
 
-    const { settings } = await deploySettings(owner.address, serviceRegistry);
+    const { proxy: settingsProxy } = await deploySettings(owner.address, serviceRegistry, true,
+      proxyAdmin);
+    const pSettings = await ethers.getContractAt(
+        "Settings",
+        await settingsProxy.getAddress()
+    );
 
     // 5. Deploy AAVEv3 Mock Pool
     const aave3Pool = await deployAaveV3(
@@ -90,9 +98,6 @@ describeif(network.name === "hardhat")
 
     await deployQuoterV2Mock(serviceRegistry);
 
-    const BakerFiProxyAdmin = await ethers.getContractFactory("BakerFiProxyAdmin");
-    const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
-    await proxyAdmin.waitForDeployment();
 
     const { strategy } = await deployAAVEv3StrategyAny(
       owner.address,
@@ -131,7 +136,7 @@ describeif(network.name === "hardhat")
       uniRouter,
       oracle,
       strategy,
-      settings,
+      settings: pSettings,
     };
   }
 

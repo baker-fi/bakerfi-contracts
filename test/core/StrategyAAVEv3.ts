@@ -19,7 +19,8 @@ import { describeif } from "../common";
 
 import BaseConfig from "../../scripts/config";
 
-describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
+describeif(network.name === "hardhat")
+("Strategy AAVE v3 L2", function () {
   
   async function deployFunction() {
     
@@ -31,8 +32,21 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
     const AAVE_DEPOSIT = ethers.parseUnits("10000", 18);
     const serviceRegistry = await deployServiceRegistry(owner.address);
     const serviceRegistryAddress = await serviceRegistry.getAddress();
-    const { settings } = await deploySettings(owner.address, serviceRegistry);
+    
     const weth = await deployWETH(serviceRegistry);
+    const BakerFiProxyAdmin = await ethers.getContractFactory("BakerFiProxyAdmin");
+    const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
+    await proxyAdmin.waitForDeployment();
+
+    const { proxy: settingsProxy } = await deploySettings(
+      owner.address, serviceRegistry, true,
+      proxyAdmin
+      );
+    const pSettings = await ethers.getContractAt(
+        "Settings",
+        await settingsProxy.getAddress()
+    );
+
     // 1. Deploy Flash Lender
     const flashLender = await deployFlashLender(
       serviceRegistry,
@@ -110,7 +124,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
       strategy,
       oracle,
       ethOracle,
-      settings,
+      settings: pSettings,
       config,
     };
   }

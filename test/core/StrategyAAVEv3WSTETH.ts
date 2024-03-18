@@ -30,13 +30,24 @@ describeif(network.name === "hardhat")("Strategy Mainnet wstETH/ETH", function (
     const serviceRegistry = await deployServiceRegistry(owner.address);
     const serviceRegistryAddress = await serviceRegistry.getAddress();
     const weth = await deployWETH(serviceRegistry);
+    const BakerFiProxyAdmin = await ethers.getContractFactory("BakerFiProxyAdmin");
+    const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
+    await proxyAdmin.waitForDeployment();
+
     // 1. Deploy Flash Lender
     const flashLender = await deployFlashLender(
       serviceRegistry,
       weth,
       FLASH_LENDER_DEPOSIT
     );
-    const { settings } = await deploySettings(owner.address, serviceRegistry);
+    const { proxy: settingsProxy } = await deploySettings(
+      owner.address, serviceRegistry, true,
+      proxyAdmin
+    );
+    const pSettings = await ethers.getContractAt(
+      "Settings",
+      await settingsProxy.getAddress()
+  );
     // 2. Deploy stETH
     const stETH = await deployStEth(serviceRegistry, owner, STETH_MAX_SUPPLY);
     // 3. Deploy wstETH
@@ -105,7 +116,7 @@ describeif(network.name === "hardhat")("Strategy Mainnet wstETH/ETH", function (
       wstETH,
       strategy,
       oracle,
-      settings,
+      settings: pSettings,
     };
   }
 

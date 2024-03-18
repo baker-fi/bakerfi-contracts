@@ -32,6 +32,10 @@ describeif(network.name === "hardhat")
     const serviceRegistry = await deployServiceRegistry(owner.address);
     const serviceRegistryAddress = await serviceRegistry.getAddress();
     const weth = await deployWETH(serviceRegistry);
+    const BakerFiProxyAdmin = await ethers.getContractFactory("BakerFiProxyAdmin");
+    const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
+    await proxyAdmin.waitForDeployment();
+
     // 1. Deploy Flash Lender
     const flashLender = await deployFlashLender(
       serviceRegistry,
@@ -60,8 +64,14 @@ describeif(network.name === "hardhat")
 
     await uniRouter.setPrice(8665 * 1e5);
 
-    const { settings } = await deploySettings(owner.address, serviceRegistry);
-
+    const { proxy: settingsProxy } = await deploySettings(
+      owner.address, serviceRegistry, true,
+      proxyAdmin
+    );
+    const pSettings = await ethers.getContractAt(
+      "Settings",
+      await settingsProxy.getAddress()
+    );
     // Deposit some WETH on Swapper
     await weth.deposit?.call("", { value: ethers.parseUnits("10000", 18) });
     await weth.transfer(
@@ -90,9 +100,6 @@ describeif(network.name === "hardhat")
       config.swapFeeTier,
       config.AAVEEModeCategory
     );
-    const BakerFiProxyAdmin = await ethers.getContractFactory("BakerFiProxyAdmin");
-    const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
-    await proxyAdmin.waitForDeployment();
 
     const { proxy } = await deployVault(
       owner.address,
@@ -124,7 +131,7 @@ describeif(network.name === "hardhat")
       wstETH,
       oracle,
       strategy,
-      settings,
+      settings: pSettings,
       config,
     };
   }
@@ -442,21 +449,6 @@ describeif(network.name === "hardhat")
 
   async function deployMockStrategyFunction() {
     const [owner, otherAccount, anotherAccount] = await ethers.getSigners();
-    const Settings = await ethers.getContractFactory("Settings");
-    const settings = await Settings.deploy();
-    await settings.initialize(owner);
-    await settings.waitForDeployment();
-    
-    const serviceRegistry = await deployServiceRegistry(owner.address);
-
-    const StrategyMock = await ethers.getContractFactory("StrategyMock");
-    const strategy = await StrategyMock.deploy();
-    await strategy.waitForDeployment();
-    
-    await serviceRegistry.registerService(
-      ethers.keccak256(Buffer.from("Settings")),
-      await settings.getAddress()
-    );
     const BakerFiProxyAdmin = await ethers.getContractFactory("BakerFiProxyAdmin");
     const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
     await proxyAdmin.waitForDeployment();
@@ -464,6 +456,21 @@ describeif(network.name === "hardhat")
     const Vault = await ethers.getContractFactory("Vault");
     const vault = await Vault.deploy();
     await vault.waitForDeployment();
+    
+    const serviceRegistry = await deployServiceRegistry(owner.address);
+    const { proxy: settingsProxy } = await deploySettings(
+      owner.address, serviceRegistry, true,
+      proxyAdmin
+    );
+    const pSettings = await ethers.getContractAt(
+      "Settings",
+      await settingsProxy.getAddress()
+    );
+    
+    const StrategyMock = await ethers.getContractFactory("StrategyMock");
+    const strategy = await StrategyMock.deploy();
+    await strategy.waitForDeployment();
+      
     const proxy = await BakerFiProxy.deploy(
       await vault.getAddress(),
       await proxyAdmin.getAddress(),
@@ -481,7 +488,7 @@ describeif(network.name === "hardhat")
       "Vault",
       await proxy.getAddress()
     );
-    return {owner, otherAccount, settings, vault: pVault, strategy};
+    return {owner, otherAccount, settings: pSettings, vault: pVault, strategy};
   }
 
 

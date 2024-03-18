@@ -15,7 +15,8 @@ import {
 
 import BaseConfig from "../../scripts/config";
 
-describeif(network.name === "hardhat")("Strategy Proxy", function () {
+describeif(network.name === "hardhat")
+("Strategy Proxy", function () {
   
   async function deployFunction() {
     const networkName = network.name;
@@ -26,14 +27,30 @@ describeif(network.name === "hardhat")("Strategy Proxy", function () {
     const AAVE_DEPOSIT = ethers.parseUnits("10000", 18);
     const serviceRegistry = await deployServiceRegistry(owner.address);
     const serviceRegistryAddress = await serviceRegistry.getAddress();
-    const { settings }= await deploySettings(owner.address, serviceRegistry);
+    // Deploy Proxy Admin
+    const BakerFiProxyAdmin = await ethers.getContractFactory("BakerFiProxyAdmin");
+    const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
+    await proxyAdmin.waitForDeployment();    
     const weth = await deployWETH(serviceRegistry);
+    
+    const BakerFiProxy = await ethers.getContractFactory("BakerFiProxy");
     // 1. Deploy Flash Lender
     const flashLender = await deployFlashLender(
       serviceRegistry,
       weth,
       FLASH_LENDER_DEPOSIT
     );
+
+    const { proxy: settingsProxy }= await deploySettings(
+      owner.address, serviceRegistry, true,
+      proxyAdmin
+    );
+    
+    const pSettings = await ethers.getContractAt(
+      "Settings",
+      await settingsProxy.getAddress()
+    );
+    
     // 2. Deploy cbEBT
     const cbETH = await deployCbETH(serviceRegistry, owner, CBETH_MAX_SUPPLY);
 
@@ -77,14 +94,11 @@ describeif(network.name === "hardhat")("Strategy Proxy", function () {
     await ethOracle.setLatestPrice(ethers.parseUnits("1", 18));
     await deployQuoterV2Mock(serviceRegistry);
 
-    // Deploy Proxy Admin
-    const BakerFiProxyAdmin = await ethers.getContractFactory("BakerFiProxyAdmin");
-    const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
-    await proxyAdmin.waitForDeployment();    
+
 
     const StrategyAAVEv3 = await ethers.getContractFactory("StrategyAAVEv3");
     const strategyLogic = await StrategyAAVEv3.deploy();
-    const BakerFiProxy = await ethers.getContractFactory("BakerFiProxy");
+
     const proxyDeployment = await BakerFiProxy.deploy(
         await strategyLogic.getAddress(),
         await proxyAdmin.getAddress(),
@@ -103,7 +117,7 @@ describeif(network.name === "hardhat")("Strategy Proxy", function () {
       owner,
       otherAccount,
       strategyProxy,
-      settings,
+      settings: pSettings,
     };
   }
 

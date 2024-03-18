@@ -88,6 +88,11 @@ contract Settings is OwnableUpgradeable, ISettings {
      */
     uint private _oraclePriceMaxAge;
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
     /**
      * @dev Initializes the contract.
      *

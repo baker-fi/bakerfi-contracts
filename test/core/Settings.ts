@@ -4,18 +4,30 @@ import { expect } from "chai";
 import { ethers, network } from "hardhat";
 import { deployServiceRegistry, deploySettings } from "../../scripts/common";
 
-describeif(network.name === "hardhat")("Settings", function () {
+describeif(network.name === "hardhat")
+("Settings", function () {
 
   async function deployFunction() {
     const [owner, otherAccount] = await ethers.getSigners();
     const serviceRegistry = await deployServiceRegistry(owner.address);
 
-    const { settings } = await deploySettings(
+    const BakerFiProxyAdmin = await ethers.getContractFactory("BakerFiProxyAdmin");
+    const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
+    await proxyAdmin.waitForDeployment();
+
+    const {  proxy } = await deploySettings(
       otherAccount.address,
-      serviceRegistry
+      serviceRegistry,
+      true,
+      proxyAdmin
+    );   
+
+    const pSettings = await ethers.getContractAt(
+      "Settings",
+      await proxy.getAddress()
     );
     
-    return { serviceRegistry, settings, otherAccount, owner };
+    return { serviceRegistry, settings: pSettings, otherAccount, owner };
   }
 
   it("Settings Defaults", async function () {
