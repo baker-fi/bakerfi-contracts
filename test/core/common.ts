@@ -106,7 +106,6 @@ export async function deployBase() {
     "brETH",
     await serviceRegistry.getAddress(),
     await strategyProxyDeploy.getAddress(),
-    true,
     proxyAdmin
   );
 
@@ -234,7 +233,6 @@ export async function deployOptimism() {
     "brETH",
     await serviceRegistry.getAddress(),
     await strategyProxyDeploy.getAddress(),
-    true,
     proxyAdmin
   );
 
@@ -360,7 +358,6 @@ export async function deployEthereum() {
     "brETH",
     await serviceRegistry.getAddress(),
     await strategyProxyDeploy.getAddress(),
-    true,
     proxyAdmin
   );
 

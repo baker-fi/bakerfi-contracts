@@ -4,7 +4,6 @@ import {
   deployFlashLender,
   deployServiceRegistry,
   deployStEth,
-  deploySwapper,
   deployQuoterV2Mock,
   deployVault,
   deployWETH,

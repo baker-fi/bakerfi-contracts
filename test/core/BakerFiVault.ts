@@ -5,11 +5,9 @@ import { describeif } from "../common";
 import {
   deployServiceRegistry,
   deployVault,
-  deploySwapper,
   deployAaveV3,
   deployFlashLender,
   deployOracleMock,
-  deployUniV3RouterMock,
   deployWETH,
   deployCbETH,
   deploySettings,
@@ -120,7 +118,6 @@ describeif(network.name === "hardhat")
       "brETH",
       serviceRegistryAddress,
       await proxyStrategy.getAddress(),
-      true, 
       proxyAdmin
     );
 

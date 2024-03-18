@@ -148,7 +148,6 @@ async function main() {
     config, 
     deployer, 
     serviceRegistry,
-    true, 
     proxyAdmin
   );
   result.push(["Strategy",  await strategy.getAddress()]);
@@ -163,7 +162,6 @@ async function main() {
         config.vaultSharesSymbol,
         await serviceRegistry.getAddress(),
         await (strategyProxy as any).getAddress(),
-        true, 
         proxyAdmin
   );
   result.push(["BakerFi Vault 📟",  await vault.getAddress()]);
@@ -210,7 +208,7 @@ async function deployFlashLendInfra(serviceRegistry, config: any) {
   return flashLender;
 }
 
-async function deployStrategy(config: any, deployer, serviceRegistry, proxied: boolean, proxyAdmin): Promise<{
+async function deployStrategy(config: any, deployer, serviceRegistry, proxyAdmin): Promise<{
   strategy?: any,
   proxy?: any
 }> {

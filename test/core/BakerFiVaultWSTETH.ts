@@ -113,7 +113,6 @@ describeif(network.name === "hardhat")
       "brETH",
       serviceRegistryAddress,
       await proxyStrategy.getAddress(),
-      true, 
       proxyAdmin
     );
 
