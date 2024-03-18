@@ -56,7 +56,7 @@ describeif(network.name === "hardhat")
     const { settings, otherAccount } = await loadFixture(deployFunction);
     await expect(
       settings.connect(otherAccount).setLoanToValue(1100 * 1e6)
-    ).to.be.revertedWith("Invalid LTV could not be higher than max");
+    ).to.be.revertedWithCustomError(settings, "InvalidValue");
   });
 
   it("Change Max Loan to Value", async function () {
@@ -71,14 +71,14 @@ describeif(network.name === "hardhat")
     const { settings, otherAccount } = await loadFixture(deployFunction);
     await expect(
       settings.connect(otherAccount).setMaxLoanToValue(400 * 1e6)
-    ).to.be.revertedWith("Invalid Max Loan");
+    ).to.be.revertedWithCustomError(settings, "InvalidMaxLoanToValue");
   });
 
   it("❌ Invalid Max Loan to Value", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
     await expect(
       settings.connect(otherAccount).setMaxLoanToValue(1100 * 1e6)
-    ).to.be.revertedWith("Invalid percentage value");
+    ).to.be.revertedWithCustomError(settings, "InvalidPercentage");
   });
 
   it("Change Withdrawal Fee", async function () {
@@ -91,7 +91,7 @@ describeif(network.name === "hardhat")
     const { settings, otherAccount } = await loadFixture(deployFunction);
     await expect(
       settings.connect(otherAccount).setWithdrawalFee(1100 * 1e6)
-    ).to.be.revertedWith("Invalid percentage value");
+    ).to.be.revertedWithCustomError(settings, "InvalidPercentage");
   });
 
   it("Change Perfornance Fee", async function () {
@@ -104,7 +104,7 @@ describeif(network.name === "hardhat")
     const { settings, otherAccount } = await loadFixture(deployFunction);
     await expect(
       settings.connect(otherAccount).setPerformanceFee(1100 * 1e6)
-    ).to.be.revertedWith("Invalid percentage value");
+    ).to.be.revertedWithCustomError(settings, "InvalidPercentage");
   });
 
   it("Change Fee Receiver", async function () {
@@ -136,7 +136,7 @@ describeif(network.name === "hardhat")
     const { settings, owner, otherAccount } = await loadFixture(deployFunction);
     await expect(
       settings.connect(otherAccount).setNrLoops(30)
-    ).to.be.revertedWith("Invalid Number of Loops");
+    ).to.be.revertedWithCustomError(settings, "InvalidLoopCount");
   });
 
 
@@ -163,14 +163,14 @@ describeif(network.name === "hardhat")
     await settings.connect(otherAccount).enableAccount(otherAccount.address, true);
     await expect(
       settings.connect(otherAccount).enableAccount(otherAccount.address, true)
-   ).to.be.revertedWith("Already Enabled");
+   ).to.be.revertedWithCustomError(settings, "WhiteListAlreadyEnabled");
   });
 
   it("Fail to disable an address that is disabled", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);       
     await expect(
       settings.connect(otherAccount).enableAccount(otherAccount.address, false)
-   ).to.be.revertedWith("Not Enabled");
+   ).to.be.revertedWithCustomError(settings, "WhiteListNotEnabled");
   });
 
 
