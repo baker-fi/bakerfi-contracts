@@ -54,6 +54,15 @@ contract Vault is
     using AddressUpgradeable for address;
     using AddressUpgradeable for address payable;
 
+     error InvalidOwner();
+     error InvalidDepositAmount();
+     error InvalidAssetsState();
+     error MaxDepositReached();
+     error NotEnoughBalanceToWithdraw();
+     error InvalidWithdrawAmount();
+     error NoAssetsToWithdraw();
+     error NoPermissions();
+
     /**
      * @dev The ServiceRegistry contract used for managing service-related dependencies.
      * 
@@ -77,10 +86,13 @@ contract Vault is
      * If the caller's address is not whitelisted, the function call will be rejected.
      */
     modifier onlyWhiteListed {
-      require(settings().isAccountEnabled(msg.sender), "Account not allowed");
+      if(!settings().isAccountEnabled(msg.sender)) revert NoPermissions();
       _;
     }
 
+    constructor() {
+      //  _disableInitializers();
+    }
     /**
      * @dev Initializes the contract with specified parameters.
      *
@@ -171,20 +183,19 @@ contract Vault is
      * @return shares The number of shares minted for the specified receiver.
      */
     function deposit(address receiver) external override payable nonReentrant onlyWhiteListed returns (uint256 shares) {
-        require(msg.value > 0, "Invalid Amount to be deposit");
+        if(msg.value == 0) revert InvalidDepositAmount();
         Rebase memory total = Rebase(totalAssets(), totalSupply());
-        require(
+        if(
             // Or the Rebase is unititialized 
-            (total.elastic == 0 && total.base == 0 ) 
+            !((total.elastic == 0 && total.base == 0 ) 
             // Or Both are positive
-            || (total.base > 0 && total.elastic > 0), 
-            "Invalid Assets/Shares state"
-        );
+            || (total.base > 0 && total.elastic > 0))
+        ) revert InvalidAssetsState();
         // Verify if the Deposit Value exceeds the maximum per wallet
         uint256 maxDeposit = settings().getMaxDepositInETH();
         if ( maxDeposit > 0 ) {
             uint256 afterDeposit = msg.value + (balanceOf(msg.sender) * _tokenPerETH() /1e18);
-            require(afterDeposit <= maxDeposit, "Max Deposit Reached");
+            if(afterDeposit > maxDeposit) revert MaxDepositReached();
         }
         
         bytes memory result = (address(_strategy)).functionCallWithValue(
@@ -213,8 +224,8 @@ contract Vault is
      * Emits a {Withdraw} event after successfully handling the withdrawal.
      */
     function withdraw(uint256 shares) external override nonReentrant onlyWhiteListed returns (uint256 amount) {
-        require(balanceOf(msg.sender) >= shares, "No Enough balance to withdraw");
-        require(shares > 0, "Cannot Withdraw Zero Shares");
+        if(balanceOf(msg.sender) < shares) revert NotEnoughBalanceToWithdraw();
+        if(shares == 0) revert InvalidWithdrawAmount();
         /**
          *   withdrawAmount -------------- totalAssets()
          *   shares         -------------- totalSupply()
@@ -222,7 +233,7 @@ contract Vault is
          *   withdrawAmount = share * totalAssets() / totalSupply()
          */
         uint256 withdrawAmount = shares * totalAssets() / totalSupply();
-        require(withdrawAmount > 0, "No Assets to withdraw");
+        if (withdrawAmount == 0) revert NoAssetsToWithdraw();
         amount = _strategy.undeploy(withdrawAmount);
         uint256 fee = 0;
         // Withdraw ETh to Receiver and pay withdrawal Fees

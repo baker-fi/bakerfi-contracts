@@ -17,7 +17,8 @@ import {
 } from "../../scripts/common";
 import BaseConfig from "../../scripts/config";
 
-describeif(network.name === "hardhat")("BakerFi Vault Main Net wstETH/ETH", function () {
+describeif(network.name === "hardhat")
+("BakerFi Vault Main Net wstETH/ETH", function () {
   
   async function deployFunction() {
     const networkName = network.name;
@@ -182,7 +183,7 @@ describeif(network.name === "hardhat")("BakerFi Vault Main Net wstETH/ETH", func
       vault.deposit(owner.address, {
         value: ethers.parseUnits("0", 18),
       })
-    ).to.be.revertedWith("Invalid Amount to be deposit");
+    ).to.be.revertedWithCustomError(vault, "InvalidDepositAmount");
   });
 
   it("Withdraw failed not enough brETH", async function () {
@@ -194,7 +195,7 @@ describeif(network.name === "hardhat")("BakerFi Vault Main Net wstETH/ETH", func
 
     await expect(
       vault.withdraw(ethers.parseUnits("20", 18))
-    ).to.be.revertedWith("No Enough balance to withdraw");
+    ).to.be.revertedWithCustomError(vault, "NotEnoughBalanceToWithdraw");
   });
 
   it("Transfer 10 brETH", async function () {
@@ -405,7 +406,7 @@ describeif(network.name === "hardhat")("BakerFi Vault Main Net wstETH/ETH", func
       vault.deposit(owner.address, {
         value: depositAmount,
       })
-    ).to.be.revertedWith( "Account not allowed");
+    ).to.be.revertedWithCustomError(vault, "NoPermissions");
   });
 
 
@@ -422,7 +423,7 @@ describeif(network.name === "hardhat")("BakerFi Vault Main Net wstETH/ETH", func
 
     await expect(
       vault.withdraw(ethers.parseUnits("1", 18))
-    ).to.be.revertedWith( "Account not allowed");
+    ).to.be.revertedWithCustomError(vault, "NoPermissions");
   });
 
 
@@ -485,7 +486,7 @@ describeif(network.name === "hardhat")("BakerFi Vault Main Net wstETH/ETH", func
 
     await expect(
       vault.withdraw(ethers.parseUnits("1", 18))
-    ).to.be.revertedWith( "No Assets to withdraw");
+    ).to.be.revertedWithCustomError(vault, "NoAssetsToWithdraw");
   });
 
 
@@ -540,7 +541,7 @@ describeif(network.name === "hardhat")("BakerFi Vault Main Net wstETH/ETH", func
     const depositAmount = ethers.parseUnits("10", 18);    
     await expect(
       vault.deposit(owner.address, { value: depositAmount })
-    ).to.be.revertedWith( "Max Deposit Reached");
+    ).to.be.revertedWithCustomError(vault, "MaxDepositReached");
   });
 
   it("Deposit - Failed Deposit When the second deposit exceeds the max", async () => {
@@ -552,7 +553,7 @@ describeif(network.name === "hardhat")("BakerFi Vault Main Net wstETH/ETH", func
     expect(await vault.balanceOf(owner.address)).to.equal(498105690803033405n);   
     await expect(
       vault.deposit(owner.address, { value: ethers.parseUnits("6", 17) })
-    ).to.be.revertedWith( "Max Deposit Reached");
+    ).to.be.revertedWithCustomError(vault, "MaxDepositReached");
 
   });
 
