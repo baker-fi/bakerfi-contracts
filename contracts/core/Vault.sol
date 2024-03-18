@@ -91,7 +91,7 @@ contract Vault is
     }
 
     constructor() {
-      //  _disableInitializers();
+        _disableInitializers();
     }
     /**
      * @dev Initializes the contract with specified parameters.

@@ -18,7 +18,8 @@ import {
 } from "../../scripts/common";
 import BaseConfig from "../../scripts/config";
 
-describeif(network.name === "hardhat")("BakerFi Vault For L2s", function () {
+describeif(network.name === "hardhat")
+("BakerFi Vault For L2s", function () {
   
   async function deployFunction() {
     const [owner, otherAccount, anotherAccount] = await ethers.getSigners();
@@ -88,6 +89,11 @@ describeif(network.name === "hardhat")("BakerFi Vault For L2s", function () {
     await ethOracle.setLatestPrice(ethers.parseUnits("2305", 18));
 
     await deployQuoterV2Mock(serviceRegistry);
+
+    const BakerFiProxyAdmin = await ethers.getContractFactory("BakerFiProxyAdmin");
+    const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
+    await proxyAdmin.waitForDeployment();
+
     const { strategy } = await deployAAVEv3StrategyAny(
       owner.address,
       serviceRegistryAddress,
@@ -97,15 +103,21 @@ describeif(network.name === "hardhat")("BakerFi Vault For L2s", function () {
       config.AAVEEModeCategory
     );
 
-    const { vault } = await deployVault(      
+    const { proxy, vault } = await deployVault(      
       owner.address,
       "Bread ETH",
       "brETH",
       serviceRegistryAddress,
-      await strategy.getAddress()
+      await strategy.getAddress(),
+      true, 
+      proxyAdmin
     );
 
-    await strategy.transferOwnership(await vault.getAddress());
+    await strategy.transferOwnership(await proxy.getAddress());
+    const pVault = await ethers.getContractAt(
+      "Vault",
+      await proxy.getAddress()
+    );
     return {
       cbETH,
       weth,
@@ -113,7 +125,7 @@ describeif(network.name === "hardhat")("BakerFi Vault For L2s", function () {
       otherAccount,
       anotherAccount,
       serviceRegistry,
-      vault,
+      vault: pVault,
       aave3Pool,
       flashLender,
       uniRouter,

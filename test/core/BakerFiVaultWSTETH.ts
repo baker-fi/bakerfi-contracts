@@ -90,15 +90,26 @@ describeif(network.name === "hardhat")
       config.swapFeeTier,
       config.AAVEEModeCategory
     );
-    const { vault } = await deployVault(
+    const BakerFiProxyAdmin = await ethers.getContractFactory("BakerFiProxyAdmin");
+    const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
+    await proxyAdmin.waitForDeployment();
+
+    const { proxy } = await deployVault(
       owner.address,
       "Bread ETH",
       "brETH",
       serviceRegistryAddress,
-      await strategy.getAddress()
+      await strategy.getAddress(),
+      true, 
+      proxyAdmin
     );
 
-    await strategy.transferOwnership(await vault.getAddress());
+    const pVault = await ethers.getContractAt(
+      "Vault",
+      await proxy.getAddress()
+    );
+
+    await strategy.transferOwnership(await proxy.getAddress());
     return {
       stETH,
       weth,
@@ -106,7 +117,7 @@ describeif(network.name === "hardhat")
       otherAccount,
       anotherAccount,
       serviceRegistry,
-      vault,
+      vault: pVault,
       uniRouter,
       aave3Pool,
       flashLender,
@@ -446,20 +457,31 @@ describeif(network.name === "hardhat")
       ethers.keccak256(Buffer.from("Settings")),
       await settings.getAddress()
     );
-
+    const BakerFiProxyAdmin = await ethers.getContractFactory("BakerFiProxyAdmin");
+    const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
+    await proxyAdmin.waitForDeployment();
+    const BakerFiProxy = await ethers.getContractFactory("BakerFiProxy");
     const Vault = await ethers.getContractFactory("Vault");
     const vault = await Vault.deploy();
-    await vault.initialize(
-      owner.address,
-      "Bread ETH",
-      "brETH",
-      await serviceRegistry.getAddress(),
-      await strategy.getAddress()
+    await vault.waitForDeployment();
+    const proxy = await BakerFiProxy.deploy(
+      await vault.getAddress(),
+      await proxyAdmin.getAddress(),
+      Vault.interface.encodeFunctionData("initialize", [
+        owner.address,
+        "Bread ETH",
+        "brETH",
+        await serviceRegistry.getAddress(),
+        await strategy.getAddress(),       
+      ]),
     );
-    
+    await (proxy as any).waitForDeployment();    
     await strategy.waitForDeployment();
-
-    return {owner, otherAccount, settings, vault, strategy};
+    const pVault = await ethers.getContractAt(
+      "Vault",
+      await proxy.getAddress()
+    );
+    return {owner, otherAccount, settings, vault: pVault, strategy};
   }
 
 
