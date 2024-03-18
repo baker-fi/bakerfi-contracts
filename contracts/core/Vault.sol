@@ -6,7 +6,6 @@ import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/security/
 import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import {Rebase, RebaseLibrary} from "../libraries/BoringRebase.sol";
 import {ServiceRegistry} from "../core/ServiceRegistry.sol";
-import {ISwapHandler} from "../interfaces/core/ISwapHandler.sol";
 import {IVault} from "../interfaces/core/IVault.sol";
 import {IStrategy} from "../interfaces/core/IStrategy.sol";
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
