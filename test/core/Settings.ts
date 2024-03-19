@@ -1,6 +1,8 @@
+import '@nomicfoundation/hardhat-ethers'
 import { describeif } from "../common";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
+ // @ts-expect-error 
 import { ethers, network } from "hardhat";
 import { deployServiceRegistry, deploySettings } from "../../scripts/common";
 
@@ -50,9 +52,7 @@ describeif(network.name === "hardhat")("Settings", function () {
 
   it("Change Loan to Value ✅", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
-    // @ts-expect-error
     await settings.connect(otherAccount).setLoanToValue(700 * 1e6);
-    // @ts-expect-error
     expect(await settings.connect(otherAccount).getLoanToValue()).to.equal(
       700 * 1e6
     );
@@ -61,16 +61,13 @@ describeif(network.name === "hardhat")("Settings", function () {
   it("Invalid Loan to Value ❌", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);    
     await expect(
-      // @ts-expect-error
       settings.connect(otherAccount).setLoanToValue(1100 * 1e6)
     ).to.be.revertedWithCustomError(settings, "InvalidValue");
   });
 
   it("Change Max Loan to Value ✅", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
-    // @ts-expect-error
     await settings.connect(otherAccount).setMaxLoanToValue(820 * 1e6);
-    // @ts-expect-error
     expect(await settings.connect(otherAccount).getMaxLoanToValue()).to.equal(
       820 * 1e6
     );
@@ -79,7 +76,6 @@ describeif(network.name === "hardhat")("Settings", function () {
   it("Invalid Max Loan to Value ❌", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
     await expect(
-      // @ts-expect-error
       settings.connect(otherAccount).setMaxLoanToValue(400 * 1e6)
     ).to.be.revertedWithCustomError(settings, "InvalidMaxLoanToValue");
   });
@@ -87,14 +83,12 @@ describeif(network.name === "hardhat")("Settings", function () {
   it("Invalid Max Loan to Value ❌", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
     await expect(
-      // @ts-expect-error
       settings.connect(otherAccount).setMaxLoanToValue(1100 * 1e6)
     ).to.be.revertedWithCustomError(settings, "InvalidPercentage");
   });
 
   it("Change Withdrawal Fee ✅", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
-    // @ts-expect-error
     await settings.connect(otherAccount).setWithdrawalFee(20 * 1e6);
     expect(await settings.getWithdrawalFee()).to.equal(20 * 1e6);
   });
@@ -102,14 +96,12 @@ describeif(network.name === "hardhat")("Settings", function () {
   it("Withdrawal Fee ❌", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
     await expect(
-      // @ts-expect-error
       settings.connect(otherAccount).setWithdrawalFee(1100 * 1e6)
     ).to.be.revertedWithCustomError(settings, "InvalidPercentage");
   });
 
   it("Change Perfornance Fee ✅", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
-    // @ts-expect-error
     await settings.connect(otherAccount).setPerformanceFee(20 * 1e6);
     expect(await settings.getPerformanceFee()).to.equal(20 * 1e6);
   });
@@ -117,14 +109,12 @@ describeif(network.name === "hardhat")("Settings", function () {
   it("Invalid Perfornance Fee ❌", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
     await expect(
-      // @ts-expect-error
       settings.connect(otherAccount).setPerformanceFee(1100 * 1e6)
     ).to.be.revertedWithCustomError(settings, "InvalidPercentage");
   });
 
   it("Change Fee Receiver ✅", async function () {
     const { settings, owner, otherAccount } = await loadFixture(deployFunction);
-    // @ts-expect-error
     await settings.connect(otherAccount).setFeeReceiver(owner.address);
     expect(await settings.getFeeReceiver()).to.equal(owner.address);
   });
@@ -138,23 +128,21 @@ describeif(network.name === "hardhat")("Settings", function () {
 
   it("Change Max Loan To value ✅", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
-    // @ts-expect-error
     await settings.connect(otherAccount).setMaxLoanToValue(850 * 1e6);
     expect(await settings.getMaxLoanToValue()).to.equal(850 * 1e6);
   });
 
   it("Change Nr Loops ✅", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
-    // @ts-expect-error
     await settings.connect(otherAccount).setNrLoops(5);
-    // @ts-expect-error
+    
     expect(await settings.connect(otherAccount).getNrLoops()).to.equal(5);
   });
 
   it("Invalid Nr Loops ❌", async function () {
     const { settings, owner, otherAccount } = await loadFixture(deployFunction);
     await expect(
-      // @ts-expect-error
+      
       settings.connect(otherAccount).setNrLoops(30)
     ).to.be.revertedWithCustomError(settings, "InvalidLoopCount");
   });
@@ -167,7 +155,7 @@ describeif(network.name === "hardhat")("Settings", function () {
 
   it("Account should not be allowed when is not on the whitelist ✅ ", async function () {
     const { settings,owner, otherAccount } = await loadFixture(deployFunction);
-    // @ts-expect-error
+    
     await settings.connect(otherAccount).enableAccount(otherAccount.address, true);
     await expect(await settings.isAccountEnabled(owner.address)).to.equal(false);    
   });
@@ -181,10 +169,10 @@ describeif(network.name === "hardhat")("Settings", function () {
 
   it("Fail to enable an address that is enabled ✅", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
-    // @ts-expect-error
+    
     await settings.connect(otherAccount).enableAccount(otherAccount.address, true);
     await expect(
-      // @ts-expect-error
+      
       settings.connect(otherAccount).enableAccount(otherAccount.address, true)
    ).to.be.revertedWithCustomError(settings, "WhiteListAlreadyEnabled");
   });
@@ -192,7 +180,7 @@ describeif(network.name === "hardhat")("Settings", function () {
   it("Fail to disable an address that is disabled ❌", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);       
     await expect(
-      // @ts-expect-error
+      
       settings.connect(otherAccount).enableAccount(otherAccount.address, false)
    ).to.be.revertedWithCustomError(settings, "WhiteListNotEnabled");
   });
@@ -200,9 +188,9 @@ describeif(network.name === "hardhat")("Settings", function () {
 
   it("Change Max Deposit ✅", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
-    // @ts-expect-error
+    
     await settings.connect(otherAccount).setMaxDepositInETH(ethers.parseUnits("1", 17));
-    // @ts-expect-error
+    
     expect(await settings.connect(otherAccount).getMaxDepositInETH()).to.equal(
       ethers.parseUnits("1", 17)
     );

@@ -1,3 +1,4 @@
+ // @ts-expect-error 
 import { ethers } from "hardhat";
 import {feeds} from "./config";
 

@@ -1,3 +1,4 @@
+ // @ts-expect-error 
 import { ethers, network } from "hardhat";
 import {
   deployServiceRegistry,

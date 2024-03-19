@@ -1,5 +1,6 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
+ // @ts-expect-error 
 import { ethers, network } from "hardhat";
 import { describeif } from "../common";
 import {
@@ -15,7 +16,7 @@ describeif(network.name === "hardhat")("Vault Proxy", function () {
     expect(await vaultProxy.totalSupply()).to.equal(0);
     expect(await vaultProxy.owner()).to.equal(deployer.address);
   })
-  
+
 });
 
 async function deployFunction() {

@@ -1,5 +1,7 @@
 import "dotenv/config";
 import hre from "hardhat";
+ // @ts-expect-error 
+import { ethers } from "hardhat";
 import {
   deployServiceRegistry,
   deployVault,
@@ -29,11 +31,11 @@ async function main() {
   const config = BaseConfig[networkName];
 
   spinner.text = "Getting Signers";
-  const [deployer] = await hre.ethers.getSigners();
+  const [deployer] = await ethers.getSigners();
 
   // Deploy Proxy Admin
   spinner.text = "Deploying Proxy Admin";  
-  const BakerFiProxyAdmin = await hre.ethers.getContractFactory("BakerFiProxyAdmin");
+  const BakerFiProxyAdmin = await ethers.getContractFactory("BakerFiProxyAdmin");
   const proxyAdmin = await BakerFiProxyAdmin.deploy(deployer.address);
   await proxyAdmin.waitForDeployment();
   result.push(["Proxy Admin", await proxyAdmin.getAddress()])  
@@ -49,7 +51,7 @@ async function main() {
    ********************************************/
   spinner.text = "Registiring WETH";
   await serviceRegistry.registerService(
-    hre.ethers.keccak256(Buffer.from("WETH")),
+    ethers.keccak256(Buffer.from("WETH")),
     config.weth
   );
   result.push(["WETH", config.weth]);
@@ -70,7 +72,7 @@ async function main() {
    ********************************************/
   spinner.text = "Registiring Uniswap Router Contract";
   await serviceRegistry.registerService(
-    hre.ethers.keccak256(Buffer.from("Uniswap Router")),
+    ethers.keccak256(Buffer.from("Uniswap Router")),
     config.uniswapRouter
   );
   result.push(["Uniswap V3 Router", config.uniswapRouter]);
@@ -79,7 +81,7 @@ async function main() {
    ********************************************/
   spinner.text = "Registiring Uniswap Quoter Contract";  
   await serviceRegistry.registerService(
-    hre.ethers.keccak256(Buffer.from("Uniswap Quoter")),
+    ethers.keccak256(Buffer.from("Uniswap Quoter")),
     config.uniswapQuoter
   );
   result.push(["Uniswap V3 Quoter",  config.uniswapQuoter]);
@@ -88,7 +90,7 @@ async function main() {
    ********************************************/
   spinner.text = "Registiring AAVE v3 Contract";  
   await serviceRegistry.registerService(
-    hre.ethers.keccak256(Buffer.from("AAVE_V3")),
+    ethers.keccak256(Buffer.from("AAVE_V3")),
     config.AAVEPool,
   );
   result.push(["AAVE V3 Pool",  config.AAVEPool]);
@@ -104,7 +106,7 @@ async function main() {
   if ( config.cbETH ) {    
     spinner.text = "Registiring cbETH Contract";    
     await serviceRegistry.registerService(
-      hre.ethers.keccak256(Buffer.from("cbETH")),
+      ethers.keccak256(Buffer.from("cbETH")),
       config.cbETH,
     );
     result.push(["cbETH",  config.cbETH]);
@@ -116,7 +118,7 @@ async function main() {
     // Register CbETH ERC20 Address
     spinner.text = "Registiring wstETH Contract";        
     await serviceRegistry.registerService(
-      hre.ethers.keccak256(Buffer.from("wstETH")),
+      ethers.keccak256(Buffer.from("wstETH")),
       config.wstETH,
     );
     result.push(["wstETH",  config.wstETH]);
@@ -186,20 +188,20 @@ async function changeSettings(
   strategyAddress: string,
   vaultAddress: string,
 ) {
-  const settings = await hre.ethers.getContractAt("Settings", settingsAddress);
-  const vault = await hre.ethers.getContractAt("Vault", vaultAddress);
-  const strategy = await hre.ethers.getContractAt("StrategyAAVEv3", strategyAddress);
+  const settings = await ethers.getContractAt("Settings", settingsAddress);
+  const vault = await ethers.getContractAt("Vault", vaultAddress);
+  const strategy = await ethers.getContractAt("StrategyAAVEv3", strategyAddress);
 
   spinner.text = "Transferring Ownership ...";    
   await strategy.transferOwnership(await vault.getAddress());
 
   spinner.text = "Changing Settigns ...";      
-  await settings.setLoanToValue(hre.ethers.parseUnits("800", 6));
+  await settings.setLoanToValue(ethers.parseUnits("800", 6));
 }
 
 async function deployFlashLendInfra(serviceRegistry, config: any) {
   await serviceRegistry.registerService(
-    hre.ethers.keccak256(Buffer.from("Balancer Vault")),
+    ethers.keccak256(Buffer.from("Balancer Vault")),
     config.balancerVault
   );
   const flashLender = await deployBalancerFL(

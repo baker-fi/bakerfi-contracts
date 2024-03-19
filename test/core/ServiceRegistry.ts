@@ -1,6 +1,7 @@
 import { describeif } from "../common";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
+ // @ts-expect-error 
 import { ethers, network } from "hardhat";
 import { deployServiceRegistry } from "../../scripts/common";
 
@@ -48,7 +49,6 @@ describeif(network.name === "hardhat")("ServiceRegistry", function () {
     const helloAddress = "0xb8d0e3424cA4F308680CAd5C8AA14a9E4fCf5394";
     const { serviceRegistry, otherAccount } = await loadFixture(deployTestFunction);
     await expect(
-      // @ts-expect-error
       serviceRegistry.connect(otherAccount).registerService(
         ethers.keccak256(Buffer.from("Hello")), helloAddress)
     ).to.be.revertedWith("Ownable: caller is not the owner");

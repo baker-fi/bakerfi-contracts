@@ -1,3 +1,4 @@
+ // @ts-expect-error 
 import { ethers, network } from "hardhat";
 import {
   deployAaveV3,
@@ -99,9 +100,7 @@ async function main() {
   spinner.text = "Topping Up Uniswap Swapper";  
 
   // Deposit WETH on UniRouter
-  // @ts-expect-error
   await weth.connect(otherAccount).deposit?.call("", { value: ethers.parseUnits("10000", 18) });
-  // @ts-expect-error
   await weth.connect(otherAccount).transfer(
     await uniRouter.getAddress(),
     ethers.parseUnits("10000", 18)
