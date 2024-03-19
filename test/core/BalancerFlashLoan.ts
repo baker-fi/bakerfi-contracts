@@ -1,6 +1,6 @@
+import "@nomicfoundation/hardhat-ethers";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
- // @ts-expect-error 
 import { ethers, network } from "hardhat";
 import BaseConfig from "../../scripts/config";
 import { describeif } from "../common";
@@ -25,7 +25,6 @@ describeif(network.name === "optimism_devnet")(
 );
 
 describeif(network.name === "hardhat")("Balancer Flash Loan", function () {
- 
   it("Borrow 10ETH", async () => {
     const { weth, owner, fl, config, borrower } = await loadFixture(
       deployFunction
@@ -98,7 +97,6 @@ async function deployProdFunction() {
   return { owner, otherAccount, weth, wstETH, config, fl, borrower };
 }
 
-
 async function deployFunction() {
   // ETH Token
   const [owner, otherAccount] = await ethers.getSigners();
@@ -135,5 +133,5 @@ async function deployFunction() {
   const fl = await deployBalancerFL(serviceRegistry);
 
   const borrower = await deployFlashBorrowerMock(serviceRegistry);
-  return { owner, otherAccount, weth, borrower, config, fl, balancerVault};
+  return { owner, otherAccount, weth, borrower, config, fl, balancerVault };
 }

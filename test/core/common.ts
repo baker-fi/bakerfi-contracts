@@ -1,4 +1,4 @@
- // @ts-expect-error 
+import "@nomicfoundation/hardhat-ethers";
 import { ethers, network } from "hardhat";
 import {
   deployServiceRegistry,
@@ -64,10 +64,7 @@ export async function deployBase() {
     config.cbETH
   );
   // 9. Deploy the Oracle
-  const oracle = await deployCbETHToUSDOracle(
-    serviceRegistry,
-    config.pyth
-  );
+  const oracle = await deployCbETHToUSDOracle(serviceRegistry, config.pyth);
 
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from("Uniswap Quoter")),
@@ -167,7 +164,10 @@ export async function deployOptimism() {
     proxyAdmin
   );
 
-  const settings = await ethers.getContractAt("Settings", await settingsProxyDeploy.getAddress());
+  const settings = await ethers.getContractAt(
+    "Settings",
+    await settingsProxyDeploy.getAddress()
+  );
   await settings.setOraclePriceMaxAge(0);
 
   // 5. Register UniswapV3 Universal Router
@@ -188,10 +188,7 @@ export async function deployOptimism() {
     config.wstETH
   );
   // 9. Deploy the Oracle
-   await deployWSTETHToUSDOracle(
-    serviceRegistry,
-    config.pyth
-  );
+  await deployWSTETHToUSDOracle(serviceRegistry, config.pyth);
 
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from("Uniswap Quoter")),
@@ -208,7 +205,7 @@ export async function deployOptimism() {
   await deployBalancerFL(serviceRegistry);
 
   await deployETHOracle(serviceRegistry, config.pyth);
-  
+
   // 12. Deploy the Strategy
   const { proxy: strategyProxyDeploy } = await deployAAVEv3StrategyAny(
     deployer.address,
@@ -219,8 +216,6 @@ export async function deployOptimism() {
     config.AAVEEModeCategory,
     proxyAdmin
   );
-
-
 
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from("Strategy")),
@@ -335,7 +330,7 @@ export async function deployEthereum() {
 
   // 11. Flash Lender Adapter
   await deployBalancerFL(serviceRegistry);
-  
+
   await deployETHOracle(serviceRegistry, config.pyth);
 
   // 12. Deploy the Strategy

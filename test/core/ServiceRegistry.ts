@@ -1,14 +1,14 @@
+import "@nomicfoundation/hardhat-ethers";
 import { describeif } from "../common";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
- // @ts-expect-error 
 import { ethers, network } from "hardhat";
 import { deployServiceRegistry } from "../../scripts/common";
 
 /***************************************************
- * 
+ *
  *  Unit Tests for Service Registry Contract
- * 
+ *
  ****************************************************/
 
 async function deployTestFunction() {
@@ -18,7 +18,6 @@ async function deployTestFunction() {
 }
 
 describeif(network.name === "hardhat")("ServiceRegistry", function () {
-
   it("Owner is set", async () => {
     const { serviceRegistry } = await loadFixture(deployTestFunction);
     expect(await serviceRegistry.owner()).to.equal(
@@ -47,10 +46,14 @@ describeif(network.name === "hardhat")("ServiceRegistry", function () {
 
   it("Failed to Register - Not Owner", async () => {
     const helloAddress = "0xb8d0e3424cA4F308680CAd5C8AA14a9E4fCf5394";
-    const { serviceRegistry, otherAccount } = await loadFixture(deployTestFunction);
+    const { serviceRegistry, otherAccount } = await loadFixture(
+      deployTestFunction
+    );
     await expect(
-      serviceRegistry.connect(otherAccount).registerService(
-        ethers.keccak256(Buffer.from("Hello")), helloAddress)
+      serviceRegistry
+        .connect(otherAccount)
+        // @ts-expect-error
+        .registerService(ethers.keccak256(Buffer.from("Hello")), helloAddress)
     ).to.be.revertedWith("Ownable: caller is not the owner");
   });
 

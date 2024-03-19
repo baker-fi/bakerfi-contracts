@@ -1,6 +1,6 @@
+import "@nomicfoundation/hardhat-ethers";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
-// @ts-expect-error 
 import { ethers, network } from "hardhat";
 import { time } from "@nomicfoundation/hardhat-network-helpers";
 import {
@@ -70,6 +70,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
   it("Deploy Fail - No Permissions", async () => {
     const { owner, otherAccount, strategy } = await loadFixture(deployFunction);
     await expect(
+      // @ts-expect-error
       strategy.connect(otherAccount).deploy({
         value: ethers.parseUnits("10", 18),
       })
@@ -83,12 +84,14 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
       value: ethers.parseUnits("10", 18),
     });
     await expect(
+      // @ts-expect-error
       strategy.connect(otherAccount).undeploy(ethers.parseUnits("5", 18))
     ).to.be.revertedWith("Ownable: caller is not the owner");
   });
 
   it("Harvest Fail - No Permissions", async () => {
     const { owner, otherAccount, strategy } = await loadFixture(deployFunction);
+    // @ts-expect-error
     await expect(strategy.connect(otherAccount).harvest()).to.be.revertedWith(
       "Ownable: caller is not the owner"
     );
