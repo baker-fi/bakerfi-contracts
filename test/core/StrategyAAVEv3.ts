@@ -69,7 +69,8 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
   it("Deploy Fail - No Permissions", async () => {
     const { owner, otherAccount, strategy } = await loadFixture(deployFunction);
     await expect(
-      (strategy.connect(otherAccount) as any).deploy({
+      // @ts-expect-error
+      strategy.connect(otherAccount).deploy({
         value: ethers.parseUnits("10", 18),
       })
     ).to.be.revertedWith("Ownable: caller is not the owner");
@@ -82,13 +83,15 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
       value: ethers.parseUnits("10", 18),
     });
     await expect(
-      (strategy.connect(otherAccount) as any).undeploy(ethers.parseUnits("5", 18))
+      // @ts-expect-error
+      strategy.connect(otherAccount).undeploy(ethers.parseUnits("5", 18))
     ).to.be.revertedWith("Ownable: caller is not the owner");
   });
 
   it("Harvest Fail - No Permissions", async () => {
     const { owner, otherAccount, strategy } = await loadFixture(deployFunction);
-    await expect((strategy.connect(otherAccount) as any).harvest()).to.be.revertedWith(
+    // @ts-expect-error
+    await expect(strategy.connect(otherAccount).harvest()).to.be.revertedWith(
       "Ownable: caller is not the owner"
     );
   });

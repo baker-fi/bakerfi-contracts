@@ -75,7 +75,7 @@ export async function deployVault(
       strategy
     ])
   );
-  await (proxy as any).waitForDeployment();
+  await proxy.waitForDeployment();
   return { proxy , vault };
 }
 
@@ -102,7 +102,7 @@ export async function deployStrategyAAVEv3WstETH(
       emodeCategory
     ])
   );
-  await (proxy as any).waitForDeployment(); 
+  await proxy.waitForDeployment(); 
   return { strategy , proxy };
 }
 
@@ -131,7 +131,7 @@ export async function deployAAVEv3StrategyAny(
     emodeCategory
   ])
   );
-  await ( proxy as any).waitForDeployment();
+  await proxy.waitForDeployment();
   return { strategy , proxy};
 }
 

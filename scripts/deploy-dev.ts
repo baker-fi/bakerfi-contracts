@@ -99,8 +99,10 @@ async function main() {
   spinner.text = "Topping Up Uniswap Swapper";  
 
   // Deposit WETH on UniRouter
-  await (weth.connect(otherAccount) as any).deposit?.call("", { value: ethers.parseUnits("10000", 18) });
-  await (weth.connect(otherAccount) as any).transfer(
+  // @ts-expect-error
+  await weth.connect(otherAccount).deposit?.call("", { value: ethers.parseUnits("10000", 18) });
+  // @ts-expect-error
+  await weth.connect(otherAccount).transfer(
     await uniRouter.getAddress(),
     ethers.parseUnits("10000", 18)
   );

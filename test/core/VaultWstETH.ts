@@ -608,7 +608,7 @@ async function deployWithMockStrategyFunction() {
       await strategy.getAddress(),       
     ]),
   );
-  await (proxy as any).waitForDeployment();    
+  await proxy.waitForDeployment();    
   await strategy.waitForDeployment();
   const pVault = await ethers.getContractAt(
     "Vault",

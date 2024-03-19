@@ -62,6 +62,7 @@
     "ts-node": "^10.9.1"
   },
   "dependencies": {
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.10",
     "@openzeppelin/contracts": "^4.9.2",
     "@openzeppelin/contracts-upgradeable": "^4.9.2",
     "@pythnetwork/price-service-client": "^1.8.2",
@@ -81,7 +82,7 @@
       ":ERC20$"
     ]
   },
-  "engines" : { 
-    "node" : ">=20.0.0 <21.0.0"
+  "engines": {
+    "node": ">=20.0.0 <21.0.0"
   }
 }
