@@ -182,7 +182,7 @@ interface ISettings {
 
     function setMaxDepositInETH(uint256 value) external;
 
-    function setOraclePriceMaxAge(uint value) external;
+    function setOraclePriceMaxAge(uint256 value) external;
 
-    function getOraclePriceMaxAge() external view returns (uint);
+    function getOraclePriceMaxAge() external view returns (uint256);
 }

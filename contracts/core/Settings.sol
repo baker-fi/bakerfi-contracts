@@ -98,7 +98,7 @@ contract Settings is OwnableUpgradeable, ISettings {
     /**
      * @dev Max Age for sensitive price operations
      */
-    uint private _oraclePriceMaxAge;
+    uint256 private _oraclePriceMaxAge;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -356,12 +356,12 @@ contract Settings is OwnableUpgradeable, ISettings {
     }
 
 
-    function setOraclePriceMaxAge(uint value) external onlyOwner {
+    function setOraclePriceMaxAge(uint256 value) external onlyOwner {
         _oraclePriceMaxAge = value;
         emit OraclePriceMaxAgeChanged(value);
     }
 
-     function getOraclePriceMaxAge() external view returns (uint) {
+     function getOraclePriceMaxAge() external view returns (uint256) {
         return _oraclePriceMaxAge;
     }
 
