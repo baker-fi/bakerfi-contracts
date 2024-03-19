@@ -2,28 +2,28 @@
 pragma solidity ^0.8.18;
 pragma experimental ABIEncoderV2;
 
-import { ServiceRegistry, WST_ETH_CONTRACT, ST_ETH_CONTRACT } from "../ServiceRegistry.sol";
-import { IWETH } from "../../interfaces/tokens/IWETH.sol";
-import { IWStETH } from "../../interfaces/lido/IWStETH.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {ServiceRegistry, WST_ETH_CONTRACT, ST_ETH_CONTRACT} from "../ServiceRegistry.sol";
+import {IWETH} from "../../interfaces/tokens/IWETH.sol";
+import {IWStETH} from "../../interfaces/lido/IWStETH.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**
  * @title UseWstETH
  *
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
- * 
+ *
  * @dev Abstract contract to integrate the use of Wrapped stETH (WstETH).
  *      Provides functions to initialize, access to wstETH interface, unwrap, and wrap WstETH.
- * 
+ *
  * 🚨 Class optimized to be included on upgradable contracts
  */
 abstract contract UseWstETH is Initializable {
     IWStETH private _wstETH;
     IERC20 private _stETHToken;
-    
+
     using SafeERC20 for IERC20;
 
     /**
@@ -53,7 +53,7 @@ abstract contract UseWstETH is Initializable {
         return address(_wstETH);
     }
 
-    /** 
+    /**
      * @dev Wraps a specified amount of stETH to obtain wstETH.
      * @param amount The amount of stETH to wrap.
      * @return amountOut The amount of WstETH obtained after wrapping.
@@ -72,5 +72,4 @@ abstract contract UseWstETH is Initializable {
         require(IERC20(wstETHA()).approve(wstETHA(), amount));
         stETHAmount = wstETH().unwrap(amount);
     }
-
 }

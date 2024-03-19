@@ -5,9 +5,7 @@ import {IOracle} from "../interfaces/core/IOracle.sol";
 import {IWStETH} from "../interfaces/lido/IWStETH.sol";
 
 contract OracleMock is IOracle {
-
-
-    uint256 internal _exchangeRate = 1130*(1e6);
+    uint256 internal _exchangeRate = 1130 * (1e6);
     uint256 internal _lastUpdate;
     uint256 internal immutable PRICE_PRECISION = 1e9;
 
@@ -20,14 +18,13 @@ contract OracleMock is IOracle {
     }
 
     //  WSETH/ETH
-    function getLatestPrice() external override view returns (IOracle.Price memory price) {
-       price.price = _exchangeRate;
-       price.lastUpdate = _lastUpdate;
+    function getLatestPrice() external view override returns (IOracle.Price memory price) {
+        price.price = _exchangeRate;
+        price.lastUpdate = _lastUpdate;
     }
 
-    function setLatestPrice(uint256 exchangeRate ) external {
+    function setLatestPrice(uint256 exchangeRate) external {
         _exchangeRate = exchangeRate;
         _lastUpdate = block.timestamp;
     }
-
 }

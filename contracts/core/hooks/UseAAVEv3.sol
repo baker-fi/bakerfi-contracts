@@ -3,11 +3,11 @@ pragma solidity ^0.8.18;
 pragma experimental ABIEncoderV2;
 
 import {ServiceRegistry, AAVE_V3_CONTRACT} from "../ServiceRegistry.sol";
-import { IServiceRegistry } from "../../interfaces/core/IServiceRegistry.sol";
-import { IPoolV3 } from "../../interfaces/aave/v3/IPoolV3.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {IServiceRegistry} from "../../interfaces/core/IServiceRegistry.sol";
+import {IPoolV3} from "../../interfaces/aave/v3/IPoolV3.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**
  * @title UseAAVEv3
@@ -16,7 +16,7 @@ import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/I
  *
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-El <chef.kal-el@bakerfi.xyz>
- * 
+ *
  */
 abstract contract UseAAVEv3 is Initializable {
     using SafeERC20 for IERC20;
@@ -41,9 +41,9 @@ abstract contract UseAAVEv3 is Initializable {
     }
 
     /**
-    * @dev Returns the address of the AAVE v3 contract.
-    * @return The address of the AAVE v3 contract.
-    */
+     * @dev Returns the address of the AAVE v3 contract.
+     * @return The address of the AAVE v3 contract.
+     */
     function aaveV3A() public view returns (address) {
         return address(_aavev3);
     }
@@ -68,11 +68,11 @@ abstract contract UseAAVEv3 is Initializable {
     }
 
     /**
-    * @dev Repays a borrowed asset on AAVE v3.
-    * @param assetIn The address of the borrowed asset to repay.
-    * @param amount The amount of the borrowed asset to repay.
-    */
-    function _repay(address assetIn, uint256 amount) internal {        
+     * @dev Repays a borrowed asset on AAVE v3.
+     * @param assetIn The address of the borrowed asset to repay.
+     * @param amount The amount of the borrowed asset to repay.
+     */
+    function _repay(address assetIn, uint256 amount) internal {
         require(IERC20(assetIn).approve(aaveV3A(), amount));
         require(aaveV3().repay(assetIn, amount, 2, address(this)) == amount);
     }

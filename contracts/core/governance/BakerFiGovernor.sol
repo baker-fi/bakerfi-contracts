@@ -14,18 +14,19 @@ contract BakerFiGovernor is
     GovernorVotesQuorumFraction,
     GovernorTimelockControl
 {
-
-    uint8 private constant MIN_QUORUM = 10 ;// 4%
-    uint256 private constant VOTING_DELAY =  1 days ; // 1 day
-    uint256 private constant VOTING_PERIOD =  1 weeks ; // 1 day
+    uint8 private constant MIN_QUORUM = 10; // 4%
+    uint256 private constant VOTING_DELAY = 1 days; // 1 day
+    uint256 private constant VOTING_PERIOD = 1 weeks; // 1 day
 
     constructor(
         IVotes _token,
         TimelockController _timelock
-    ) Governor("BakerFiGovernor") 
-      GovernorVotes(_token) 
-      GovernorVotesQuorumFraction(MIN_QUORUM) 
-      GovernorTimelockControl(_timelock) {}
+    )
+        Governor("BakerFiGovernor")
+        GovernorVotes(_token)
+        GovernorVotesQuorumFraction(MIN_QUORUM)
+        GovernorTimelockControl(_timelock)
+    {}
 
     function votingDelay() public pure override returns (uint256) {
         return VOTING_DELAY; // 1 day
@@ -84,7 +85,12 @@ contract BakerFiGovernor is
         return super._cancel(targets, values, calldatas, descriptionHash);
     }
 
-    function _executor() internal view override(Governor, GovernorTimelockControl) returns (address) {
+    function _executor()
+        internal
+        view
+        override(Governor, GovernorTimelockControl)
+        returns (address)
+    {
         return super._executor();
     }
 
@@ -93,5 +99,4 @@ contract BakerFiGovernor is
     ) public view override(Governor, IERC165, GovernorTimelockControl) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
-
 }

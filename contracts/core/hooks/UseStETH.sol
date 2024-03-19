@@ -4,9 +4,9 @@ pragma experimental ABIEncoderV2;
 
 import {ServiceRegistry, ST_ETH_CONTRACT} from "../ServiceRegistry.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-abstract contract UseStETH is Initializable  {
+abstract contract UseStETH is Initializable {
     IERC20 private _stETH;
 
     function _initUseStETH(ServiceRegistry registry) internal onlyInitializing {

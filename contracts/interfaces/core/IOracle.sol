@@ -3,14 +3,13 @@ pragma solidity ^0.8.18;
 
 /**
  * @title IOracle
- * 
+ *
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
- * 
+ *
  * @dev Interface for an Oracle providing price information with a precision.
  */
 interface IOracle {
-
     struct Price {
         uint256 price;
         uint lastUpdate;
@@ -29,5 +28,4 @@ interface IOracle {
      * @return The latest price from the Oracle as a uint256.
      */
     function getLatestPrice() external view returns (Price memory);
-
 }

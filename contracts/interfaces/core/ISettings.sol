@@ -3,14 +3,14 @@ pragma solidity ^0.8.18;
 
 /**
  * @title Bakerfi Settings Interface
- * 
+ *
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
  *
  * @dev The Settings contract have to implement this interface
- * 
+ *
  */
-interface ISettings {        
+interface ISettings {
     /**
      * @dev Emitted when the maximum allowed loan-to-value ratio is changed.
      *
@@ -76,7 +76,7 @@ interface ISettings {
     event AccountWhiteList(address indexed account, bool enabled);
 
     /**
-     * @dev Emitted when the Maximum Deposit ETH is changed 
+     * @dev Emitted when the Maximum Deposit ETH is changed
      * @param value The new amount that is allowed to be deposited
      */
     event PriceRebalanceMaxAgeChange(uint256 indexed value);
@@ -84,7 +84,7 @@ interface ISettings {
     event PriceMaxAgeChange(uint256 indexed value);
 
     /**
-     * @dev Emitted when the Maximum Deposit ETH is changed 
+     * @dev Emitted when the Maximum Deposit ETH is changed
      * @param value The new amount that is allowed to be deposited
      */
     event MaxDepositInETHChanged(uint256 indexed value);
@@ -94,7 +94,7 @@ interface ISettings {
      *
      * @param maxLoanToValue The new maximum allowed loan-to-value ratio to be set.
      */
-    function setMaxLoanToValue(uint256 maxLoanToValue) external ;
+    function setMaxLoanToValue(uint256 maxLoanToValue) external;
 
     /**
      * @dev Retrieves the maximum allowed loan-to-value ratio.
@@ -107,14 +107,14 @@ interface ISettings {
      *     *
      * @param fee The new withdrawal fee percentage to be set.
      */
-    function setWithdrawalFee(uint256 fee) external ;
+    function setWithdrawalFee(uint256 fee) external;
 
-     /**
+    /**
      * @dev Retrieves the withdrawal fee percentage.
      *
      * @return fee The withdrawal fee percentage.
      */
-    function getWithdrawalFee() external view returns (uint256) ;
+    function getWithdrawalFee() external view returns (uint256);
     /**
      * @dev Sets the general loan-to-value ratio.
      *
@@ -139,7 +139,7 @@ interface ISettings {
      *
      * @return fee The performance fee percentage.
      */
-    function getPerformanceFee() external view returns (uint256) ;    
+    function getPerformanceFee() external view returns (uint256);
     /**
      * @dev Sets the fee receiver address.
      *
@@ -154,10 +154,10 @@ interface ISettings {
     function getFeeReceiver() external view returns (address);
     /**
      * @dev Retrieves the number of loops for our Recursive Staking Strategy
-     *  
+     *
      * @return nrLoops The number of loops.
      */
-    function getNrLoops() external view returns (uint8) ;
+    function getNrLoops() external view returns (uint8);
     /**
      * @dev Sets the number of loops for our Recursive Staking Strategy
      *
@@ -170,7 +170,7 @@ interface ISettings {
      * @param account The address of the account to be enabled or disabled.
      * @param enabled A boolean indicating whether the account should be enabled (true) or disabled (false) in the whitelist.
      */
-    function enableAccount(address account, bool enabled) external ;
+    function enableAccount(address account, bool enabled) external;
     /**
      * @dev Checks if an account is enabled in the whitelist.
      *

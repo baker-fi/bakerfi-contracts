@@ -3,48 +3,46 @@ pragma solidity ^0.8.18;
 import {IPyth} from "../interfaces/pyth/IPyth.sol";
 import "../interfaces/pyth/PythStructs.sol";
 
-
 /**
- * 
+ *
  * @title Pyth Mock Contract to test with Pyth Oracles
- * 
+ *
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
  *
- * @notice Deploys ETH and harvests yield 
- * 
+ * @notice Deploys ETH and harvests yield
+ *
  */
 contract PythMock is IPyth {
-
     bytes32 constant WSTETH_USD_ORACLE_FEED_ID = keccak256(bytes("WSETH/USD"));
     bytes32 constant WETH_USD_ORACLE_FEED_ID = keccak256(bytes("WETH/USD"));
     bytes32 constant CBETH_USD_ORACLE_FEED_ID = keccak256(bytes("CBETH/USD"));
 
     // Mapping from Ids to Prices
-    mapping(bytes32 => PythStructs.Price)  private  _prices;
-    uint256                                private   _updateFee;
+    mapping(bytes32 => PythStructs.Price) private _prices;
+    uint256 private _updateFee;
 
-    constructor() {        
+    constructor() {
         // Set the Initial Values for WSETH/USD
         PythStructs.Price storage wstETHOracle = _prices[WSTETH_USD_ORACLE_FEED_ID];
         wstETHOracle.price = 267451;
         wstETHOracle.expo = -2;
         wstETHOracle.conf = 0;
         wstETHOracle.publishTime = block.timestamp;
-        // Set the Initial Values for WETH/USD        
+        // Set the Initial Values for WETH/USD
         PythStructs.Price storage wETHOracle = _prices[WETH_USD_ORACLE_FEED_ID];
         wETHOracle.price = 231542;
         wETHOracle.expo = -2;
         wETHOracle.conf = 0;
         wETHOracle.publishTime = block.timestamp;
-        // Set the Initial Values for CBETH/USD        
+        // Set the Initial Values for CBETH/USD
         PythStructs.Price storage cbETHOracle = _prices[CBETH_USD_ORACLE_FEED_ID];
         cbETHOracle.price = 244991;
         cbETHOracle.expo = -2;
         cbETHOracle.conf = 0;
         cbETHOracle.publishTime = block.timestamp;
     }
-    
+
     function getValidTimePeriod() external view override returns (uint validTimePeriod) {
         return block.timestamp;
     }
@@ -53,7 +51,7 @@ contract PythMock is IPyth {
         require(_prices[id].price >= 0, "Invalid Price Feed");
         return _prices[id];
     }
-   
+
     function getEmaPrice(
         bytes32 id
     ) external view override returns (PythStructs.Price memory price) {
@@ -99,23 +97,21 @@ contract PythMock is IPyth {
 
     function updatePriceFeedsIfNecessary(
         bytes[] calldata updateData,
-        bytes32[] calldata ,
+        bytes32[] calldata,
         uint64[] calldata
     ) external payable override {
-        _parseUpdatesInternal(updateData);    
+        _parseUpdatesInternal(updateData);
     }
 
-    function getUpdateFee(
-        bytes[] calldata
-    ) external view override returns (uint feeAmount) {
+    function getUpdateFee(bytes[] calldata) external view override returns (uint feeAmount) {
         return uint(_updateFee);
     }
 
     function parsePriceFeedUpdates(
         bytes[] calldata updateData,
         bytes32[] calldata,
-        uint64 ,
-        uint64 
+        uint64,
+        uint64
     ) external payable override returns (PythStructs.PriceFeed[] memory priceFeeds) {
         return _parseUpdatesInternal(updateData);
     }
@@ -123,30 +119,27 @@ contract PythMock is IPyth {
     function parsePriceFeedUpdatesUnique(
         bytes[] calldata updateData,
         bytes32[] calldata,
-        uint64 ,
-        uint64 
+        uint64,
+        uint64
     ) external payable override returns (PythStructs.PriceFeed[] memory priceFeeds) {
         return _parseUpdatesInternal(updateData);
     }
 
-
-     function _parseUpdatesInternal(
+    function _parseUpdatesInternal(
         bytes[] calldata updateData
-    ) internal returns (PythStructs.PriceFeed[] memory feeds) {     
-        
+    ) internal returns (PythStructs.PriceFeed[] memory feeds) {
         feeds = new PythStructs.PriceFeed[](updateData.length);
 
         require(msg.value >= _updateFee, "No Fee");
-        for(uint i= 0; i< updateData.length; i++) {            
-            
+        for (uint i = 0; i < updateData.length; i++) {
             // Decode the Pyth Update Data
-            (feeds[i]) = abi.decode(updateData[i],(PythStructs.PriceFeed));  
-            
+            (feeds[i]) = abi.decode(updateData[i], (PythStructs.PriceFeed));
+
             if (_prices[feeds[i].id].price != 0) {
                 _prices[feeds[i].id].price = feeds[i].price.price;
                 _prices[feeds[i].id].expo = feeds[i].price.expo;
                 _prices[feeds[i].id].conf = feeds[i].price.conf;
-                _prices[feeds[i].id].publishTime =  feeds[i].price.publishTime;
+                _prices[feeds[i].id].publishTime = feeds[i].price.publishTime;
 
                 emit PriceFeedUpdate(
                     feeds[i].id,
@@ -155,7 +148,6 @@ contract PythMock is IPyth {
                     feeds[i].price.conf
                 );
             }
-        
         }
     }
 }

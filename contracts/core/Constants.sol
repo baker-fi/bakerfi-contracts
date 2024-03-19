@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 pragma experimental ABIEncoderV2;
 
 /**
- * @title These are global constants used by other contracts 
+ * @title These are global constants used by other contracts
  */
 
 /**
@@ -26,5 +26,5 @@ uint8 constant MAX_LOOPS = 20; // 100%
  * This constant holds the value 1e9, representing the precision for percentage values.
  * It is used for calculations involving percentage precision.
  */
-uint256 constant PERCENTAGE_PRECISION = 1e9;    
+uint256 constant PERCENTAGE_PRECISION = 1e9;
 address constant ETH = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;

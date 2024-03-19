@@ -1,33 +1,32 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import { PERCENTAGE_PRECISION, MAX_LOOPS} from "./Constants.sol";
-import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import { ISettings } from "../interfaces/core/ISettings.sol";
-import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import {PERCENTAGE_PRECISION, MAX_LOOPS} from "./Constants.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {ISettings} from "../interfaces/core/ISettings.sol";
+import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 /**
- * @title BakerFI Settings(⚙️) Contract 
- * 
+ * @title BakerFI Settings(⚙️) Contract
+ *
  * @notice The settings could only be changed by the Owner and could be used by any contract by the system.
- * 
+ *
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
- * 
+ *
  * @dev The `Settings` contract is used to manage protocol settings.
  * It extends the `OwnableUpgradeable` contract and implements the `ISettings` interface.
  * The settings can only be changed by the owner and can be utilized by any contract within the system.
- * 
- * This contract is going to be used by any service on the Bakerfi system to retrieve 
- * the fees, basic configuration parameters and the list of whitelisted adresess that can 
+ *
+ * This contract is going to be used by any service on the Bakerfi system to retrieve
+ * the fees, basic configuration parameters and the list of whitelisted adresess that can
  * interact with the system
  */
 contract Settings is OwnableUpgradeable, ISettings {
-    
     using EnumerableSet for EnumerableSet.AddressSet;
 
     /**
      * @dev The withdrawal fee percentage
-     * 
+     *
      * This private state variable holds the withdrawal fee percentage, represented as an integer.
      *
      * Default is 1%
@@ -36,14 +35,14 @@ contract Settings is OwnableUpgradeable, ISettings {
 
     /**
      * @dev The performance fee percentage.
-     * 
+     *
      * This private state variable holds the performance fee percentage, represented as an integer.
      */
     uint256 private _performanceFee; // 1%
 
     /**
      * @dev The address of the fee receiver.
-     * 
+     *
      * This private state variable holds the address of the fee receiver.
      * If set to the zero address, there is no fee receiver.
      */
@@ -51,28 +50,28 @@ contract Settings is OwnableUpgradeable, ISettings {
 
     /**
      * @dev The loan-to-value ratio for managing loans.
-     * 
+     *
      * This private state variable holds the loan-to-value ratio, represented as an integer.
      */
     uint256 private _loanToValue; // 80%
 
     /**
      * @dev The maximum allowed loan-to-value ratio.
-     * 
+     *
      * This private state variable holds the maximum allowed loan-to-value ratio, represented as an integer.
      */
     uint256 private _maxLoanToValue; // 85%
 
     /**
      * @dev The number of loops for a specific process.
-     * 
+     *
      * This private state variable holds the number of loops for a specific process, represented as an unsigned integer.
      */
     uint8 private _nrLoops;
 
     /**
      * @dev The set of enabled accounts.
-     * 
+     *
      * This private state variable is an EnumerableSet of addresses representing the set of enabled accounts.
      */
     EnumerableSet.AddressSet private _enabledAccounts;
@@ -81,7 +80,6 @@ contract Settings is OwnableUpgradeable, ISettings {
      * @dev Max Allowed ETH Deposit per Wallet
      */
     uint256 private _maxDepositInETH;
-
 
     /**
      * @dev Max Age for sensitive price operations
@@ -101,19 +99,19 @@ contract Settings is OwnableUpgradeable, ISettings {
      * Requirements:
      * - The provided owner address must not be the zero address.
      */
-    function initialize(address initialOwner) public initializer {        
+    function initialize(address initialOwner) public initializer {
         __Context_init_unchained();
         __Ownable_init_unchained();
         require(initialOwner != address(0), "Invalid Owner Address");
         _transferOwnership(initialOwner);
         _withdrawalFee = 10 * 1e6; // 1%
-        _performanceFee = 10* 1e6; // 1%
+        _performanceFee = 10 * 1e6; // 1%
         _feeReceiver = address(0); // No Fee Receiver
-        _loanToValue =  800 * 1e6; // 80%
-        _maxLoanToValue = 850 * 1e6; // 85%     
-        _nrLoops = 10; 
-        _maxDepositInETH = 0 ;
-        _priceRebalanceMaxAge = 5 minutes;  // 5 Minutes Prices 
+        _loanToValue = 800 * 1e6; // 80%
+        _maxLoanToValue = 850 * 1e6; // 85%
+        _nrLoops = 10;
+        _maxDepositInETH = 0;
+        _priceRebalanceMaxAge = 5 minutes; // 5 Minutes Prices
         _priceMaxAge = 60 minutes;
     }
 
@@ -129,8 +127,8 @@ contract Settings is OwnableUpgradeable, ISettings {
      * Requirements:
      * - The caller must be the owner of the contract.
      */
-    function enableAccount(address account, bool enabled ) external onlyOwner {
-        if(enabled) {
+    function enableAccount(address account, bool enabled) external onlyOwner {
+        if (enabled) {
             require(!_enabledAccounts.contains(account), "Already Enabled");
             require(_enabledAccounts.add(account));
         } else {
@@ -165,8 +163,8 @@ contract Settings is OwnableUpgradeable, ISettings {
      * - The caller must be the owner of the contract.
      */
     function setMaxLoanToValue(uint256 maxLoanToValue) external onlyOwner {
-        require(maxLoanToValue > 0 );
-        require(maxLoanToValue <  PERCENTAGE_PRECISION, "Invalid percentage value");
+        require(maxLoanToValue > 0);
+        require(maxLoanToValue < PERCENTAGE_PRECISION, "Invalid percentage value");
         require(maxLoanToValue >= _loanToValue, "Invalid Max Loan");
         _maxLoanToValue = maxLoanToValue;
         emit MaxLoanToValueChanged(_maxLoanToValue);
@@ -199,8 +197,8 @@ contract Settings is OwnableUpgradeable, ISettings {
      */
     function setLoanToValue(uint256 loanToValue) external onlyOwner {
         require(loanToValue <= _maxLoanToValue, "Invalid LTV could not be higher than max");
-        require(loanToValue <  PERCENTAGE_PRECISION, "Invalid percentage value");
-        require(loanToValue > 0 );
+        require(loanToValue < PERCENTAGE_PRECISION, "Invalid percentage value");
+        require(loanToValue > 0);
         _loanToValue = loanToValue;
         emit LoanToValueChanged(_loanToValue);
     }
@@ -229,7 +227,7 @@ contract Settings is OwnableUpgradeable, ISettings {
      * - The new withdrawal fee percentage must be a valid percentage value.
      */
     function setWithdrawalFee(uint256 fee) external onlyOwner {
-        require(fee <  PERCENTAGE_PRECISION, "Invalid percentage value");
+        require(fee < PERCENTAGE_PRECISION, "Invalid percentage value");
         _withdrawalFee = fee;
         emit WithdrawalFeeChanged(_withdrawalFee);
     }
@@ -258,7 +256,7 @@ contract Settings is OwnableUpgradeable, ISettings {
      * - The new performance fee percentage must be a valid percentage value.
      */
     function setPerformanceFee(uint256 fee) external onlyOwner {
-        require(fee <  PERCENTAGE_PRECISION, "Invalid percentage value");
+        require(fee < PERCENTAGE_PRECISION, "Invalid percentage value");
         _performanceFee = fee;
         emit PerformanceFeeChanged(_performanceFee);
     }
@@ -302,7 +300,6 @@ contract Settings is OwnableUpgradeable, ISettings {
         return _feeReceiver;
     }
 
-
     /**
      * @dev Retrieves the number of loops for our Recursive Staking Strategy
      *
@@ -327,9 +324,9 @@ contract Settings is OwnableUpgradeable, ISettings {
      * - The new number of loops must be less than the maximum allowed number of loops.
      */
     function setNrLoops(uint8 nrLoops) external onlyOwner {
-        require(nrLoops <=  MAX_LOOPS, "Invalid Number of Loops");
+        require(nrLoops <= MAX_LOOPS, "Invalid Number of Loops");
         _nrLoops = nrLoops;
-        emit NrLoopsChanged( _nrLoops);
+        emit NrLoopsChanged(_nrLoops);
     }
 
     function getMaxDepositInETH() external view returns (uint256) {
@@ -341,7 +338,6 @@ contract Settings is OwnableUpgradeable, ISettings {
         emit MaxDepositInETHChanged(value);
     }
 
-
     function setPriceRebalanceMaxAge(uint256 value) external onlyOwner {
         _priceRebalanceMaxAge = value;
         emit PriceRebalanceMaxAgeChange(value);
@@ -351,14 +347,12 @@ contract Settings is OwnableUpgradeable, ISettings {
         return _priceRebalanceMaxAge;
     }
 
-
     function setPriceMaxAge(uint256 value) external onlyOwner {
         _priceMaxAge = value;
         emit PriceRebalanceMaxAgeChange(value);
     }
 
-     function getPriceMaxAge() external view returns (uint256) {
+    function getPriceMaxAge() external view returns (uint256) {
         return _priceMaxAge;
     }
-
 }
