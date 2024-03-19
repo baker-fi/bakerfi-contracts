@@ -10,9 +10,6 @@ import { deployServiceRegistry } from "../../scripts/common";
  * 
  ****************************************************/
 
-/**
- * Deploys the test Scenaario 
- */
 async function deployTestFunction() {
   const [owner, otherAccount] = await ethers.getSigners();
   const serviceRegistry = await deployServiceRegistry(owner.address);
