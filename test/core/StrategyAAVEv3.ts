@@ -21,7 +21,6 @@ import BaseConfig from "../../scripts/config";
  * StrategyAAVEv3 Unit Tests
  */
 describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
-  
   it("Test Deploy", async function () {
     const { owner, strategy } = await loadFixture(deployFunction);
     // Deploy 10 ETH
@@ -52,12 +51,9 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
     ]);
     expect(await strategy.deployed()).to.equal(9962113816060668112n);
     // Receive ~=5 ETH
-    await  expect(
+    await expect(
       strategy.undeploy(ethers.parseUnits("5", 18))
-    ).to.changeEtherBalances(
-      [owner.address], [4983156389718359984n]
-    );
-  
+    ).to.changeEtherBalances([owner.address], [4983156389718359984n]);
   });
 
   it("Deploy Fail - Zero Value", async () => {
@@ -84,7 +80,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
 
     strategy.deploy({
       value: ethers.parseUnits("10", 18),
-    })
+    });
     await expect(
       strategy.connect(otherAccount).undeploy(ethers.parseUnits("5", 18))
     ).to.be.revertedWith("Ownable: caller is not the owner");
@@ -130,7 +126,9 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
   it("onFlashLoan - Invalid Flash Loan Asset", async () => {
     const { owner, serviceRegistry, otherAccount, aave3Pool, config } =
       await loadFixture(deployFunction);
-    const BakerFiProxyAdmin = await ethers.getContractFactory("BakerFiProxyAdmin");
+    const BakerFiProxyAdmin = await ethers.getContractFactory(
+      "BakerFiProxyAdmin"
+    );
     const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
     await proxyAdmin.waitForDeployment();
     await serviceRegistry.unregisterService(
@@ -165,34 +163,29 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
     ).to.be.revertedWith("Invalid Flash Loan Asset");
   });
 
-  
+  it("OnFlashLoan - Attacker", async () => {
+    const { weth, serviceRegistry, strategy } = await loadFixture(
+      deployFunction
+    );
 
-  it("OnFlashLoan - Attacker", async ()=> {
-
-    const { weth, serviceRegistry, strategy} =
-    await loadFixture(deployFunction);
-
-    const BorrowerAttacker = await ethers.getContractFactory("BorrowerAttacker");
+    const BorrowerAttacker = await ethers.getContractFactory(
+      "BorrowerAttacker"
+    );
     const attacker = await BorrowerAttacker.deploy();
-    await attacker.initialize(
-      await serviceRegistry.getAddress()
-    )
+    await attacker.initialize(await serviceRegistry.getAddress());
 
     await strategy.deploy({
       value: ethers.parseUnits("10", 18),
     });
-    
-    await expect(
-      attacker.flashme(
-        await weth.getAddress(),
-        ethers.parseUnits("1", 18),        
-      )
-    ).to.be.revertedWith("Invalid Flash loan sender");
-  })
 
-  it("Rebalance - Fails with outdated prices", async ()=> {    
-    const { weth, serviceRegistry, settings, strategy, oracle, ethOracle} =
-    await loadFixture(deployFunction);    
+    await expect(
+      attacker.flashme(await weth.getAddress(), ethers.parseUnits("1", 18))
+    ).to.be.revertedWith("Invalid Flash loan sender");
+  });
+
+  it("Rebalance - Fails with outdated prices", async () => {
+    const { weth, serviceRegistry, settings, strategy, oracle, ethOracle } =
+      await loadFixture(deployFunction);
     // Deposit 10 ETH
     await strategy.deploy({
       value: ethers.parseUnits("10", 18),
@@ -200,14 +193,14 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
     await settings.setOraclePriceMaxAge(60);
     // advance time by one hour and mine a new block
     await time.increase(3600);
-    await expect(
-      strategy.harvest()
-    ).to.be.revertedWith("Oracle Price is outdated");
-  })
+    await expect(strategy.harvest()).to.be.revertedWith(
+      "Oracle Price is outdated"
+    );
+  });
 
-  it("Rebalance - Success when the price is updated", async ()=> {    
-    const { weth, serviceRegistry, settings, strategy, oracle, ethOracle} =
-    await loadFixture(deployFunction);    
+  it("Rebalance - Success when the price is updated", async () => {
+    const { weth, serviceRegistry, settings, strategy, oracle, ethOracle } =
+      await loadFixture(deployFunction);
     // Deposit 10 ETH
     await strategy.deploy({
       value: ethers.parseUnits("10", 18),
@@ -215,17 +208,15 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
     await settings.setOraclePriceMaxAge(4800);
     // advance time by one hour and mine a new block
     await time.increase(3600);
-    await strategy.harvest()
+    await strategy.harvest();
     expect(true).to.be.equal(true);
   });
-
 });
 
 /**
- * Deploy Test Function 
+ * Deploy Test Function
  */
 async function deployFunction() {
-    
   const networkName = network.name;
   const config = BaseConfig[networkName];
   const [owner, otherAccount] = await ethers.getSigners();
@@ -234,19 +225,22 @@ async function deployFunction() {
   const AAVE_DEPOSIT = ethers.parseUnits("10000", 18);
   const serviceRegistry = await deployServiceRegistry(owner.address);
   const serviceRegistryAddress = await serviceRegistry.getAddress();
-  
+
   const weth = await deployWETH(serviceRegistry);
-  const BakerFiProxyAdmin = await ethers.getContractFactory("BakerFiProxyAdmin");
+  const BakerFiProxyAdmin = await ethers.getContractFactory(
+    "BakerFiProxyAdmin"
+  );
   const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
   await proxyAdmin.waitForDeployment();
 
   const { proxy: settingsProxy } = await deploySettings(
-    owner.address, serviceRegistry,
+    owner.address,
+    serviceRegistry,
     proxyAdmin
-    );
+  );
   const pSettings = await ethers.getContractAt(
-      "Settings",
-      await settingsProxy.getAddress()
+    "Settings",
+    await settingsProxy.getAddress()
   );
 
   // 1. Deploy Flash Lender
@@ -292,10 +286,10 @@ async function deployFunction() {
     serviceRegistry,
     AAVE_DEPOSIT
   );
-  
+
   const oracle = await deployOracleMock(serviceRegistry, "cbETH/ETH Oracle");
   const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");
-  
+
   await oracle.setLatestPrice(ethers.parseUnits("2660", 18));
   await ethOracle.setLatestPrice(ethers.parseUnits("2305", 18));
 
