@@ -17,130 +17,15 @@ import {
 } from "../../scripts/common";
 import BaseConfig from "../../scripts/config";
 
+
+/**
+ * Unit Tests for BakerFi Vault with a regular AAVEv3StrategyWstETH 
+ * This strategy uses Lido Contracts for asset wrapping and conversion 
+ */
+
 describeif(network.name === "hardhat")
 ("BakerFi Vault Main Net wstETH/ETH", function () {
   
-  async function deployFunction() {
-    const networkName = network.name;
-    const chainId = network.config.chainId;
-    const config = BaseConfig[networkName];
-    const [owner, otherAccount, anotherAccount] = await ethers.getSigners();
-    const STETH_MAX_SUPPLY = ethers.parseUnits("1000010000", 18);
-    const STETH_TO_WRAPPER = ethers.parseUnits("10000", 18);
-    const FLASH_LENDER_DEPOSIT = ethers.parseUnits("10000", 18);
-    const AAVE_DEPOSIT = ethers.parseUnits("10000", 18);
-    const serviceRegistry = await deployServiceRegistry(owner.address);
-    const serviceRegistryAddress = await serviceRegistry.getAddress();
-    const weth = await deployWETH(serviceRegistry);
-    const BakerFiProxyAdmin = await ethers.getContractFactory("BakerFiProxyAdmin");
-    const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
-    await proxyAdmin.waitForDeployment();
-
-    // 1. Deploy Flash Lender
-    const flashLender = await deployFlashLender(
-      serviceRegistry,
-      weth,
-      FLASH_LENDER_DEPOSIT
-    );
-    // 2. Deploy stETH
-    const stETH = await deployStEth(serviceRegistry, owner, STETH_MAX_SUPPLY);
-    // 3. Deploy wstETH
-    const wstETH = await deployWStEth(
-      serviceRegistry,
-      await stETH.getAddress()
-    );
-    await stETH.transfer(await wstETH.getAddress(), STETH_TO_WRAPPER);
-    const UniRouter = await ethers.getContractFactory("UniV3RouterMock");
-    const uniRouter = await UniRouter.deploy(
-      await weth.getAddress(),
-      await wstETH.getAddress()
-    );
-
-    // Register Uniswap Router
-    await serviceRegistry.registerService(
-      ethers.keccak256(Buffer.from("Uniswap Router")),
-      await uniRouter.getAddress()
-    );
-
-    await uniRouter.setPrice(8665 * 1e5);
-
-    const { proxy: settingsProxy } = await deploySettings(
-      owner.address, serviceRegistry,
-      proxyAdmin
-    );
-    const pSettings = await ethers.getContractAt(
-      "Settings",
-      await settingsProxy.getAddress()
-    );
-    // Deposit some WETH on Swapper
-    await weth.deposit?.call("", { value: ethers.parseUnits("10000", 18) });
-    await weth.transfer(
-      await uniRouter.getAddress(),
-      ethers.parseUnits("10000", 18)
-    );
-    // 5. Deploy AAVEv3 Mock Pool
-    const aave3Pool = await deployAaveV3(
-      wstETH,
-      weth,
-      serviceRegistry,
-      AAVE_DEPOSIT
-    );
-    // 6. Deploy wstETH/ETH Oracle
-    const oracle = await deployOracleMock(serviceRegistry, "wstETH/USD Oracle");
-    await deployQuoterV2Mock(serviceRegistry);
-    const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");
-
-    await oracle.setLatestPrice(ethers.parseUnits("2660", 18));
-    await ethOracle.setLatestPrice(ethers.parseUnits("2305", 18));
-
-
-    const {proxy: proxyStrategy} = await deployStrategyAAVEv3WstETH(
-      owner.address,
-      serviceRegistryAddress,
-      config.swapFeeTier,
-      config.AAVEEModeCategory,
-      proxyAdmin
-    );
-    
-    const pStrategy = await ethers.getContractAt(
-      "StrategyAAVEv3WstETH",
-      await proxyStrategy.getAddress()
-    );
-
-    const { proxy } = await deployVault(
-      owner.address,
-      "Bread ETH",
-      "brETH",
-      serviceRegistryAddress,
-      await proxyStrategy.getAddress(),
-      proxyAdmin
-    );
-
-    const pVault = await ethers.getContractAt(
-      "Vault",
-      await proxy.getAddress()
-    );
-
-    await pStrategy.transferOwnership(await proxy.getAddress());
-    return {
-      stETH,
-      weth,
-      owner,
-      otherAccount,
-      anotherAccount,
-      serviceRegistry,
-      vault: pVault,
-      uniRouter,
-      aave3Pool,
-      flashLender,
-      wstETH,
-      oracle,
-      strategy: pStrategy,
-      settings: pSettings,
-      config,
-    };
-  }
-
   it("Vault Initilization", async function () {
     const { owner, vault, strategy } = await loadFixture(deployFunction);
     expect(await vault.symbol()).to.equal("brETH");
@@ -452,53 +337,10 @@ describeif(network.name === "hardhat")
 
   // Mocked Strategy
 
-  async function deployMockStrategyFunction() {
-    const [owner, otherAccount, anotherAccount] = await ethers.getSigners();
-    const BakerFiProxyAdmin = await ethers.getContractFactory("BakerFiProxyAdmin");
-    const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
-    await proxyAdmin.waitForDeployment();
-    const BakerFiProxy = await ethers.getContractFactory("BakerFiProxy");
-    const Vault = await ethers.getContractFactory("Vault");
-    const vault = await Vault.deploy();
-    await vault.waitForDeployment();
-    
-    const serviceRegistry = await deployServiceRegistry(owner.address);
-    const { proxy: settingsProxy } = await deploySettings(
-      owner.address, serviceRegistry,
-      proxyAdmin
-    );
-    const pSettings = await ethers.getContractAt(
-      "Settings",
-      await settingsProxy.getAddress()
-    );
-    
-    const StrategyMock = await ethers.getContractFactory("StrategyMock");
-    const strategy = await StrategyMock.deploy();
-    await strategy.waitForDeployment();
-      
-    const proxy = await BakerFiProxy.deploy(
-      await vault.getAddress(),
-      await proxyAdmin.getAddress(),
-      Vault.interface.encodeFunctionData("initialize", [
-        owner.address,
-        "Bread ETH",
-        "brETH",
-        await serviceRegistry.getAddress(),
-        await strategy.getAddress(),       
-      ]),
-    );
-    await (proxy as any).waitForDeployment();    
-    await strategy.waitForDeployment();
-    const pVault = await ethers.getContractAt(
-      "Vault",
-      await proxy.getAddress()
-    );
-    return {owner, otherAccount, settings: pSettings, vault: pVault, strategy};
-  }
 
 
   it("Deposit - Withdraw", async () => {
-    const { owner, vault, strategy } = await loadFixture(deployMockStrategyFunction);
+    const { owner, vault, strategy } = await loadFixture(deployWithMockStrategyFunction);
     await expect(vault.deposit(owner.address, {
       value: 1,
     })).to.emit(strategy, "StrategyAmountUpdate")
@@ -509,7 +351,7 @@ describeif(network.name === "hardhat")
 
 
   it("Deposit - Fails Deposit when debt is higher than collateral ", async () => {
-    const { owner, vault, strategy } = await loadFixture(deployMockStrategyFunction);
+    const { owner, vault, strategy } = await loadFixture(deployWithMockStrategyFunction);
 
     const depositAmount = ethers.parseUnits("10", 18);
     await vault.deposit(owner.address, {
@@ -525,7 +367,7 @@ describeif(network.name === "hardhat")
 
 
   it("Rebalance - Generates Revenue ", async () => {
-    const { owner, vault, strategy, settings, otherAccount} = await loadFixture(deployMockStrategyFunction);    
+    const { owner, vault, strategy, settings, otherAccount} = await loadFixture(deployWithMockStrategyFunction);    
     await vault.deposit(owner.address, {
       value: 10000,
     });
@@ -549,7 +391,7 @@ describeif(network.name === "hardhat")
   })
 
   it("Rebalance - Assets on Uncollateralized positions ", async () => {
-    const { owner, vault, strategy, settings, otherAccount} = await loadFixture(deployMockStrategyFunction);
+    const { owner, vault, strategy, settings, otherAccount} = await loadFixture(deployWithMockStrategyFunction);
     await vault.deposit(owner.address, {
       value: 10000,
     });
@@ -604,3 +446,173 @@ describeif(network.name === "hardhat")
   });
 
 });
+
+/**
+ * Deploy Test Function With a Real Strategy
+ * @returns 
+ */
+async function deployFunction() {
+  const networkName = network.name;
+  const chainId = network.config.chainId;
+  const config = BaseConfig[networkName];
+  const [owner, otherAccount, anotherAccount] = await ethers.getSigners();
+  const STETH_MAX_SUPPLY = ethers.parseUnits("1000010000", 18);
+  const STETH_TO_WRAPPER = ethers.parseUnits("10000", 18);
+  const FLASH_LENDER_DEPOSIT = ethers.parseUnits("10000", 18);
+  const AAVE_DEPOSIT = ethers.parseUnits("10000", 18);
+  const serviceRegistry = await deployServiceRegistry(owner.address);
+  const serviceRegistryAddress = await serviceRegistry.getAddress();
+  const weth = await deployWETH(serviceRegistry);
+  const BakerFiProxyAdmin = await ethers.getContractFactory("BakerFiProxyAdmin");
+  const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
+  await proxyAdmin.waitForDeployment();
+
+  // 1. Deploy Flash Lender
+  const flashLender = await deployFlashLender(
+    serviceRegistry,
+    weth,
+    FLASH_LENDER_DEPOSIT
+  );
+  // 2. Deploy stETH
+  const stETH = await deployStEth(serviceRegistry, owner, STETH_MAX_SUPPLY);
+  // 3. Deploy wstETH
+  const wstETH = await deployWStEth(
+    serviceRegistry,
+    await stETH.getAddress()
+  );
+  await stETH.transfer(await wstETH.getAddress(), STETH_TO_WRAPPER);
+  const UniRouter = await ethers.getContractFactory("UniV3RouterMock");
+  const uniRouter = await UniRouter.deploy(
+    await weth.getAddress(),
+    await wstETH.getAddress()
+  );
+
+  // Register Uniswap Router
+  await serviceRegistry.registerService(
+    ethers.keccak256(Buffer.from("Uniswap Router")),
+    await uniRouter.getAddress()
+  );
+
+  await uniRouter.setPrice(8665 * 1e5);
+
+  const { proxy: settingsProxy } = await deploySettings(
+    owner.address, serviceRegistry,
+    proxyAdmin
+  );
+  const pSettings = await ethers.getContractAt(
+    "Settings",
+    await settingsProxy.getAddress()
+  );
+  // Deposit some WETH on Swapper
+  await weth.deposit?.call("", { value: ethers.parseUnits("10000", 18) });
+  await weth.transfer(
+    await uniRouter.getAddress(),
+    ethers.parseUnits("10000", 18)
+  );
+  // 5. Deploy AAVEv3 Mock Pool
+  const aave3Pool = await deployAaveV3(
+    wstETH,
+    weth,
+    serviceRegistry,
+    AAVE_DEPOSIT
+  );
+  // 6. Deploy wstETH/ETH Oracle
+  const oracle = await deployOracleMock(serviceRegistry, "wstETH/USD Oracle");
+  await deployQuoterV2Mock(serviceRegistry);
+  const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");
+
+  await oracle.setLatestPrice(ethers.parseUnits("2660", 18));
+  await ethOracle.setLatestPrice(ethers.parseUnits("2305", 18));
+
+
+  const {proxy: proxyStrategy} = await deployStrategyAAVEv3WstETH(
+    owner.address,
+    serviceRegistryAddress,
+    config.swapFeeTier,
+    config.AAVEEModeCategory,
+    proxyAdmin
+  );
+  
+  const pStrategy = await ethers.getContractAt(
+    "StrategyAAVEv3WstETH",
+    await proxyStrategy.getAddress()
+  );
+
+  const { proxy } = await deployVault(
+    owner.address,
+    "Bread ETH",
+    "brETH",
+    serviceRegistryAddress,
+    await proxyStrategy.getAddress(),
+    proxyAdmin
+  );
+
+  const pVault = await ethers.getContractAt(
+    "Vault",
+    await proxy.getAddress()
+  );
+
+  await pStrategy.transferOwnership(await proxy.getAddress());
+  return {
+    stETH,
+    weth,
+    owner,
+    otherAccount,
+    anotherAccount,
+    serviceRegistry,
+    vault: pVault,
+    uniRouter,
+    aave3Pool,
+    flashLender,
+    wstETH,
+    oracle,
+    strategy: pStrategy,
+    settings: pSettings,
+    config,
+  };
+}
+
+
+async function deployWithMockStrategyFunction() {
+  const [owner, otherAccount, anotherAccount] = await ethers.getSigners();
+  const BakerFiProxyAdmin = await ethers.getContractFactory("BakerFiProxyAdmin");
+  const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
+  await proxyAdmin.waitForDeployment();
+  const BakerFiProxy = await ethers.getContractFactory("BakerFiProxy");
+  const Vault = await ethers.getContractFactory("Vault");
+  const vault = await Vault.deploy();
+  await vault.waitForDeployment();
+  
+  const serviceRegistry = await deployServiceRegistry(owner.address);
+  const { proxy: settingsProxy } = await deploySettings(
+    owner.address, serviceRegistry,
+    proxyAdmin
+  );
+  const pSettings = await ethers.getContractAt(
+    "Settings",
+    await settingsProxy.getAddress()
+  );
+  
+  const StrategyMock = await ethers.getContractFactory("StrategyMock");
+  const strategy = await StrategyMock.deploy();
+  await strategy.waitForDeployment();
+    
+  const proxy = await BakerFiProxy.deploy(
+    await vault.getAddress(),
+    await proxyAdmin.getAddress(),
+    Vault.interface.encodeFunctionData("initialize", [
+      owner.address,
+      "Bread ETH",
+      "brETH",
+      await serviceRegistry.getAddress(),
+      await strategy.getAddress(),       
+    ]),
+  );
+  await (proxy as any).waitForDeployment();    
+  await strategy.waitForDeployment();
+  const pVault = await ethers.getContractAt(
+    "Vault",
+    await proxy.getAddress()
+  );
+  return {owner, otherAccount, settings: pSettings, vault: pVault, strategy};
+}

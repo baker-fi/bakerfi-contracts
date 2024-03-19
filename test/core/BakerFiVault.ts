@@ -16,133 +16,13 @@ import {
 } from "../../scripts/common";
 import BaseConfig from "../../scripts/config";
 
+/**
+ * Unit Tests for BakerFi Vault with a regular AAVEv3Strategy 
+ */
+
 describeif(network.name === "hardhat")
 ("BakerFi Vault For L2s", function () {
   
-  async function deployFunction() {
-    const [owner, otherAccount, anotherAccount] = await ethers.getSigners();
-    const networkName = network.name;
-    const config = BaseConfig[networkName];
-    const CBETH_MAX_SUPPLY = ethers.parseUnits("1000000000", 18);
-    const FLASH_LENDER_DEPOSIT = ethers.parseUnits("10000", 18);
-    const AAVE_DEPOSIT = ethers.parseUnits("10000", 18);
-    const serviceRegistry = await deployServiceRegistry(owner.address);
-    const serviceRegistryAddress = await serviceRegistry.getAddress();
-    const weth = await deployWETH(serviceRegistry);
-    const BakerFiProxyAdmin = await ethers.getContractFactory("BakerFiProxyAdmin");
-    const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
-    await proxyAdmin.waitForDeployment();
-
-    // Deploy Flash Lender
-    const flashLender = await deployFlashLender(
-      serviceRegistry,
-      weth,
-      FLASH_LENDER_DEPOSIT
-    );
-
-    // Deploy cbETH
-    const cbETH = await deployCbETH(serviceRegistry, owner, CBETH_MAX_SUPPLY);
-
-    // Deploy cbETH -> ETH Uniswap Router
-    const UniRouter = await ethers.getContractFactory("UniV3RouterMock");
-    const uniRouter = await UniRouter.deploy(
-      await weth.getAddress(),
-      await cbETH.getAddress()
-    );
-
-    // Register Uniswap Router
-    await serviceRegistry.registerService(
-      ethers.keccak256(Buffer.from("Uniswap Router")),
-      await uniRouter.getAddress()
-    );
-
-    await uniRouter.setPrice(8665 * 1e5);
-
-    // Deposit ETH on Uniswap Mock Router
-    await weth.deposit?.call("", { value: ethers.parseUnits("10000", 18) });
-    await weth.transfer(
-      await uniRouter.getAddress(),
-      ethers.parseUnits("10000", 18)
-    );
-
-
-    // Deposit cbETH on Uniswap Mock Router
-    await cbETH.transfer(
-      await uniRouter.getAddress(),
-      ethers.parseUnits("10000", 18)
-    );
-
-    const { proxy: settingsProxy } = await deploySettings(owner.address, serviceRegistry,
-      proxyAdmin);
-    const pSettings = await ethers.getContractAt(
-        "Settings",
-        await settingsProxy.getAddress()
-    );
-
-    // 5. Deploy AAVEv3 Mock Pool
-    const aave3Pool = await deployAaveV3(
-      cbETH,
-      weth,
-      serviceRegistry,
-      AAVE_DEPOSIT
-    );
-
-    // 6. Deploy wstETH/ETH Oracle
-    const oracle = await deployOracleMock(serviceRegistry, "cbETH/USD Oracle");
-    const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");
-    
-    await oracle.setLatestPrice(ethers.parseUnits("2660", 18));
-    await ethOracle.setLatestPrice(ethers.parseUnits("2305", 18));
-
-    await deployQuoterV2Mock(serviceRegistry);
-
-
-    const { proxy: proxyStrategy } = await deployAAVEv3StrategyAny(
-      owner.address,
-      serviceRegistryAddress,
-      "cbETH",
-      "cbETH/USD Oracle",
-      config.swapFeeTier,
-      config.AAVEEModeCategory,
-      proxyAdmin
-    );
-
-    const pStrategy = await ethers.getContractAt(
-      "StrategyAAVEv3",
-      await proxyStrategy.getAddress()
-    );
-
-    const { proxy  } = await deployVault(      
-      owner.address,
-      "Bread ETH",
-      "brETH",
-      serviceRegistryAddress,
-      await proxyStrategy.getAddress(),
-      proxyAdmin
-    );
-
-    await pStrategy.transferOwnership(await proxy.getAddress());
-    const pVault = await ethers.getContractAt(
-      "Vault",
-      await proxy.getAddress()
-    );
-    return {
-      cbETH,
-      weth,
-      owner,
-      otherAccount,
-      anotherAccount,
-      serviceRegistry,
-      vault: pVault,
-      aave3Pool,
-      flashLender,
-      uniRouter,
-      oracle,
-      strategy: pStrategy,
-      settings: pSettings,
-    };
-  }
-
   it("Deposit with no Flash Loan Fees", async function () {
     const { owner, vault, weth, aave3Pool, strategy, cbETH, flashLender } =
       await loadFixture(deployFunction);
@@ -265,3 +145,130 @@ describeif(network.name === "hardhat")
     expect(await vault.tokenPerETH()).to.equal(ethers.parseUnits("1", 18));
   });
 });
+
+/**
+ * Deploy Test Function 
+ */
+async function deployFunction() {
+  const [owner, otherAccount, anotherAccount] = await ethers.getSigners();
+  const networkName = network.name;
+  const config = BaseConfig[networkName];
+  const CBETH_MAX_SUPPLY = ethers.parseUnits("1000000000", 18);
+  const FLASH_LENDER_DEPOSIT = ethers.parseUnits("10000", 18);
+  const AAVE_DEPOSIT = ethers.parseUnits("10000", 18);
+  const serviceRegistry = await deployServiceRegistry(owner.address);
+  const serviceRegistryAddress = await serviceRegistry.getAddress();
+  const weth = await deployWETH(serviceRegistry);
+  const BakerFiProxyAdmin = await ethers.getContractFactory("BakerFiProxyAdmin");
+  const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
+  await proxyAdmin.waitForDeployment();
+
+  // Deploy Flash Lender
+  const flashLender = await deployFlashLender(
+    serviceRegistry,
+    weth,
+    FLASH_LENDER_DEPOSIT
+  );
+
+  // Deploy cbETH
+  const cbETH = await deployCbETH(serviceRegistry, owner, CBETH_MAX_SUPPLY);
+
+  // Deploy cbETH -> ETH Uniswap Router
+  const UniRouter = await ethers.getContractFactory("UniV3RouterMock");
+  const uniRouter = await UniRouter.deploy(
+    await weth.getAddress(),
+    await cbETH.getAddress()
+  );
+
+  // Register Uniswap Router
+  await serviceRegistry.registerService(
+    ethers.keccak256(Buffer.from("Uniswap Router")),
+    await uniRouter.getAddress()
+  );
+
+  await uniRouter.setPrice(8665 * 1e5);
+
+  // Deposit ETH on Uniswap Mock Router
+  await weth.deposit?.call("", { value: ethers.parseUnits("10000", 18) });
+  await weth.transfer(
+    await uniRouter.getAddress(),
+    ethers.parseUnits("10000", 18)
+  );
+
+
+  // Deposit cbETH on Uniswap Mock Router
+  await cbETH.transfer(
+    await uniRouter.getAddress(),
+    ethers.parseUnits("10000", 18)
+  );
+
+  const { proxy: settingsProxy } = await deploySettings(owner.address, serviceRegistry,
+    proxyAdmin);
+  const pSettings = await ethers.getContractAt(
+      "Settings",
+      await settingsProxy.getAddress()
+  );
+
+  // 5. Deploy AAVEv3 Mock Pool
+  const aave3Pool = await deployAaveV3(
+    cbETH,
+    weth,
+    serviceRegistry,
+    AAVE_DEPOSIT
+  );
+
+  // 6. Deploy wstETH/ETH Oracle
+  const oracle = await deployOracleMock(serviceRegistry, "cbETH/USD Oracle");
+  const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");
+  
+  await oracle.setLatestPrice(ethers.parseUnits("2660", 18));
+  await ethOracle.setLatestPrice(ethers.parseUnits("2305", 18));
+
+  await deployQuoterV2Mock(serviceRegistry);
+
+
+  const { proxy: proxyStrategy } = await deployAAVEv3StrategyAny(
+    owner.address,
+    serviceRegistryAddress,
+    "cbETH",
+    "cbETH/USD Oracle",
+    config.swapFeeTier,
+    config.AAVEEModeCategory,
+    proxyAdmin
+  );
+
+  const pStrategy = await ethers.getContractAt(
+    "StrategyAAVEv3",
+    await proxyStrategy.getAddress()
+  );
+
+  const { proxy  } = await deployVault(      
+    owner.address,
+    "Bread ETH",
+    "brETH",
+    serviceRegistryAddress,
+    await proxyStrategy.getAddress(),
+    proxyAdmin
+  );
+
+  await pStrategy.transferOwnership(await proxy.getAddress());
+  const pVault = await ethers.getContractAt(
+    "Vault",
+    await proxy.getAddress()
+  );
+  return {
+    cbETH,
+    weth,
+    owner,
+    otherAccount,
+    anotherAccount,
+    serviceRegistry,
+    vault: pVault,
+    aave3Pool,
+    flashLender,
+    uniRouter,
+    oracle,
+    strategy: pStrategy,
+    settings: pSettings,
+  };
+}
