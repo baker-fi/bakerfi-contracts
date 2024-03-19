@@ -292,8 +292,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
   })
 
   it("Rebalance - Success when the price is updated", async ()=> {    
-    const { weth, serviceRegistry, settings, strategy, oracle, ethOracle} =
-    await loadFixture(deployFunction);    
+    const { settings, strategy} = await loadFixture(deployFunction);    
     // Deposit 10 ETH
     await strategy.deploy({
       value: ethers.parseUnits("10", 18),

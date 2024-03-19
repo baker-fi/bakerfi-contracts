@@ -5,11 +5,9 @@ import { describeif } from "../common";
 import {
   deployServiceRegistry,
   deployVault,
-  deploySwapper,
   deployAaveV3,
   deployFlashLender,
   deployOracleMock,
-  deployUniV3RouterMock,
   deployWETH,
   deployCbETH,
   deploySettings,
@@ -17,6 +15,7 @@ import {
   deployAAVEv3StrategyAny,
 } from "../../scripts/common";
 import BaseConfig from "../../scripts/config";
+import { time } from "@nomicfoundation/hardhat-network-helpers";
 
 describeif(network.name === "hardhat")("BakerFi Vault For L2s", function () {
   
@@ -244,4 +243,68 @@ describeif(network.name === "hardhat")("BakerFi Vault For L2s", function () {
     const { owner, vault, strategy } = await loadFixture(deployFunction);
     expect(await vault.tokenPerETH()).to.equal(ethers.parseUnits("1", 18));
   });
+
+
+
+  it("Deposit Fails when the prices are outdated",async ()=> { 
+
+    const { settings, vault, owner} = await loadFixture(deployFunction);
+
+    // Price Max Age 6 Min
+    await settings.setPriceMaxAge(360);
+    
+    // advance time by one hour and mine a new block
+    await time.increase(3600);
+
+    await vault.deposit(owner.address, {
+      value: ethers.parseUnits("10", 18),
+    });
+
+    await expect(
+      vault.deposit(owner.address, {
+        value: ethers.parseUnits("10", 18),
+      })
+    ).to.be.revertedWith("Oracle Price is outdated");
+  
+  });
+
+  it("Deposit Fails when the prices are outdated",async ()=> { 
+
+    const { settings, vault, owner} = await loadFixture(deployFunction);
+
+    // Price Max Age 6 Min
+    await settings.setPriceMaxAge(360);
+    
+    // advance time by one hour and mine a new block
+    await time.increase(3600);
+
+    await vault.deposit(owner.address, {
+      value: ethers.parseUnits("10", 18),
+    });
+
+    await expect(
+      vault.deposit(owner.address, {
+        value: ethers.parseUnits("10", 18),
+      })
+    ).to.be.revertedWith("Oracle Price is outdated");
+  
+  });
+  
+  it("Deposit Success with old prices",async ()=> { 
+
+    const { settings, vault, owner} = await loadFixture(deployFunction);
+
+    // Price Max Age 10 Hours
+    await settings.setPriceMaxAge(36000);
+   
+    // advance time by one hour and mine a new block
+    await time.increase(3600);
+
+    const tx =  await vault.deposit(owner.address, {
+      value: ethers.parseUnits("10", 18),
+    });
+    await expect(tx)
+      .to.changeEtherBalances([owner.address], [ethers.parseUnits("-10", 18)]);   
+  } )
+
 });
