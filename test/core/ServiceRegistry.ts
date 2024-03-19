@@ -48,8 +48,8 @@ describeif(network.name === "hardhat")("ServiceRegistry", function () {
     const helloAddress = "0xb8d0e3424cA4F308680CAd5C8AA14a9E4fCf5394";
     const { serviceRegistry, otherAccount } = await loadFixture(deployTestFunction);
     await expect(
-      serviceRegistry
-        .connect(otherAccount)
+      (serviceRegistry
+        .connect(otherAccount) as any)
         .registerService(ethers.keccak256(Buffer.from("Hello")), helloAddress)
     ).to.be.revertedWith("Ownable: caller is not the owner");
   });

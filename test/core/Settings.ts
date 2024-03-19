@@ -50,8 +50,8 @@ describeif(network.name === "hardhat")("Settings", function () {
 
   it("Change Loan to Value ✅", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
-    await settings.connect(otherAccount).setLoanToValue(700 * 1e6);
-    expect(await settings.connect(otherAccount).getLoanToValue()).to.equal(
+    await (settings.connect(otherAccount) as any).setLoanToValue(700 * 1e6);
+    expect(await (settings.connect(otherAccount) as any).getLoanToValue()).to.equal(
       700 * 1e6
     );
   });
@@ -59,14 +59,14 @@ describeif(network.name === "hardhat")("Settings", function () {
   it("Invalid Loan to Value ❌", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
     await expect(
-      settings.connect(otherAccount).setLoanToValue(1100 * 1e6)
+      (settings.connect(otherAccount) as any).setLoanToValue(1100 * 1e6)
     ).to.be.revertedWithCustomError(settings, "InvalidValue");
   });
 
   it("Change Max Loan to Value ✅", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
-    await settings.connect(otherAccount).setMaxLoanToValue(820 * 1e6);
-    expect(await settings.connect(otherAccount).getMaxLoanToValue()).to.equal(
+    await (settings.connect(otherAccount) as any).setMaxLoanToValue(820 * 1e6);
+    expect(await (settings.connect(otherAccount) as any).getMaxLoanToValue()).to.equal(
       820 * 1e6
     );
   });
@@ -74,46 +74,46 @@ describeif(network.name === "hardhat")("Settings", function () {
   it("Invalid Max Loan to Value ❌", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
     await expect(
-      settings.connect(otherAccount).setMaxLoanToValue(400 * 1e6)
+      (settings.connect(otherAccount) as any).setMaxLoanToValue(400 * 1e6)
     ).to.be.revertedWithCustomError(settings, "InvalidMaxLoanToValue");
   });
 
   it("Invalid Max Loan to Value ❌", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
     await expect(
-      settings.connect(otherAccount).setMaxLoanToValue(1100 * 1e6)
+      (settings.connect(otherAccount) as any).setMaxLoanToValue(1100 * 1e6)
     ).to.be.revertedWithCustomError(settings, "InvalidPercentage");
   });
 
   it("Change Withdrawal Fee ✅", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
-    await settings.connect(otherAccount).setWithdrawalFee(20 * 1e6);
+    await (settings.connect(otherAccount) as any).setWithdrawalFee(20 * 1e6);
     expect(await settings.getWithdrawalFee()).to.equal(20 * 1e6);
   });
 
   it("Withdrawal Fee ❌", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
     await expect(
-      settings.connect(otherAccount).setWithdrawalFee(1100 * 1e6)
+      (settings.connect(otherAccount) as any).setWithdrawalFee(1100 * 1e6)
     ).to.be.revertedWithCustomError(settings, "InvalidPercentage");
   });
 
   it("Change Perfornance Fee ✅", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
-    await settings.connect(otherAccount).setPerformanceFee(20 * 1e6);
+    await (settings.connect(otherAccount) as any).setPerformanceFee(20 * 1e6);
     expect(await settings.getPerformanceFee()).to.equal(20 * 1e6);
   });
 
   it("Invalid Perfornance Fee ❌", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
     await expect(
-      settings.connect(otherAccount).setPerformanceFee(1100 * 1e6)
+      (settings.connect(otherAccount) as any).setPerformanceFee(1100 * 1e6)
     ).to.be.revertedWithCustomError(settings, "InvalidPercentage");
   });
 
   it("Change Fee Receiver ✅", async function () {
     const { settings, owner, otherAccount } = await loadFixture(deployFunction);
-    await settings.connect(otherAccount).setFeeReceiver(owner.address);
+    await (settings.connect(otherAccount) as any).setFeeReceiver(owner.address);
     expect(await settings.getFeeReceiver()).to.equal(owner.address);
   });
 
@@ -126,20 +126,20 @@ describeif(network.name === "hardhat")("Settings", function () {
 
   it("Change Max Loan To value ✅", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
-    await settings.connect(otherAccount).setMaxLoanToValue(850 * 1e6);
+    await (settings.connect(otherAccount) as any).setMaxLoanToValue(850 * 1e6);
     expect(await settings.getMaxLoanToValue()).to.equal(850 * 1e6);
   });
 
   it("Change Nr Loops ✅", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
-    await settings.connect(otherAccount).setNrLoops(5);
-    expect(await settings.connect(otherAccount).getNrLoops()).to.equal(5);
+    await (settings.connect(otherAccount) as any).setNrLoops(5);
+    expect(await (settings.connect(otherAccount) as any).getNrLoops()).to.equal(5);
   });
 
   it("Invalid Nr Loops ❌", async function () {
     const { settings, owner, otherAccount } = await loadFixture(deployFunction);
     await expect(
-      settings.connect(otherAccount).setNrLoops(30)
+      (settings.connect(otherAccount) as any).setNrLoops(30)
     ).to.be.revertedWithCustomError(settings, "InvalidLoopCount");
   });
 
@@ -151,7 +151,7 @@ describeif(network.name === "hardhat")("Settings", function () {
 
   it("Account should not be allowed when is not on the whitelist ✅ ", async function () {
     const { settings,owner, otherAccount } = await loadFixture(deployFunction);
-    await settings.connect(otherAccount).enableAccount(otherAccount.address, true);
+    await (settings.connect(otherAccount) as any).enableAccount(otherAccount.address, true);
     await expect(await settings.isAccountEnabled(owner.address)).to.equal(false);    
   });
 
@@ -164,24 +164,24 @@ describeif(network.name === "hardhat")("Settings", function () {
 
   it("Fail to enable an address that is enabled ✅", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
-    await settings.connect(otherAccount).enableAccount(otherAccount.address, true);
+    await (settings.connect(otherAccount) as any).enableAccount(otherAccount.address, true);
     await expect(
-      settings.connect(otherAccount).enableAccount(otherAccount.address, true)
+      (settings.connect(otherAccount) as any).enableAccount(otherAccount.address, true)
    ).to.be.revertedWithCustomError(settings, "WhiteListAlreadyEnabled");
   });
 
   it("Fail to disable an address that is disabled ❌", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);       
     await expect(
-      settings.connect(otherAccount).enableAccount(otherAccount.address, false)
+      (settings.connect(otherAccount) as any).enableAccount(otherAccount.address, false)
    ).to.be.revertedWithCustomError(settings, "WhiteListNotEnabled");
   });
 
 
   it("Change Max Deposit ✅", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
-    await settings.connect(otherAccount).setMaxDepositInETH(ethers.parseUnits("1", 17));
-    expect(await settings.connect(otherAccount).getMaxDepositInETH()).to.equal(
+    await (settings.connect(otherAccount) as any).setMaxDepositInETH(ethers.parseUnits("1", 17));
+    expect(await (settings.connect(otherAccount) as any).getMaxDepositInETH()).to.equal(
       ethers.parseUnits("1", 17)
     );
   });
