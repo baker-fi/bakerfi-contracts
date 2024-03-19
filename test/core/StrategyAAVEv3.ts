@@ -128,7 +128,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
       35740737736704000000n,
       782024239n,
     ]);
-    expect(await strategy.deployed()).to.equal(9962113816060668112n);
+    expect(await strategy.deployed(0)).to.equal(9962113816060668112n);
   });
 
   it("Test Undeploy", async function () {
@@ -143,7 +143,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
       35740737736704000000n,
       782024239n,
     ]);
-    expect(await strategy.deployed()).to.equal(9962113816060668112n);
+    expect(await strategy.deployed(0)).to.equal(9962113816060668112n);
     // Receive ~=5 ETH
     await  expect(
       strategy.undeploy(ethers.parseUnits("5", 18))
@@ -283,7 +283,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
     await strategy.deploy({
       value: ethers.parseUnits("10", 18),
     });
-    await settings.setOraclePriceMaxAge(60);
+    await settings.setPriceRebalanceMaxAge(60);
     // advance time by one hour and mine a new block
     await time.increase(3600);
     await expect(
@@ -298,7 +298,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
     await strategy.deploy({
       value: ethers.parseUnits("10", 18),
     });
-    await settings.setOraclePriceMaxAge(4800);
+    await settings.setPriceRebalanceMaxAge(4800);
     // advance time by one hour and mine a new block
     await time.increase(3600);
     await strategy.harvest()

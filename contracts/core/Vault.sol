@@ -127,6 +127,7 @@ contract Vault is
     function rebalance() external override nonReentrant returns (int256 balanceChange)  {
         uint256 currentPos = totalAssets();
         if (currentPos > 0) {
+       
             balanceChange = _strategy.harvest();           
             if (balanceChange > 0) {
                 if (
@@ -140,8 +141,9 @@ contract Vault is
                      *    
                      *   sharesToMint = feeInEth * totalSupply() / totalAssets();
                      */
+                    uint256 maxPriceAge = settings().getPriceMaxAge();
                     uint256 feeInEthScaled = uint256(balanceChange) * settings().getPerformanceFee();                                           
-                    uint256 sharesToMint = feeInEthScaled * totalSupply() / totalAssets()  / PERCENTAGE_PRECISION;
+                    uint256 sharesToMint = feeInEthScaled * totalSupply() / _totalAssets(maxPriceAge)  / PERCENTAGE_PRECISION;
                     _mint(settings().getFeeReceiver(), sharesToMint);
                 }
             }
@@ -172,7 +174,8 @@ contract Vault is
      */
     function deposit(address receiver) external override payable nonReentrant onlyWhiteListed returns (uint256 shares) {
         require(msg.value > 0, "Invalid Amount to be deposit");
-        Rebase memory total = Rebase(totalAssets(), totalSupply());
+        uint256 priceMaxAge = settings().getPriceMaxAge();
+        Rebase memory total = Rebase(_totalAssets(settings().getPriceMaxAge()), totalSupply());
         require(
             // Or the Rebase is unititialized 
             (total.elastic == 0 && total.base == 0 ) 
@@ -183,7 +186,7 @@ contract Vault is
         // Verify if the Deposit Value exceeds the maximum per wallet
         uint256 maxDeposit = settings().getMaxDepositInETH();
         if ( maxDeposit > 0 ) {
-            uint256 afterDeposit = msg.value + (balanceOf(msg.sender) * _tokenPerETH() /1e18);
+            uint256 afterDeposit = msg.value + (balanceOf(msg.sender) * _tokenPerETH(priceMaxAge) /1e18);
             require(afterDeposit <= maxDeposit, "Max Deposit Reached");
         }
         
@@ -221,7 +224,7 @@ contract Vault is
          *    
          *   withdrawAmount = share * totalAssets() / totalSupply()
          */
-        uint256 withdrawAmount = shares * totalAssets() / totalSupply();
+        uint256 withdrawAmount = shares * _totalAssets(settings().getPriceMaxAge()) / totalSupply();
         require(withdrawAmount > 0, "No Assets to withdraw");
         amount = _strategy.undeploy(withdrawAmount);
         uint256 fee = 0;
@@ -246,8 +249,14 @@ contract Vault is
      * @return amount The total assets under management by the strategy.
      */
     function totalAssets() public override view returns (uint256 amount) {
-        amount = _strategy.deployed();
+        amount = _strategy.deployed(0);
     } 
+
+
+    function _totalAssets(uint priceMaxAge) private view returns (uint256 amount) {
+        amount = _strategy.deployed(priceMaxAge);
+    } 
+
 
     /**
      * @dev Converts the specified amount of ETH to shares.
@@ -287,11 +296,11 @@ contract Vault is
      * @return rate The calculated token-to-ETH exchange rate.
      */
     function tokenPerETH() external override  view returns (uint256) {
-        return _tokenPerETH();
+        return _tokenPerETH(0);
     }
     
-    function _tokenPerETH() internal  view returns (uint256) {
-        uint256 position = totalAssets();
+    function _tokenPerETH(uint256 priceMaxAge) internal  view returns (uint256) {
+        uint256 position = _totalAssets(priceMaxAge);
         if (totalSupply() == 0 || position == 0) {
             return 1 ether;
         }

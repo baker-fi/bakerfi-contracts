@@ -26,7 +26,7 @@ contract StrategyMock is IStrategy {
         return amount;
     }
 
-    function deployed() external view override returns (uint256 actualAmount) {
+    function deployed(uint) external view override returns (uint256 actualAmount) {
         uint256 col = address(this).balance;
         uint256 deb = col * _debRatio / 100;        
         actualAmount =  col >= deb ? col- deb : 0;

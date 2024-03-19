@@ -79,7 +79,9 @@ interface ISettings {
      * @dev Emitted when the Maximum Deposit ETH is changed 
      * @param value The new amount that is allowed to be deposited
      */
-    event OraclePriceMaxAgeChanged(uint indexed value);
+    event PriceRebalanceMaxAgeChange(uint256 indexed value);
+
+    event PriceMaxAgeChange(uint256 indexed value);
 
     /**
      * @dev Emitted when the Maximum Deposit ETH is changed 
@@ -176,13 +178,16 @@ interface ISettings {
      * @return enabled A boolean indicating whether the account is enabled (true) or not (false) in the whitelist.
      */
     function isAccountEnabled(address account) external view returns (bool);
-    
 
     function getMaxDepositInETH() external view returns (uint256);
 
     function setMaxDepositInETH(uint256 value) external;
 
-    function setOraclePriceMaxAge(uint value) external;
+    function setPriceRebalanceMaxAge(uint value) external;
 
-    function getOraclePriceMaxAge() external view returns (uint);
+    function getPriceRebalanceMaxAge() external view returns (uint);
+
+    function setPriceMaxAge(uint value) external;
+
+    function getPriceMaxAge() external view returns (uint);
 }

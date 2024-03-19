@@ -212,8 +212,8 @@ abstract contract StrategyAAVEv3Base is
      * Requirements:
      * - The AAVEv3 strategy must be properly configured and initialized.
      */
-    function deployed() public view returns (uint256 totalOwnedAssets) {
-        (uint256 totalCollateralInEth, uint256 totalDebtInEth) = _getPosition(0);
+    function deployed(uint priceMaxAge) public view returns (uint256 totalOwnedAssets) {
+        (uint256 totalCollateralInEth, uint256 totalDebtInEth) = _getPosition(priceMaxAge);
         totalOwnedAssets = totalCollateralInEth > totalDebtInEth ? (totalCollateralInEth - totalDebtInEth): 0;
     }
 
@@ -490,7 +490,7 @@ abstract contract StrategyAAVEv3Base is
     function harvest() external override onlyOwner nonReentrant returns (int256 balanceChange) {
 
         (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition(
-            settings().getOraclePriceMaxAge()
+            settings().getPriceRebalanceMaxAge()
         );
         
         if (totalCollateralBaseInEth == 0 || 
@@ -598,7 +598,9 @@ abstract contract StrategyAAVEv3Base is
         uint256 amount,
         address payable receiver
     ) private returns (uint256 undeployedAmount) {
-        (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition(0);
+        (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition(
+            settings().getPriceMaxAge()
+        );
         // When the position is in liquidation state revert the transaction
         require(
             totalCollateralBaseInEth > totalDebtBaseInEth, 
