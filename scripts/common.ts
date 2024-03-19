@@ -1,6 +1,6 @@
- // @ts-expect-error 
+import "@nomicfoundation/hardhat-ethers";
 import { ethers } from "hardhat";
-import {feeds} from "./config";
+import { feeds } from "./config";
 
 export async function deployFlashLender(
   serviceRegistry,
@@ -62,22 +62,21 @@ export async function deployVault(
   const Vault = await ethers.getContractFactory("Vault");
   const vault = await Vault.deploy();
   await vault.waitForDeployment();
-  
 
   const BakerFiProxy = await ethers.getContractFactory("BakerFiProxy");
   const proxy = await BakerFiProxy.deploy(
     await vault.getAddress(),
     await proxyAdmin.getAddress(),
     Vault.interface.encodeFunctionData("initialize", [
-      owner, 
+      owner,
       tokenName,
       tokenSymbol,
-      serviceRegistry, 
-      strategy
+      serviceRegistry,
+      strategy,
     ])
   );
   await proxy.waitForDeployment();
-  return { proxy , vault };
+  return { proxy, vault };
 }
 
 export async function deployStrategyAAVEv3WstETH(
@@ -91,20 +90,20 @@ export async function deployStrategyAAVEv3WstETH(
     "StrategyAAVEv3WstETH"
   );
   const strategy = await StrategyAAVEv3.deploy();
-  await strategy.waitForDeployment(); 
+  await strategy.waitForDeployment();
   const BakerFiProxy = await ethers.getContractFactory("BakerFiProxy");
   const proxy = await BakerFiProxy.deploy(
     await strategy.getAddress(),
     await proxyAdmin.getAddress(),
     StrategyAAVEv3.interface.encodeFunctionData("initialize", [
-      owner, 
+      owner,
       serviceRegistry,
       swapFreeTier,
-      emodeCategory
+      emodeCategory,
     ])
   );
-  await proxy.waitForDeployment(); 
-  return { strategy , proxy };
+  await proxy.waitForDeployment();
+  return { strategy, proxy };
 }
 
 export async function deployAAVEv3StrategyAny(
@@ -124,16 +123,16 @@ export async function deployAAVEv3StrategyAny(
     await strategy.getAddress(),
     await proxyAdmin.getAddress(),
     StrategyAAVEv3.interface.encodeFunctionData("initialize", [
-    owner,
-    serviceRegistry,
-    ethers.keccak256(Buffer.from(collateral)),
-    ethers.keccak256(Buffer.from(oracle)),
-    swapFreeTier,
-    emodeCategory
-  ])
+      owner,
+      serviceRegistry,
+      ethers.keccak256(Buffer.from(collateral)),
+      ethers.keccak256(Buffer.from(oracle)),
+      swapFreeTier,
+      emodeCategory,
+    ])
   );
   await proxy.waitForDeployment();
-  return { strategy , proxy};
+  return { strategy, proxy };
 }
 
 export async function deployStEth(serviceRegistry, owner, maxSupply) {
@@ -236,7 +235,6 @@ export async function deployOracleMock(serviceRegistry, name) {
   return oracle;
 }
 
-
 export async function deployPythMock(serviceRegistry) {
   const PythMock = await ethers.getContractFactory("PythMock");
   const pyth = await PythMock.deploy();
@@ -248,15 +246,9 @@ export async function deployPythMock(serviceRegistry) {
   return pyth;
 }
 
-export async function deployETHOracle(
-  serviceRegistry, 
-  pyth
-) {
+export async function deployETHOracle(serviceRegistry, pyth) {
   const oracleContract = await ethers.getContractFactory("PythOracle");
-  const oracle = await oracleContract.deploy(
-    feeds.ETHUSDFeedId,
-    pyth
-  );
+  const oracle = await oracleContract.deploy(feeds.ETHUSDFeedId, pyth);
   await oracle.waitForDeployment();
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from("ETH/USD Oracle")),
@@ -265,15 +257,9 @@ export async function deployETHOracle(
   return oracle;
 }
 
-export async function deployCbETHToUSDOracle(
-  serviceRegistry, 
-  pyth
-) {
+export async function deployCbETHToUSDOracle(serviceRegistry, pyth) {
   const oracleContract = await ethers.getContractFactory("PythOracle");
-  const oracle = await oracleContract.deploy(
-    feeds.CBETHUSDFeedId,
-    pyth
-  );
+  const oracle = await oracleContract.deploy(feeds.CBETHUSDFeedId, pyth);
   await oracle.waitForDeployment();
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from("cbETH/USD Oracle")),
@@ -283,15 +269,9 @@ export async function deployCbETHToUSDOracle(
   return oracle;
 }
 
-export async function deployWSTETHToUSDOracle(
-  serviceRegistry,
-  pyth
-) {
+export async function deployWSTETHToUSDOracle(serviceRegistry, pyth) {
   const WSETHToETH = await ethers.getContractFactory("PythOracle");
-  const oracle = await WSETHToETH.deploy(
-    feeds.WSETHUSDFeedId,
-    pyth
-  );
+  const oracle = await WSETHToETH.deploy(feeds.WSETHUSDFeedId, pyth);
   await oracle.waitForDeployment();
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from("wstETH/USD Oracle")),
@@ -301,27 +281,25 @@ export async function deployWSTETHToUSDOracle(
 }
 
 export async function deploySettings(
-  owner: string, 
-  serviceRegistry, 
+  owner: string,
+  serviceRegistry,
   proxyAdmin?: any
 ) {
   const Settings = await ethers.getContractFactory("Settings");
   const settings = await Settings.deploy();
-  await settings.waitForDeployment();  
+  await settings.waitForDeployment();
   const BakerFiProxy = await ethers.getContractFactory("BakerFiProxy");
   const proxy = await BakerFiProxy.deploy(
     await settings.getAddress(),
     await proxyAdmin.getAddress(),
-    Settings.interface.encodeFunctionData("initialize", [
-      owner,      
-    ])
+    Settings.interface.encodeFunctionData("initialize", [owner])
   );
   await proxy.waitForDeployment();
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from("Settings")),
     await proxy.getAddress()
-  );     
-  return { settings , proxy };
+  );
+  return { settings, proxy };
 }
 
 export async function deployMockERC20(
