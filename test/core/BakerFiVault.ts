@@ -1,6 +1,6 @@
+import "@nomicfoundation/hardhat-ethers";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
- // @ts-expect-error 
 import { ethers, network } from "hardhat";
 import { describeif } from "../common";
 import {
@@ -18,30 +18,32 @@ import {
 import BaseConfig from "../../scripts/config";
 
 /**
- * Unit Tests for BakerFi Vault with a regular AAVEv3Strategy 
+ * Unit Tests for BakerFi Vault with a regular AAVEv3Strategy
  */
 
-describeif(network.name === "hardhat")
-("BakerFi Vault For L2s", function () {
-  
+describeif(network.name === "hardhat")("BakerFi Vault For L2s", function () {
   it("Deposit with no Flash Loan Fees", async function () {
     const { owner, vault, weth, aave3Pool, strategy, cbETH, flashLender } =
       await loadFixture(deployFunction);
     await flashLender.setFlashLoanFee(0);
-    const tx =  await vault.deposit(owner.address, {
+    const tx = await vault.deposit(owner.address, {
       value: ethers.parseUnits("10", 18),
     });
+    await expect(tx).to.changeEtherBalances(
+      [owner.address],
+      [ethers.parseUnits("-10", 18)]
+    );
     await expect(tx)
-      .to.changeEtherBalances([owner.address], [ethers.parseUnits("-10", 18)]);
-    await expect(tx).to.emit(aave3Pool, "Supply")
+      .to.emit(aave3Pool, "Supply")
       .withArgs(
         await cbETH.getAddress(),
         await strategy.getAddress(),
         await strategy.getAddress(),
         39603410838016000000n,
         0
-      )
-    await expect(tx).to.emit(aave3Pool, "Borrow")
+      );
+    await expect(tx)
+      .to.emit(aave3Pool, "Borrow")
       .withArgs(
         await weth.getAddress(),
         await strategy.getAddress(),
@@ -100,7 +102,7 @@ describeif(network.name === "hardhat")
       })
     )
       .to.emit(strategy, "StrategyAmountUpdate")
-      .withArgs( 29886341448182004336n);
+      .withArgs(29886341448182004336n);
   });
 
   it("convertToShares - 1ETH", async function () {
@@ -148,7 +150,7 @@ describeif(network.name === "hardhat")
 });
 
 /**
- * Deploy Test Function 
+ * Deploy Test Function
  */
 async function deployFunction() {
   const [owner, otherAccount, anotherAccount] = await ethers.getSigners();
@@ -160,7 +162,9 @@ async function deployFunction() {
   const serviceRegistry = await deployServiceRegistry(owner.address);
   const serviceRegistryAddress = await serviceRegistry.getAddress();
   const weth = await deployWETH(serviceRegistry);
-  const BakerFiProxyAdmin = await ethers.getContractFactory("BakerFiProxyAdmin");
+  const BakerFiProxyAdmin = await ethers.getContractFactory(
+    "BakerFiProxyAdmin"
+  );
   const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
   await proxyAdmin.waitForDeployment();
 
@@ -196,18 +200,20 @@ async function deployFunction() {
     ethers.parseUnits("10000", 18)
   );
 
-
   // Deposit cbETH on Uniswap Mock Router
   await cbETH.transfer(
     await uniRouter.getAddress(),
     ethers.parseUnits("10000", 18)
   );
 
-  const { proxy: settingsProxy } = await deploySettings(owner.address, serviceRegistry,
-    proxyAdmin);
+  const { proxy: settingsProxy } = await deploySettings(
+    owner.address,
+    serviceRegistry,
+    proxyAdmin
+  );
   const pSettings = await ethers.getContractAt(
-      "Settings",
-      await settingsProxy.getAddress()
+    "Settings",
+    await settingsProxy.getAddress()
   );
 
   // 5. Deploy AAVEv3 Mock Pool
@@ -221,12 +227,11 @@ async function deployFunction() {
   // 6. Deploy wstETH/ETH Oracle
   const oracle = await deployOracleMock(serviceRegistry, "cbETH/USD Oracle");
   const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");
-  
+
   await oracle.setLatestPrice(ethers.parseUnits("2660", 18));
   await ethOracle.setLatestPrice(ethers.parseUnits("2305", 18));
 
   await deployQuoterV2Mock(serviceRegistry);
-
 
   const { proxy: proxyStrategy } = await deployAAVEv3StrategyAny(
     owner.address,
@@ -243,7 +248,7 @@ async function deployFunction() {
     await proxyStrategy.getAddress()
   );
 
-  const { proxy  } = await deployVault(      
+  const { proxy } = await deployVault(
     owner.address,
     "Bread ETH",
     "brETH",
@@ -253,10 +258,7 @@ async function deployFunction() {
   );
 
   await pStrategy.transferOwnership(await proxy.getAddress());
-  const pVault = await ethers.getContractAt(
-    "Vault",
-    await proxy.getAddress()
-  );
+  const pVault = await ethers.getContractAt("Vault", await proxy.getAddress());
   return {
     cbETH,
     weth,
