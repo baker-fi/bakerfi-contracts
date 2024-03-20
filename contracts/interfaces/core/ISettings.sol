@@ -183,11 +183,11 @@ interface ISettings {
 
     function setMaxDepositInETH(uint256 value) external;
 
-    function setPriceRebalanceMaxAge(uint value) external;
+    function setPriceRebalanceMaxAge(uint256 value) external;
 
-    function getPriceRebalanceMaxAge() external view returns (uint);
+    function getPriceRebalanceMaxAge() external view returns (uint256);
 
-    function setPriceMaxAge(uint value) external;
+    function setPriceMaxAge(uint256 value) external;
 
-    function getPriceMaxAge() external view returns (uint);
+    function getPriceMaxAge() external view returns (uint256);
 }

@@ -39,6 +39,11 @@ bytes32 constant PYTH_CONTRACT = keccak256(bytes("Pyth"));
  * It serves as a registry for managing various services and dependencies within BakerFI System.
  */
 contract ServiceRegistry is Ownable, IServiceRegistry {
+    
+    error InvalidOwner();
+    error ServiceAlreadySet();
+    error ServiceUnknown();
+
     /**
      * @dev A mapping of name hashes to service addresses.
      *
@@ -53,8 +58,9 @@ contract ServiceRegistry is Ownable, IServiceRegistry {
      *
      * @param ownerToSet The address to be set as the initial owner of the contract.
      */
-    constructor(address ownerToSet) Ownable() {
-        require(ownerToSet != address(0), "Invalid Owner Address");
+    constructor(address ownerToSet) Ownable()
+    {
+        if(ownerToSet == address(0)) revert InvalidOwner();
         _transferOwnership(ownerToSet);
     }
     /**
@@ -70,8 +76,11 @@ contract ServiceRegistry is Ownable, IServiceRegistry {
      * Requirements:
      * - The service with the specified name hash must not be already registered.
      */
-    function registerService(bytes32 serviceNameHash, address serviceAddress) external onlyOwner {
-        require(_services[serviceNameHash] == address(0), "Service is already set");
+    function registerService(
+        bytes32 serviceNameHash,
+        address serviceAddress
+    ) external onlyOwner {
+        if(_services[serviceNameHash] != address(0)) revert ServiceAlreadySet();
         _services[serviceNameHash] = serviceAddress;
         emit ServiceRegistered(serviceNameHash, serviceAddress);
     }
@@ -89,7 +98,7 @@ contract ServiceRegistry is Ownable, IServiceRegistry {
      * - The service with the specified name hash must exist.
      */
     function unregisterService(bytes32 serviceNameHash) external onlyOwner {
-        require(_services[serviceNameHash] != address(0), "Service does not exist");
+        if(_services[serviceNameHash] == address(0)) revert ServiceUnknown();            
         _services[serviceNameHash] = address(0);
         emit ServiceUnregistered(serviceNameHash);
     }

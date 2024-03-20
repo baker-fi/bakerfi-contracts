@@ -6,7 +6,6 @@ import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/security/
 import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import {Rebase, RebaseLibrary} from "../libraries/BoringRebase.sol";
 import {ServiceRegistry} from "../core/ServiceRegistry.sol";
-import {ISwapHandler} from "../interfaces/core/ISwapHandler.sol";
 import {IVault} from "../interfaces/core/IVault.sol";
 import {IStrategy} from "../interfaces/core/IStrategy.sol";
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
@@ -15,7 +14,6 @@ import {ERC20PermitUpgradeable} from "@openzeppelin/contracts-upgradeable/token/
 import {UseSettings} from "./hooks/UseSettings.sol";
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**
  * @title BakerFi Vault 🏦🧑‍🍳
@@ -54,6 +52,15 @@ contract Vault is
     using AddressUpgradeable for address;
     using AddressUpgradeable for address payable;
 
+    error InvalidOwner();
+    error InvalidDepositAmount();
+    error InvalidAssetsState();
+    error MaxDepositReached();
+    error NotEnoughBalanceToWithdraw();
+    error InvalidWithdrawAmount();
+    error NoAssetsToWithdraw();
+    error NoPermissions();
+
     /**
      * @dev The ServiceRegistry contract used for managing service-related dependencies.
      *
@@ -77,10 +84,14 @@ contract Vault is
      * If the caller's address is not whitelisted, the function call will be rejected.
      */
     modifier onlyWhiteListed() {
-        require(settings().isAccountEnabled(msg.sender), "Account not allowed");
+        if (!settings().isAccountEnabled(msg.sender)) revert NoPermissions();
         _;
     }
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
     /**
      * @dev Initializes the contract with specified parameters.
      *
@@ -107,7 +118,7 @@ contract Vault is
         __ERC20Permit_init(tokenName);
         __ERC20_init(tokenName, tokenSymbol);
         _initUseSettings(registry);
-        require(initialOwner != address(0), "Invalid Owner Address");
+        if (initialOwner == address(0)) revert InvalidOwner();
         _transferOwnership(initialOwner);
         _registry = registry;
         _strategy = strategy;
@@ -140,11 +151,10 @@ contract Vault is
                      *
                      *   sharesToMint = feeInEth * totalSupply() / totalAssets();
                      */
-                    uint256 maxPriceAge = settings().getPriceMaxAge();
                     uint256 feeInEthScaled = uint256(balanceChange) *
                         settings().getPerformanceFee();
                     uint256 sharesToMint = (feeInEthScaled * totalSupply()) /
-                        _totalAssets(maxPriceAge) /
+                        totalAssets() /
                         PERCENTAGE_PRECISION;
                     _mint(settings().getFeeReceiver(), sharesToMint);
                 }
@@ -177,22 +187,19 @@ contract Vault is
     function deposit(
         address receiver
     ) external payable override nonReentrant onlyWhiteListed returns (uint256 shares) {
-        require(msg.value > 0, "Invalid Amount to be deposit");
-        uint256 priceMaxAge = settings().getPriceMaxAge();
-        Rebase memory total = Rebase(_totalAssets(settings().getPriceMaxAge()), totalSupply());
-        require(
+        if (msg.value == 0) revert InvalidDepositAmount();
+        Rebase memory total = Rebase(totalAssets(), totalSupply());
+        if (
             // Or the Rebase is unititialized
-            (total.elastic == 0 && total.base == 0) ||
+            !((total.elastic == 0 && total.base == 0) ||
                 // Or Both are positive
-                (total.base > 0 && total.elastic > 0),
-            "Invalid Assets/Shares state"
-        );
+                (total.base > 0 && total.elastic > 0))
+        ) revert InvalidAssetsState();
         // Verify if the Deposit Value exceeds the maximum per wallet
         uint256 maxDeposit = settings().getMaxDepositInETH();
         if (maxDeposit > 0) {
-            uint256 afterDeposit = msg.value +
-                ((balanceOf(msg.sender) * _tokenPerETH(priceMaxAge)) / 1e18);
-            require(afterDeposit <= maxDeposit, "Max Deposit Reached");
+            uint256 afterDeposit = msg.value + ((balanceOf(msg.sender) * _tokenPerETH()) / 1e18);
+            if (afterDeposit > maxDeposit) revert MaxDepositReached();
         }
 
         bytes memory result = (address(_strategy)).functionCallWithValue(
@@ -223,17 +230,16 @@ contract Vault is
     function withdraw(
         uint256 shares
     ) external override nonReentrant onlyWhiteListed returns (uint256 amount) {
-        require(balanceOf(msg.sender) >= shares, "No Enough balance to withdraw");
-        require(shares > 0, "Cannot Withdraw Zero Shares");
+        if (balanceOf(msg.sender) < shares) revert NotEnoughBalanceToWithdraw();
+        if (shares == 0) revert InvalidWithdrawAmount();
         /**
          *   withdrawAmount -------------- totalAssets()
          *   shares         -------------- totalSupply()
          *
          *   withdrawAmount = share * totalAssets() / totalSupply()
          */
-        uint256 withdrawAmount = (shares * _totalAssets(settings().getPriceMaxAge())) /
-            totalSupply();
-        require(withdrawAmount > 0, "No Assets to withdraw");
+        uint256 withdrawAmount = (shares * totalAssets()) / totalSupply();
+        if (withdrawAmount == 0) revert NoAssetsToWithdraw();
         amount = _strategy.undeploy(withdrawAmount);
         uint256 fee = 0;
         // Withdraw ETh to Receiver and pay withdrawal Fees

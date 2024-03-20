@@ -1,12 +1,11 @@
 import "dotenv/config";
-import "@nomicfoundation/hardhat-toolbox";
 import "hardhat-contract-sizer";
 import "solidity-coverage";
 import "@nomiclabs/hardhat-solhint";
 import "hardhat-gas-reporter";
 import '@nomicfoundation/hardhat-ethers'
-import '@nomicfoundation/hardhat-ethers'
 import '@nomicfoundation/hardhat-chai-matchers'
+import "@nomicfoundation/hardhat-toolbox";
 import "hardhat-contract-sizer";
 import { HardhatUserConfig } from "hardhat/config";
 import { STAGING_ACCOUNTS_PKEYS} from "./constants/test-accounts";
@@ -182,12 +181,7 @@ const config: HardhatUserConfig = {
     // Your API key for Etherscan
     // Obtain one at https://etherscan.io/
     apiKey: process.env.ETHERSCAN_API_KEY,
-  },
-  sourcify: {
-    // Disabled by default
-    // Doesn't need an API key
-    enabled: true
-  }
+  },  
 };
 
 export default config;

@@ -22,6 +22,18 @@ import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet
  * interact with the system
  */
 contract Settings is OwnableUpgradeable, ISettings {
+    
+    error InvalidOwner();
+    error WhiteListAlreadyEnabled();
+    error WhiteListFailedToAdd();
+    error WhiteListNotEnabled();
+    error WhiteListFailedToRemove();
+    error InvalidValue();
+    error InvalidPercentage();
+    error InvalidMaxLoanToValue();
+    error InvalidAddress();
+    error InvalidLoopCount();
+
     using EnumerableSet for EnumerableSet.AddressSet;
 
     /**
@@ -88,6 +100,11 @@ contract Settings is OwnableUpgradeable, ISettings {
 
     uint256 private _priceMaxAge;
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
     /**
      * @dev Initializes the contract.
      *
@@ -102,7 +119,7 @@ contract Settings is OwnableUpgradeable, ISettings {
     function initialize(address initialOwner) public initializer {
         __Context_init_unchained();
         __Ownable_init_unchained();
-        require(initialOwner != address(0), "Invalid Owner Address");
+        if(initialOwner == address(0)) revert InvalidOwner();
         _transferOwnership(initialOwner);
         _withdrawalFee = 10 * 1e6; // 1%
         _performanceFee = 10 * 1e6; // 1%
@@ -127,13 +144,13 @@ contract Settings is OwnableUpgradeable, ISettings {
      * Requirements:
      * - The caller must be the owner of the contract.
      */
-    function enableAccount(address account, bool enabled) external onlyOwner {
-        if (enabled) {
-            require(!_enabledAccounts.contains(account), "Already Enabled");
-            require(_enabledAccounts.add(account));
+    function enableAccount(address account, bool enabled ) external onlyOwner {
+        if(enabled) {
+            if(_enabledAccounts.contains(account)) revert WhiteListAlreadyEnabled();
+            if(!_enabledAccounts.add(account)) revert WhiteListFailedToAdd();
         } else {
-            require(_enabledAccounts.contains(account), "Not Enabled");
-            require(_enabledAccounts.remove(account));
+            if(!_enabledAccounts.contains(account)) revert WhiteListNotEnabled();
+            if(!_enabledAccounts.remove(account)) revert WhiteListFailedToRemove();
         }
         emit AccountWhiteList(account, enabled);
     }
@@ -163,9 +180,9 @@ contract Settings is OwnableUpgradeable, ISettings {
      * - The caller must be the owner of the contract.
      */
     function setMaxLoanToValue(uint256 maxLoanToValue) external onlyOwner {
-        require(maxLoanToValue > 0);
-        require(maxLoanToValue < PERCENTAGE_PRECISION, "Invalid percentage value");
-        require(maxLoanToValue >= _loanToValue, "Invalid Max Loan");
+        if(maxLoanToValue == 0) revert InvalidValue();
+        if(maxLoanToValue > PERCENTAGE_PRECISION) revert InvalidPercentage();
+        if(maxLoanToValue < _loanToValue) revert InvalidMaxLoanToValue();
         _maxLoanToValue = maxLoanToValue;
         emit MaxLoanToValueChanged(_maxLoanToValue);
     }
@@ -196,9 +213,9 @@ contract Settings is OwnableUpgradeable, ISettings {
      * - The new loan-to-value ratio must be greater than 0.
      */
     function setLoanToValue(uint256 loanToValue) external onlyOwner {
-        require(loanToValue <= _maxLoanToValue, "Invalid LTV could not be higher than max");
-        require(loanToValue < PERCENTAGE_PRECISION, "Invalid percentage value");
-        require(loanToValue > 0);
+        if(loanToValue > _maxLoanToValue) revert InvalidValue();
+        if(loanToValue >  PERCENTAGE_PRECISION) revert InvalidPercentage();
+        if(loanToValue == 0 ) revert InvalidValue();
         _loanToValue = loanToValue;
         emit LoanToValueChanged(_loanToValue);
     }
@@ -227,7 +244,7 @@ contract Settings is OwnableUpgradeable, ISettings {
      * - The new withdrawal fee percentage must be a valid percentage value.
      */
     function setWithdrawalFee(uint256 fee) external onlyOwner {
-        require(fee < PERCENTAGE_PRECISION, "Invalid percentage value");
+        if(fee >  PERCENTAGE_PRECISION) revert InvalidPercentage();
         _withdrawalFee = fee;
         emit WithdrawalFeeChanged(_withdrawalFee);
     }
@@ -256,7 +273,7 @@ contract Settings is OwnableUpgradeable, ISettings {
      * - The new performance fee percentage must be a valid percentage value.
      */
     function setPerformanceFee(uint256 fee) external onlyOwner {
-        require(fee < PERCENTAGE_PRECISION, "Invalid percentage value");
+        if(fee >  PERCENTAGE_PRECISION) revert InvalidPercentage();
         _performanceFee = fee;
         emit PerformanceFeeChanged(_performanceFee);
     }
@@ -284,7 +301,7 @@ contract Settings is OwnableUpgradeable, ISettings {
      * - The new fee receiver address must not be the zero address.
      */
     function setFeeReceiver(address receiver) external onlyOwner {
-        require(receiver != address(0), "Invalid Address");
+        if(receiver == address(0)) revert InvalidAddress();
         _feeReceiver = receiver;
         emit FeeReceiverChanged(_feeReceiver);
     }
@@ -324,7 +341,7 @@ contract Settings is OwnableUpgradeable, ISettings {
      * - The new number of loops must be less than the maximum allowed number of loops.
      */
     function setNrLoops(uint8 nrLoops) external onlyOwner {
-        require(nrLoops <= MAX_LOOPS, "Invalid Number of Loops");
+        if(nrLoops >  MAX_LOOPS) revert InvalidLoopCount();
         _nrLoops = nrLoops;
         emit NrLoopsChanged(_nrLoops);
     }

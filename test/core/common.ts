@@ -1,3 +1,4 @@
+import "@nomicfoundation/hardhat-ethers";
 import { ethers, network } from "hardhat";
 import {
   deployServiceRegistry,
@@ -8,7 +9,7 @@ import {
   deployUniSwapper,
   deployCbETHToUSDOracle,
   deployWSTETHToUSDOracle,
-  deployAAVEv3StrategyWstETH,
+  deployStrategyAAVEv3WstETH,
   deploySettings,
 } from "../../scripts/common";
 
@@ -38,7 +39,6 @@ export async function deployBase() {
   const { proxy: settingsProxyDeploy } = await deploySettings(
     deployer.address,
     serviceRegistry,
-    true,
     proxyAdmin
   );
 
@@ -64,10 +64,7 @@ export async function deployBase() {
     config.cbETH
   );
   // 9. Deploy the Oracle
-  const oracle = await deployCbETHToUSDOracle(
-    serviceRegistry,
-    config.pyth
-  );
+  const oracle = await deployCbETHToUSDOracle(serviceRegistry, config.pyth);
 
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from("Uniswap Quoter")),
@@ -92,7 +89,6 @@ export async function deployBase() {
     "cbETH/USD Oracle",
     config.swapFeeTier,
     config.AAVEEModeCategory,
-    true,
     proxyAdmin
   );
 
@@ -108,7 +104,6 @@ export async function deployBase() {
     "brETH",
     await serviceRegistry.getAddress(),
     await strategyProxyDeploy.getAddress(),
-    true,
     proxyAdmin
   );
 
@@ -166,11 +161,13 @@ export async function deployOptimism() {
   const { proxy: settingsProxyDeploy } = await deploySettings(
     deployer.address,
     serviceRegistry,
-    true,
     proxyAdmin
   );
 
-  const settings = await ethers.getContractAt("Settings", await settingsProxyDeploy.getAddress());
+  const settings = await ethers.getContractAt(
+    "Settings",
+    await settingsProxyDeploy.getAddress()
+  );
   await settings.setOraclePriceMaxAge(0);
 
   // 5. Register UniswapV3 Universal Router
@@ -191,10 +188,7 @@ export async function deployOptimism() {
     config.wstETH
   );
   // 9. Deploy the Oracle
-   await deployWSTETHToUSDOracle(
-    serviceRegistry,
-    config.pyth
-  );
+  await deployWSTETHToUSDOracle(serviceRegistry, config.pyth);
 
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from("Uniswap Quoter")),
@@ -211,7 +205,7 @@ export async function deployOptimism() {
   await deployBalancerFL(serviceRegistry);
 
   await deployETHOracle(serviceRegistry, config.pyth);
-  
+
   // 12. Deploy the Strategy
   const { proxy: strategyProxyDeploy } = await deployAAVEv3StrategyAny(
     deployer.address,
@@ -220,11 +214,8 @@ export async function deployOptimism() {
     "wstETH/USD Oracle",
     config.swapFeeTier,
     config.AAVEEModeCategory,
-    true,
     proxyAdmin
   );
-
-
 
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from("Strategy")),
@@ -238,7 +229,6 @@ export async function deployOptimism() {
     "brETH",
     await serviceRegistry.getAddress(),
     await strategyProxyDeploy.getAddress(),
-    true,
     proxyAdmin
   );
 
@@ -298,7 +288,6 @@ export async function deployEthereum() {
   const { proxy: settingsProxyDeploy } = await deploySettings(
     deployer.address,
     serviceRegistry,
-    true,
     proxyAdmin
   );
 
@@ -341,16 +330,15 @@ export async function deployEthereum() {
 
   // 11. Flash Lender Adapter
   await deployBalancerFL(serviceRegistry);
-  
+
   await deployETHOracle(serviceRegistry, config.pyth);
 
   // 12. Deploy the Strategy
-  const { proxy: strategyProxyDeploy } = await deployAAVEv3StrategyWstETH(
+  const { proxy: strategyProxyDeploy } = await deployStrategyAAVEv3WstETH(
     deployer.address,
     await serviceRegistry.getAddress(),
     config.swapFeeTier,
     config.AAVEEModeCategory,
-    true,
     proxyAdmin
   );
 
@@ -366,7 +354,6 @@ export async function deployEthereum() {
     "brETH",
     await serviceRegistry.getAddress(),
     await strategyProxyDeploy.getAddress(),
-    true,
     proxyAdmin
   );
 
@@ -379,7 +366,7 @@ export async function deployEthereum() {
     await settingsProxyDeploy.getAddress()
   );
   const strategyProxy = await ethers.getContractAt(
-    "AAVEv3StrategyWstETH",
+    "StrategyAAVEv3WstETH",
     await strategyProxyDeploy.getAddress()
   );
   const vaultProxy = await ethers.getContractAt(
@@ -427,6 +414,7 @@ export function getDeployFunc() {
       deployFunc = deployOptimism;
       break;
     case "base_devnet":
+      // @ts-expect-error
       deployFunc = deployBase;
       break;
     case "arbitrum_devnet":

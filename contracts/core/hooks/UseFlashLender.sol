@@ -3,9 +3,8 @@ pragma solidity ^0.8.18;
 pragma experimental ABIEncoderV2;
 
 import {ServiceRegistry, FLASH_LENDER_CONTRACT} from "../ServiceRegistry.sol";
-import {IServiceRegistry} from "../../interfaces/core/IServiceRegistry.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {IERC3156FlashLenderUpgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashLenderUpgradeable.sol";
+import {IERC3156FlashLenderUpgradeable} from 
+    "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashLenderUpgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 abstract contract UseFlashLender is Initializable {
