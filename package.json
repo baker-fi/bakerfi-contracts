@@ -29,7 +29,7 @@
     "deploy:local": "npx hardhat run --network local scripts/deploy-dev.ts",
     "deploy:arbitrum": "npx hardhat run --network arbitrum scripts/deploy.ts",
     "deploy:arbitrum-devnet": "npx hardhat run --network arbitrum_devnet scripts/deploy.ts",
-    "ganache:dev": "ganache -h 0.0.0.0  --logging.debug --logging.verbose -e 100000 -p 8545 -a 50  -s 0x6d2119524d65ea0b15b214ef260d3acdf8ca0ec6ec68045b5785d970f5ad97bd3d0025d212e625a8a21920852cc165c10faa6d8387a0c2530d1ffc0d265d92935749",
+    "ganache:dev": "ganache -h 0.0.0.0  --logging.debug --logging.verbose -e 1000000 -p 8545 -a 50  -s 0x6d2119524d65ea0b15b214ef260d3acdf8ca0ec6ec68045b5785d970f5ad97bd3d0025d212e625a8a21920852cc165c10faa6d8387a0c2530d1ffc0d265d92935749",
     "slither": "slither --config-file ./slither.config.json ."
   },
   "author": "Chef Kenji <chef.kenji@bakerfi.xyz>",
@@ -62,6 +62,7 @@
     "ts-node": "^10.9.1"
   },
   "dependencies": {
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.10",
     "@openzeppelin/contracts": "^4.9.2",
     "@openzeppelin/contracts-upgradeable": "^4.9.2",
     "@pythnetwork/price-service-client": "^1.8.2",
@@ -81,7 +82,7 @@
       ":ERC20$"
     ]
   },
-  "engines" : { 
-    "node" : ">=20.0.0 <21.0.0"
+  "engines": {
+    "node": ">=20.0.0 <21.0.0"
   }
 }

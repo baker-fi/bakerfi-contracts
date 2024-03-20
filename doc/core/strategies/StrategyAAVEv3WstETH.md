@@ -1,6 +1,6 @@
 # Solidity API
 
-## AAVEv3StrategyWstETH
+## StrategyAAVEv3WstETH
 
 _This strategy requires access to for Lido Finance contracts that run 
 exclusively on Ethereum 

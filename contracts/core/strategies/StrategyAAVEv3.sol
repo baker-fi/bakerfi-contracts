@@ -3,13 +3,8 @@ pragma solidity ^0.8.18;
 
 import {StrategyAAVEv3Base} from "./StrategyAAVEv3Base.sol";
 import {ServiceRegistry} from "../../core/ServiceRegistry.sol";
-import {UseWETH} from "../hooks/UseWETH.sol";
-import {UseOracle} from "../hooks/UseOracle.sol";
-import {UseIERC20} from "../hooks/UseIERC20.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {IWStETH} from "../../interfaces/lido/IWStETH.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {IStrategy} from "../../interfaces/core/IStrategy.sol";
 import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
@@ -29,6 +24,11 @@ import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/I
  */
 contract StrategyAAVEv3 is Initializable, StrategyAAVEv3Base {
     using SafeERC20 for IERC20;
+
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
 
     // solhint-disable no-empty-blocks  
     function initialize(

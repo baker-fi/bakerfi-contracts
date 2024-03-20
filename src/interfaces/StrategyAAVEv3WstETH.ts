@@ -1,7 +1,7 @@
 import {ContractSendMethod} from 'web3-eth-contract';
 import {ContractCallMethod} from '@taikai/dappkit';
 
-export interface AAVEv3StrategyWstETHMethods {
+export interface StrategyAAVEv3WstETHMethods {
 
   aaveV3(): ContractCallMethod<string>;
 

@@ -6,14 +6,14 @@ import {
   XPromiseEvent,
 } from "@taikai/dappkit";
 
-import AAVEv3StrategyWstETHJson from "../../artifacts/contracts/core/strategies/AAVEv3StrategyWstETH.sol/AAVEv3StrategyWstETH.json";
-import { AAVEv3StrategyWstETHMethods } from "src/interfaces/AAVEv3StrategyWstETH";
-import * as Events from "src/events/AAVEv3StrategyWstETH";
+import StrategyAAVEv3WstETHJson from "../../artifacts/contracts/core/strategies/StrategyAAVEv3WstETH.sol/StrategyAAVEv3WstETH.json";
+import { StrategyAAVEv3WstETHMethods } from "src/interfaces/StrategyAAVEv3WstETH";
+import * as Events from "src/events/StrategyAAVEv3WstETH";
 import { PastEventOptions } from "web3-eth-contract";
 import { AbiItem } from "web3-utils";
 
-export class AAVEv3StrategyWstETH
-  extends Model<AAVEv3StrategyWstETHMethods>
+export class StrategyAAVEv3WstETH
+  extends Model<StrategyAAVEv3WstETHMethods>
   implements Deployable
 {
   constructor(
@@ -22,7 +22,7 @@ export class AAVEv3StrategyWstETH
   ) {
     super(
       web3Connection,
-      AAVEv3StrategyWstETHJson.abi as AbiItem[],
+      StrategyAAVEv3WstETHJson.abi as AbiItem[],
       contractAddress
     );
   }
@@ -34,7 +34,7 @@ export class AAVEv3StrategyWstETH
     eModeCategory: number
   ) {
     const deployOptions = {
-      data: AAVEv3StrategyWstETHJson.bytecode,
+      data: StrategyAAVEv3WstETHJson.bytecode,
       arguments: [initialOwner, registry, swapFeeTier, eModeCategory],
     };
     return this.deploy(deployOptions, this.connection.Account);

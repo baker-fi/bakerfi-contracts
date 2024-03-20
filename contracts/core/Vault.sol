@@ -6,7 +6,6 @@ import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/security/
 import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import {Rebase, RebaseLibrary} from "../libraries/BoringRebase.sol";
 import {ServiceRegistry} from "../core/ServiceRegistry.sol";
-import {ISwapHandler} from "../interfaces/core/ISwapHandler.sol";
 import {IVault} from "../interfaces/core/IVault.sol";
 import {IStrategy} from "../interfaces/core/IStrategy.sol";
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
@@ -15,37 +14,36 @@ import {ERC20PermitUpgradeable} from "@openzeppelin/contracts-upgradeable/token/
 import {UseSettings} from "./hooks/UseSettings.sol";
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**
  * @title BakerFi Vault 🏦🧑‍🍳
  *
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
- * 
+ *
  * @dev The BakerFi vault deployed to any supported chain (Arbitrum One, Optimism, Ethereum,...)
- * 
- * This is smart contract where the users deposit their ETH and receives a share of the pool <x>brETH. 
- * A share of the pool is an ERC-20 Token (transferable) and could be used to later to withdraw their 
- * owned amount of the pool that could contain (Assets + Yield ). This vault could use a customized IStrategy 
+ *
+ * This is smart contract where the users deposit their ETH and receives a share of the pool <x>brETH.
+ * A share of the pool is an ERC-20 Token (transferable) and could be used to later to withdraw their
+ * owned amount of the pool that could contain (Assets + Yield ). This vault could use a customized IStrategy
  * to deploy the capital and harvest an yield.
- * 
- * The Contract is able to charge a performance and withdraw fee that is send to the treasury 
+ *
+ * The Contract is able to charge a performance and withdraw fee that is send to the treasury
  * owned account when the fees are set by the deploy owner.
  *
- * The Vault is Pausable by the the governor and is using the settings contract to retrieve base 
+ * The Vault is Pausable by the the governor and is using the settings contract to retrieve base
  * performance, withdraw fees and other kind of settings.
- * 
+ *
  * During the beta phase only whitelisted addresses are able to deposit and withdraw
- *  
+ *
  * The Contract is upgradable and can use a BakerProxy in front of.
- * 
+ *
  */
-contract Vault is 
+contract Vault is
     OwnableUpgradeable,
-    PausableUpgradeable,     
+    PausableUpgradeable,
     ReentrancyGuardUpgradeable,
-    ERC20PermitUpgradeable, 
+    ERC20PermitUpgradeable,
     UseSettings,
     IVault
 {
@@ -54,20 +52,29 @@ contract Vault is
     using AddressUpgradeable for address;
     using AddressUpgradeable for address payable;
 
+    error InvalidOwner();
+    error InvalidDepositAmount();
+    error InvalidAssetsState();
+    error MaxDepositReached();
+    error NotEnoughBalanceToWithdraw();
+    error InvalidWithdrawAmount();
+    error NoAssetsToWithdraw();
+    error NoPermissions();
+
     /**
      * @dev The ServiceRegistry contract used for managing service-related dependencies.
-     * 
+     *
      * This private state variable holds the reference to the ServiceRegistry contract
      * that is utilized within the current contract for managing various service dependencies.
      */
     ServiceRegistry private _registry;
     /**
      * @dev The IStrategy contract representing the strategy for managing assets.
-     * 
+     *
      * This private state variable holds the reference to the IStrategy contract,
      * which defines the strategy for managing assets within the current contract.
      */
-    IStrategy       private _strategy;
+    IStrategy private _strategy;
 
     /**
      * @dev Modifier to restrict access to addresses that are whitelisted.
@@ -76,11 +83,15 @@ contract Vault is
      * within the contract's settings are allowed to proceed with the function call.
      * If the caller's address is not whitelisted, the function call will be rejected.
      */
-    modifier onlyWhiteListed {
-      require(settings().isAccountEnabled(msg.sender), "Account not allowed");
-      _;
+    modifier onlyWhiteListed() {
+        if (!settings().isAccountEnabled(msg.sender)) revert NoPermissions();
+        _;
     }
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
     /**
      * @dev Initializes the contract with specified parameters.
      *
@@ -107,7 +118,7 @@ contract Vault is
         __ERC20Permit_init(tokenName);
         __ERC20_init(tokenName, tokenSymbol);
         _initUseSettings(registry);
-        require(initialOwner != address(0), "Invalid Owner Address");
+        if (initialOwner == address(0)) revert InvalidOwner();
         _transferOwnership(initialOwner);
         _registry = registry;
         _strategy = strategy;
@@ -122,26 +133,29 @@ contract Vault is
      * and applies performance fees if applicable.
      *
      * @return balanceChange The change in balance after the rebalance operation.
-     * 
+     *
      */
-    function rebalance() external override nonReentrant returns (int256 balanceChange)  {
+    function rebalance() external override nonReentrant returns (int256 balanceChange) {
         uint256 currentPos = totalAssets();
         if (currentPos > 0) {
-            balanceChange = _strategy.harvest();           
+            balanceChange = _strategy.harvest();
             if (balanceChange > 0) {
                 if (
                     settings().getFeeReceiver() != address(this) &&
-                    settings().getFeeReceiver() != address(0) && 
+                    settings().getFeeReceiver() != address(0) &&
                     settings().getPerformanceFee() > 0
-                ) {          
+                ) {
                     /**
                      *   feeInEth       -------------- totalAssets()
                      *   sharesToMint   -------------- totalSupply()
-                     *    
+                     *
                      *   sharesToMint = feeInEth * totalSupply() / totalAssets();
                      */
-                    uint256 feeInEthScaled = uint256(balanceChange) * settings().getPerformanceFee();                                           
-                    uint256 sharesToMint = feeInEthScaled * totalSupply() / totalAssets()  / PERCENTAGE_PRECISION;
+                    uint256 feeInEthScaled = uint256(balanceChange) *
+                        settings().getPerformanceFee();
+                    uint256 sharesToMint = (feeInEthScaled * totalSupply()) /
+                        totalAssets() /
+                        PERCENTAGE_PRECISION;
                     _mint(settings().getFeeReceiver(), sharesToMint);
                 }
             }
@@ -150,7 +164,7 @@ contract Vault is
 
     /**
      * @dev Fallback function to receive Ether.
-     * 
+     *
      * This function is marked as external and payable. It is automatically called
      * when Ether is sent to the contract, such as during a regular transfer or as part
      * of a self-destruct operation.
@@ -170,28 +184,29 @@ contract Vault is
      * @param receiver The address to receive the minted shares.
      * @return shares The number of shares minted for the specified receiver.
      */
-    function deposit(address receiver) external override payable nonReentrant onlyWhiteListed returns (uint256 shares) {
-        require(msg.value > 0, "Invalid Amount to be deposit");
+    function deposit(
+        address receiver
+    ) external payable override nonReentrant onlyWhiteListed returns (uint256 shares) {
+        if (msg.value == 0) revert InvalidDepositAmount();
         Rebase memory total = Rebase(totalAssets(), totalSupply());
-        require(
-            // Or the Rebase is unititialized 
-            (total.elastic == 0 && total.base == 0 ) 
-            // Or Both are positive
-            || (total.base > 0 && total.elastic > 0), 
-            "Invalid Assets/Shares state"
-        );
+        if (
+            // Or the Rebase is unititialized
+            !((total.elastic == 0 && total.base == 0) ||
+                // Or Both are positive
+                (total.base > 0 && total.elastic > 0))
+        ) revert InvalidAssetsState();
         // Verify if the Deposit Value exceeds the maximum per wallet
         uint256 maxDeposit = settings().getMaxDepositInETH();
-        if ( maxDeposit > 0 ) {
-            uint256 afterDeposit = msg.value + (balanceOf(msg.sender) * _tokenPerETH() /1e18);
-            require(afterDeposit <= maxDeposit, "Max Deposit Reached");
+        if (maxDeposit > 0) {
+            uint256 afterDeposit = msg.value + ((balanceOf(msg.sender) * _tokenPerETH()) / 1e18);
+            if (afterDeposit > maxDeposit) revert MaxDepositReached();
         }
-        
+
         bytes memory result = (address(_strategy)).functionCallWithValue(
-            abi.encodeWithSignature("deploy()"), 
+            abi.encodeWithSignature("deploy()"),
             msg.value
         );
-       
+
         uint256 amount = abi.decode(result, (uint256));
         shares = total.toBase(amount, false);
         _mint(receiver, shares);
@@ -199,11 +214,11 @@ contract Vault is
     }
 
     /**
-     * @dev Withdraws a specified number of vault's shares, converting them to ETH and 
+     * @dev Withdraws a specified number of vault's shares, converting them to ETH and
      * transferring to the caller.
      *
      * This function is externally callable, marked as non-reentrant, and restricted to whitelisted addresses.
-     * It checks for sufficient balance, non-zero share amount, and undeploy the capital from the strategy 
+     * It checks for sufficient balance, non-zero share amount, and undeploy the capital from the strategy
      * to handle the withdrawal request. It calculates withdrawal fees, transfers Ether to the caller, and burns the
      * withdrawn shares.
      *
@@ -212,24 +227,26 @@ contract Vault is
      *
      * Emits a {Withdraw} event after successfully handling the withdrawal.
      */
-    function withdraw(uint256 shares) external override nonReentrant onlyWhiteListed returns (uint256 amount) {
-        require(balanceOf(msg.sender) >= shares, "No Enough balance to withdraw");
-        require(shares > 0, "Cannot Withdraw Zero Shares");
+    function withdraw(
+        uint256 shares
+    ) external override nonReentrant onlyWhiteListed returns (uint256 amount) {
+        if (balanceOf(msg.sender) < shares) revert NotEnoughBalanceToWithdraw();
+        if (shares == 0) revert InvalidWithdrawAmount();
         /**
          *   withdrawAmount -------------- totalAssets()
          *   shares         -------------- totalSupply()
-         *    
+         *
          *   withdrawAmount = share * totalAssets() / totalSupply()
          */
-        uint256 withdrawAmount = shares * totalAssets() / totalSupply();
-        require(withdrawAmount > 0, "No Assets to withdraw");
+        uint256 withdrawAmount = (shares * totalAssets()) / totalSupply();
+        if (withdrawAmount == 0) revert NoAssetsToWithdraw();
         amount = _strategy.undeploy(withdrawAmount);
         uint256 fee = 0;
         // Withdraw ETh to Receiver and pay withdrawal Fees
-        if (settings().getWithdrawalFee() != 0  && settings().getFeeReceiver() != address(0)) {
-            fee = amount * settings().getWithdrawalFee() /PERCENTAGE_PRECISION;
+        if (settings().getWithdrawalFee() != 0 && settings().getFeeReceiver() != address(0)) {
+            fee = (amount * settings().getWithdrawalFee()) / PERCENTAGE_PRECISION;
             payable(msg.sender).sendValue(amount - fee);
-            payable(settings().getFeeReceiver()).sendValue(fee);          
+            payable(settings().getFeeReceiver()).sendValue(fee);
         } else {
             payable(msg.sender).sendValue(amount);
         }
@@ -245,9 +262,9 @@ contract Vault is
      *
      * @return amount The total assets under management by the strategy.
      */
-    function totalAssets() public override view returns (uint256 amount) {
+    function totalAssets() public view override returns (uint256 amount) {
         amount = _strategy.deployed();
-    } 
+    }
 
     /**
      * @dev Converts the specified amount of ETH to shares.
@@ -258,7 +275,7 @@ contract Vault is
      * @param assets The amount of assets to be converted to shares.
      * @return shares The calculated number of shares.
      */
-    function convertToShares(uint256 assets) external override view returns (uint256 shares) {
+    function convertToShares(uint256 assets) external view override returns (uint256 shares) {
         Rebase memory total = Rebase(totalAssets(), totalSupply());
         shares = total.toBase(assets, false);
     }
@@ -272,7 +289,7 @@ contract Vault is
      * @param shares The number of shares to be converted to assets.
      * @return assets The calculated amount of assets.
      */
-    function convertToAssets(uint256 shares) external override view returns (uint256 assets) {
+    function convertToAssets(uint256 shares) external view override returns (uint256 assets) {
         Rebase memory total = Rebase(totalAssets(), totalSupply());
         assets = total.toElastic(shares, false);
     }
@@ -286,15 +303,15 @@ contract Vault is
      *
      * @return rate The calculated token-to-ETH exchange rate.
      */
-    function tokenPerETH() external override  view returns (uint256) {
+    function tokenPerETH() external view override returns (uint256) {
         return _tokenPerETH();
     }
-    
-    function _tokenPerETH() internal  view returns (uint256) {
+
+    function _tokenPerETH() internal view returns (uint256) {
         uint256 position = totalAssets();
         if (totalSupply() == 0 || position == 0) {
             return 1 ether;
         }
-        return totalSupply() * 1 ether / position;
+        return (totalSupply() * 1 ether) / position;
     }
 }

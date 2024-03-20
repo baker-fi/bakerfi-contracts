@@ -287,7 +287,7 @@
     "0xf9e3790d": "calculateDebtToPay",
     "0xfc8d8d34": "uniQuoterA"
   },
-  "AAVEv3StrategyWstETH": {
+  "StrategyAAVEv3WstETH": {
     "0x019de48a": "transferOwnership",
     "0x0677f441": "stETHA",
     "0x07bcca65": "wETH",

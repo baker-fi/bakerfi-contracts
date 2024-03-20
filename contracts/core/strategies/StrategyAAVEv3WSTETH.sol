@@ -3,14 +3,9 @@ pragma solidity ^0.8.18;
 
 import {StrategyAAVEv3Base} from "./StrategyAAVEv3Base.sol";
 import {ServiceRegistry} from "../../core/ServiceRegistry.sol";
-import {UseWETH} from "../hooks/UseWETH.sol";
 import {UseStETH} from "../hooks/UseStETH.sol";
 import {UseWstETH} from "../hooks/UseWstETH.sol";
-import {UseServiceRegistry} from "../hooks/UseServiceRegistry.sol";
-import {UseOracle} from "../hooks/UseOracle.sol";
-import {UseIERC20} from "../hooks/UseIERC20.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import {IWStETH} from "../../interfaces/lido/IWStETH.sol";
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
@@ -30,9 +25,15 @@ import { WST_ETH_CONTRACT, WSTETH_USD_ORACLE_CONTRACT } from "../ServiceRegistry
  * mechanisms to convert from collateral token to debt token.
  * 
  */
-contract AAVEv3StrategyWstETH is Initializable, StrategyAAVEv3Base, UseWstETH, UseStETH {
+contract StrategyAAVEv3WstETH is Initializable, StrategyAAVEv3Base, UseWstETH, UseStETH {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using AddressUpgradeable for address payable;
+
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
     // solhint-disable no-empty-blocks        
     function initialize(
         address initialOwner,
