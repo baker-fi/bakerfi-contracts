@@ -252,7 +252,7 @@ abstract contract StrategyAAVEv3Base is
         uint256 loanAmount = leverage - msg.value;
         uint256 fee = flashLender().flashFee(wETHA(), loanAmount);
         //§uint256 allowance = wETH().allowance(address(this), flashLenderA());
-        require(wETH().approve(flashLenderA(), loanAmount + fee));
+        if(!wETH().approve(flashLenderA(), loanAmount + fee)) revert FailedToApproveAllowance();
         if (
             !flashLender().flashLoan(
                 IERC3156FlashBorrowerUpgradeable(this),

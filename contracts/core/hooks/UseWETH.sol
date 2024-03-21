@@ -22,6 +22,7 @@ abstract contract UseWETH is Initializable {
     using SafeERC20 for IERC20;
 
     error InvalidWETHContract();
+    
     /**
      * @dev Initializes the UseWETH contract.
      * @param registry The address of the ServiceRegistry contract for accessing WETH.

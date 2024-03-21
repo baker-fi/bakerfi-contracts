@@ -3,7 +3,6 @@ pragma solidity ^0.8.18;
 pragma experimental ABIEncoderV2;
 
 import {ServiceRegistry, UNISWAP_ROUTER_CONTRACT} from "../ServiceRegistry.sol";
-import {IServiceRegistry} from "../../interfaces/core/IServiceRegistry.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
 import {IV3SwapRouter} from "../../interfaces/uniswap/v3/ISwapRouter.sol";

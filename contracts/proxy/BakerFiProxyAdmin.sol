@@ -11,8 +11,11 @@ import {BakerFiProxy} from "./BakerFiProxy.sol";
  * @notice
  */
 contract BakerFiProxyAdmin is ProxyAdmin {
+    
+    error InvalidOwner();
+    
     constructor(address initialOwner) ProxyAdmin() {
-        require(initialOwner != address(0), "Invalid Owner Address");
+        if(initialOwner == address(0)) revert InvalidOwner();
         _transferOwnership(initialOwner);
     }
 }
