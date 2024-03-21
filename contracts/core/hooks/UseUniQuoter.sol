@@ -4,7 +4,6 @@ pragma experimental ABIEncoderV2;
 
 import {ServiceRegistry, UNISWAP_QUOTER_CONTRACT} from "../ServiceRegistry.sol";
 import {IQuoterV2} from "../../interfaces/uniswap/v3/IQuoterV2.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 abstract contract UseUniQuoter is Initializable {

@@ -11,7 +11,7 @@ contract PythOracle is IOracle {
 
     IPyth private immutable _pyth;
     bytes32 private immutable _priceID;
-    uint256 private constant _precisison = 18;
+    uint256 private constant _PRECISION = 18;
 
     /**
      *
@@ -27,7 +27,7 @@ contract PythOracle is IOracle {
      * Get the Price precision
      */
     function getPrecision() public pure returns (uint256) {
-        return _precisison;
+        return _PRECISION;
     }
 
     /**
@@ -39,11 +39,11 @@ contract PythOracle is IOracle {
         if (price.expo >= 0) {
             outPrice.price =
                 uint64(price.price) *
-                uint256(10 ** (_precisison + uint32(price.expo)));
+                uint256(10 ** (_PRECISION + uint32(price.expo)));
         } else {
             outPrice.price =
                 uint64(price.price) *
-                uint256(10 ** (_precisison - uint32(-price.expo)));
+                uint256(10 ** (_PRECISION - uint32(-price.expo)));
         }
         outPrice.lastUpdate = price.publishTime;
     }
