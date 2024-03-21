@@ -1,4 +1,3 @@
-
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.18;
 
@@ -6,41 +5,40 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IServiceRegistry} from "../interfaces/core/IServiceRegistry.sol";
 
 /**
-* @dev The Constants used for servive names 
-* Attention: These are the constants that should be used to resolve the deployment contract addresses !!
-*/
-bytes32 constant FLASH_LENDER_CONTRACT =         keccak256(bytes("FlashLender"));
-bytes32 constant WETH_CONTRACT =                 keccak256(bytes("WETH"));
-bytes32 constant ST_ETH_CONTRACT =               keccak256(bytes("stETH"));
-bytes32 constant WST_ETH_CONTRACT =              keccak256(bytes("wstETH"));
-bytes32 constant BKR_CONTRACT =                  keccak256(bytes("BKR"));
-bytes32 constant AAVE_V3_CONTRACT =              keccak256(bytes("AAVE_V3"));
-bytes32 constant WSTETH_USD_ORACLE_CONTRACT =    keccak256(bytes("wstETH/USD Oracle"));
-bytes32 constant CBETH_USD_ORACLE_CONTRACT =     keccak256(bytes("cbETH/USD Oracle"));
-bytes32 constant ETH_USD_ORACLE_CONTRACT =       keccak256(bytes("ETH/USD Oracle"));
-bytes32 constant CBETH_ERC20_CONTRACT =          keccak256(bytes("cbETH"));
-bytes32 constant UNISWAP_ROUTER_CONTRACT =       keccak256(bytes("Uniswap Router"));
-bytes32 constant SWAPPER_HANDLER_CONTRACT =      keccak256(bytes("Swapper Handler"));
-bytes32 constant BALANCER_VAULT_CONTRACT =       keccak256(bytes("Balancer Vault"));
-bytes32 constant SETTINGS_CONTRACT =             keccak256(bytes("Settings"));
-bytes32 constant UNISWAP_QUOTER_CONTRACT =       keccak256(bytes("Uniswap Quoter"));
-bytes32 constant STRATEGY_CONTRACT =             keccak256(bytes("Strategy"));
-bytes32 constant PYTH_CONTRACT =                 keccak256(bytes("Pyth"));
+ * @dev The Constants used for servive names
+ * Attention: These are the constants that should be used to resolve the deployment contract addresses !!
+ */
+bytes32 constant FLASH_LENDER_CONTRACT = keccak256(bytes("FlashLender"));
+bytes32 constant WETH_CONTRACT = keccak256(bytes("WETH"));
+bytes32 constant ST_ETH_CONTRACT = keccak256(bytes("stETH"));
+bytes32 constant WST_ETH_CONTRACT = keccak256(bytes("wstETH"));
+bytes32 constant BKR_CONTRACT = keccak256(bytes("BKR"));
+bytes32 constant AAVE_V3_CONTRACT = keccak256(bytes("AAVE_V3"));
+bytes32 constant WSTETH_USD_ORACLE_CONTRACT = keccak256(bytes("wstETH/USD Oracle"));
+bytes32 constant CBETH_USD_ORACLE_CONTRACT = keccak256(bytes("cbETH/USD Oracle"));
+bytes32 constant ETH_USD_ORACLE_CONTRACT = keccak256(bytes("ETH/USD Oracle"));
+bytes32 constant CBETH_ERC20_CONTRACT = keccak256(bytes("cbETH"));
+bytes32 constant UNISWAP_ROUTER_CONTRACT = keccak256(bytes("Uniswap Router"));
+bytes32 constant SWAPPER_HANDLER_CONTRACT = keccak256(bytes("Swapper Handler"));
+bytes32 constant BALANCER_VAULT_CONTRACT = keccak256(bytes("Balancer Vault"));
+bytes32 constant SETTINGS_CONTRACT = keccak256(bytes("Settings"));
+bytes32 constant UNISWAP_QUOTER_CONTRACT = keccak256(bytes("Uniswap Quoter"));
+bytes32 constant STRATEGY_CONTRACT = keccak256(bytes("Strategy"));
+bytes32 constant PYTH_CONTRACT = keccak256(bytes("Pyth"));
 
 /**
  * @title BakerFi Service Registy
- * 
+ *
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
  *
  * @notice Service registry that could be used resolve a service address with the
  * name of the service.
- * 
+ *
  * This contract inherits from the `Ownable` contract and implements the `IServiceRegistry` interface.
  * It serves as a registry for managing various services and dependencies within BakerFI System.
  */
 contract ServiceRegistry is Ownable, IServiceRegistry {
-    
     error InvalidOwner();
     error ServiceAlreadySet();
     error ServiceUnknown();
@@ -59,9 +57,8 @@ contract ServiceRegistry is Ownable, IServiceRegistry {
      *
      * @param ownerToSet The address to be set as the initial owner of the contract.
      */
-    constructor(address ownerToSet) Ownable()
-    {
-        if(ownerToSet == address(0)) revert InvalidOwner();
+    constructor(address ownerToSet) Ownable() {
+        if (ownerToSet == address(0)) revert InvalidOwner();
         _transferOwnership(ownerToSet);
     }
     /**
@@ -77,11 +74,8 @@ contract ServiceRegistry is Ownable, IServiceRegistry {
      * Requirements:
      * - The service with the specified name hash must not be already registered.
      */
-    function registerService(
-        bytes32 serviceNameHash,
-        address serviceAddress
-    ) external onlyOwner {
-        if(_services[serviceNameHash] != address(0)) revert ServiceAlreadySet();
+    function registerService(bytes32 serviceNameHash, address serviceAddress) external onlyOwner {
+        if (_services[serviceNameHash] != address(0)) revert ServiceAlreadySet();
         _services[serviceNameHash] = serviceAddress;
         emit ServiceRegistered(serviceNameHash, serviceAddress);
     }
@@ -99,7 +93,7 @@ contract ServiceRegistry is Ownable, IServiceRegistry {
      * - The service with the specified name hash must exist.
      */
     function unregisterService(bytes32 serviceNameHash) external onlyOwner {
-        if(_services[serviceNameHash] == address(0)) revert ServiceUnknown();            
+        if (_services[serviceNameHash] == address(0)) revert ServiceUnknown();
         _services[serviceNameHash] = address(0);
         emit ServiceUnregistered(serviceNameHash);
     }
@@ -111,12 +105,10 @@ contract ServiceRegistry is Ownable, IServiceRegistry {
      * @param name The name of the service for which the name hash is to be computed.
      * @return serviceNameHash The keccak256 hash of the provided service name.
      */
-    function getServiceNameHash(
-        string memory name
-    ) external pure returns (bytes32) {
+    function getServiceNameHash(string memory name) external pure returns (bytes32) {
         return keccak256(abi.encodePacked(name));
     }
-    
+
     /**
      * @dev Retrieves the address of a registered service by its name.
      *
@@ -137,7 +129,7 @@ contract ServiceRegistry is Ownable, IServiceRegistry {
      * @param serviceHash The keccak256 hash of the service name for which the address is to be retrieved.
      * @return serviceAddress The address of the registered service.
      */
-    function getServiceFromHash(bytes32  serviceHash) external view returns (address) {
+    function getServiceFromHash(bytes32 serviceHash) external view returns (address) {
         return _services[serviceHash];
-    }  
+    }
 }

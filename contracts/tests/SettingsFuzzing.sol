@@ -2,10 +2,9 @@
 pragma solidity ^0.8.18;
 pragma experimental ABIEncoderV2;
 
-import { Settings } from "../core/Settings.sol";
+import {Settings} from "../core/Settings.sol";
 
 contract SettingsFuzzing {
-
     Settings private settings;
 
     constructor() {
@@ -13,16 +12,15 @@ contract SettingsFuzzing {
         settings.initialize(address(this));
     }
 
-    function changeMaxLTV(uint256  maxValue) public  {
+    function changeMaxLTV(uint256 maxValue) public {
         settings.setMaxLoanToValue(maxValue);
     }
 
-    function changeLTV(uint256  value) public {
+    function changeLTV(uint256 value) public {
         settings.setLoanToValue(value);
     }
 
     function echidna_maxLTVGreatherThanLtv() public view returns (bool) {
-        return settings.getMaxLoanToValue() >=  settings.getLoanToValue();
+        return settings.getMaxLoanToValue() >= settings.getLoanToValue();
     }
-
 }

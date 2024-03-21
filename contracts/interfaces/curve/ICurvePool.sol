@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.18;
- 
+
 /* solhint-disable func-name-mixedcase */
 /* solhint-disable var-name-mixedcase */
 interface ICurvePool {
@@ -43,10 +43,7 @@ interface ICurvePool {
         bool _is_deposit
     ) external view returns (uint256);
 
-    function calc_withdraw_one_coin(
-        uint256 _burn_amount,
-        int128 i
-    ) external view returns (uint256);
+    function calc_withdraw_one_coin(uint256 _burn_amount, int128 i) external view returns (uint256);
 
     function balances(uint256 i) external view returns (uint256);
 

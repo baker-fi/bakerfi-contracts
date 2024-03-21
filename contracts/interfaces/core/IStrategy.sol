@@ -3,15 +3,15 @@ pragma solidity ^0.8.18;
 
 /**
  * @title ETH Deploy Strategy
- * 
+ *
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
  *
- * @notice Deploys ETH and harvests yield 
- * 
+ * @notice Deploys ETH and harvests yield
+ *
  */
 interface IStrategy {
-        /**
+    /**
      * @dev Emitted when a strategy is deployed.
      *
      * This event provides information about the address deploying the strategy and the deployed amount.
@@ -59,7 +59,7 @@ interface IStrategy {
     event StrategyAmountUpdate(uint256 indexed newDeployment);
 
     /**
-     * @dev Deploys funds in the AAVEv3 strategy 
+     * @dev Deploys funds in the AAVEv3 strategy
      *
      * @return deployedAmount The amount deployed in the AAVEv3 strategy after leveraging.
      *
@@ -72,21 +72,19 @@ interface IStrategy {
      * @return balanceChange The change in strategy balance as an int256 value.
      */
     function harvest() external returns (int256 balanceChange);
-    
+
     /**
      * @dev Initiates the undeployment process by adjusting the contract's position and performing a flash loan.
      *
      * @param amount The amount of ETH to undeploy.
      * @return undeployedAmount The actual undeployed amount of ETH.
      */
-    function undeploy(
-        uint256 amount
-    ) external returns (uint256 undeployedAmount);
+    function undeploy(uint256 amount) external returns (uint256 undeployedAmount);
 
     /**
      * @dev Retrieves the total owned assets by the Strategy in ETH
      *
      * @return assets The total owned assets in Ether.
-     */ 
-    function deployed() external view returns (uint256 assets);    
+     */
+    function deployed() external view returns (uint256 assets);
 }

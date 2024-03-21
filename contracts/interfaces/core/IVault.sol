@@ -6,7 +6,7 @@ pragma solidity ^0.8.18;
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
  * */
-abstract contract IVault {    
+abstract contract IVault {
     /**
      * @dev Emitted when a ETH deposit is made to the contract.
      *
@@ -18,8 +18,13 @@ abstract contract IVault {
      * @param amount The amount of Ether deposited.
      * @param shares The number of shares minted for the deposit.
      */
-    event Deposit(address indexed depositor, address indexed receiver, uint256 indexed amount, uint256 shares);
-    
+    event Deposit(
+        address indexed depositor,
+        address indexed receiver,
+        uint256 indexed amount,
+        uint256 shares
+    );
+
     /**
      * @dev Emitted when a withdrawal is made from the contract.
      *
@@ -29,7 +34,7 @@ abstract contract IVault {
      * @param owner The address initiating the withdrawal.
      * @param amount The amount of Ether withdrawn after fees.
      * @param shares The number of shares burned for the withdrawal.
-     */    
+     */
     event Withdraw(address indexed owner, uint256 amount, uint256 indexed shares);
 
     /**
@@ -38,10 +43,10 @@ abstract contract IVault {
      * @param receiver The address to receive the minted shares.
      * @return shares The number of shares minted for the specified receiver.
      */
-    function deposit(address receiver) external virtual payable returns (uint256 shares);
+    function deposit(address receiver) external payable virtual returns (uint256 shares);
 
     /**
-     * @dev Withdraws a specified number of vault's shares, converting them to ETH and 
+     * @dev Withdraws a specified number of vault's shares, converting them to ETH and
      * transferring to the caller.
      *
      * @param shares The number of shares to be withdrawn.
@@ -50,7 +55,7 @@ abstract contract IVault {
      * Emits a {Withdraw} event after successfully handling the withdrawal.
      */
     function withdraw(uint256 shares) external virtual returns (uint256 amount);
-    
+
     /**
      * @dev Retrieves the total assets controlled/belonging to the vault
      *
@@ -60,36 +65,36 @@ abstract contract IVault {
      * @return amount The total assets under management by the strategy.
      */
     function totalAssets() public view virtual returns (uint256 amount);
-    
+
     /**
      * @dev Converts the specified amount of ETH to shares.
      *
      * @param assets The amount of assets to be converted to shares.
      * @return shares The calculated number of shares.
      */
-    function convertToShares(uint256 assets) external virtual view returns (uint256 shares);
-    
+    function convertToShares(uint256 assets) external view virtual returns (uint256 shares);
+
     /**
      * @dev Converts the specified number of shares to ETH.
      *
      * @param shares The number of shares to be converted to assets.
      * @return assets The calculated amount of assets.
      */
-    function convertToAssets(uint256 shares) external virtual view returns (uint256 assets);
-    
+    function convertToAssets(uint256 shares) external view virtual returns (uint256 assets);
+
     /**
      * @dev Retrieves the token-to-ETH exchange rate.
      *
      * @return rate The calculated token-to-ETH exchange rate.
      */
     function tokenPerETH() external view virtual returns (uint256 rate);
-    
+
     /**
      * @dev Function to rebalance the strategy, prevent a liquidation and pay fees
      * to protocol by minting shares to the fee receiver
      *
      * @return balanceChange The change in balance after the rebalance operation.
-     * 
+     *
      */
     function rebalance() external virtual returns (int256 balanceChange);
 }

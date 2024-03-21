@@ -2,12 +2,11 @@
 pragma solidity ^0.8.18;
 pragma experimental ABIEncoderV2;
 
-
 import {ServiceRegistry, STRATEGY_CONTRACT} from "../ServiceRegistry.sol";
 import {IStrategy} from "../../interfaces/core/IStrategy.sol";
-import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-abstract contract UseStrategy is Initializable  {
+abstract contract UseStrategy is Initializable {
     IStrategy private _strategy;
 
     function _initUseStrategy(ServiceRegistry registry) internal onlyInitializing {

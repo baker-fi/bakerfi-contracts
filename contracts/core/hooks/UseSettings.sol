@@ -4,7 +4,7 @@ pragma experimental ABIEncoderV2;
 
 import {ServiceRegistry, SETTINGS_CONTRACT} from "../ServiceRegistry.sol";
 import {ISettings} from "../../interfaces/core/ISettings.sol";
-import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 abstract contract UseSettings is Initializable {
     ISettings private _settings;

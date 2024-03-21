@@ -8,7 +8,7 @@ contract PythStructs {
     // Both the price and confidence are stored in a fixed-point numeric representation,
     // `x * (10^expo)`, where `expo` is the exponent.
     //https://docs.pyth.network/documentation/pythnet-price-feeds/best-practices for how
-    // Please refer to the documentation at 
+    // Please refer to the documentation at
     // to how this price safely.
     struct Price {
         // Price

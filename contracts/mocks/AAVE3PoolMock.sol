@@ -8,13 +8,10 @@ import "../interfaces/aave/v3/IPoolAddressesProvider.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {DataTypes} from "../interfaces/aave/v3/DataTypes.sol";
 import {ERC20Burnable} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
-import {Ownable}  from "@openzeppelin/contracts/access/Ownable.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract AccountToken is ERC20, ERC20Burnable, Ownable {
-    constructor(address initialOwner)
-        ERC20("MyToken", "MTK")
-        Ownable()
-    {
+    constructor(address initialOwner) ERC20("MyToken", "MTK") Ownable() {
         _transferOwnership(initialOwner);
     }
 
@@ -28,11 +25,10 @@ contract AccountToken is ERC20, ERC20Burnable, Ownable {
 }
 
 contract AaveV3PoolMock is IPoolV3, ERC20 {
-
     struct UserInfo {
         uint256 depositAmount;
         uint256 borrowedAmount;
-    }   
+    }
 
     mapping(address => UserInfo) public users;
 
@@ -41,16 +37,15 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
 
     IERC20 public _collateralToken;
     IERC20 private _borrowedToken;
-    AccountToken  _collateralAToken;
+    AccountToken _collateralAToken;
     AccountToken private _borrowedAToken;
     uint8 private _emode;
 
-    uint256 private _collateralPerEth = 1130*(1e6);
-    uint256 private _borrowedPerETh= 1000*(1e6);
-    uint256 private _pricePrecision = 1000*(1e6);
+    uint256 private _collateralPerEth = 1130 * (1e6);
+    uint256 private _borrowedPerETh = 1000 * (1e6);
+    uint256 private _pricePrecision = 1000 * (1e6);
 
-    constructor(IERC20 collateralToken, IERC20  borrowedToken)
-        ERC20("Collateral ETH", "AWETH") {
+    constructor(IERC20 collateralToken, IERC20 borrowedToken) ERC20("Collateral ETH", "AWETH") {
         _collateralToken = collateralToken;
         _borrowedToken = borrowedToken;
         _collateralAToken = new AccountToken(address(this));
@@ -64,38 +59,32 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
         uint16 referralCode
     ) external override {}
 
-    
     function setCollateralPerEth(uint256 price) public {
         _collateralPerEth = price;
     }
-    
+
     function setBorrowedPerEth(uint256 price) public {
-        _borrowedPerETh = price;        
+        _borrowedPerETh = price;
     }
 
-    function getCollateralPerEth() public view returns (uint256){
+    function getCollateralPerEth() public view returns (uint256) {
         return _collateralPerEth;
     }
-    
+
     function getBorrowedPerEth() public view returns (uint256) {
         return _borrowedPerETh;
     }
 
     function backUnbacked(address asset, uint256 amount, uint256 fee) external override {}
 
-    function supply(
-        address asset,
-        uint256 amount,
-        address,
-        uint16
-    ) external override {
+    function supply(address asset, uint256 amount, address, uint16) external override {
         require(asset == address(_collateralToken), "Invalid Token for supply");
         require(amount > 0, "Amount must be greater than 0");
         _collateralToken.transferFrom(msg.sender, address(this), amount);
-        _collateralAToken.mint(msg.sender, amount );
-        users[msg.sender].depositAmount= users[msg.sender].depositAmount + amount;
+        _collateralAToken.mint(msg.sender, amount);
+        users[msg.sender].depositAmount = users[msg.sender].depositAmount + amount;
         _mint(msg.sender, amount);
-        emit Supply(asset, msg.sender,  msg.sender, amount, 0 );
+        emit Supply(asset, msg.sender, msg.sender, amount, 0);
     }
 
     function supplyWithPermit(
@@ -109,18 +98,14 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
         bytes32 permitS
     ) external override {}
 
-    function withdraw(
-        address asset,
-        uint256 amount,
-        address
-    ) external override returns (uint256) {
+    function withdraw(address asset, uint256 amount, address) external override returns (uint256) {
         require(asset == address(_collateralToken));
         require(asset == address(_collateralToken));
-        users[msg.sender].depositAmount-= amount;
-        (_collateralToken).transfer(msg.sender, amount);      
+        users[msg.sender].depositAmount -= amount;
+        (_collateralToken).transfer(msg.sender, amount);
         _collateralAToken.burn(msg.sender, amount);
         _burn(msg.sender, amount);
-        emit Withdraw(asset, msg.sender, msg.sender, amount );
+        emit Withdraw(asset, msg.sender, msg.sender, amount);
         return amount;
     }
 
@@ -131,11 +116,14 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
         uint16,
         address onBehalfOf
     ) external override {
-        require(users[msg.sender].depositAmount - users[msg.sender].borrowedAmount >= amount, "Not Enough Balance to Borrow");
+        require(
+            users[msg.sender].depositAmount - users[msg.sender].borrowedAmount >= amount,
+            "Not Enough Balance to Borrow"
+        );
         _borrowedToken.transfer(onBehalfOf, amount);
-        _borrowedAToken.mint(msg.sender, amount );
+        _borrowedAToken.mint(msg.sender, amount);
         users[msg.sender].borrowedAmount += amount;
-        emit Borrow(asset, msg.sender,msg.sender, amount,  DataTypes.InterestRateMode.NONE , 0, 0);
+        emit Borrow(asset, msg.sender, msg.sender, amount, DataTypes.InterestRateMode.NONE, 0, 0);
     }
 
     function repay(
@@ -146,11 +134,10 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
     ) external override returns (uint256) {
         users[msg.sender].borrowedAmount -= amount;
         _borrowedToken.transfer(onBehalfOf, amount);
-        _borrowedAToken.burn(msg.sender, amount );
-        emit Repay(asset, msg.sender, msg.sender, amount,  false);
+        _borrowedAToken.burn(msg.sender, amount);
+        emit Repay(asset, msg.sender, msg.sender, amount, false);
         return amount;
     }
-    
 
     function repayWithPermit(
         address asset,
@@ -168,8 +155,8 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
         uint256 amount,
         uint256
     ) external override returns (uint256) {
-        users[msg.sender].depositAmount-= amount;
-        users[msg.sender].borrowedAmount -= amount*_collateralPerEth/1e9;
+        users[msg.sender].depositAmount -= amount;
+        users[msg.sender].borrowedAmount -= (amount * _collateralPerEth) / 1e9;
         _burn(msg.sender, amount);
         return amount;
     }
@@ -221,15 +208,22 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
             uint256 healthFactor
         )
     {
-        totalCollateralBase = users[user].depositAmount * _collateralPerEth / _pricePrecision/1e10;
-        totalDebtBase = users[user].borrowedAmount * _borrowedPerETh / _pricePrecision/1e10;
+        totalCollateralBase =
+            (users[user].depositAmount * _collateralPerEth) /
+            _pricePrecision /
+            1e10;
+        totalDebtBase = (users[user].borrowedAmount * _borrowedPerETh) / _pricePrecision / 1e10;
         availableBorrowsBase = 0;
-        currentLiquidationThreshold = users[user].depositAmount * LOAN_LIQUIDATION_THRESHOLD / LOAN_TO_VALUE_PRECISION;
-        if(users[user].depositAmount > 0) {
-            ltv  = users[user].borrowedAmount *  LOAN_TO_VALUE_PRECISION/(users[user].depositAmount );
+        currentLiquidationThreshold =
+            (users[user].depositAmount * LOAN_LIQUIDATION_THRESHOLD) /
+            LOAN_TO_VALUE_PRECISION;
+        if (users[user].depositAmount > 0) {
+            ltv =
+                (users[user].borrowedAmount * LOAN_TO_VALUE_PRECISION) /
+                (users[user].depositAmount);
         } else {
             ltv = 0;
-        }       
+        }
         healthFactor = 1;
     }
 
@@ -270,11 +264,9 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
     function getReserveData(
         address asset
     ) external view override returns (DataTypes.ReserveData memory) {
-        
-        DataTypes.ReserveData memory  output;        
-        if(asset == address(_collateralToken)) {
+        DataTypes.ReserveData memory output;
+        if (asset == address(_collateralToken)) {
             output.aTokenAddress = address(_collateralAToken);
-        
         } else if (asset == address(_borrowedToken)) {
             output.variableDebtTokenAddress = address(_borrowedAToken);
         }
@@ -308,16 +300,14 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
 
     function getEModeCategoryData(
         uint8 id
-    ) external view override returns (DataTypes.EModeCategory memory) {
-       
-    }
+    ) external view override returns (DataTypes.EModeCategory memory) {}
 
     function setUserEMode(uint8 categoryId) external override {
         _emode = categoryId;
     }
 
     function getUserEMode(address) external view override returns (uint256) {
-         return _emode;
+        return _emode;
     }
 
     function resetIsolationModeTotalDebt(address asset) external override {}

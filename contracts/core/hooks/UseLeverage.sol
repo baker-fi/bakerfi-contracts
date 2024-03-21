@@ -5,7 +5,7 @@ import {PERCENTAGE_PRECISION, MAX_LOOPS} from "../Constants.sol";
 contract UseLeverage {
     /**
      * @dev Calculates the leverage ratio based on the provided parameters.
-     * 
+     *
      * @param baseValue The base value for leverage calculation.
      * @param loanToValue The loan-to-value ratio (expressed as a percentage with precision).
      * @param nrLoops The number of loops for the iterative calculation.
@@ -16,7 +16,7 @@ contract UseLeverage {
         uint256 loanToValue,
         uint8 nrLoops
     ) public pure returns (uint256) {
-        require(nrLoops <= MAX_LOOPS, "Invalid Number of Loops");            
+        require(nrLoops <= MAX_LOOPS, "Invalid Number of Loops");
         require(loanToValue > 0 && loanToValue < PERCENTAGE_PRECISION, "Invalid Loan to value");
         uint256 leverage = baseValue;
         uint256 prev = baseValue;
@@ -31,7 +31,7 @@ contract UseLeverage {
         return leverage;
     }
 
-     /**
+    /**
      * @dev Calculates the changes in collateral and debt based on a specified percentage to burn.
      * @param percentageToBurn The percentage to burn (expressed as a percentage with precision).
      * @param totalCollateralBaseInEth The total collateral base in ETH.
@@ -44,7 +44,10 @@ contract UseLeverage {
         uint256 totalCollateralBaseInEth,
         uint256 totalDebtBaseInEth
     ) public pure returns (uint256 deltaCollateralInETH, uint256 deltaDebtInETH) {
-        require(percentageToBurn > 0 && percentageToBurn <= PERCENTAGE_PRECISION, "Invalid Percentage Value");
+        require(
+            percentageToBurn > 0 && percentageToBurn <= PERCENTAGE_PRECISION,
+            "Invalid Percentage Value"
+        );
         // Reduce Collateral based on the percentage to Burn
         deltaDebtInETH = (totalDebtBaseInEth * percentageToBurn) / PERCENTAGE_PRECISION;
         // Reduce Debt based on the percentage to Burn
@@ -63,11 +66,10 @@ contract UseLeverage {
         uint256 collateral,
         uint256 debt
     ) public pure returns (uint256 delta) {
-
         uint256 colValue = ((targetLoanToValue * collateral) / PERCENTAGE_PRECISION);
         require(colValue < debt, "Invalid Target value");
         uint256 numerator = debt - colValue;
         uint256 divisor = (PERCENTAGE_PRECISION - targetLoanToValue);
-        delta = (numerator * PERCENTAGE_PRECISION) / divisor;    
+        delta = (numerator * PERCENTAGE_PRECISION) / divisor;
     }
 }

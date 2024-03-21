@@ -7,7 +7,6 @@ struct Rebase {
 }
 
 library RebaseLibrary {
- 
     /// @notice Calculates the base value in relationship to `elastic` and `total`.
     function toBase(
         Rebase memory total,
@@ -42,17 +41,10 @@ library RebaseLibrary {
 }
 
 contract TestRebaseLibrary {
-
     using RebaseLibrary for Rebase;
 
-    function toBase( 
-        Rebase memory total,
-        uint256 elastic,
-        bool roundUp) public pure returns (uint) {
-        return total.toBase(
-            elastic,
-            roundUp
-        );
+    function toBase(Rebase memory total, uint256 elastic, bool roundUp) public pure returns (uint) {
+        return total.toBase(elastic, roundUp);
     }
 
     function toElastic(
@@ -60,9 +52,6 @@ contract TestRebaseLibrary {
         uint256 base,
         bool roundUp
     ) public pure returns (uint256 elastic) {
-        return total.toElastic(
-            base,
-            roundUp
-        );
+        return total.toElastic(base, roundUp);
     }
 }

@@ -6,15 +6,13 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 import {ServiceRegistry} from "../core/ServiceRegistry.sol";
 import {UseFlashLender} from "../core/hooks/UseFlashLender.sol";
 import {UseStrategy} from "../core/hooks/UseStrategy.sol";
-import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-contract BorrowerAttacker is IERC3156FlashBorrowerUpgradeable, 
-    UseFlashLender,
-    UseStrategy {
+contract BorrowerAttacker is IERC3156FlashBorrowerUpgradeable, UseFlashLender, UseStrategy {
     uint256 constant FLASH_LOAN_FEE_PRECISION = 100000;
     uint256 constant FLASH_LOAN_FEE = 100; // 0.1%
-    
-    mapping(address=> uint256) _totalBorrowed;
+
+    mapping(address => uint256) _totalBorrowed;
 
     bytes32 public constant CALLBACK_SUCCESS = keccak256("ERC3156FlashBorrower.onFlashLoan");
 
@@ -29,17 +27,9 @@ contract BorrowerAttacker is IERC3156FlashBorrowerUpgradeable,
         return _totalBorrowed[token];
     }
 
-    function flashme(
-        address token,
-        uint256 amount
-    ) external {
+    function flashme(address token, uint256 amount) external {
         require(IERC20(token).approve(flashLenderA(), amount));
-        flashLender().flashLoan(
-            this, 
-            token, 
-            amount, 
-            "0x"
-        );    
+        flashLender().flashLoan(this, token, amount, "0x");
     }
 
     function onFlashLoan(

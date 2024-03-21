@@ -8,35 +8,35 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 
 /**
- * 
+ *
  * @title BKR ERC-20 Token
  *
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
- * 
- * @dev Baker, the BakerFi Governance ERC-20 Token 
- * 
- * 500M Total Supply 
- * 
- * No Taxes and no Bullshit 
+ *
+ * @dev Baker, the BakerFi Governance ERC-20 Token
+ *
+ * 500M Total Supply
+ *
+ * No Taxes and no Bullshit
  */
 contract BKR is ERC20, Ownable, ERC20Permit, ERC20Votes {
-
     string private constant _NAME = "BakerFi";
     string private constant _SYMBOL = "BKR";
-    uint256 private immutable _MAX_SUPPLY = 500_000_000*1e18; // 500M
+    uint256 private immutable _MAX_SUPPLY = 500_000_000 * 1e18; // 500M
 
-    constructor(address initialOwner)
-        ERC20(_NAME, _SYMBOL)
-        Ownable()
-        ERC20Permit(_NAME)
-        ERC20Votes()
-    {
+    constructor(
+        address initialOwner
+    ) ERC20(_NAME, _SYMBOL) Ownable() ERC20Permit(_NAME) ERC20Votes() {
         _mint(initialOwner, _MAX_SUPPLY);
         transferOwnership(initialOwner);
     }
 
-    function _afterTokenTransfer(address from, address to, uint256 amount) internal override(ERC20, ERC20Votes) {
+    function _afterTokenTransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal override(ERC20, ERC20Votes) {
         super._afterTokenTransfer(from, to, amount);
     }
 

@@ -6,15 +6,12 @@ import {IQuoterV2} from "../interfaces/uniswap/v3/IQuoterV2.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract QuoterV2Mock is IQuoterV2 {
-
-    uint256 RATIO_PRECISION  = 1e9;
+    uint256 RATIO_PRECISION = 1e9;
     uint256 private _ratio = 1e9;
 
-    
-    function setRatio(uint256 ratio ) external {
+    function setRatio(uint256 ratio) external {
         _ratio = ratio;
     }
-
 
     function quoteExactInput(
         bytes memory path,
@@ -27,11 +24,11 @@ contract QuoterV2Mock is IQuoterV2 {
             uint32[] memory initializedTicksCrossedList,
             uint256 gasEstimate
         )
-    {
-     
-    }
+    {}
 
-    function quoteExactInputSingle(QuoteExactInputSingleParams memory params)
+    function quoteExactInputSingle(
+        QuoteExactInputSingleParams memory params
+    )
         external
         view
         returns (
@@ -41,8 +38,8 @@ contract QuoterV2Mock is IQuoterV2 {
             uint256 gasEstimate
         )
     {
-        amountOut = params.amountIn * RATIO_PRECISION / _ratio;
-        return (amountOut,0,0,0);
+        amountOut = (params.amountIn * RATIO_PRECISION) / _ratio;
+        return (amountOut, 0, 0, 0);
     }
 
     function quoteExactOutput(
@@ -56,9 +53,7 @@ contract QuoterV2Mock is IQuoterV2 {
             uint32[] memory initializedTicksCrossedList,
             uint256 gasEstimate
         )
-    {
-
-    }
+    {}
 
     function quoteExactOutputSingle(
         QuoteExactOutputSingleParams memory params
