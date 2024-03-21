@@ -619,7 +619,7 @@ abstract contract StrategyAAVEv3Base is
         uint256 fee = flashLender().flashFee(wETHA(), deltaDebtInETH);
         // Update WETH allowance to pay the debt after the flash loan
         //uint256 allowance = wETH().allowance(address(this), flashLenderA());
-        if(!wETH().approve(flashLenderA(), deltaDebtInETH + fee) revert FailedToApproveAllowance());
+        if(!wETH().approve(flashLenderA(), deltaDebtInETH + fee)) revert FailedToApproveAllowance();
         if(
             !flashLender().flashLoan(
                 IERC3156FlashBorrowerUpgradeable(this),
