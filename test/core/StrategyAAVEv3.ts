@@ -194,7 +194,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
     await strategy.deploy({
       value: ethers.parseUnits("10", 18),
     });
-    await settings.setPriceRebalanceMaxAge(60);
+    await settings.setRebalancePriceMaxAge(60);
     // advance time by one hour and mine a new block
     await time.increase(3600);
     await expect(strategy.harvest()).to.be.revertedWithCustomError(
@@ -209,7 +209,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
     await strategy.deploy({
       value: ethers.parseUnits("10", 18),
     });
-    await settings.setPriceRebalanceMaxAge(4800);
+    await settings.setRebalancePriceMaxAge(4800);
     // advance time by one hour and mine a new block
     await time.increase(3600);
     await strategy.harvest();

@@ -136,7 +136,7 @@ contract Vault is
      *
      */
     function rebalance() external override nonReentrant returns (int256 balanceChange) {
-        uint256 maxPriceAge = settings().getPriceRebalanceMaxAge();
+        uint256 maxPriceAge = settings().getRebalancePriceMaxAge();
         uint256 currentPos = _totalAssets(maxPriceAge);
         if (currentPos > 0) {
             balanceChange = _strategy.harvest();

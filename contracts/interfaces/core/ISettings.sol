@@ -79,7 +79,7 @@ interface ISettings {
      * @dev Emitted when the Maximum Deposit ETH is changed
      * @param value The new amount that is allowed to be deposited
      */
-    event PriceRebalanceMaxAgeChange(uint256 indexed value);
+    event RebalancePriceMaxAgeChange(uint256 indexed value);
 
     event PriceMaxAgeChange(uint256 indexed value);
 
@@ -183,9 +183,9 @@ interface ISettings {
 
     function setMaxDepositInETH(uint256 value) external;
 
-    function setPriceRebalanceMaxAge(uint256 value) external;
+    function setRebalancePriceMaxAge(uint256 value) external;
 
-    function getPriceRebalanceMaxAge() external view returns (uint256);
+    function getRebalancePriceMaxAge() external view returns (uint256);
 
     function setPriceMaxAge(uint256 value) external;
 

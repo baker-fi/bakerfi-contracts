@@ -354,18 +354,18 @@ contract Settings is OwnableUpgradeable, ISettings {
         emit MaxDepositInETHChanged(value);
     }
 
-    function setPriceRebalanceMaxAge(uint256 value) external onlyOwner {
+    function setRebalancePriceMaxAge(uint256 value) external onlyOwner {
         _priceRebalanceMaxAge = value;
-        emit PriceRebalanceMaxAgeChange(value);
+        emit RebalancePriceMaxAgeChange(value);
     }
 
-    function getPriceRebalanceMaxAge() external view returns (uint256) {
+    function getRebalancePriceMaxAge() external view returns (uint256) {
         return _priceRebalanceMaxAge;
     }
 
     function setPriceMaxAge(uint256 value) external onlyOwner {
         _priceMaxAge = value;
-        emit PriceRebalanceMaxAgeChange(value);
+        emit RebalancePriceMaxAgeChange(value);
     }
 
     function getPriceMaxAge() external view returns (uint256) {

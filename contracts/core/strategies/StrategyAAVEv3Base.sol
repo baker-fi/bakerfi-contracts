@@ -499,7 +499,7 @@ abstract contract StrategyAAVEv3Base is
      */
     function harvest() external override onlyOwner nonReentrant returns (int256 balanceChange) {
         (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition(
-            settings().getPriceRebalanceMaxAge()
+            settings().getRebalancePriceMaxAge()
         );
 
         if (totalCollateralBaseInEth == 0 || totalDebtBaseInEth == 0) {
