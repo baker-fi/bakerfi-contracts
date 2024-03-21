@@ -234,7 +234,7 @@ describeif(network.name === "hardhat")("Settings", function () {
   });
 
   
-  it.only("Change Rebalance Price Max Age ✅", async function () {
+  it("Change Rebalance Price Max Age ✅", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
 
     await settings
@@ -248,14 +248,14 @@ describeif(network.name === "hardhat")("Settings", function () {
     );
   });
 
-  it.only("Only Owner can change Rebalance Price Max Age", async function () {
+  it("Only Owner can change Rebalance Price Max Age", async function () {
     const { settings } = await loadFixture(deployFunction);
     await expect(
       settings.setRebalancePriceMaxAge(3600)
     ).to.be.revertedWith("Ownable: caller is not the owner");
   });
 
-  it.only("Change Price Max Age ✅", async function () {
+  it("Change Price Max Age ✅", async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
 
     await settings
@@ -269,7 +269,7 @@ describeif(network.name === "hardhat")("Settings", function () {
     );
   });
 
-  it.only("Only Owner can change Rebalance Price Max Age", async function () {
+  it("Only Owner can change Rebalance Price Max Age", async function () {
     const { settings } = await loadFixture(deployFunction);
     await expect(
       settings.setPriceMaxAge(3600)
