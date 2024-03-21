@@ -136,7 +136,8 @@ contract Vault is
      *
      */
     function rebalance() external override nonReentrant returns (int256 balanceChange) {
-        uint256 currentPos = totalAssets();
+        uint256 maxPriceAge = settings().getPriceRebalanceMaxAge();
+        uint256 currentPos = _totalAssets(maxPriceAge);
         if (currentPos > 0) {
             balanceChange = _strategy.harvest();
             if (balanceChange > 0) {
@@ -154,7 +155,7 @@ contract Vault is
                     uint256 feeInEthScaled = uint256(balanceChange) *
                         settings().getPerformanceFee();
                     uint256 sharesToMint = (feeInEthScaled * totalSupply()) /
-                        totalAssets() /
+                        _totalAssets(maxPriceAge) /
                         PERCENTAGE_PRECISION;
                     _mint(settings().getFeeReceiver(), sharesToMint);
                 }
@@ -188,7 +189,8 @@ contract Vault is
         address receiver
     ) external payable override nonReentrant onlyWhiteListed returns (uint256 shares) {
         if (msg.value == 0) revert InvalidDepositAmount();
-        Rebase memory total = Rebase(totalAssets(), totalSupply());
+        uint maxPriceAge = settings().getPriceMaxAge();
+        Rebase memory total = Rebase(_totalAssets(maxPriceAge), totalSupply());
         if (
             // Or the Rebase is unititialized
             !((total.elastic == 0 && total.base == 0) ||
@@ -198,7 +200,7 @@ contract Vault is
         // Verify if the Deposit Value exceeds the maximum per wallet
         uint256 maxDeposit = settings().getMaxDepositInETH();
         if (maxDeposit > 0) {
-            uint256 afterDeposit = msg.value + ((balanceOf(msg.sender) * _tokenPerETH()) / 1e18);
+            uint256 afterDeposit = msg.value + ((balanceOf(msg.sender) * _tokenPerETH(maxPriceAge)) / 1e18);
             if (afterDeposit > maxDeposit) revert MaxDepositReached();
         }
 
@@ -238,7 +240,7 @@ contract Vault is
          *
          *   withdrawAmount = share * totalAssets() / totalSupply()
          */
-        uint256 withdrawAmount = (shares * totalAssets()) / totalSupply();
+        uint256 withdrawAmount = (shares * _totalAssets(settings().getPriceMaxAge())) / totalSupply();
         if (withdrawAmount == 0) revert NoAssetsToWithdraw();
         amount = _strategy.undeploy(withdrawAmount);
         uint256 fee = 0;
