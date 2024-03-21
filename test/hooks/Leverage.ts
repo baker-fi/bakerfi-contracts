@@ -59,7 +59,7 @@ describeif(network.name === "hardhat")("Leverage", function () {
     const { leverage } = await loadFixture(deployFunction);
     await expect(
       leverage.calculateLeverageRatio(ethers.parseUnits("10", 18), 0, 10)
-    ).to.be.revertedWith("Invalid Loan to value");
+    ).to.be.revertedWithCustomError(leverage, "InvalidLoanToValue");
   });
 
   it("Fail LTV 110% and 10 Loops", async function () {
@@ -70,7 +70,7 @@ describeif(network.name === "hardhat")("Leverage", function () {
         1100 * 1e6,
         10
       )
-    ).to.be.revertedWith("Invalid Loan to value");
+    ).to.be.revertedWithCustomError(leverage, "InvalidLoanToValue");
   });
 
   it("Fail LTV 80% and 21 Loops", async function () {
@@ -81,7 +81,7 @@ describeif(network.name === "hardhat")("Leverage", function () {
         100 * 1e6,
         21
       )
-    ).to.be.revertedWith("Invalid Number of Loops");
+    ).to.be.revertedWithCustomError(leverage, "InvalidNumberOfLoops");
   });
 
   it("Calculate Delta Position - 50% Burn", async function () {
@@ -125,7 +125,7 @@ describeif(network.name === "hardhat")("Leverage", function () {
         ethers.parseUnits("10", 18),
         ethers.parseUnits("8", 18)
       )
-    ).to.be.revertedWith("Invalid Percentage Value");
+    ).to.be.revertedWithCustomError(leverage, "InvalidPercentageValue");
   });
 
   it("Calculate Delta Position - 0% Burn, Reverted", async function () {
@@ -136,7 +136,7 @@ describeif(network.name === "hardhat")("Leverage", function () {
         ethers.parseUnits("10", 18),
         ethers.parseUnits("8", 18)
       )
-    ).to.be.revertedWith("Invalid Percentage Value");
+    ).to.be.revertedWithCustomError(leverage, "InvalidPercentageValue");
   });
 
   it("Calculate Delta Debt - 80% -> 50% ", async function () {
@@ -195,6 +195,6 @@ describeif(network.name === "hardhat")("Leverage", function () {
         ethers.parseUnits("10", 18),
         ethers.parseUnits("8", 18)
       )
-    ).to.be.revertedWith("Invalid Target value");
+    ).to.be.revertedWithCustomError(leverage, "InvalidTargetValue");
   });
 });

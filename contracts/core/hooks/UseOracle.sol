@@ -9,12 +9,14 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 abstract contract UseOracle is Initializable {
     IOracle private _oracle;
 
+    error InvalidOracleContract();
+
     function _initUseOracle(
         ServiceRegistry registry,
         bytes32 oracleName
     ) internal onlyInitializing {
         _oracle = IOracle(registry.getServiceFromHash(oracleName));
-        require(address(_oracle) != address(0), "Invalid Oracle Contract");
+        if (address(_oracle) == address(0)) revert InvalidOracleContract();
     }
 
     function oracle() public view returns (IOracle) {

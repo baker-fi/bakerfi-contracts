@@ -3,6 +3,10 @@ pragma solidity ^0.8.18;
 import {PERCENTAGE_PRECISION, MAX_LOOPS} from "../Constants.sol";
 
 contract UseLeverage {
+    error InvalidNumberOfLoops();
+    error InvalidLoanToValue();
+    error InvalidPercentageValue();
+    error InvalidTargetValue();
     /**
      * @dev Calculates the leverage ratio based on the provided parameters.
      *
@@ -16,8 +20,8 @@ contract UseLeverage {
         uint256 loanToValue,
         uint8 nrLoops
     ) public pure returns (uint256) {
-        require(nrLoops <= MAX_LOOPS, "Invalid Number of Loops");
-        require(loanToValue > 0 && loanToValue < PERCENTAGE_PRECISION, "Invalid Loan to value");
+        if (nrLoops > MAX_LOOPS) revert InvalidNumberOfLoops();
+        if (loanToValue == 0 || loanToValue >= PERCENTAGE_PRECISION) revert InvalidLoanToValue();
         uint256 leverage = baseValue;
         uint256 prev = baseValue;
         for (uint8 i = 1; i <= nrLoops; ) {
@@ -44,10 +48,9 @@ contract UseLeverage {
         uint256 totalCollateralBaseInEth,
         uint256 totalDebtBaseInEth
     ) public pure returns (uint256 deltaCollateralInETH, uint256 deltaDebtInETH) {
-        require(
-            percentageToBurn > 0 && percentageToBurn <= PERCENTAGE_PRECISION,
-            "Invalid Percentage Value"
-        );
+        if (percentageToBurn == 0 || percentageToBurn > PERCENTAGE_PRECISION) {
+            revert InvalidPercentageValue();
+        }
         // Reduce Collateral based on the percentage to Burn
         deltaDebtInETH = (totalDebtBaseInEth * percentageToBurn) / PERCENTAGE_PRECISION;
         // Reduce Debt based on the percentage to Burn
@@ -67,7 +70,7 @@ contract UseLeverage {
         uint256 debt
     ) public pure returns (uint256 delta) {
         uint256 colValue = ((targetLoanToValue * collateral) / PERCENTAGE_PRECISION);
-        require(colValue < debt, "Invalid Target value");
+        if (colValue >= debt) revert InvalidTargetValue();
         uint256 numerator = debt - colValue;
         uint256 divisor = (PERCENTAGE_PRECISION - targetLoanToValue);
         delta = (numerator * PERCENTAGE_PRECISION) / divisor;

@@ -10,9 +10,11 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 abstract contract UseUniQuoter is Initializable {
     IQuoterV2 private _quoter;
 
+    error InvalidUniQuoterContract();
+
     function _initUseUniQuoter(ServiceRegistry registry) internal onlyInitializing {
         _quoter = IQuoterV2(registry.getServiceFromHash(UNISWAP_QUOTER_CONTRACT));
-        require(address(_quoter) != address(0), "Invalid Uniswap Quoter Contract");
+        if (address(_quoter) == address(0)) revert InvalidUniQuoterContract();
     }
 
     function uniQuoter() public view returns (IQuoterV2) {

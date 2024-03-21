@@ -3,7 +3,6 @@ pragma solidity ^0.8.18;
 pragma experimental ABIEncoderV2;
 
 import {ServiceRegistry, WST_ETH_CONTRACT, ST_ETH_CONTRACT} from "../ServiceRegistry.sol";
-import {IWETH} from "../../interfaces/tokens/IWETH.sol";
 import {IWStETH} from "../../interfaces/lido/IWStETH.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -26,6 +25,11 @@ abstract contract UseWstETH is Initializable {
 
     using SafeERC20 for IERC20;
 
+    error InvalidWstETHContract();
+    error InvalidStETHContract();
+    error FailedToApproveWstAllowance();
+    error FailedToApproveStAllowance();
+
     /**
      * Initialize function for upgradable contracts
      * @param registry The service registry used by the system
@@ -33,8 +37,8 @@ abstract contract UseWstETH is Initializable {
     function _initUseWstETH(ServiceRegistry registry) internal onlyInitializing {
         _wstETH = IWStETH(registry.getServiceFromHash(WST_ETH_CONTRACT));
         _stETHToken = IERC20(registry.getServiceFromHash(ST_ETH_CONTRACT));
-        require(address(_wstETH) != address(0), "Invalid WstETH Contract");
-        require(address(_stETHToken) != address(0), "Invalid StETH Contract");
+        if (address(_wstETH) == address(0)) revert InvalidWstETHContract();
+        if (address(_stETHToken) == address(0)) revert InvalidStETHContract();
     }
 
     /**
@@ -59,7 +63,7 @@ abstract contract UseWstETH is Initializable {
      * @return amountOut The amount of WstETH obtained after wrapping.
      */
     function _wrapWstETH(uint256 amount) internal returns (uint256 amountOut) {
-        require(_stETHToken.approve(wstETHA(), amount));
+        if (!_stETHToken.approve(wstETHA(), amount)) revert FailedToApproveStAllowance();
         amountOut = IWStETH(wstETHA()).wrap(amount);
     }
 
@@ -69,7 +73,7 @@ abstract contract UseWstETH is Initializable {
      * @return stETHAmount The amount of stETH obtained after unwrapping.
      */
     function _unwrapWstETH(uint256 amount) internal returns (uint256 stETHAmount) {
-        require(IERC20(wstETHA()).approve(wstETHA(), amount));
+        if (!IERC20(wstETHA()).approve(wstETHA(), amount)) revert FailedToApproveWstAllowance();
         stETHAmount = wstETH().unwrap(amount);
     }
 }
