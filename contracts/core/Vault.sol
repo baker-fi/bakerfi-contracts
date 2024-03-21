@@ -87,7 +87,6 @@ contract Vault is
         if (!settings().isAccountEnabled(msg.sender)) revert NoPermissions();
         _;
     }
-
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();

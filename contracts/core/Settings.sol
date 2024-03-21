@@ -365,7 +365,7 @@ contract Settings is OwnableUpgradeable, ISettings {
 
     function setPriceMaxAge(uint256 value) external onlyOwner {
         _priceMaxAge = value;
-        emit RebalancePriceMaxAgeChange(value);
+        emit PriceMaxAgeChange(value);
     }
 
     function getPriceMaxAge() external view returns (uint256) {
