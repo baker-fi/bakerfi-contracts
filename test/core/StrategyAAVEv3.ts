@@ -64,7 +64,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
       strategy.deploy({
         value: 0,
       })
-    ).to.be.revertedWith("No Zero deposit Allowed");
+    ).to.be.revertedWithCustomError(strategy, "InvalidDeployAmount");
   });
 
   it("Deploy Fail - No Permissions", async () => {
@@ -109,7 +109,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
     await oracle.setLatestPrice(1130 * 1e6 * 0.1);
     await expect(
       strategy.undeploy(ethers.parseUnits("10", 18))
-    ).to.be.revertedWith("No Collateral margin to scale");
+    ).to.be.revertedWithCustomError(strategy, "NoCollateralMarginToScale");
   });
 
   it("onFlashLoan - Invalid Flash Loan Sender", async () => {
@@ -124,7 +124,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
         0,
         "0x"
       )
-    ).to.be.revertedWith("Invalid Flash loan sender");
+    ).to.be.revertedWithCustomError(strategy, "InvalidFlashLoanSender");
   });
 
   it("onFlashLoan - Invalid Flash Loan Asset", async () => {
@@ -164,7 +164,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
         0,
         "0x"
       )
-    ).to.be.revertedWith("Invalid Flash Loan Asset");
+    ).to.be.revertedWithCustomError(pStrategy, "InvalidFlashLoanAsset");
   });
 
   it("OnFlashLoan - Attacker", async () => {
@@ -184,7 +184,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
 
     await expect(
       attacker.flashme(await weth.getAddress(), ethers.parseUnits("1", 18))
-    ).to.be.revertedWith("Invalid Flash loan sender");
+    ).to.be.revertedWithCustomError(strategy, "InvalidFlashLoanSender");
   });
 
   it("Rebalance - Fails with outdated prices", async () => {
@@ -197,8 +197,8 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
     await settings.setPriceRebalanceMaxAge(60);
     // advance time by one hour and mine a new block
     await time.increase(3600);
-    await expect(strategy.harvest()).to.be.revertedWith(
-      "Oracle Price is outdated"
+    await expect(strategy.harvest()).to.be.revertedWithCustomError(
+      strategy, "OraclePriceOutdated"
     );
   });
 

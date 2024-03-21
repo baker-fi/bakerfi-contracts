@@ -142,8 +142,8 @@ describeif(network.name === "hardhat")(
 
       await oracle.setLatestPrice(1154 * 1e6 * 0.5);
 
-      await expect(strategy.harvest()).to.be.revertedWith(
-        "Collateral is lower that debt"
+      await expect(strategy.harvest()).to.be.revertedWithCustomError(
+        strategy, "CollateralLowerThanDebt"
       );
     });
   }

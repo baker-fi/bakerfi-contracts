@@ -153,7 +153,7 @@ describeif(network.name === "hardhat")("BakerFi Vault For L2s", function () {
 
   it("Deposit Fails when the prices are outdated",async ()=> { 
 
-    const { settings, vault, owner} = await loadFixture(deployFunction);
+    const { settings, vault, owner, strategy} = await loadFixture(deployFunction);
 
     // Price Max Age 6 Min
     await settings.setPriceMaxAge(360);
@@ -169,13 +169,13 @@ describeif(network.name === "hardhat")("BakerFi Vault For L2s", function () {
       vault.deposit(owner.address, {
         value: ethers.parseUnits("10", 18),
       })
-    ).to.be.revertedWith("Oracle Price is outdated");
+    ).to.be.revertedWithCustomError(strategy, "OraclePriceOutdated");
   
   });
 
   it("Deposit Fails when the prices are outdated",async ()=> { 
 
-    const { settings, vault, owner} = await loadFixture(deployFunction);
+    const { settings, vault, owner, strategy} = await loadFixture(deployFunction);
 
     // Price Max Age 6 Min
     await settings.setPriceMaxAge(360);
@@ -191,7 +191,7 @@ describeif(network.name === "hardhat")("BakerFi Vault For L2s", function () {
       vault.deposit(owner.address, {
         value: ethers.parseUnits("10", 18),
       })
-    ).to.be.revertedWith("Oracle Price is outdated");
+    ).to.be.revertedWithCustomError(strategy, "OraclePriceOutdated");
   
   });
   
