@@ -188,7 +188,7 @@ contract Vault is
         address receiver
     ) external payable override nonReentrant onlyWhiteListed returns (uint256 shares) {
         if (msg.value == 0) revert InvalidDepositAmount();
-        uint maxPriceAge = settings().getPriceMaxAge();
+        uint256 maxPriceAge = settings().getPriceMaxAge();
         Rebase memory total = Rebase(_totalAssets(maxPriceAge), totalSupply());
         if (
             // Or the Rebase is unititialized
@@ -269,7 +269,7 @@ contract Vault is
         amount = _strategy.deployed(0);
     }
 
-    function _totalAssets(uint priceMaxAge) private view returns (uint256 amount) {
+    function _totalAssets(uint256 priceMaxAge) private view returns (uint256 amount) {
         amount = _strategy.deployed(priceMaxAge);
     }
 

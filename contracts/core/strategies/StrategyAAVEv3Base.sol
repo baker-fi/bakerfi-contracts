@@ -218,7 +218,7 @@ abstract contract StrategyAAVEv3Base is
      * Requirements:
      * - The AAVEv3 strategy must be properly configured and initialized.
      */
-    function deployed(uint priceMaxAge) public view returns (uint256 totalOwnedAssets) {
+    function deployed(uint256 priceMaxAge) public view returns (uint256 totalOwnedAssets) {
         (uint256 totalCollateralInEth, uint256 totalDebtInEth) = _getPosition(priceMaxAge);
         totalOwnedAssets = totalCollateralInEth > totalDebtInEth
             ? (totalCollateralInEth - totalDebtInEth)
@@ -543,7 +543,7 @@ abstract contract StrategyAAVEv3Base is
      * @return totalDebtInEth The total debt position in ETH.
      */
     function _getPosition(
-        uint priceMaxAge
+        uint256 priceMaxAge
     ) internal view returns (uint256 totalCollateralInEth, uint256 totalDebtInEth) {
         totalCollateralInEth = 0;
         totalDebtInEth = 0;

@@ -12,7 +12,7 @@ pragma solidity ^0.8.18;
 interface IOracle {
     struct Price {
         uint256 price;
-        uint lastUpdate;
+        uint256 lastUpdate;
     }
 
     /**

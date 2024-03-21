@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.18;
+
 import {IPyth} from "../interfaces/pyth/IPyth.sol";
 import {PythStructs} from "../interfaces/pyth/PythStructs.sol";
 import {IOracle} from "../interfaces/core/IOracle.sol";
@@ -58,7 +59,7 @@ contract PythOracle is IOracle {
         if ( priceUpdateData.length == 0 ) revert InvalidPriceUpdate();
         bytes[] memory priceUpdates = new bytes[](1);
         priceUpdates[0] = priceUpdateData;
-        uint fee = _pyth.getUpdateFee(priceUpdates);
+        uint256 fee = _pyth.getUpdateFee(priceUpdates);
         if (msg.value < fee) revert NoEnoughFee();
         _pyth.updatePriceFeeds{value: fee}(priceUpdates);
         return _getPriceInternal();

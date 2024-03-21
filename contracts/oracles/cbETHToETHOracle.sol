@@ -2,7 +2,6 @@
 pragma solidity ^0.8.18;
 
 import {IOracle} from "../interfaces/core/IOracle.sol";
-import {IWStETH} from "../interfaces/lido/IWStETH.sol";
 import {IChainlinkAggregator} from "../interfaces/chainlink/IChainlinkAggregator.sol";
 
 contract CbETHToETHOracle is IOracle {
