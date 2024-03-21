@@ -34,7 +34,7 @@ contract StrategyAAVEv3WstETH is Initializable, StrategyAAVEv3Base, UseWstETH, U
         _disableInitializers();
     }
 
-    // solhint-disable no-empty-blocks        
+    // solhint-disable no-empty-blocks
     function initialize(
         address initialOwner,
         ServiceRegistry registry,

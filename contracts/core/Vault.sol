@@ -200,7 +200,8 @@ contract Vault is
         // Verify if the Deposit Value exceeds the maximum per wallet
         uint256 maxDeposit = settings().getMaxDepositInETH();
         if (maxDeposit > 0) {
-            uint256 afterDeposit = msg.value + ((balanceOf(msg.sender) * _tokenPerETH(maxPriceAge)) / 1e18);
+            uint256 afterDeposit = msg.value +
+                ((balanceOf(msg.sender) * _tokenPerETH(maxPriceAge)) / 1e18);
             if (afterDeposit > maxDeposit) revert MaxDepositReached();
         }
 
@@ -240,7 +241,8 @@ contract Vault is
          *
          *   withdrawAmount = share * totalAssets() / totalSupply()
          */
-        uint256 withdrawAmount = (shares * _totalAssets(settings().getPriceMaxAge())) / totalSupply();
+        uint256 withdrawAmount = (shares * _totalAssets(settings().getPriceMaxAge())) /
+            totalSupply();
         if (withdrawAmount == 0) revert NoAssetsToWithdraw();
         amount = _strategy.undeploy(withdrawAmount);
         uint256 fee = 0;

@@ -22,7 +22,6 @@ import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet
  * interact with the system
  */
 contract Settings is OwnableUpgradeable, ISettings {
-    
     error InvalidOwner();
     error WhiteListAlreadyEnabled();
     error WhiteListFailedToAdd();
@@ -119,7 +118,7 @@ contract Settings is OwnableUpgradeable, ISettings {
     function initialize(address initialOwner) public initializer {
         __Context_init_unchained();
         __Ownable_init_unchained();
-        if(initialOwner == address(0)) revert InvalidOwner();
+        if (initialOwner == address(0)) revert InvalidOwner();
         _transferOwnership(initialOwner);
         _withdrawalFee = 10 * 1e6; // 1%
         _performanceFee = 10 * 1e6; // 1%
@@ -144,13 +143,13 @@ contract Settings is OwnableUpgradeable, ISettings {
      * Requirements:
      * - The caller must be the owner of the contract.
      */
-    function enableAccount(address account, bool enabled ) external onlyOwner {
-        if(enabled) {
-            if(_enabledAccounts.contains(account)) revert WhiteListAlreadyEnabled();
-            if(!_enabledAccounts.add(account)) revert WhiteListFailedToAdd();
+    function enableAccount(address account, bool enabled) external onlyOwner {
+        if (enabled) {
+            if (_enabledAccounts.contains(account)) revert WhiteListAlreadyEnabled();
+            if (!_enabledAccounts.add(account)) revert WhiteListFailedToAdd();
         } else {
-            if(!_enabledAccounts.contains(account)) revert WhiteListNotEnabled();
-            if(!_enabledAccounts.remove(account)) revert WhiteListFailedToRemove();
+            if (!_enabledAccounts.contains(account)) revert WhiteListNotEnabled();
+            if (!_enabledAccounts.remove(account)) revert WhiteListFailedToRemove();
         }
         emit AccountWhiteList(account, enabled);
     }
@@ -180,9 +179,9 @@ contract Settings is OwnableUpgradeable, ISettings {
      * - The caller must be the owner of the contract.
      */
     function setMaxLoanToValue(uint256 maxLoanToValue) external onlyOwner {
-        if(maxLoanToValue == 0) revert InvalidValue();
-        if(maxLoanToValue > PERCENTAGE_PRECISION) revert InvalidPercentage();
-        if(maxLoanToValue < _loanToValue) revert InvalidMaxLoanToValue();
+        if (maxLoanToValue == 0) revert InvalidValue();
+        if (maxLoanToValue > PERCENTAGE_PRECISION) revert InvalidPercentage();
+        if (maxLoanToValue < _loanToValue) revert InvalidMaxLoanToValue();
         _maxLoanToValue = maxLoanToValue;
         emit MaxLoanToValueChanged(_maxLoanToValue);
     }
@@ -213,9 +212,9 @@ contract Settings is OwnableUpgradeable, ISettings {
      * - The new loan-to-value ratio must be greater than 0.
      */
     function setLoanToValue(uint256 loanToValue) external onlyOwner {
-        if(loanToValue > _maxLoanToValue) revert InvalidValue();
-        if(loanToValue >  PERCENTAGE_PRECISION) revert InvalidPercentage();
-        if(loanToValue == 0 ) revert InvalidValue();
+        if (loanToValue > _maxLoanToValue) revert InvalidValue();
+        if (loanToValue > PERCENTAGE_PRECISION) revert InvalidPercentage();
+        if (loanToValue == 0) revert InvalidValue();
         _loanToValue = loanToValue;
         emit LoanToValueChanged(_loanToValue);
     }
@@ -244,7 +243,7 @@ contract Settings is OwnableUpgradeable, ISettings {
      * - The new withdrawal fee percentage must be a valid percentage value.
      */
     function setWithdrawalFee(uint256 fee) external onlyOwner {
-        if(fee >  PERCENTAGE_PRECISION) revert InvalidPercentage();
+        if (fee > PERCENTAGE_PRECISION) revert InvalidPercentage();
         _withdrawalFee = fee;
         emit WithdrawalFeeChanged(_withdrawalFee);
     }
@@ -273,7 +272,7 @@ contract Settings is OwnableUpgradeable, ISettings {
      * - The new performance fee percentage must be a valid percentage value.
      */
     function setPerformanceFee(uint256 fee) external onlyOwner {
-        if(fee >  PERCENTAGE_PRECISION) revert InvalidPercentage();
+        if (fee > PERCENTAGE_PRECISION) revert InvalidPercentage();
         _performanceFee = fee;
         emit PerformanceFeeChanged(_performanceFee);
     }
@@ -301,7 +300,7 @@ contract Settings is OwnableUpgradeable, ISettings {
      * - The new fee receiver address must not be the zero address.
      */
     function setFeeReceiver(address receiver) external onlyOwner {
-        if(receiver == address(0)) revert InvalidAddress();
+        if (receiver == address(0)) revert InvalidAddress();
         _feeReceiver = receiver;
         emit FeeReceiverChanged(_feeReceiver);
     }
@@ -341,7 +340,7 @@ contract Settings is OwnableUpgradeable, ISettings {
      * - The new number of loops must be less than the maximum allowed number of loops.
      */
     function setNrLoops(uint8 nrLoops) external onlyOwner {
-        if(nrLoops >  MAX_LOOPS) revert InvalidLoopCount();
+        if (nrLoops > MAX_LOOPS) revert InvalidLoopCount();
         _nrLoops = nrLoops;
         emit NrLoopsChanged(_nrLoops);
     }

@@ -30,7 +30,7 @@ contract StrategyAAVEv3 is Initializable, StrategyAAVEv3Base {
         _disableInitializers();
     }
 
-    // solhint-disable no-empty-blocks  
+    // solhint-disable no-empty-blocks
     function initialize(
         address initialOwner,
         ServiceRegistry registry,

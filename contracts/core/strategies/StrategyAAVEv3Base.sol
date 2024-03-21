@@ -2,10 +2,8 @@
 pragma solidity ^0.8.18;
 
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {IERC3156FlashBorrowerUpgradeable} from 
-    "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashBorrowerUpgradeable.sol";
-import {IERC3156FlashLenderUpgradeable} from 
-    "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashLenderUpgradeable.sol";
+import {IERC3156FlashBorrowerUpgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashBorrowerUpgradeable.sol";
+import {IERC3156FlashLenderUpgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashLenderUpgradeable.sol";
 import {ServiceRegistry} from "../../core/ServiceRegistry.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
@@ -110,7 +108,7 @@ abstract contract StrategyAAVEv3Base is
 
     error InvalidOwner();
     error InvalidDebtOracle();
-    error InvalidCollateralOracle();    
+    error InvalidCollateralOracle();
     error InvalidAAVEEMode();
     error InvalidDeployAmount();
     error InvalidAllowance();
@@ -173,13 +171,13 @@ abstract contract StrategyAAVEv3Base is
         _ethUSDOracle = IOracle(registry.getServiceFromHash(ETH_USD_ORACLE_CONTRACT));
         _swapFeeTier = swapFeeTier;
         if (initialOwner == address(0)) revert InvalidOwner();
-        if(address(_ethUSDOracle) == address(0)) revert InvalidDebtOracle();
-        if(address(_collateralOracle) == address(0)) revert InvalidCollateralOracle();
+        if (address(_ethUSDOracle) == address(0)) revert InvalidDebtOracle();
+        if (address(_collateralOracle) == address(0)) revert InvalidCollateralOracle();
         _transferOwnership(initialOwner);
         aaveV3().setUserEMode(eModeCategory);
-        if(aaveV3().getUserEMode(address(this)) != eModeCategory) revert InvalidAAVEEMode();
-        if(!wETH().approve(uniRouterA(), 2 ** 256 - 1)) revert FailedToApproveAllowance();
-        if(!ierc20().approve(uniRouterA(), 2 ** 256 - 1)) revert FailedToApproveAllowance();
+        if (aaveV3().getUserEMode(address(this)) != eModeCategory) revert InvalidAAVEEMode();
+        if (!wETH().approve(uniRouterA(), 2 ** 256 - 1)) revert FailedToApproveAllowance();
+        if (!ierc20().approve(uniRouterA(), 2 ** 256 - 1)) revert FailedToApproveAllowance();
     }
 
     /**
@@ -250,7 +248,7 @@ abstract contract StrategyAAVEv3Base is
      * - The AAVEv3 strategy must be properly configured and initialized.
      */
     function deploy() external payable onlyOwner nonReentrant returns (uint256 deployedAmount) {
-        if(msg.value == 0) revert InvalidDeployAmount();
+        if (msg.value == 0) revert InvalidDeployAmount();
         // 1. Wrap Ethereum
         address(wETHA()).functionCallWithValue(abi.encodeWithSignature("deposit()"), msg.value);
         // 2. Initiate a WETH Flash Loan
@@ -263,17 +261,17 @@ abstract contract StrategyAAVEv3Base is
         uint256 fee = flashLender().flashFee(wETHA(), loanAmount);
         //§uint256 allowance = wETH().allowance(address(this), flashLenderA());
         require(wETH().approve(flashLenderA(), loanAmount + fee));
-        if(!
-            flashLender().flashLoan(
+        if (
+            !flashLender().flashLoan(
                 IERC3156FlashBorrowerUpgradeable(this),
                 wETHA(),
                 loanAmount,
                 abi.encode(msg.value, msg.sender, FlashLoanAction.SUPPLY_BOORROW)
-            )) 
-        {
+            )
+        ) {
             revert FailedToRunFlashLoan();
         }
-       
+
         deployedAmount = _pendingAmount;
         _deployedAmount = _deployedAmount + deployedAmount;
         emit StrategyAmountUpdate(_deployedAmount);
@@ -324,8 +322,9 @@ abstract contract StrategyAAVEv3Base is
         (uint256 amountIn, , , ) = uniQuoter().quoteExactOutputSingle(
             IQuoterV2.QuoteExactOutputSingleParams(ierc20A(), wETHA(), debtAmount + fee, 500, 0)
         );
-        if(aaveV3().withdraw(ierc20A(), amountIn, address(this)) != amountIn) revert InvalidWithdrawAmount();
-                        
+        if (aaveV3().withdraw(ierc20A(), amountIn, address(this)) != amountIn)
+            revert InvalidWithdrawAmount();
+
         uint256 output = _swap(
             ISwapHandler.SwapParams(
                 ierc20A(),
@@ -340,7 +339,7 @@ abstract contract StrategyAAVEv3Base is
         // When there are leftovers from the swap, deposit then back
         uint256 wethLefts = output > (debtAmount + fee) ? output - (debtAmount + fee) : 0;
         if (wethLefts > 0) {
-            if(!wETH().approve(aaveV3A(), wethLefts)) revert FailedToApproveAllowance();
+            if (!wETH().approve(aaveV3A(), wethLefts)) revert FailedToApproveAllowance();
             aaveV3().supply(wETHA(), wethLefts, address(this), 0);
         }
         emit StrategyUndeploy(msg.sender, debtAmount);
@@ -375,9 +374,9 @@ abstract contract StrategyAAVEv3Base is
         _repay(wETHA(), repayAmount);
 
         if (aaveV3().withdraw(ierc20A(), withdrawAmount, address(this)) != withdrawAmount) {
-            revert InvalidWithdrawAmount();        
+            revert InvalidWithdrawAmount();
         }
-           // Convert Collateral to WETH
+        // Convert Collateral to WETH
         uint256 wETHAmount = _convertToWETH(withdrawAmount);
         // Calculate how much ETH i am able to withdraw
         uint256 ethToWithdraw = wETHAmount - repayAmount - fee;
@@ -417,10 +416,10 @@ abstract contract StrategyAAVEv3Base is
         uint256 fee,
         bytes memory callData
     ) external returns (bytes32) {
-        if(msg.sender != flashLenderA()) revert InvalidFlashLoanSender();
-        if(initiator != address(this)) revert InvalidLoanInitiator();
+        if (msg.sender != flashLenderA()) revert InvalidFlashLoanSender();
+        if (initiator != address(this)) revert InvalidLoanInitiator();
         // Only Allow WETH Flash Loans
-        if(token != wETHA()) revert InvalidFlashLoanAsset();
+        if (token != wETHA()) revert InvalidFlashLoanAsset();
         FlashLoanData memory data = abi.decode(callData, (FlashLoanData));
         if (data.action == FlashLoanAction.SUPPLY_BOORROW) {
             _supplyBorrow(data.originalAmount, amount, fee);
@@ -465,16 +464,17 @@ abstract contract StrategyAAVEv3Base is
         );
         uint256 fee = flashLender().flashFee(wETHA(), deltaDebt);
         // uint256 allowance = wETH().allowance(address(this), flashLenderA());
-        if(!wETH().approve(flashLenderA(), deltaDebt + fee)) revert FailedToApproveAllowance();
-        if ( !flashLender().flashLoan(
+        if (!wETH().approve(flashLenderA(), deltaDebt + fee)) revert FailedToApproveAllowance();
+        if (
+            !flashLender().flashLoan(
                 IERC3156FlashBorrowerUpgradeable(this),
                 wETHA(),
                 deltaDebt,
                 abi.encode(deltaDebt, address(0), FlashLoanAction.PAY_DEBT)
-            ))  
-        {
+            )
+        ) {
             revert FailedToRunFlashLoan();
-        }            
+        }
     }
 
     /**
@@ -505,12 +505,12 @@ abstract contract StrategyAAVEv3Base is
         if (totalCollateralBaseInEth == 0 || totalDebtBaseInEth == 0) {
             return 0;
         }
-        if(totalCollateralBaseInEth <= totalDebtBaseInEth) revert CollateralLowerThanDebt();
+        if (totalCollateralBaseInEth <= totalDebtBaseInEth) revert CollateralLowerThanDebt();
 
         uint256 deltaDebt = 0;
         // Local Copy to reduce the number of SLOADs
         uint256 deployedAmount = _deployedAmount;
-        if(deltaDebt >= totalDebtBaseInEth) revert InvalidDeltaDebt();
+        if (deltaDebt >= totalDebtBaseInEth) revert InvalidDeltaDebt();
 
         uint256 ltv = (totalDebtBaseInEth * PERCENTAGE_PRECISION) / totalCollateralBaseInEth;
         if (ltv > settings().getMaxLoanToValue() && ltv < PERCENTAGE_PRECISION) {
@@ -521,7 +521,7 @@ abstract contract StrategyAAVEv3Base is
             deltaDebt -
             (totalDebtBaseInEth - deltaDebt);
 
-        if(deltaDebt >= totalCollateralBaseInEth) revert InvalidDeltaDebt();
+        if (deltaDebt >= totalCollateralBaseInEth) revert InvalidDeltaDebt();
 
         if (newDeployedAmount == deployedAmount) {
             return 0;
@@ -567,12 +567,11 @@ abstract contract StrategyAAVEv3Base is
         if (collateralBalance != 0) {
             IOracle.Price memory ethPrice = _ethUSDOracle.getLatestPrice();
             IOracle.Price memory collateralPrice = _collateralOracle.getLatestPrice();
-            if(
-               !( priceMaxAge == 0 ||
-                  (priceMaxAge > 0 && (ethPrice.lastUpdate >= (block.timestamp - priceMaxAge))) ||
-                  (priceMaxAge > 0 &&
-                        (collateralPrice.lastUpdate >= (block.timestamp - priceMaxAge)))
-                ) 
+            if (
+                !(priceMaxAge == 0 ||
+                    (priceMaxAge > 0 && (ethPrice.lastUpdate >= (block.timestamp - priceMaxAge))) ||
+                    (priceMaxAge > 0 &&
+                        (collateralPrice.lastUpdate >= (block.timestamp - priceMaxAge))))
             ) {
                 revert OraclePriceOutdated();
             }
@@ -605,7 +604,7 @@ abstract contract StrategyAAVEv3Base is
             settings().getPriceMaxAge()
         );
         // When the position is in liquidation state revert the transaction
-        if(totalCollateralBaseInEth <= totalDebtBaseInEth) revert NoCollateralMarginToScale();
+        if (totalCollateralBaseInEth <= totalDebtBaseInEth) revert NoCollateralMarginToScale();
         uint256 percentageToBurn = (amount * PERCENTAGE_PRECISION) /
             (totalCollateralBaseInEth - totalDebtBaseInEth);
 
@@ -619,14 +618,15 @@ abstract contract StrategyAAVEv3Base is
         uint256 fee = flashLender().flashFee(wETHA(), deltaDebtInETH);
         // Update WETH allowance to pay the debt after the flash loan
         //uint256 allowance = wETH().allowance(address(this), flashLenderA());
-        if(!wETH().approve(flashLenderA(), deltaDebtInETH + fee)) revert FailedToApproveAllowance();
-        if(
+        if (!wETH().approve(flashLenderA(), deltaDebtInETH + fee))
+            revert FailedToApproveAllowance();
+        if (
             !flashLender().flashLoan(
                 IERC3156FlashBorrowerUpgradeable(this),
                 wETHA(),
                 deltaDebtInETH,
                 abi.encode(deltaCollateralInETH, receiver, FlashLoanAction.PAY_DEBT_WITHDRAW)
-            )           
+            )
         ) {
             revert FailedToRunFlashLoan();
         }
