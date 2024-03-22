@@ -134,7 +134,7 @@ contract Vault is
      * @return balanceChange The change in balance after the rebalance operation.
      *
      */
-    function rebalance() external override nonReentrant returns (int256 balanceChange) {
+    function rebalance() external override nonReentrant whenNotPaused returns (int256 balanceChange) {
         uint256 maxPriceAge = settings().getRebalancePriceMaxAge();
         uint256 currentPos = _totalAssets(maxPriceAge);
         if (currentPos > 0) {
@@ -186,7 +186,7 @@ contract Vault is
      */
     function deposit(
         address receiver
-    ) external payable override nonReentrant onlyWhiteListed returns (uint256 shares) {
+    ) external payable override nonReentrant whenNotPaused onlyWhiteListed  returns (uint256 shares) {
         if (msg.value == 0) revert InvalidDepositAmount();
         uint256 maxPriceAge = settings().getPriceMaxAge();
         Rebase memory total = Rebase(_totalAssets(maxPriceAge), totalSupply());
@@ -231,7 +231,7 @@ contract Vault is
      */
     function withdraw(
         uint256 shares
-    ) external override nonReentrant onlyWhiteListed returns (uint256 amount) {
+    ) external override nonReentrant onlyWhiteListed whenNotPaused returns (uint256 amount) {
         if (balanceOf(msg.sender) < shares) revert NotEnoughBalanceToWithdraw();
         if (shares == 0) revert InvalidWithdrawAmount();
         /**
@@ -321,4 +321,13 @@ contract Vault is
         }
         return (totalSupply() * 1 ether) / position;
     }
+
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    function unpause() external onlyOwner {
+        _unpause();
+    }
+
 }

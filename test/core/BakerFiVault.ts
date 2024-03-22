@@ -293,6 +293,57 @@ describeif(network.name === "hardhat")("BakerFi Vault For L2s", function () {
   })
 
 
+  it("Pause and Unpause",async ()=> { 
+    const { vault, owner} = await loadFixture(deployFunction);
+    expect(await vault.paused()).to.equal(
+      false
+    );;
+    await vault.pause();
+    expect(await vault.paused()).to.equal(
+      true
+    );;
+    await vault.unpause();    
+    expect(await vault.paused()).to.equal(
+      false
+    );;
+    
+    await vault.deposit(owner.address, {
+      value: ethers.parseUnits("10", 18),
+    });
+    expect(await vault.totalAssets()).to.greaterThan(
+      0
+    );
+
+  });
+
+  it("Withdraw Fails when vault is paused",async ()=> { 
+    const { vault, owner} = await loadFixture(deployFunction);
+
+    await vault.pause();
+    await expect(
+      vault.withdraw(1)
+    ).to.be.revertedWith("Pausable: paused");
+  })
+
+  it("Deposit Fails when vault is paused",async ()=> { 
+    const { vault, owner} = await loadFixture(deployFunction);
+    await vault.pause();
+    await expect(
+      vault.deposit(owner.address, {
+        value: ethers.parseUnits("10", 18),
+      })
+    ).to.be.revertedWith("Pausable: paused");
+  })
+
+  it("Rebalance Fails when vault is paused",async ()=> { 
+    const { vault, owner} = await loadFixture(deployFunction);
+    await vault.pause();
+    await expect(
+        vault.rebalance()
+    ).to.be.revertedWith("Pausable: paused");
+  })
+
+
 });
 
 /**
