@@ -37,4 +37,16 @@ export interface SettingsMethods {
 
   transferOwnership(newOwner: string): ContractSendMethod
 
+  getMaxDepositInETH(): ContractCallMethod<number>;
+
+  setMaxDepositInETH(amount: number): ContractSendMethod;
+
+  setRebalancePriceMaxAge(maxAge: number): ContractSendMethod;
+
+  getRebalancePriceMaxAge(): ContractCallMethod<number>;
+
+  setPriceMaxAge(maxAge: number): ContractSendMethod;
+
+  getPriceMaxAge(): ContractCallMethod<number>;
+
 }

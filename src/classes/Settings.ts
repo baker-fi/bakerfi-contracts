@@ -89,6 +89,30 @@ export class Settings extends Model<SettingsMethods> implements Deployable {
     return this.callTx(this.contract.methods.isAccountEnabled(account));
   }
 
+  async getMaxDepositInETH()  {
+    return this.callTx(this.contract.methods.getMaxDepositInETH());
+  }
+
+  async setMaxDepositInETH(amount: number) {
+    return this.sendTx(this.contract.methods.setMaxDepositInETH(amount));
+  }
+
+  async setRebalancePriceMaxAge(maxAge: number) {
+    return this.sendTx(this.contract.methods.setRebalancePriceMaxAge(maxAge));
+  }
+
+  async getRebalancePriceMaxAge() {
+    return this.callTx(this.contract.methods.getRebalancePriceMaxAge());
+  }
+
+  async setPriceMaxAge(maxAge: number) {
+    return this.sendTx(this.contract.methods.setPriceMaxAge(maxAge));
+  }
+
+  async getPriceMaxAge() {
+    return this.callTx(this.contract.methods.getPriceMaxAge());
+  }
+
   async getFeeReceiverChangedEvents(filter: PastEventOptions): XPromiseEvent<Events.FeeReceiverChangedEvent> {
     return this.contract.self.getPastEvents('FeeReceiverChanged', filter);
   }
@@ -115,6 +139,14 @@ export class Settings extends Model<SettingsMethods> implements Deployable {
 
   async getWithdrawalFeeChangedEvents(filter: PastEventOptions): XPromiseEvent<Events.WithdrawalFeeChangedEvent> {
     return this.contract.self.getPastEvents('WithdrawalFeeChanged', filter);
+  }
+
+  async getRebalancePriceMaxAgeChangeEvents(filter: PastEventOptions): XPromiseEvent<Events.RebalancePriceMaxAgeChangeEvent> {
+    return this.contract.self.getPastEvents('RebalancePriceMaxAgeChange', filter);
+  }
+
+  async getPriceMaxAgeChangeEvents(filter: PastEventOptions): XPromiseEvent<Events.PriceMaxAgeChangeEvent> {
+    return this.contract.self.getPastEvents('PriceMaxAgeChange', filter);
   }
 
 }
