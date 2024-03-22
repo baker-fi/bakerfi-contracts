@@ -2,7 +2,7 @@ import { ContractSendMethod } from "web3-eth-contract";
 import { ContractCallMethod } from "@taikai/dappkit";
 
 export interface VaultMethods {
-  
+
   DOMAIN_SEPARATOR(): ContractCallMethod<string>;
 
   allowance(owner: string, spender: string): ContractCallMethod<number>;
@@ -43,6 +43,10 @@ export interface VaultMethods {
   owner(): ContractCallMethod<string>;
 
   paused(): ContractCallMethod<boolean>;
+
+  pause(): ContractSendMethod;
+
+  unpause(): ContractSendMethod;
 
   permit(
     owner: string,

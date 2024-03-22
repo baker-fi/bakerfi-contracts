@@ -133,6 +133,14 @@ export class Vault extends Model<VaultMethods> implements Deployable {
     return this.sendTx(this.contract.methods.withdraw(shares));
   }
 
+  async pause(shares: number) { 
+    return this.sendTx(this.contract.methods.pause());
+  }
+
+  async unpause(shares: number) { 
+    return this.sendTx(this.contract.methods.unpause());
+  }
+
   async getApprovalEvents(filter: PastEventOptions): XPromiseEvent<Events.ApprovalEvent> {
     return this.contract.self.getPastEvents('Approval', filter);
   }
