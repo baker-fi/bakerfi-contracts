@@ -60,6 +60,7 @@ contract Vault is
     error InvalidWithdrawAmount();
     error NoAssetsToWithdraw();
     error NoPermissions();
+    error ETHTransferNotAllowed();
 
     /**
      * @dev The ServiceRegistry contract used for managing service-related dependencies.
@@ -134,7 +135,13 @@ contract Vault is
      * @return balanceChange The change in balance after the rebalance operation.
      *
      */
-    function rebalance() external override nonReentrant whenNotPaused returns (int256 balanceChange) {
+    function rebalance()
+        external
+        override
+        nonReentrant
+        whenNotPaused
+        returns (int256 balanceChange)
+    {
         uint256 maxPriceAge = settings().getRebalancePriceMaxAge();
         uint256 currentPos = _totalAssets(maxPriceAge);
         if (currentPos > 0) {
@@ -169,9 +176,13 @@ contract Vault is
      * when Ether is sent to the contract, such as during a regular transfer or as part
      * of a self-destruct operation.
      *
+     * Only Transfers from the strategy during the withdraw are allowed
+     *
      * Emits no events and allows the contract to accept Ether.
      */
-    receive() external payable {}
+    receive() external payable {
+        if (msg.sender != address(_strategy)) revert ETHTransferNotAllowed();
+    }
 
     /**
      * @dev Deposits Ether into the contract and mints vault's shares for the specified receiver.
@@ -186,7 +197,15 @@ contract Vault is
      */
     function deposit(
         address receiver
-    ) external payable override nonReentrant whenNotPaused onlyWhiteListed  returns (uint256 shares) {
+    )
+        external
+        payable
+        override
+        nonReentrant
+        whenNotPaused
+        onlyWhiteListed
+        returns (uint256 shares)
+    {
         if (msg.value == 0) revert InvalidDepositAmount();
         uint256 maxPriceAge = settings().getPriceMaxAge();
         Rebase memory total = Rebase(_totalAssets(maxPriceAge), totalSupply());
@@ -329,5 +348,4 @@ contract Vault is
     function unpause() external onlyOwner {
         _unpause();
     }
-
 }

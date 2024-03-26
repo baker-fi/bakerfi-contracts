@@ -30,9 +30,9 @@ contract WstETHToETHOracle is IOracle {
 
     //  WSETH/ETH
     function getLatestPrice() external view override returns (IOracle.Price memory price) {
-        (, int256 answer, uint256 startedAt,uint256 updatedAt,) = _stETHToETHPriceFeed.latestRoundData();
-        if ( answer<= 0 ) revert InvalidPriceFromOracle();        
-        if (  startedAt ==0 || updatedAt == 0 ) revert InvalidPriceUpdatedAt();    
+        (, int256 answer, uint256 startedAt, uint256 updatedAt,) = _stETHToETHPriceFeed.latestRoundData();
+        if ( answer <= 0 ) revert InvalidPriceFromOracle();        
+        if ( startedAt ==0 || updatedAt == 0 ) revert InvalidPriceUpdatedAt();    
         price.price = uint256(answer);
         price.lastUpdate = updatedAt;
     }

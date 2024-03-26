@@ -344,6 +344,19 @@ describeif(network.name === "hardhat")("BakerFi Vault For L2s", function () {
   })
 
 
+
+  it("Transfer ETH to contract should fail",async ()=> { 
+    const { vault, owner} = await loadFixture(deployFunction);
+    // Create a transaction object
+    let tx = {
+      to: await vault.getAddress(),
+      // Convert currency unit from ether to wei
+      value: ethers.parseUnits("10", 18),
+    }
+    await expect(
+      owner.sendTransaction(tx)
+    ).to.be.revertedWithCustomError(vault, "ETHTransferNotAllowed");
+  })
 });
 
 /**
