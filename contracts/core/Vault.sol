@@ -60,7 +60,7 @@ contract Vault is
     error InvalidWithdrawAmount();
     error NoAssetsToWithdraw();
     error NoPermissions();
-    error ETHTransferNotAllowed();
+    error ETHTransferNotAllowed(address sender);
 
     /**
      * @dev The ServiceRegistry contract used for managing service-related dependencies.
@@ -181,7 +181,7 @@ contract Vault is
      * Emits no events and allows the contract to accept Ether.
      */
     receive() external payable {
-        if (msg.sender != address(_strategy)) revert ETHTransferNotAllowed();
+        if (msg.sender != address(_strategy)) revert ETHTransferNotAllowed(msg.sender);
     }
 
     /**

@@ -114,6 +114,7 @@ abstract contract StrategyAAVEv3Base is
     error InvalidDeltaDebt();
     error OraclePriceOutdated();
     error NoCollateralMarginToScale();
+    error ETHTransferNotAllowed(address sender);
 
     uint256 internal _pendingAmount = 0;
     uint256 private _deployedAmount = 0;
@@ -175,10 +176,13 @@ abstract contract StrategyAAVEv3Base is
     /**
      * @dev Fallback function to receive Ether.
      *
-     * This function is automatically called when the contract receives Ether without a specific function call.
-     * It allows the contract to accept incoming Ether transactions.
+     *  This function is automatically called when the contract receives Ether 
+     *  without a specific function call.
+     *  It allows the contract to accept incoming Ether transactions.
      */
-    receive() external payable {}
+    receive() external payable {
+        if (msg.sender != wETHA()) revert ETHTransferNotAllowed(msg.sender);
+    }
 
     /**
      * @dev Retrieves the position details including total collateral, total debt, and loan-to-value ratio.
