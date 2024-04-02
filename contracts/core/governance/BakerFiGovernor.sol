@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import "@openzeppelin/contracts/governance/Governor.sol";
-import "@openzeppelin/contracts/governance/compatibility/GovernorCompatibilityBravo.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
+import {Governor, IGovernor, IERC165} from "@openzeppelin/contracts/governance/Governor.sol";
+import {GovernorCompatibilityBravo} from "@openzeppelin/contracts/governance/compatibility/GovernorCompatibilityBravo.sol";
+import {GovernorVotes, IVotes} from "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
+import {GovernorVotesQuorumFraction} from "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
+import {GovernorTimelockControl, TimelockController} from "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
 
 contract BakerFiGovernor is
     Governor,
@@ -14,9 +14,9 @@ contract BakerFiGovernor is
     GovernorVotesQuorumFraction,
     GovernorTimelockControl
 {
-    uint8 private constant MIN_QUORUM = 10; // 4%
-    uint256 private constant VOTING_DELAY = 1 days; // 1 day
-    uint256 private constant VOTING_PERIOD = 1 weeks; // 1 day
+    uint8 private constant _MIN_QUORUM = 10; // 4%
+    uint256 private constant _VOTING_DELAY = 1 days; // 1 day
+    uint256 private constant _VOTING_PERIOD = 1 weeks; // 1 day
 
     constructor(
         IVotes _token,
@@ -24,16 +24,16 @@ contract BakerFiGovernor is
     )
         Governor("BakerFiGovernor")
         GovernorVotes(_token)
-        GovernorVotesQuorumFraction(MIN_QUORUM)
+        GovernorVotesQuorumFraction(_MIN_QUORUM)
         GovernorTimelockControl(_timelock)
     {}
 
     function votingDelay() public pure override returns (uint256) {
-        return VOTING_DELAY; // 1 day
+        return _VOTING_DELAY; // 1 day
     }
 
     function votingPeriod() public pure override returns (uint256) {
-        return VOTING_PERIOD; // 1 week
+        return _VOTING_PERIOD; // 1 week
     }
 
     function proposalThreshold() public pure override returns (uint256) {

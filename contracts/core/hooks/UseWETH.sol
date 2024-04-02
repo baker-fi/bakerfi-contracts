@@ -21,13 +21,16 @@ abstract contract UseWETH is Initializable {
     IWETH private _wETH;
     using SafeERC20 for IERC20;
 
+    error InvalidWETHContract();
+    error FailedAllowance();
+    
     /**
      * @dev Initializes the UseWETH contract.
      * @param registry The address of the ServiceRegistry contract for accessing WETH.
      */
     function _initUseWETH(ServiceRegistry registry) internal onlyInitializing {
         _wETH = IWETH(registry.getServiceFromHash(WETH_CONTRACT));
-        require(address(_wETH) != address(0), "Invalid Wrapped ETH Contract");
+        if (address(_wETH) == address(0)) revert InvalidWETHContract();
     }
 
     /**
@@ -51,7 +54,7 @@ abstract contract UseWETH is Initializable {
      * @param wETHAmount The amount of WETH to unwrap.
      */
     function _unwrapWETH(uint256 wETHAmount) internal {
-        require(IERC20(address(_wETH)).approve(address(_wETH), wETHAmount));
+        if(!IERC20(address(_wETH)).approve(address(_wETH), wETHAmount)) revert FailedAllowance();
         wETH().withdraw(wETHAmount);
     }
 }

@@ -60,6 +60,7 @@ contract Vault is
     error InvalidWithdrawAmount();
     error NoAssetsToWithdraw();
     error NoPermissions();
+    error ETHTransferNotAllowed(address sender);
 
     /**
      * @dev The ServiceRegistry contract used for managing service-related dependencies.
@@ -87,7 +88,6 @@ contract Vault is
         if (!settings().isAccountEnabled(msg.sender)) revert NoPermissions();
         _;
     }
-
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
@@ -135,8 +135,15 @@ contract Vault is
      * @return balanceChange The change in balance after the rebalance operation.
      *
      */
-    function rebalance() external override nonReentrant returns (int256 balanceChange) {
-        uint256 currentPos = totalAssets();
+    function rebalance()
+        external
+        override
+        nonReentrant
+        whenNotPaused
+        returns (int256 balanceChange)
+    {
+        uint256 maxPriceAge = settings().getRebalancePriceMaxAge();
+        uint256 currentPos = _totalAssets(maxPriceAge);
         if (currentPos > 0) {
             balanceChange = _strategy.harvest();
             if (balanceChange > 0) {
@@ -154,7 +161,7 @@ contract Vault is
                     uint256 feeInEthScaled = uint256(balanceChange) *
                         settings().getPerformanceFee();
                     uint256 sharesToMint = (feeInEthScaled * totalSupply()) /
-                        totalAssets() /
+                        _totalAssets(maxPriceAge) /
                         PERCENTAGE_PRECISION;
                     _mint(settings().getFeeReceiver(), sharesToMint);
                 }
@@ -169,9 +176,13 @@ contract Vault is
      * when Ether is sent to the contract, such as during a regular transfer or as part
      * of a self-destruct operation.
      *
+     * Only Transfers from the strategy during the withdraw are allowed
+     *
      * Emits no events and allows the contract to accept Ether.
      */
-    receive() external payable {}
+    receive() external payable {
+        if (msg.sender != address(_strategy)) revert ETHTransferNotAllowed(msg.sender);
+    }
 
     /**
      * @dev Deposits Ether into the contract and mints vault's shares for the specified receiver.
@@ -186,9 +197,18 @@ contract Vault is
      */
     function deposit(
         address receiver
-    ) external payable override nonReentrant onlyWhiteListed returns (uint256 shares) {
+    )
+        external
+        payable
+        override
+        nonReentrant
+        whenNotPaused
+        onlyWhiteListed
+        returns (uint256 shares)
+    {
         if (msg.value == 0) revert InvalidDepositAmount();
-        Rebase memory total = Rebase(totalAssets(), totalSupply());
+        uint256 maxPriceAge = settings().getPriceMaxAge();
+        Rebase memory total = Rebase(_totalAssets(maxPriceAge), totalSupply());
         if (
             // Or the Rebase is unititialized
             !((total.elastic == 0 && total.base == 0) ||
@@ -198,7 +218,8 @@ contract Vault is
         // Verify if the Deposit Value exceeds the maximum per wallet
         uint256 maxDeposit = settings().getMaxDepositInETH();
         if (maxDeposit > 0) {
-            uint256 afterDeposit = msg.value + ((balanceOf(msg.sender) * _tokenPerETH()) / 1e18);
+            uint256 afterDeposit = msg.value +
+                ((balanceOf(msg.sender) * _tokenPerETH(maxPriceAge)) / 1e18);
             if (afterDeposit > maxDeposit) revert MaxDepositReached();
         }
 
@@ -229,7 +250,7 @@ contract Vault is
      */
     function withdraw(
         uint256 shares
-    ) external override nonReentrant onlyWhiteListed returns (uint256 amount) {
+    ) external override nonReentrant onlyWhiteListed whenNotPaused returns (uint256 amount) {
         if (balanceOf(msg.sender) < shares) revert NotEnoughBalanceToWithdraw();
         if (shares == 0) revert InvalidWithdrawAmount();
         /**
@@ -238,7 +259,8 @@ contract Vault is
          *
          *   withdrawAmount = share * totalAssets() / totalSupply()
          */
-        uint256 withdrawAmount = (shares * totalAssets()) / totalSupply();
+        uint256 withdrawAmount = (shares * _totalAssets(settings().getPriceMaxAge())) /
+            totalSupply();
         if (withdrawAmount == 0) revert NoAssetsToWithdraw();
         amount = _strategy.undeploy(withdrawAmount);
         uint256 fee = 0;
@@ -263,7 +285,11 @@ contract Vault is
      * @return amount The total assets under management by the strategy.
      */
     function totalAssets() public view override returns (uint256 amount) {
-        amount = _strategy.deployed();
+        amount = _strategy.deployed(0);
+    }
+
+    function _totalAssets(uint256 priceMaxAge) private view returns (uint256 amount) {
+        amount = _strategy.deployed(priceMaxAge);
     }
 
     /**
@@ -304,14 +330,22 @@ contract Vault is
      * @return rate The calculated token-to-ETH exchange rate.
      */
     function tokenPerETH() external view override returns (uint256) {
-        return _tokenPerETH();
+        return _tokenPerETH(0);
     }
 
-    function _tokenPerETH() internal view returns (uint256) {
-        uint256 position = totalAssets();
+    function _tokenPerETH(uint256 priceMaxAge) internal view returns (uint256) {
+        uint256 position = _totalAssets(priceMaxAge);
         if (totalSupply() == 0 || position == 0) {
             return 1 ether;
         }
         return (totalSupply() * 1 ether) / position;
+    }
+
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    function unpause() external onlyOwner {
+        _unpause();
     }
 }

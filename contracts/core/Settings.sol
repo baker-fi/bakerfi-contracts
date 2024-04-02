@@ -95,7 +95,9 @@ contract Settings is OwnableUpgradeable, ISettings {
     /**
      * @dev Max Age for sensitive price operations
      */
-    uint256 private _oraclePriceMaxAge;
+    uint256 private _priceRebalanceMaxAge;
+
+    uint256 private _priceMaxAge;
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -125,7 +127,8 @@ contract Settings is OwnableUpgradeable, ISettings {
         _maxLoanToValue = 850 * 1e6; // 85%
         _nrLoops = 10;
         _maxDepositInETH = 0;
-        _oraclePriceMaxAge = 300; // 5 Minutes Prices
+        _priceRebalanceMaxAge = 5 minutes; // 5 Minutes Prices
+        _priceMaxAge = 60 minutes;
     }
 
     /**
@@ -351,12 +354,21 @@ contract Settings is OwnableUpgradeable, ISettings {
         emit MaxDepositInETHChanged(value);
     }
 
-    function setOraclePriceMaxAge(uint256 value) external onlyOwner {
-        _oraclePriceMaxAge = value;
-        emit OraclePriceMaxAgeChanged(value);
+    function setRebalancePriceMaxAge(uint256 value) external onlyOwner {
+        _priceRebalanceMaxAge = value;
+        emit RebalancePriceMaxAgeChange(value);
     }
 
-    function getOraclePriceMaxAge() external view returns (uint256) {
-        return _oraclePriceMaxAge;
+    function getRebalancePriceMaxAge() external view returns (uint256) {
+        return _priceRebalanceMaxAge;
+    }
+
+    function setPriceMaxAge(uint256 value) external onlyOwner {
+        _priceMaxAge = value;
+        emit PriceMaxAgeChange(value);
+    }
+
+    function getPriceMaxAge() external view returns (uint256) {
+        return _priceMaxAge;
     }
 }

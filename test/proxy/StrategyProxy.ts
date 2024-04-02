@@ -121,6 +121,8 @@ describeif(network.name === "hardhat")("Strategy Proxy", function () {
   it("Strategy Initialization", async function () {
     const { strategyProxy } = await loadFixture(deployFunction);
     expect(await strategyProxy.getPosition()).to.deep.equal([0n, 0n, 0n]);
-    expect(await strategyProxy.deployed()).to.equal(0);
-  });
+    expect(await strategyProxy.deployed(0)).to.equal(0);
+  })
+
+  
 });

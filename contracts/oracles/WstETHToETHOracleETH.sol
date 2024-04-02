@@ -1,13 +1,23 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.18;
+
 import {IOracle} from "../interfaces/core/IOracle.sol";
 import {IWStETH} from "../interfaces/lido/IWStETH.sol";
 import {IChainlinkAggregator} from "../interfaces/chainlink/IChainlinkAggregator.sol";
 
+/**
+ *  WSTETH / ETH Oracle using Lido Stake WSETH/STETH  Contract and STETH/ETH 
+ * 
+ **/
 contract WstETHToETHOracleETH is IOracle {
+    
     IWStETH private immutable _wstETH;
     IChainlinkAggregator private immutable _stETHToETHPriceFeed;
     uint256 internal constant _PRECISION = 10 ** 18;
+
+    error InvalidPriceFromOracle();
+    error InvalidPriceFromStEth();
+    error InvalidPriceUpdatedAt();
 
     constructor(address stETHToETHPriceFeed, address wstETH) {
         _stETHToETHPriceFeed = IChainlinkAggregator(stETHToETHPriceFeed);
@@ -18,12 +28,14 @@ contract WstETHToETHOracleETH is IOracle {
         return _PRECISION;
     }
 
-    //  WSETH/ETH
+    //  WSETH -> STETH -> ETH Price Conversion
     function getLatestPrice() external view override returns (IOracle.Price memory price) {
         uint256 wstETHToStETH = uint256(_wstETH.stEthPerToken());
-        assert(wstETHToStETH > 0);
-        uint256 stETHToETH = uint256(_stETHToETHPriceFeed.latestAnswer());
-        price.price = (wstETHToStETH * stETHToETH) / _PRECISION;
-        price.lastUpdate = _stETHToETHPriceFeed.latestTimestamp();
+        if ( wstETHToStETH == 0) revert InvalidPriceFromStEth();
+        (, int256 answer, uint256 startedAt, uint256 updatedAt,) = _stETHToETHPriceFeed.latestRoundData();
+        if ( answer <= 0 ) revert InvalidPriceFromOracle();        
+        if ( startedAt ==0 || updatedAt == 0 ) revert InvalidPriceUpdatedAt();    
+        price.price = (wstETHToStETH * uint256(answer)) / _PRECISION;
+        price.lastUpdate = updatedAt;
     }
 }

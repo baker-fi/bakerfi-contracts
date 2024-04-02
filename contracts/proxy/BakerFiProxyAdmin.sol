@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
-import {BakerFiProxy} from "./BakerFiProxy.sol";
+import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 
 /**
  * @title
@@ -11,8 +10,11 @@ import {BakerFiProxy} from "./BakerFiProxy.sol";
  * @notice
  */
 contract BakerFiProxyAdmin is ProxyAdmin {
+    
+    error InvalidOwner();
+    
     constructor(address initialOwner) ProxyAdmin() {
-        require(initialOwner != address(0), "Invalid Owner Address");
+        if(initialOwner == address(0)) revert InvalidOwner();
         _transferOwnership(initialOwner);
     }
 }

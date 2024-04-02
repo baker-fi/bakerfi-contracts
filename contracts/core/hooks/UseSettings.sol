@@ -9,9 +9,11 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 abstract contract UseSettings is Initializable {
     ISettings private _settings;
 
+    error InvalidSettingsContract();
+
     function _initUseSettings(ServiceRegistry registry) internal onlyInitializing {
         _settings = ISettings(registry.getServiceFromHash(SETTINGS_CONTRACT));
-        require(address(_settings) != address(0), "Invalid Settings Contract");
+        if (address(_settings) == address(0)) revert InvalidSettingsContract();
     }
 
     function settings() public view returns (ISettings) {

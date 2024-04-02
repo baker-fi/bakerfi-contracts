@@ -168,7 +168,9 @@ export async function deployOptimism() {
     "Settings",
     await settingsProxyDeploy.getAddress()
   );
-  await settings.setOraclePriceMaxAge(0);
+  await settings.setPriceMaxAge(0);
+  await settings.setRebalancePriceMaxAge(0);
+
 
   // 5. Register UniswapV3 Universal Router
   await serviceRegistry.registerService(

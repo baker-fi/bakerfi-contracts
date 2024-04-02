@@ -3,7 +3,6 @@ pragma solidity ^0.8.18;
 pragma experimental ABIEncoderV2;
 
 import {ServiceRegistry, AAVE_V3_CONTRACT} from "../ServiceRegistry.sol";
-import {IServiceRegistry} from "../../interfaces/core/IServiceRegistry.sol";
 import {IPoolV3} from "../../interfaces/aave/v3/IPoolV3.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -23,13 +22,17 @@ abstract contract UseAAVEv3 is Initializable {
 
     IPoolV3 private _aavev3;
 
+    error InvalidAAVEv3Contract();
+    error FailedToApproveAllowance();
+    error FailedToRepayDebt();
+
     /**
      * @dev Initializes the UseAAVEv3 contract.
      * @param registry The address of the ServiceRegistry contract for accessing AAVE v3.
      */
     function _initUseAAVEv3(ServiceRegistry registry) internal onlyInitializing {
         _aavev3 = IPoolV3(registry.getServiceFromHash(AAVE_V3_CONTRACT));
-        require(address(_aavev3) != address(0), "Invalid AAVE v3 Contract");
+        if (address(_aavev3) == address(0)) revert InvalidAAVEv3Contract();
     }
 
     /**
@@ -61,7 +64,7 @@ abstract contract UseAAVEv3 is Initializable {
         address assetOut,
         uint256 borrowOut
     ) internal {
-        require(IERC20(assetIn).approve(aaveV3A(), amountIn));
+        if (!IERC20(assetIn).approve(aaveV3A(), amountIn)) revert FailedToApproveAllowance();
         aaveV3().supply(assetIn, amountIn, address(this), 0);
         aaveV3().setUserUseReserveAsCollateral(assetIn, true);
         aaveV3().borrow(assetOut, borrowOut, 2, 0, address(this));
@@ -73,7 +76,7 @@ abstract contract UseAAVEv3 is Initializable {
      * @param amount The amount of the borrowed asset to repay.
      */
     function _repay(address assetIn, uint256 amount) internal {
-        require(IERC20(assetIn).approve(aaveV3A(), amount));
-        require(aaveV3().repay(assetIn, amount, 2, address(this)) == amount);
+        if (!IERC20(assetIn).approve(aaveV3A(), amount)) revert FailedToApproveAllowance();
+        if (aaveV3().repay(assetIn, amount, 2, address(this)) != amount) revert FailedToRepayDebt();
     }
 }

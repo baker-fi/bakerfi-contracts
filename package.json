@@ -21,7 +21,7 @@
     "test:coverage": "REPORT_GAS=true npx hardhat coverage",
     "contract:size": "npx hardhat size-contracts",
     "lint": "npx hardhat check",
-    "prettier": "prettier --write 'contracts/**/*.sol'",
+    "prettier": "npx prettier --config .prettierrc.json --write 'contracts/**/*.sol'",
     "start": "NODE_ENV=production node dist/index.js",
     "export:flat": "npx hardhat export-flat",
     "export:selectors": "npx hardhat selectors",

@@ -9,11 +9,13 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 abstract contract UseFlashLender is Initializable {
     IERC3156FlashLenderUpgradeable private _fLender;
 
+    error InvalidFlashLenderContract();
+
     function _initUseFlashLender(ServiceRegistry registry) internal onlyInitializing {
         _fLender = IERC3156FlashLenderUpgradeable(
             registry.getServiceFromHash(FLASH_LENDER_CONTRACT)
         );
-        require(address(_fLender) != address(0), "Invalid Flash Lender Contract");
+        if (address(_fLender) == address(0)) revert InvalidFlashLenderContract();
     }
 
     function flashLender() public view returns (IERC3156FlashLenderUpgradeable) {

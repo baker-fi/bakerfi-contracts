@@ -86,5 +86,5 @@ interface IStrategy {
      *
      * @return assets The total owned assets in Ether.
      */
-    function deployed() external view returns (uint256 assets);
+    function deployed(uint256 priceMaxAge) external view returns (uint256 assets);
 }

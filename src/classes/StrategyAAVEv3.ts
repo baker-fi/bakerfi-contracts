@@ -156,8 +156,8 @@ export class StrategyAAVEv3
     return this.callTx(this.contract.methods.settingsA());
   }
 
-  async totalAssets() {
-    return this.callTx(this.contract.methods.totalAssets());
+  async deployed(amount: number) {
+    return this.callTx(this.contract.methods.deployed(amount));
   }
 
   async transferOwnership(newOwner: string) {

@@ -23,8 +23,8 @@ abstract contract ISwapHandler {
         address underlyingIn;
         address underlyingOut;
         SwapType mode;
-        uint amountIn;
-        uint amountOut;
+        uint256 amountIn;
+        uint256 amountOut;
         uint24 feeTier;
         bytes payload;
     }

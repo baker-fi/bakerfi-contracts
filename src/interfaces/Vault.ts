@@ -1,10 +1,9 @@
-import {ContractSendMethod} from 'web3-eth-contract';
-import {ContractCallMethod} from '@taikai/dappkit';
+import { ContractSendMethod } from "web3-eth-contract";
+import { ContractCallMethod } from "@taikai/dappkit";
 
-export interface BakerFiVaultMethods {
+export interface VaultMethods {
 
-
-    DOMAIN_SEPARATOR(): ContractCallMethod<string>;
+  DOMAIN_SEPARATOR(): ContractCallMethod<string>;
 
   allowance(owner: string, spender: string): ContractCallMethod<number>;
 
@@ -12,17 +11,28 @@ export interface BakerFiVaultMethods {
 
   balanceOf(account: string): ContractCallMethod<number>;
 
-  convertToAssets(shares: number): ContractCallMethod<{'assets': number;}>;
+  convertToAssets(shares: number): ContractCallMethod<{ assets: number }>;
 
-  convertToShares(assets: number): ContractCallMethod<{'shares': number;}>;
+  convertToShares(assets: number): ContractCallMethod<{ shares: number }>;
 
   decimals(): ContractCallMethod<number>;
 
-  decreaseAllowance(spender: string, subtractedValue: number): ContractSendMethod;
+  decreaseAllowance(
+    spender: string,
+    subtractedValue: number
+  ): ContractSendMethod;
 
   deposit(receiver: string): ContractSendMethod;
 
-  eip712Domain(): ContractCallMethod<{'fields': string;'name': string;'version': string;'chainId': number;'verifyingContract': string;'salt': string;'extensions': number[];}>;
+  eip712Domain(): ContractCallMethod<{
+    fields: string;
+    name: string;
+    version: string;
+    chainId: number;
+    verifyingContract: string;
+    salt: string;
+    extensions: number[];
+  }>;
 
   increaseAllowance(spender: string, addedValue: number): ContractSendMethod;
 
@@ -34,11 +44,23 @@ export interface BakerFiVaultMethods {
 
   paused(): ContractCallMethod<boolean>;
 
-  permit(owner: string, spender: string, value: number, deadline: number, v: number, r: string, s: string): ContractSendMethod
+  pause(): ContractSendMethod;
+
+  unpause(): ContractSendMethod;
+
+  permit(
+    owner: string,
+    spender: string,
+    value: number,
+    deadline: number,
+    v: number,
+    r: string,
+    s: string
+  ): ContractSendMethod;
 
   rebalance(): ContractSendMethod;
 
-  renounceOwnership(): ContractSendMethod
+  renounceOwnership(): ContractSendMethod;
 
   settings(): ContractCallMethod<string>;
 
@@ -48,7 +70,7 @@ export interface BakerFiVaultMethods {
 
   tokenPerETH(): ContractCallMethod<number>;
 
-  totalAssets(): ContractCallMethod<{'amount': number;}>;
+  totalAssets(): ContractCallMethod<{ amount: number }>;
 
   totalSupply(): ContractCallMethod<number>;
 
@@ -56,8 +78,7 @@ export interface BakerFiVaultMethods {
 
   transferFrom(from: string, to: string, amount: number): ContractSendMethod;
 
-  transferOwnership(newOwner: string): ContractSendMethod
+  transferOwnership(newOwner: string): ContractSendMethod;
 
   withdraw(shares: number): ContractSendMethod;
-
 }

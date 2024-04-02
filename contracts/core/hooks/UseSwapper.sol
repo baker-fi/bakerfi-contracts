@@ -3,7 +3,6 @@ pragma solidity ^0.8.18;
 pragma experimental ABIEncoderV2;
 
 import {ServiceRegistry, UNISWAP_ROUTER_CONTRACT} from "../ServiceRegistry.sol";
-import {IServiceRegistry} from "../../interfaces/core/IServiceRegistry.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
 import {IV3SwapRouter} from "../../interfaces/uniswap/v3/ISwapRouter.sol";
@@ -27,6 +26,11 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 abstract contract UseSwapper is ISwapHandler, Initializable {
     using SafeERC20 for IERC20;
 
+    error InvalidUniRouterContract();
+    error InvalidInputToken();
+    error InvalidOutputToken();
+    error InvalidFeeTier();
+
     event Swap(
         address indexed assetIn,
         address assetOut,
@@ -39,7 +43,7 @@ abstract contract UseSwapper is ISwapHandler, Initializable {
 
     function _initUseSwapper(ServiceRegistry registry) internal onlyInitializing {
         _uniRouter = IV3SwapRouter(registry.getServiceFromHash(UNISWAP_ROUTER_CONTRACT));
-        require(address(_uniRouter) != address(0), "Invalid Uniswap Router");
+        if (address(_uniRouter) == address(0)) revert InvalidUniRouterContract();
     }
 
     function uniRouter() public view returns (IV3SwapRouter) {
@@ -53,10 +57,10 @@ abstract contract UseSwapper is ISwapHandler, Initializable {
     function _swap(
         ISwapHandler.SwapParams memory params
     ) internal override returns (uint256 amountOut) {
-        require(params.underlyingIn != address(0), "Invalid Input Asset");
-        require(params.underlyingOut != address(0), "Invalid Input Asset");
+        if (params.underlyingIn == address(0)) revert InvalidInputToken();
+        if (params.underlyingOut == address(0)) revert InvalidOutputToken();
         uint24 fee = params.feeTier;
-        require(fee > 0, "Invalid Fee Tier to Swap");
+        if (fee == 0) revert InvalidFeeTier();
 
         // Exact Input
         if (params.mode == ISwapHandler.SwapType.EXACT_INPUT) {

@@ -232,4 +232,48 @@ describeif(network.name === "hardhat")("Settings", function () {
       settings.setMaxDepositInETH(ethers.parseUnits("1", 17))
     ).to.be.revertedWith("Ownable: caller is not the owner");
   });
+
+  
+  it("Change Rebalance Price Max Age ✅", async function () {
+    const { settings, otherAccount } = await loadFixture(deployFunction);
+
+    await settings
+      .connect(otherAccount)
+      // @ts-expect-error
+      .setRebalancePriceMaxAge(3600);
+
+    // @ts-expect-error
+    expect(await settings.connect(otherAccount).getRebalancePriceMaxAge()).to.equal(
+      3600
+    );
+  });
+
+  it("Only Owner can change Rebalance Price Max Age", async function () {
+    const { settings } = await loadFixture(deployFunction);
+    await expect(
+      settings.setRebalancePriceMaxAge(3600)
+    ).to.be.revertedWith("Ownable: caller is not the owner");
+  });
+
+  it("Change Price Max Age ✅", async function () {
+    const { settings, otherAccount } = await loadFixture(deployFunction);
+
+    await settings
+      .connect(otherAccount)
+      // @ts-expect-error
+      .setPriceMaxAge(3600);
+
+    // @ts-expect-error
+    expect(await settings.connect(otherAccount).getPriceMaxAge()).to.equal(
+      3600
+    );
+  });
+
+  it("Only Owner can change Rebalance Price Max Age", async function () {
+    const { settings } = await loadFixture(deployFunction);
+    await expect(
+      settings.setPriceMaxAge(3600)
+    ).to.be.revertedWith("Ownable: caller is not the owner");
+  });
+
 });

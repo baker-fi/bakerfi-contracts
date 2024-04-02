@@ -39,7 +39,7 @@ export interface AAVEv3StrategyAnyMethods {
 
   settingsA(): ContractCallMethod<string>;
 
-  totalAssets(): ContractCallMethod<{'totalOwnedAssets': number;}>;
+  deployed(maxAge: number): ContractCallMethod<{'totalOwnedAssets': number;}>;
 
   transferOwnership(newOwner: string): ContractSendMethod
 

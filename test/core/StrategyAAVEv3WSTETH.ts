@@ -26,7 +26,7 @@ describeif(network.name === "hardhat")(
     it("Test Initialized Strategy", async function () {
       const { owner, strategy } = await loadFixture(deployFunction);
       expect(await strategy.getPosition()).to.deep.equal([0n, 0n, 0n]);
-      expect(await strategy.deployed()).to.equal(0);
+      expect(await strategy.deployed(0)).to.equal(0);
     });
 
     it("Test Deploy", async function () {
@@ -43,7 +43,7 @@ describeif(network.name === "hardhat")(
         35740737736704000000n,
         782024239n,
       ]);
-      expect(await strategy.deployed()).to.equal(9962113816060668112n);
+      expect(await strategy.deployed(0)).to.equal(9962113816060668112n);
     });
 
     it("Harvest Profit - No Debt Adjust", async function () {
@@ -66,7 +66,7 @@ describeif(network.name === "hardhat")(
         35740737736704000000n,
         710931126n,
       ]);
-      expect(await strategy.deployed()).to.equal(14532398971337134924n);
+      expect(await strategy.deployed(0)).to.equal(14532398971337134924n);
     });
 
     it("Harvest Loss - No Debt Adjust", async function () {
@@ -84,7 +84,7 @@ describeif(network.name === "hardhat")(
         782024239n,
       ]);
 
-      expect(await strategy.deployed()).to.equal(9962113816060668112n);
+      expect(await strategy.deployed(0)).to.equal(9962113816060668112n);
 
       // Increment the Collateral value by 10%
       await oracle.setLatestPrice(ethers.parseUnits("2606", 18));
@@ -99,7 +99,7 @@ describeif(network.name === "hardhat")(
         798228886n,
       ]);
 
-      expect(await strategy.deployed()).to.equal(9034311566493265075n);
+      expect(await strategy.deployed(0)).to.equal(9034311566493265075n);
     });
 
     it("Harvest - Debt Adjust", async function () {
@@ -128,7 +128,7 @@ describeif(network.name === "hardhat")(
         817031552n,
       ]);
 
-      expect(await strategy.deployed()).to.equal(4829847823381389935n);
+      expect(await strategy.deployed(0)).to.equal(4829847823381389935n);
     });
 
     it("Harvest Loss - Collateral Value is lower than debt", async function () {
@@ -142,8 +142,8 @@ describeif(network.name === "hardhat")(
 
       await oracle.setLatestPrice(1154 * 1e6 * 0.5);
 
-      await expect(strategy.harvest()).to.be.revertedWith(
-        "Collateral is lower that debt"
+      await expect(strategy.harvest()).to.be.revertedWithCustomError(
+        strategy, "CollateralLowerThanDebt"
       );
     });
   }

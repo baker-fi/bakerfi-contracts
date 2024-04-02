@@ -35,7 +35,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
       35740737736704000000n,
       782024239n,
     ]);
-    expect(await strategy.deployed()).to.equal(9962113816060668112n);
+    expect(await strategy.deployed(0)).to.equal(9962113816060668112n);
   });
 
   it("Test Undeploy", async function () {
@@ -50,7 +50,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
       35740737736704000000n,
       782024239n,
     ]);
-    expect(await strategy.deployed()).to.equal(9962113816060668112n);
+    expect(await strategy.deployed(0)).to.equal(9962113816060668112n);
     // Receive ~=5 ETH
     await expect(
       strategy.undeploy(ethers.parseUnits("5", 18))
@@ -64,7 +64,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
       strategy.deploy({
         value: 0,
       })
-    ).to.be.revertedWith("No Zero deposit Allowed");
+    ).to.be.revertedWithCustomError(strategy, "InvalidDeployAmount");
   });
 
   it("Deploy Fail - No Permissions", async () => {
@@ -109,7 +109,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
     await oracle.setLatestPrice(1130 * 1e6 * 0.1);
     await expect(
       strategy.undeploy(ethers.parseUnits("10", 18))
-    ).to.be.revertedWith("No Collateral margin to scale");
+    ).to.be.revertedWithCustomError(strategy, "NoCollateralMarginToScale");
   });
 
   it("onFlashLoan - Invalid Flash Loan Sender", async () => {
@@ -124,7 +124,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
         0,
         "0x"
       )
-    ).to.be.revertedWith("Invalid Flash loan sender");
+    ).to.be.revertedWithCustomError(strategy, "InvalidFlashLoanSender");
   });
 
   it("onFlashLoan - Invalid Flash Loan Asset", async () => {
@@ -164,7 +164,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
         0,
         "0x"
       )
-    ).to.be.revertedWith("Invalid Flash Loan Asset");
+    ).to.be.revertedWithCustomError(pStrategy, "InvalidFlashLoanAsset");
   });
 
   it("OnFlashLoan - Attacker", async () => {
@@ -184,7 +184,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
 
     await expect(
       attacker.flashme(await weth.getAddress(), ethers.parseUnits("1", 18))
-    ).to.be.revertedWith("Invalid Flash loan sender");
+    ).to.be.revertedWithCustomError(strategy, "InvalidFlashLoanSender");
   });
 
   it("Rebalance - Fails with outdated prices", async () => {
@@ -194,11 +194,11 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
     await strategy.deploy({
       value: ethers.parseUnits("10", 18),
     });
-    await settings.setOraclePriceMaxAge(60);
+    await settings.setRebalancePriceMaxAge(60);
     // advance time by one hour and mine a new block
     await time.increase(3600);
-    await expect(strategy.harvest()).to.be.revertedWith(
-      "Oracle Price is outdated"
+    await expect(strategy.harvest()).to.be.revertedWithCustomError(
+      strategy, "OraclePriceOutdated"
     );
   });
 
@@ -209,7 +209,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
     await strategy.deploy({
       value: ethers.parseUnits("10", 18),
     });
-    await settings.setOraclePriceMaxAge(4800);
+    await settings.setRebalancePriceMaxAge(4800);
     // advance time by one hour and mine a new block
     await time.increase(3600);
     await strategy.harvest();

@@ -6,8 +6,10 @@ import {IStrategy} from "../interfaces/core/IStrategy.sol";
 
 contract StrategyMock is IStrategy {
     using Address for address payable;
-    uint256 _debRatio = 50; // 100
-    int256 _havestPerCall = 0; // 100
+    uint256 internal _debRatio = 50; // 100
+    int256 internal _havestPerCall = 0; // 100
+
+    error NoBalance();
 
     function deploy() external payable override returns (uint256 amountAdded) {
         emit StrategyAmountUpdate(msg.value);
@@ -19,13 +21,13 @@ contract StrategyMock is IStrategy {
     }
 
     function undeploy(uint256 amount) external override returns (uint256 actualAmount) {
-        require(address(this).balance >= amount);
+        if(address(this).balance < amount) revert NoBalance();
         payable(msg.sender).sendValue(amount);
         emit StrategyAmountUpdate(address(this).balance - amount);
         return amount;
     }
 
-    function deployed() external view override returns (uint256 actualAmount) {
+    function deployed(uint256) external view override returns (uint256 actualAmount) {
         uint256 col = address(this).balance;
         uint256 deb = (col * _debRatio) / 100;
         actualAmount = col >= deb ? col - deb : 0;

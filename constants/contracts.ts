@@ -24,6 +24,10 @@ export type DeployConfig = {
     pyth?: string;
     wstETHETHOracleFeedId?: string;
     ethUSDOracleFeedId?: string;
+    chainlink?: {
+        wstEthToETH: string;
+        ethToUSD: string;
+    }
 }
 
 export const pythFeedIds = {
@@ -73,6 +77,10 @@ export const deployConfigMap : {[key: string]: DeployConfig} =
         settings: "0xb0bbF58c8199F3CA383F0535b6a58A6E5Bbd587B",
         settingsProxy: "0xBd7f910A074D9d35789a47FF0962b5706D7855dF",
         pyth: "0xff1a0f4744e8582df1ae09d5611b887b6a12925c",  
+        chainlink: {
+            wstEthToETH: "0xb523AE262D20A936BC152e6023996e46FDC2A95D",
+            ethToUSD: "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612"
+        },
     }
 }
 
