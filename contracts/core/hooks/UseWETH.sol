@@ -22,6 +22,7 @@ abstract contract UseWETH is Initializable {
     using SafeERC20 for IERC20;
 
     error InvalidWETHContract();
+    error FailedAllowance();
     
     /**
      * @dev Initializes the UseWETH contract.
@@ -53,7 +54,7 @@ abstract contract UseWETH is Initializable {
      * @param wETHAmount The amount of WETH to unwrap.
      */
     function _unwrapWETH(uint256 wETHAmount) internal {
-        require(IERC20(address(_wETH)).approve(address(_wETH), wETHAmount));
+        if(!IERC20(address(_wETH)).approve(address(_wETH), wETHAmount)) revert FailedAllowance();
         wETH().withdraw(wETHAmount);
     }
 }
