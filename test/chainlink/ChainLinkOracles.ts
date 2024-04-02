@@ -14,7 +14,9 @@ describeif(
     const { owner, wstETHToETH, ethToUSD } = await loadFixture(deploy);
 
     const [price, updatedAt] = await wstETHToETH.getLatestPrice();
+    // @ts-expect-error
     expect(price).to.greaterThan(1000269654884159300n);
+    // @ts-expect-error
     expect(updatedAt).to.greaterThan(1700000000n);
    });
 
@@ -22,7 +24,9 @@ describeif(
     const { ethToUSD } = await loadFixture(deploy);
 
     const [price, updatedAt] = await ethToUSD.getLatestPrice();
+    // @ts-expect-error
     expect(price).to.greaterThan(1000269654884159300n);
+    // @ts-expect-error
     expect(updatedAt).to.greaterThan(1700000000n);
    });
 
@@ -30,7 +34,9 @@ describeif(
    it("Testing cbETH/USD Oracle",async () => {
     const { cbETHToETH } = await loadFixture(deploy);
     const [price, updatedAt] = await cbETHToETH.getLatestPrice();
+    // @ts-expect-error
     expect(price).to.greaterThan(1000269654884159300n);
+    // @ts-expect-error
     expect(updatedAt).to.greaterThan(1700000000n);
    });
 
