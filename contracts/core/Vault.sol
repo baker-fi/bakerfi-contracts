@@ -4,7 +4,7 @@ pragma solidity ^0.8.18;
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import {Rebase, RebaseLibrary} from "../libraries/BoringRebase.sol";
+import {Rebase, RebaseLibrary} from "../libraries/RebaseLibrary.sol";
 import {ServiceRegistry} from "../core/ServiceRegistry.sol";
 import {IVault} from "../interfaces/core/IVault.sol";
 import {IStrategy} from "../interfaces/core/IStrategy.sol";

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
-import {Rebase, RebaseLibrary} from "../libraries/BoringRebase.sol";
+import {Rebase, RebaseLibrary} from "../libraries/RebaseLibrary.sol";
 
-contract TestRebaseLibrary {
+contract RebaseLibraryTest {
     using RebaseLibrary for Rebase;
 
     function toBase(Rebase memory total, uint256 elastic, bool roundUp) public pure returns (uint256) {
