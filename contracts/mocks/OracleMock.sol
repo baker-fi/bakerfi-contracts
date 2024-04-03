@@ -2,7 +2,6 @@
 pragma solidity ^0.8.18;
 
 import {IOracle} from "../interfaces/core/IOracle.sol";
-import {IWStETH} from "../interfaces/lido/IWStETH.sol";
 
 contract OracleMock is IOracle {
     uint256 internal _exchangeRate = 1130 * (1e6);
