@@ -130,10 +130,6 @@ export class StrategyAAVEv3WstETH
     return this.callTx(this.contract.methods.owner());
   }
 
-  async registerSvc() {
-    return this.callTx(this.contract.methods.registerSvc());
-  }
-
   async renounceOwnership() {
     return this.sendTx(this.contract.methods.renounceOwnership());
   }

@@ -69,7 +69,6 @@ abstract contract StrategyAAVEv3Base is
     OwnableUpgradeable,
     IStrategy,
     IERC3156FlashBorrowerUpgradeable,
-    UseServiceRegistry,
     UseWETH,
     UseIERC20,
     UseAAVEv3,
@@ -150,7 +149,6 @@ abstract contract StrategyAAVEv3Base is
         uint24 swapFeeTier,
         uint8 eModeCategory
     ) internal onlyInitializing {
-        _initUseServiceRegistry(registry);
         _initUseWETH(registry);
         _initUseIERC20(registry, collateralIERC20);
         _initUseAAVEv3(registry);
