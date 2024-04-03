@@ -57,7 +57,7 @@ contract ServiceRegistry is Ownable, IServiceRegistry {
      *
      * @param ownerToSet The address to be set as the initial owner of the contract.
      */
-    constructor(address ownerToSet) Ownable() {
+    constructor(address ownerToSet) {
         if (ownerToSet == address(0)) revert InvalidOwner();
         _transferOwnership(ownerToSet);
     }

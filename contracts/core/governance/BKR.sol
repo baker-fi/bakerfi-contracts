@@ -26,7 +26,7 @@ contract BKR is ERC20, Ownable, ERC20Permit, ERC20Votes {
 
     constructor(
         address initialOwner
-    ) ERC20(_NAME, _SYMBOL) Ownable() ERC20Permit(_NAME) ERC20Votes() {
+    ) ERC20(_NAME, _SYMBOL) ERC20Permit(_NAME) ERC20Votes() {
         _mint(initialOwner, _MAXSUPPLY);
         transferOwnership(initialOwner);
     }

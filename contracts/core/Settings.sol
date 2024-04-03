@@ -117,7 +117,6 @@ contract Settings is OwnableUpgradeable, ISettings {
      */
     function initialize(address initialOwner) public initializer {
         __Context_init_unchained();
-        __Ownable_init_unchained();
         if (initialOwner == address(0)) revert InvalidOwner();
         _transferOwnership(initialOwner);
         _withdrawalFee = 10 * 1e6; // 1%
