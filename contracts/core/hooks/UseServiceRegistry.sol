@@ -16,7 +16,7 @@ abstract contract UseServiceRegistry is Initializable {
         if (address(registry) == address(0)) revert InvalidRegistryContract();
     }
 
-    function registerSvc() public view returns (IServiceRegistry) {
+    function _registerSvc() internal view returns (IServiceRegistry) {
         return _registry;
     }
 }
