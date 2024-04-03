@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.18;
 
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
@@ -256,6 +256,7 @@ contract Vault is
         if (withdrawAmount == 0) revert NoAssetsToWithdraw();
         amount = _strategy.undeploy(withdrawAmount);
         uint256 fee = 0;
+        _burn(msg.sender, shares);
         // Withdraw ETh to Receiver and pay withdrawal Fees
         if (settings().getWithdrawalFee() != 0 && settings().getFeeReceiver() != address(0)) {
             fee = (amount * settings().getWithdrawalFee()) / PERCENTAGE_PRECISION;
@@ -263,9 +264,8 @@ contract Vault is
             payable(settings().getFeeReceiver()).sendValue(fee);
         } else {
             payable(msg.sender).sendValue(amount);
-        }
-        _burn(msg.sender, shares);
-        emit Withdraw(msg.sender, amount - fee, shares);
+        }     
+        emit Withdraw(msg.sender, amount - fee, shares); 
     }
 
     /**
