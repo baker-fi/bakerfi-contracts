@@ -151,7 +151,6 @@ abstract contract StrategyAAVEv3Base is
         uint24 swapFeeTier,
         uint8 eModeCategory
     ) internal onlyInitializing {
-        __Ownable_init();
         _initUseServiceRegistry(registry);
         _initUseWETH(registry);
         _initUseIERC20(registry, collateralIERC20);
