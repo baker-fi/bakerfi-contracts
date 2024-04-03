@@ -18,7 +18,6 @@ import {UseSettings} from "../hooks/UseSettings.sol";
 import {UseWETH} from "../hooks/UseWETH.sol";
 import {UseFlashLender} from "../hooks/UseFlashLender.sol";
 import {UseAAVEv3} from "../hooks/UseAAVEv3.sol";
-import {UseServiceRegistry} from "../hooks/UseServiceRegistry.sol";
 import {UseSwapper} from "../hooks/UseSwapper.sol";
 import {UseIERC20} from "../hooks/UseIERC20.sol";
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
