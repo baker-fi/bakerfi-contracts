@@ -63,13 +63,6 @@ contract Vault is
     error ETHTransferNotAllowed(address sender);
 
     /**
-     * @dev The ServiceRegistry contract used for managing service-related dependencies.
-     *
-     * This private state variable holds the reference to the ServiceRegistry contract
-     * that is utilized within the current contract for managing various service dependencies.
-     */
-    ServiceRegistry private _registry;
-    /**
      * @dev The IStrategy contract representing the strategy for managing assets.
      *
      * This private state variable holds the reference to the IStrategy contract,
@@ -120,7 +113,6 @@ contract Vault is
         _initUseSettings(registry);
         if (initialOwner == address(0)) revert InvalidOwner();
         _transferOwnership(initialOwner);
-        _registry = registry;
         _strategy = strategy;
     }
 
