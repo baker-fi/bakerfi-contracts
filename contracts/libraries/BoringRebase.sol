@@ -39,19 +39,3 @@ library RebaseLibrary {
         }
     }
 }
-
-contract TestRebaseLibrary {
-    using RebaseLibrary for Rebase;
-
-    function toBase(Rebase memory total, uint256 elastic, bool roundUp) public pure returns (uint) {
-        return total.toBase(elastic, roundUp);
-    }
-
-    function toElastic(
-        Rebase memory total,
-        uint256 base,
-        bool roundUp
-    ) public pure returns (uint256 elastic) {
-        return total.toElastic(base, roundUp);
-    }
-}
