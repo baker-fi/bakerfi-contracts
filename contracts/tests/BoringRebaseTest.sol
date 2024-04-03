@@ -5,7 +5,7 @@ import {Rebase, RebaseLibrary} from "../libraries/BoringRebase.sol";
 contract TestRebaseLibrary {
     using RebaseLibrary for Rebase;
 
-    function toBase(Rebase memory total, uint256 elastic, bool roundUp) public pure returns (uint) {
+    function toBase(Rebase memory total, uint256 elastic, bool roundUp) public pure returns (uint256) {
         return total.toBase(elastic, roundUp);
     }
 
