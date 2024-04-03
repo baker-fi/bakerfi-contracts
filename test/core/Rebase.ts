@@ -11,7 +11,7 @@ describeif(network.name === "hardhat")("Rebase Library", function () {
         const RebaseLib = await ethers.getContractFactory("RebaseLibrary")
         const rebaseLib = await RebaseLib.deploy();
         await rebaseLib.waitForDeployment();
-        const TestRebaseLibrary = await ethers.getContractFactory("TestRebaseLibrary");        
+        const TestRebaseLibrary = await ethers.getContractFactory("RebaseLibraryTest");        
         const testRebaseLib = await TestRebaseLibrary.deploy();
         await testRebaseLib.waitForDeployment();
         return testRebaseLib;
