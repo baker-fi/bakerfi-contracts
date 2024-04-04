@@ -16,6 +16,7 @@ describeif(network.name === "hardhat")("OwnableUpgradeable2StepMock", function (
         const { ownable, owner, otherAccount } = await loadFixture(deployFunction);
         await ownable.transferOwnership(otherAccount.address);
         expect(await ownable.pendingOwner()).to.equal(otherAccount.address);
+        // @ts-expect-error
         await ownable.connect(otherAccount).acceptOwnership();
         expect(await ownable.pendingOwner()).to.equal("0x0000000000000000000000000000000000000000");
         expect(await ownable.owner()).to.equal(otherAccount.address);
@@ -28,6 +29,7 @@ describeif(network.name === "hardhat")("OwnableUpgradeable2StepMock", function (
         await expect(
             // @ts-expect-error
             ownable.connect(otherAccount).transferOwnership(otherAccount.address)
+            // @ts-expect-error
           ).to.be.revertedWithCustomError(ownable, "CallerNotTheOwner");
     });
 
@@ -38,6 +40,7 @@ describeif(network.name === "hardhat")("OwnableUpgradeable2StepMock", function (
         expect(await ownable.pendingOwner()).to.equal(otherAccount.address);
         await expect(
             ownable.acceptOwnership()
+            // @ts-expect-error
           ).to.be.revertedWithCustomError(ownable, "CallerNotThePendingOwner");
     });
 
@@ -45,6 +48,7 @@ describeif(network.name === "hardhat")("OwnableUpgradeable2StepMock", function (
         const { ownable, owner, otherAccount } = await loadFixture(deployFunction);
         await expect(
             ownable.transferOwnership("0x0000000000000000000000000000000000000000")
+            // @ts-expect-error
         ).to.be.revertedWithCustomError(ownable, "InvalidOwnerAddress");
     });
 
