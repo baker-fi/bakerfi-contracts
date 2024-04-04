@@ -17,7 +17,7 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
  * @dev Abstract contract to integrate the use of Wrapped stETH (WstETH).
  *      Provides functions to initialize, access to wstETH interface, unwrap, and wrap WstETH.
  *
- * 🚨 Class optimized to be included on upgradable contracts
+ * 🚨 Class optimized to be included on upgradeable contracts
  */
 abstract contract UseWstETH is Initializable {
     IWStETH private _wstETH;
@@ -31,7 +31,7 @@ abstract contract UseWstETH is Initializable {
     error FailedToApproveStAllowance();
 
     /**
-     * Initialize function for upgradable contracts
+     * Initialize function for upgradeable contracts
      * @param registry The service registry used by the system
      */
     function _initUseWstETH(ServiceRegistry registry) internal onlyInitializing {

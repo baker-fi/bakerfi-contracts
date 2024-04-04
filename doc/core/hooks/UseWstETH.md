@@ -5,7 +5,7 @@
 _Abstract contract to integrate the use of Wrapped stETH (WstETH).
      Provides functions to initialize, access to wstETH interface, unwrap, and wrap WstETH.
 
-🚨 Class optimized to be included on upgradable contracts_
+🚨 Class optimized to be included on upgradeable contracts_
 
 ### _initUseWstETH
 
@@ -13,7 +13,7 @@ _Abstract contract to integrate the use of Wrapped stETH (WstETH).
 function _initUseWstETH(contract ServiceRegistry registry) internal
 ```
 
-Initialize function for upgradable contracts
+Initialize function for upgradeable contracts
 
 #### Parameters
 

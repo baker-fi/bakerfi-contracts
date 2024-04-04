@@ -105,6 +105,7 @@ describeif(network.name === "hardhat")(
         vault.deposit(owner.address, {
           value: ethers.parseUnits("0", 18),
         })
+        // @ts-expect-error
       ).to.be.revertedWithCustomError(vault, "InvalidDepositAmount");
     });
 
@@ -117,6 +118,7 @@ describeif(network.name === "hardhat")(
 
       await expect(
         vault.withdraw(ethers.parseUnits("20", 18))
+        // @ts-expect-error
       ).to.be.revertedWithCustomError(vault, "NotEnoughBalanceToWithdraw");
     });
 
@@ -185,7 +187,7 @@ describeif(network.name === "hardhat")(
       await vault.withdraw(ethers.parseUnits("1", 18));
 
       expect(await provider.getBalance(otherAccount.address)).to.equal(
-        1000000009966312719865394n
+        1000000009877192759581596n
       );
     });
 
@@ -316,6 +318,7 @@ describeif(network.name === "hardhat")(
           ethers.parseUnits("1", 18),
           "0x0000000000000000000000000000000000000000"
         )
+        // @ts-expect-error
       ).to.be.revertedWith("Invalid Receiver");
     });
 
@@ -369,6 +372,7 @@ describeif(network.name === "hardhat")(
 
       await expect(
         vault.withdraw(ethers.parseUnits("1", 18))
+        // @ts-expect-error
       ).to.be.revertedWithCustomError(vault, "NoPermissions");
     });
 
@@ -403,6 +407,7 @@ describeif(network.name === "hardhat")(
 
       await expect(
         vault.withdraw(ethers.parseUnits("1", 18))
+        // @ts-expect-error
       ).to.be.revertedWithCustomError(vault, "NoAssetsToWithdraw");
     });
 
@@ -456,6 +461,7 @@ describeif(network.name === "hardhat")(
       const depositAmount = ethers.parseUnits("10", 18);
       await expect(
         vault.deposit(owner.address, { value: depositAmount })
+        // @ts-expect-error
       ).to.be.revertedWithCustomError(vault, "MaxDepositReached");
     });
 
@@ -473,6 +479,7 @@ describeif(network.name === "hardhat")(
       );
       await expect(
         vault.deposit(owner.address, { value: ethers.parseUnits("6", 17) })
+        // @ts-expect-error
       ).to.be.revertedWithCustomError(vault, "MaxDepositReached");
     });
 

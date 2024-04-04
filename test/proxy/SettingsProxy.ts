@@ -54,8 +54,10 @@ describeif(network.name === "hardhat")("Proxy Settings", function () {
    it("❌ Failed to update, not the owner", async function () {
     const { proxy, otherAccount } = await loadFixture(deployFunction);
     await expect(
+      // @ts-expect-error
       proxy.connect(otherAccount).setMaxLoanToValue(400 * 1e6)
-    ).to.be.revertedWith("Ownable: caller is not the owner");
+      // @ts-expect-error
+    ).to.be.revertedWithCustomError(proxy, "CallerNotTheOwner");
   });
 
 
@@ -72,6 +74,7 @@ describeif(network.name === "hardhat")("Proxy Settings", function () {
     await expect(proxyAdmin.upgrade(
       await proxy.getAddress(),
       await settingsV2.getAddress(),
+      // @ts-expect-error
     )).to.emit(proxyDeployment, "Upgraded")
     .withArgs(
       await settingsV2.getAddress()

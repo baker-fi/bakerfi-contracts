@@ -23,7 +23,6 @@ import { time } from "@nomicfoundation/hardhat-network-helpers";
  */
 
 describeif(network.name === "hardhat")("BakerFi Vault For L2s", function () {
-
   it("Deposit with no Flash Loan Fees", async function () {
     const { owner, vault, weth, aave3Pool, strategy, cbETH, flashLender } =
       await loadFixture(deployFunction);
@@ -150,15 +149,14 @@ describeif(network.name === "hardhat")("BakerFi Vault For L2s", function () {
     expect(await vault.tokenPerETH()).to.equal(ethers.parseUnits("1", 18));
   });
 
-
-
-  it("Deposit Fails when the prices are outdated",async ()=> { 
-
-    const { settings, vault, owner, strategy} = await loadFixture(deployFunction);
+  it("Deposit Fails when the prices are outdated", async () => {
+    const { settings, vault, owner, strategy } = await loadFixture(
+      deployFunction
+    );
 
     // Price Max Age 6 Min
     await settings.setPriceMaxAge(360);
-    
+
     // advance time by one hour and mine a new block
     await time.increase(3600);
 
@@ -170,17 +168,18 @@ describeif(network.name === "hardhat")("BakerFi Vault For L2s", function () {
       vault.deposit(owner.address, {
         value: ethers.parseUnits("10", 18),
       })
+      // @ts-expect-error
     ).to.be.revertedWithCustomError(strategy, "OraclePriceOutdated");
-  
   });
 
-  it("Deposit Fails when the prices are outdated",async ()=> { 
-
-    const { settings, vault, owner, strategy} = await loadFixture(deployFunction);
+  it("Deposit Fails when the prices are outdated", async () => {
+    const { settings, vault, owner, strategy } = await loadFixture(
+      deployFunction
+    );
 
     // Price Max Age 6 Min
     await settings.setPriceMaxAge(360);
-    
+
     // advance time by one hour and mine a new block
     await time.increase(3600);
 
@@ -192,37 +191,33 @@ describeif(network.name === "hardhat")("BakerFi Vault For L2s", function () {
       vault.deposit(owner.address, {
         value: ethers.parseUnits("10", 18),
       })
+      // @ts-expect-error
     ).to.be.revertedWithCustomError(strategy, "OraclePriceOutdated");
-  
   });
-  
-  it("Deposit Success with old prices",async ()=> { 
 
-    const { settings, vault, owner} = await loadFixture(deployFunction);
+  it("Deposit Success with old prices", async () => {
+    const { settings, vault, owner } = await loadFixture(deployFunction);
 
     // Price Max Age 10 Hours
     await settings.setPriceMaxAge(360);
-    const tx =  await vault.deposit(owner.address, {
+    const tx = await vault.deposit(owner.address, {
       value: ethers.parseUnits("10", 18),
     });
-
 
     // advance time by one hour and mine a new block
     await time.increase(3600);
 
+    await expect(tx).to.changeEtherBalances(
+      [owner.address],
+      [ethers.parseUnits("-10", 18)]
+    );
+  });
 
-    await expect(tx)
-      .to.changeEtherBalances([owner.address], [ethers.parseUnits("-10", 18)]);   
-  })
-
-
-
-  it("convertToShares should return with outdated prices",async ()=> { 
-
-    const { settings, vault, owner} = await loadFixture(deployFunction);
+  it("convertToShares should return with outdated prices", async () => {
+    const { settings, vault, owner } = await loadFixture(deployFunction);
 
     await settings.setPriceMaxAge(360);
-    
+
     await vault.deposit(owner.address, {
       value: ethers.parseUnits("10", 18),
     });
@@ -233,15 +228,14 @@ describeif(network.name === "hardhat")("BakerFi Vault For L2s", function () {
     expect(await vault.convertToShares(ethers.parseUnits("1", 18))).to.equal(
       1000000000000000000n
     );
-  })
+  });
 
-  it("convertToAssets should return with outdated prices",async ()=> { 
-
-    const { settings, vault, owner} = await loadFixture(deployFunction);
+  it("convertToAssets should return with outdated prices", async () => {
+    const { settings, vault, owner } = await loadFixture(deployFunction);
 
     // Price Max Age 10 Hours
     await settings.setPriceMaxAge(360);
-   
+
     await vault.deposit(owner.address, {
       value: ethers.parseUnits("10", 18),
     });
@@ -252,111 +246,105 @@ describeif(network.name === "hardhat")("BakerFi Vault For L2s", function () {
     expect(await vault.convertToAssets(ethers.parseUnits("1", 18))).to.equal(
       1000000000000000000n
     );
-  })
-
-  it("tokenPerETH should return with outdated prices",async ()=> { 
-
-    const { settings, vault, owner} = await loadFixture(deployFunction);
-  
-    // Price Max Age 10 Hours
-    await settings.setPriceMaxAge(360);
-
-    await vault.deposit(owner.address, {
-      value: ethers.parseUnits("10", 18),
-    });
-   
-    // advance time by one hour and mine a new block
-    await time.increase(3600);
-    
-    expect(await vault.tokenPerETH()).to.equal(
-      1000000000000000000n
-    );
-  })
-
-  it("totalAssets should return with outdated prices",async ()=> { 
-
-    const { settings, vault, owner} = await loadFixture(deployFunction);
-  
-    // Price Max Age 10 Hours
-    await settings.setPriceMaxAge(360);
-
-    await vault.deposit(owner.address, {
-      value: ethers.parseUnits("10", 18),
-    });
-   
-    // advance time by one hour and mine a new block
-    await time.increase(3600);
-    
-    expect(await vault.totalAssets()).to.equal(
-      9962113816060668112n
-    );
-  })
-
-
-  it("Pause and Unpause",async ()=> { 
-    const { vault, owner} = await loadFixture(deployFunction);
-    expect(await vault.paused()).to.equal(
-      false
-    );;
-    await vault.pause();
-    expect(await vault.paused()).to.equal(
-      true
-    );;
-    await vault.unpause();    
-    expect(await vault.paused()).to.equal(
-      false
-    );;
-    
-    await vault.deposit(owner.address, {
-      value: ethers.parseUnits("10", 18),
-    });
-    expect(await vault.totalAssets()).to.greaterThan(
-      0
-    );
-
   });
 
-  it("Withdraw Fails when vault is paused",async ()=> { 
-    const { vault, owner} = await loadFixture(deployFunction);
+  it("tokenPerETH should return with outdated prices", async () => {
+    const { settings, vault, owner } = await loadFixture(deployFunction);
+
+    // Price Max Age 10 Hours
+    await settings.setPriceMaxAge(360);
+
+    await vault.deposit(owner.address, {
+      value: ethers.parseUnits("10", 18),
+    });
+
+    // advance time by one hour and mine a new block
+    await time.increase(3600);
+
+    expect(await vault.tokenPerETH()).to.equal(1000000000000000000n);
+  });
+
+  it("totalAssets should return with outdated prices", async () => {
+    const { settings, vault, owner } = await loadFixture(deployFunction);
+
+    // Price Max Age 10 Hours
+    await settings.setPriceMaxAge(360);
+
+    await vault.deposit(owner.address, {
+      value: ethers.parseUnits("10", 18),
+    });
+
+    // advance time by one hour and mine a new block
+    await time.increase(3600);
+
+    expect(await vault.totalAssets()).to.equal(9962113816060668112n);
+  });
+
+  it("Pause and Unpause", async () => {
+    const { vault, owner } = await loadFixture(deployFunction);
+    expect(await vault.paused()).to.equal(false);
+    await vault.pause();
+    expect(await vault.paused()).to.equal(true);
+    await vault.unpause();
+    expect(await vault.paused()).to.equal(false);
+
+    await vault.deposit(owner.address, {
+      value: ethers.parseUnits("10", 18),
+    });
+    expect(await vault.totalAssets()).to.greaterThan(0);
+  });
+
+  it("Withdraw Fails when vault is paused", async () => {
+    const { vault, owner } = await loadFixture(deployFunction);
 
     await vault.pause();
     await expect(
       vault.withdraw(1)
+      // @ts-expect-error
     ).to.be.revertedWith("Pausable: paused");
-  })
+  });
 
-  it("Deposit Fails when vault is paused",async ()=> { 
-    const { vault, owner} = await loadFixture(deployFunction);
+  it("Deposit Fails when vault is paused", async () => {
+    const { vault, owner } = await loadFixture(deployFunction);
     await vault.pause();
     await expect(
       vault.deposit(owner.address, {
         value: ethers.parseUnits("10", 18),
       })
+      // @ts-expect-error
     ).to.be.revertedWith("Pausable: paused");
-  })
+  });
 
-  it("Rebalance Fails when vault is paused",async ()=> { 
-    const { vault, owner} = await loadFixture(deployFunction);
+  it("Rebalance Fails when vault is paused", async () => {
+    const { vault, owner } = await loadFixture(deployFunction);
     await vault.pause();
     await expect(
-        vault.rebalance()
+      vault.rebalance()
+      // @ts-expect-error
     ).to.be.revertedWith("Pausable: paused");
-  })
+  });
 
-
-
-  it("Transfer ETH to contract should fail",async ()=> { 
-    const { vault, owner} = await loadFixture(deployFunction);
+  it("Transfer ETH to contract should fail", async () => {
+    const { vault, owner } = await loadFixture(deployFunction);
     // Create a transaction object
     let tx = {
       to: await vault.getAddress(),
       // Convert currency unit from ether to wei
       value: ethers.parseUnits("10", 18),
-    }
+    };
     await expect(
       owner.sendTransaction(tx)
+      // @ts-expect-error
     ).to.be.revertedWithCustomError(vault, "ETHTransferNotAllowed");
-  })
+  });
+
+  it("Transfer Ownership in 2 Steps", async function () {
+    const { vault, owner, otherAccount } = await loadFixture(deployFunction);
+    await vault.transferOwnership(otherAccount.address);
+    expect(await vault.pendingOwner()).to.equal(otherAccount.address);
+    await vault.connect(otherAccount).acceptOwnership();
+    expect(await vault.owner()).to.equal(otherAccount.address);
+  });
 });
 
 /**
