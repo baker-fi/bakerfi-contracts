@@ -187,7 +187,7 @@ describeif(network.name === "hardhat")(
       await vault.withdraw(ethers.parseUnits("1", 18));
 
       expect(await provider.getBalance(otherAccount.address)).to.equal(
-        1000000009877192759581596n
+        1000000009877192792268345n
       );
     });
 

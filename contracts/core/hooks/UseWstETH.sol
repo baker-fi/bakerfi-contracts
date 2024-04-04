@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.20;
 pragma experimental ABIEncoderV2;
 
 import {ServiceRegistry, WST_ETH_CONTRACT, ST_ETH_CONTRACT} from "../ServiceRegistry.sol";

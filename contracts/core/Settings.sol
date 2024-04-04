@@ -241,7 +241,7 @@ contract Settings is OwnableUpgradeable2Step, ISettings {
      * - The new withdrawal fee percentage must be a valid percentage value.
      */
     function setWithdrawalFee(uint256 fee) external onlyOwner {
-        if (fee > PERCENTAGE_PRECISION) revert InvalidPercentage();
+        if (fee >= PERCENTAGE_PRECISION) revert InvalidPercentage();
         _withdrawalFee = fee;
         emit WithdrawalFeeChanged(_withdrawalFee);
     }
@@ -270,7 +270,7 @@ contract Settings is OwnableUpgradeable2Step, ISettings {
      * - The new performance fee percentage must be a valid percentage value.
      */
     function setPerformanceFee(uint256 fee) external onlyOwner {
-        if (fee > PERCENTAGE_PRECISION) revert InvalidPercentage();
+        if (fee >= PERCENTAGE_PRECISION) revert InvalidPercentage();
         _performanceFee = fee;
         emit PerformanceFeeChanged(_performanceFee);
     }
@@ -369,4 +369,6 @@ contract Settings is OwnableUpgradeable2Step, ISettings {
     function getPriceMaxAge() external view returns (uint256) {
         return _priceMaxAge;
     }
+
+    uint256[40] private __gap;
 }
