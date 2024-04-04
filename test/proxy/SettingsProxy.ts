@@ -55,7 +55,7 @@ describeif(network.name === "hardhat")("Proxy Settings", function () {
     const { proxy, otherAccount } = await loadFixture(deployFunction);
     await expect(
       proxy.connect(otherAccount).setMaxLoanToValue(400 * 1e6)
-    ).to.be.revertedWith("Ownable: caller is not the owner");
+    ).to.be.revertedWithCustomError(proxy, "CallerNotTheOwner");
   });
 
 

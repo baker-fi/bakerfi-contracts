@@ -357,6 +357,16 @@ describeif(network.name === "hardhat")("BakerFi Vault For L2s", function () {
       owner.sendTransaction(tx)
     ).to.be.revertedWithCustomError(vault, "ETHTransferNotAllowed");
   })
+
+
+  it("Transfer Ownership in 2 Steps", async function () {
+    const { vault, owner, otherAccount} = await loadFixture(deployFunction);
+    await vault.transferOwnership(otherAccount.address);
+    expect(await vault.pendingOwner()).to.equal(otherAccount.address);
+    await vault.connect(otherAccount).acceptOwnership();
+    expect(await vault.owner()).to.equal(otherAccount.address);
+  });
+
 });
 
 /**

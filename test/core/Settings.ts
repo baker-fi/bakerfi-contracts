@@ -136,8 +136,8 @@ describeif(network.name === "hardhat")("Settings", function () {
 
   it("Owner is no able to update ❌", async function () {
     const { settings, owner, otherAccount } = await loadFixture(deployFunction);
-    await expect(settings.setFeeReceiver(owner.address)).to.be.revertedWith(
-      "Ownable: caller is not the owner"
+    await expect(settings.setFeeReceiver(owner.address)).to.be.revertedWithCustomError(
+      settings, "CallerNotTheOwner"
     );
   });
 
@@ -188,7 +188,7 @@ describeif(network.name === "hardhat")("Settings", function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
     await expect(
       settings.enableAccount(otherAccount.address, true)
-    ).to.be.revertedWith("Ownable: caller is not the owner");
+    ).to.be.revertedWithCustomError(  settings, "CallerNotTheOwner");
   });
 
   it("Fail to enable an address that is enabled ✅", async function () {
@@ -230,7 +230,7 @@ describeif(network.name === "hardhat")("Settings", function () {
     const { settings } = await loadFixture(deployFunction);
     await expect(
       settings.setMaxDepositInETH(ethers.parseUnits("1", 17))
-    ).to.be.revertedWith("Ownable: caller is not the owner");
+    ).to.be.revertedWithCustomError(  settings, "CallerNotTheOwner");
   });
 
   
@@ -252,7 +252,7 @@ describeif(network.name === "hardhat")("Settings", function () {
     const { settings } = await loadFixture(deployFunction);
     await expect(
       settings.setRebalancePriceMaxAge(3600)
-    ).to.be.revertedWith("Ownable: caller is not the owner");
+    ).to.be.revertedWithCustomError(  settings, "CallerNotTheOwner");
   });
 
   it("Change Price Max Age ✅", async function () {
@@ -273,7 +273,17 @@ describeif(network.name === "hardhat")("Settings", function () {
     const { settings } = await loadFixture(deployFunction);
     await expect(
       settings.setPriceMaxAge(3600)
-    ).to.be.revertedWith("Ownable: caller is not the owner");
+    ).to.be.revertedWithCustomError(  settings, "CallerNotTheOwner");
+  });
+
+
+  it("Transfer Settings Ownership in 2 Steps", async function () {
+    const { settings, owner, otherAccount} = await loadFixture(deployFunction);
+    await settings.connect(otherAccount).transferOwnership(owner.address);
+    expect(await settings.pendingOwner()).to.equal(owner.address);
+    await settings.connect(owner).acceptOwnership();
+    expect(await settings.pendingOwner()).to.equal("0x0000000000000000000000000000000000000000");
+    expect(await settings.owner()).to.equal(owner.address);
   });
 
 });

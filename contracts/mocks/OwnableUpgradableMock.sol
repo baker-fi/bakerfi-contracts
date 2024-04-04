@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import {OwnableUpgradeable2Step} from "../core/OwnableUpgradable2Step.sol";
+import {OwnableUpgradeable2Step} from "../core/OwnableUpgradeable2Step.sol";
 
 contract OwnableUpgradeable2StepMock is OwnableUpgradeable2Step {
 
