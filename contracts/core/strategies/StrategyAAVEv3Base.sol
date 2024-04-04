@@ -681,4 +681,8 @@ abstract contract StrategyAAVEv3Base is
             (amountIn * _ethUSDOracle.getLatestPrice().price) /
             _collateralOracle.getLatestPrice().price;
     }
+
+    function renounceOwnership() public virtual override {
+        revert InvalidOwner(); 
+    }
 }
