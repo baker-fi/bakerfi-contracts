@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
+
 pragma solidity ^0.8.18;
 contract OwnableUpgradeable2Step is Initializable  {
     
@@ -18,8 +19,8 @@ contract OwnableUpgradeable2Step is Initializable  {
      */
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
-    function __Ownable_init() internal onlyInitializing {
-        _owner = msg.sender;
+    function _Ownable2Step_init(address initialOwner) internal onlyInitializing {
+        _owner = initialOwner;
         emit OwnershipTransferred(address(0), _owner);
     }
 
@@ -32,8 +33,12 @@ contract OwnableUpgradeable2Step is Initializable  {
         if(owner() != msg.sender) revert CallerNotTheOwner();
     }
 
-    function transferOwnership(address newOwner) external onlyOwner {
+    function transferOwnership(address newOwner) public onlyOwner {
         if(newOwner == address(0)) revert InvalidOwnerAddress();
+       _transferOwnership(newOwner);
+    }
+
+    function _transferOwnership(address newOwner) internal virtual {
         _pendingOwner = newOwner;
     }
 
