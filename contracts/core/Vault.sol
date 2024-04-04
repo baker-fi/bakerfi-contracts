@@ -36,7 +36,7 @@ import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/Addr
  *
  * During the beta phase only whitelisted addresses are able to deposit and withdraw
  *
- * The Contract is upgradable and can use a BakerProxy in front of.
+ * The Contract is upgradeable and can use a BakerProxy in front of.
  *
  */
 contract Vault is

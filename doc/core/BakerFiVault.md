@@ -17,7 +17,7 @@ performance, withdraw fees and other kind of settings.
 
 During the beta phase only whitelisted addresses are able to deposit and withdraw
  
-The Contract is upgradable and can use a BakerProxy in front of._
+The Contract is upgradeable and can use a BakerProxy in front of._
 
 ### Deposit
 
