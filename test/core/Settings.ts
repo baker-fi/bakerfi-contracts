@@ -68,6 +68,7 @@ describeif(network.name === "hardhat")("Settings", function () {
     await expect(
       // @ts-expect-error
       settings.connect(otherAccount).setLoanToValue(1100 * 1e6)
+    // @ts-expect-error
     ).to.be.revertedWithCustomError(settings, "InvalidValue");
   });
 
@@ -86,6 +87,7 @@ describeif(network.name === "hardhat")("Settings", function () {
     await expect(
       // @ts-expect-error
       settings.connect(otherAccount).setMaxLoanToValue(400 * 1e6)
+    // @ts-expect-error
     ).to.be.revertedWithCustomError(settings, "InvalidMaxLoanToValue");
   });
 
@@ -94,6 +96,7 @@ describeif(network.name === "hardhat")("Settings", function () {
     await expect(
       // @ts-expect-error
       settings.connect(otherAccount).setMaxLoanToValue(1100 * 1e6)
+    // @ts-expect-error
     ).to.be.revertedWithCustomError(settings, "InvalidPercentage");
   });
 
@@ -109,6 +112,7 @@ describeif(network.name === "hardhat")("Settings", function () {
     await expect(
       // @ts-expect-error
       settings.connect(otherAccount).setWithdrawalFee(1100 * 1e6)
+    // @ts-expect-error
     ).to.be.revertedWithCustomError(settings, "InvalidPercentage");
   });
 
@@ -124,6 +128,7 @@ describeif(network.name === "hardhat")("Settings", function () {
     await expect(
       // @ts-expect-error
       settings.connect(otherAccount).setPerformanceFee(1100 * 1e6)
+    // @ts-expect-error
     ).to.be.revertedWithCustomError(settings, "InvalidPercentage");
   });
 
@@ -136,6 +141,7 @@ describeif(network.name === "hardhat")("Settings", function () {
 
   it("Owner is no able to update ❌", async function () {
     const { settings, owner, otherAccount } = await loadFixture(deployFunction);
+    // @ts-expect-error
     await expect(settings.setFeeReceiver(owner.address)).to.be.revertedWithCustomError(
       settings, "CallerNotTheOwner"
     );
@@ -162,6 +168,7 @@ describeif(network.name === "hardhat")("Settings", function () {
     await expect(
       // @ts-expect-error
       settings.connect(otherAccount).setNrLoops(30)
+    // @ts-expect-error
     ).to.be.revertedWithCustomError(settings, "InvalidLoopCount");
   });
 
@@ -188,6 +195,7 @@ describeif(network.name === "hardhat")("Settings", function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
     await expect(
       settings.enableAccount(otherAccount.address, true)
+    // @ts-expect-error
     ).to.be.revertedWithCustomError(  settings, "CallerNotTheOwner");
   });
 
@@ -201,6 +209,7 @@ describeif(network.name === "hardhat")("Settings", function () {
     await expect(
       // @ts-expect-error
       settings.connect(otherAccount).enableAccount(otherAccount.address, true)
+    // @ts-expect-error
     ).to.be.revertedWithCustomError(settings, "WhiteListAlreadyEnabled");
   });
 
@@ -209,6 +218,7 @@ describeif(network.name === "hardhat")("Settings", function () {
     await expect(
       // @ts-expect-error
       settings.connect(otherAccount).enableAccount(otherAccount.address, false)
+    // @ts-expect-error
     ).to.be.revertedWithCustomError(settings, "WhiteListNotEnabled");
   });
 
@@ -230,6 +240,7 @@ describeif(network.name === "hardhat")("Settings", function () {
     const { settings } = await loadFixture(deployFunction);
     await expect(
       settings.setMaxDepositInETH(ethers.parseUnits("1", 17))
+    // @ts-expect-error
     ).to.be.revertedWithCustomError(  settings, "CallerNotTheOwner");
   });
 
@@ -252,6 +263,7 @@ describeif(network.name === "hardhat")("Settings", function () {
     const { settings } = await loadFixture(deployFunction);
     await expect(
       settings.setRebalancePriceMaxAge(3600)
+    // @ts-expect-error
     ).to.be.revertedWithCustomError(  settings, "CallerNotTheOwner");
   });
 
@@ -273,17 +285,20 @@ describeif(network.name === "hardhat")("Settings", function () {
     const { settings } = await loadFixture(deployFunction);
     await expect(
       settings.setPriceMaxAge(3600)
+      // @ts-expect-error
     ).to.be.revertedWithCustomError(  settings, "CallerNotTheOwner");
   });
 
 
   it("Transfer Settings Ownership in 2 Steps", async function () {
     const { settings, owner, otherAccount} = await loadFixture(deployFunction);
+    // @ts-expect-error
     await settings.connect(otherAccount).transferOwnership(owner.address);
     expect(await settings.pendingOwner()).to.equal(owner.address);
+    // @ts-expect-error
     await settings.connect(owner).acceptOwnership();
     expect(await settings.pendingOwner()).to.equal("0x0000000000000000000000000000000000000000");
     expect(await settings.owner()).to.equal(owner.address);
   });
-
 });
+

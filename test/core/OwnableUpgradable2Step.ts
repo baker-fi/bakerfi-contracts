@@ -37,7 +37,6 @@ describeif(network.name === "hardhat")("OwnableUpgradeable2StepMock", function (
         await ownable.transferOwnership(otherAccount.address);
         expect(await ownable.pendingOwner()).to.equal(otherAccount.address);
         await expect(
-            // @ts-expect-error
             ownable.acceptOwnership()
           ).to.be.revertedWithCustomError(ownable, "CallerNotThePendingOwner");
     });
