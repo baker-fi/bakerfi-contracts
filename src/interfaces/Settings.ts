@@ -5,12 +5,6 @@ export interface SettingsMethods {
 
   getFeeReceiver(): ContractCallMethod<string>;
 
-  getLoanToValue(): ContractCallMethod<number>;
-
-  getMaxLoanToValue(): ContractCallMethod<number>;
-
-  getNrLoops(): ContractCallMethod<number>;
-
   getPerformanceFee(): ContractCallMethod<number>;
 
   getWithdrawalFee(): ContractCallMethod<number>;
@@ -22,12 +16,6 @@ export interface SettingsMethods {
   renounceOwnership(): ContractSendMethod
 
   setFeeReceiver(receiver: string): ContractSendMethod
-
-  setLoanToValue(loanToValue: number): ContractSendMethod
-
-  setMaxLoanToValue(maxLoanToValue: number): ContractSendMethod
-
-  setNrLoops(nrLoops: number): ContractSendMethod
 
   setPerformanceFee(fee: number): ContractSendMethod
 

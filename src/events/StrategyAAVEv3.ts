@@ -5,3 +5,6 @@ export interface StrategyProfitEvent { returnValues: {'amount': number;} }
 export interface SwapEvent { returnValues: {'assetIn': string;'assetOut': string;'assetInAmount': number;'assetOutAmount': number;} }
 export interface StrategyDeployEvent { returnValues: {'from': string; 'amount': number;} }
 export interface StrategyUndeployEvent { returnValues: {'from': string; 'amount': number;} }
+export interface LoanToValueChangedEvent { returnValues: {'value': number;} }
+export interface SetMaxLoanToValueChangedEvent { returnValues: {'value': number;} }
+export interface NrLoopsChangedEvent { returnValues: {'value': number;} }

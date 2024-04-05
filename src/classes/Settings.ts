@@ -25,17 +25,7 @@ export class Settings extends Model<SettingsMethods> implements Deployable {
     return this.callTx(this.contract.methods.getFeeReceiver());
   }
 
-  async getLoanToValue() { 
-    return this.callTx(this.contract.methods.getLoanToValue());
-  }
 
-  async getMaxLoanToValue() { 
-    return this.callTx(this.contract.methods.getMaxLoanToValue());
-  }
-
-  async getNrLoops() { 
-    return this.callTx(this.contract.methods.getNrLoops());
-  }
 
   async getPerformanceFee() { 
     return this.callTx(this.contract.methods.getPerformanceFee());
@@ -55,18 +45,6 @@ export class Settings extends Model<SettingsMethods> implements Deployable {
 
   async setFeeReceiver(receiver: string) { 
     return this.sendTx(this.contract.methods.setFeeReceiver(receiver));
-  }
-
-  async setLoanToValue(loanToValue: number) { 
-    return this.sendTx(this.contract.methods.setLoanToValue(loanToValue));
-  }
-
-  async setMaxLoanToValue(maxLoanToValue: number) { 
-    return this.sendTx(this.contract.methods.setMaxLoanToValue(maxLoanToValue));
-  }
-
-  async setNrLoops(nrLoops: number) { 
-    return this.sendTx(this.contract.methods.setNrLoops(nrLoops));
   }
 
   async setPerformanceFee(fee: number) { 

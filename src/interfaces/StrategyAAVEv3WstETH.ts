@@ -65,4 +65,18 @@ export interface StrategyAAVEv3WstETHMethods {
 
   wstETHA(): ContractCallMethod<string>;
 
+  getLoanToValue(): ContractCallMethod<number>;
+
+  getMaxLoanToValue(): ContractCallMethod<number>;
+
+  getNrLoops(): ContractCallMethod<number>;
+
+  setLoanToValue(loanToValue: number): ContractSendMethod
+
+  setMaxLoanToValue(maxLoanToValue: number): ContractSendMethod
+
+  setNrLoops(nrLoops: number): ContractSendMethod
+
+  governor(): ContractCallMethod<string>;
+
 }
