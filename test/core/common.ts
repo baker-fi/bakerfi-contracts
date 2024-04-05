@@ -84,6 +84,7 @@ export async function deployBase() {
   // 12. Deploy the Strategy
   const { proxy: strategyProxyDeploy } = await deployAAVEv3StrategyAny(
     deployer.address,
+    deployer.address,
     await serviceRegistry.getAddress(),
     "cbETH",
     "cbETH/USD Oracle",
@@ -211,6 +212,7 @@ export async function deployOptimism() {
   // 12. Deploy the Strategy
   const { proxy: strategyProxyDeploy } = await deployAAVEv3StrategyAny(
     deployer.address,
+    deployer.address,
     await serviceRegistry.getAddress(),
     "wstETH",
     "wstETH/USD Oracle",
@@ -337,6 +339,7 @@ export async function deployEthereum() {
 
   // 12. Deploy the Strategy
   const { proxy: strategyProxyDeploy } = await deployStrategyAAVEv3WstETH(
+    deployer.address,
     deployer.address,
     await serviceRegistry.getAddress(),
     config.swapFeeTier,

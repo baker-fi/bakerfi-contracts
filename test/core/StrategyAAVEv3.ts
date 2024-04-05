@@ -144,6 +144,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
     );
     const { proxy: proxyStrategy } = await deployAAVEv3StrategyAny(
       owner.address,
+      owner.address,
       await serviceRegistry.getAddress(),
       "cbETH",
       "cbETH/ETH Oracle",
@@ -300,6 +301,7 @@ async function deployFunction() {
   await deployQuoterV2Mock(serviceRegistry);
 
   const { proxy: proxyStrategy } = await deployAAVEv3StrategyAny(
+    owner.address,
     owner.address,
     serviceRegistryAddress,
     "cbETH",

@@ -24,6 +24,7 @@ import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/se
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import {ETH_USD_ORACLE_CONTRACT} from "../ServiceRegistry.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {StrategyLeverageSettings} from "./StrategyLeverageSettings.sol";
 
 /**
  * @title AAVE v3 Recursive Staking Strategy
@@ -66,7 +67,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
  * conversion between WETH and the collateral
  */
 abstract contract StrategyAAVEv3Base is
-    OwnableUpgradeable,
+    StrategyLeverageSettings,
     IStrategy,
     IERC3156FlashBorrowerUpgradeable,
     UseWETH,
@@ -143,12 +144,15 @@ abstract contract StrategyAAVEv3Base is
      */
     function _initializeStrategyAAVEv3Base(
         address initialOwner,
+        address initialGovernor,
         ServiceRegistry registry,
         bytes32 collateralIERC20,
         bytes32 collateralOracle,
         uint24 swapFeeTier,
         uint8 eModeCategory
     ) internal onlyInitializing {
+        if (initialOwner == address(0)) revert InvalidOwner();
+        _initLeverageSettings(initialOwner, initialGovernor);
         _initUseWETH(registry);
         _initUseIERC20(registry, collateralIERC20);
         _initUseAAVEv3(registry);
@@ -159,10 +163,8 @@ abstract contract StrategyAAVEv3Base is
         _collateralOracle = IOracle(registry.getServiceFromHash(collateralOracle));
         _ethUSDOracle = IOracle(registry.getServiceFromHash(ETH_USD_ORACLE_CONTRACT));
         _swapFeeTier = swapFeeTier;
-        if (initialOwner == address(0)) revert InvalidOwner();
         if (address(_ethUSDOracle) == address(0)) revert InvalidDebtOracle();
-        if (address(_collateralOracle) == address(0)) revert InvalidCollateralOracle();
-        _transferOwnership(initialOwner);
+        if (address(_collateralOracle) == address(0)) revert InvalidCollateralOracle();       
         aaveV3().setUserEMode(eModeCategory);
         if (aaveV3().getUserEMode(address(this)) != eModeCategory) revert InvalidAAVEEMode();
         if (!wETH().approve(uniRouterA(), 2 ** 256 - 1)) revert FailedToApproveAllowance();
@@ -246,8 +248,8 @@ abstract contract StrategyAAVEv3Base is
         // 2. Initiate a WETH Flash Loan
         uint256 leverage = calculateLeverageRatio(
             msg.value,
-            settings().getLoanToValue(),
-            settings().getNrLoops()
+            getLoanToValue(),
+            getNrLoops()
         );
         uint256 loanAmount = leverage - msg.value;
         uint256 fee = flashLender().flashFee(wETHA(), loanAmount);
@@ -450,7 +452,7 @@ abstract contract StrategyAAVEv3Base is
         uint256 totalDebtBaseInEth
     ) internal returns (uint256 deltaDebt) {
         deltaDebt = calculateDebtToPay(
-            settings().getLoanToValue(),
+            getLoanToValue(),
             totalCollateralBaseInEth,
             totalDebtBaseInEth
         );
@@ -505,7 +507,7 @@ abstract contract StrategyAAVEv3Base is
         if (deltaDebt >= totalDebtBaseInEth) revert InvalidDeltaDebt();
 
         uint256 ltv = (totalDebtBaseInEth * PERCENTAGE_PRECISION) / totalCollateralBaseInEth;
-        if (ltv > settings().getMaxLoanToValue() && ltv < PERCENTAGE_PRECISION) {
+        if (ltv > getMaxLoanToValue() && ltv < PERCENTAGE_PRECISION) {
             // Pay Debt to rebalance the position
             deltaDebt = _adjustDebt(totalCollateralBaseInEth, totalDebtBaseInEth);
         }

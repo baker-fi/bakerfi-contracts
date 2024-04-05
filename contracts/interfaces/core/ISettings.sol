@@ -11,23 +11,6 @@ pragma solidity ^0.8.24;
  *
  */
 interface ISettings {
-    /**
-     * @dev Emitted when the maximum allowed loan-to-value ratio is changed.
-     *
-     * This event provides information about the updated maximum loan-to-value ratio.
-     *
-     * @param value The new maximum allowed loan-to-value ratio.
-     */
-    event MaxLoanToValueChanged(uint256 indexed value);
-
-    /**
-     * @dev Emitted when the general loan-to-value ratio is changed.
-     *
-     * This event provides information about the updated loan-to-value ratio.
-     *
-     * @param value The new general loan-to-value ratio.
-     */
-    event LoanToValueChanged(uint256 indexed value);
 
     /**
      * @dev Emitted when the withdrawal fee is changed.
@@ -57,15 +40,6 @@ interface ISettings {
     event FeeReceiverChanged(address indexed value);
 
     /**
-     * @dev Emitted when the number of loops for a specific process is changed.
-     *
-     * This event provides information about the updated number of loops.
-     *
-     * @param value The new number of loops.
-     */
-    event NrLoopsChanged(uint256 indexed value);
-
-    /**
      * @dev Emitted when an account is added or removed from the whitelist.
      *
      * This event provides information about whether an account is enabled or disabled in the whitelist.
@@ -88,20 +62,6 @@ interface ISettings {
      * @param value The new amount that is allowed to be deposited
      */
     event MaxDepositInETHChanged(uint256 indexed value);
-
-    /**
-     * @dev Sets the maximum allowed loan-to-value ratio.
-     *
-     * @param maxLoanToValue The new maximum allowed loan-to-value ratio to be set.
-     */
-    function setMaxLoanToValue(uint256 maxLoanToValue) external;
-
-    /**
-     * @dev Retrieves the maximum allowed loan-to-value ratio.
-     *
-     * @return maxLoanToValue The maximum allowed loan-to-value ratio.
-     */
-    function getMaxLoanToValue() external view returns (uint256);
     /**
      * @dev Sets the withdrawal fee percentage.
      *     *
@@ -115,18 +75,6 @@ interface ISettings {
      * @return fee The withdrawal fee percentage.
      */
     function getWithdrawalFee() external view returns (uint256);
-    /**
-     * @dev Sets the general loan-to-value ratio.
-     *
-     * @param loanToValue The new general loan-to-value ratio to be set.
-     */
-    function setLoanToValue(uint256 loanToValue) external;
-    /**
-     * @dev Retrieves the general loan-to-value ratio.
-     *
-     * @return loanToValue The general loan-to-value ratio.
-     */
-    function getLoanToValue() external view returns (uint256);
     /**
      * @dev Sets the performance fee percentage.
      *
@@ -152,18 +100,6 @@ interface ISettings {
      * @return receiver The fee receiver address.
      */
     function getFeeReceiver() external view returns (address);
-    /**
-     * @dev Retrieves the number of loops for our Recursive Staking Strategy
-     *
-     * @return nrLoops The number of loops.
-     */
-    function getNrLoops() external view returns (uint8);
-    /**
-     * @dev Sets the number of loops for our Recursive Staking Strategy
-     *
-     * @param nrLoops The new number of loops to be set.
-     */
-    function setNrLoops(uint8 nrLoops) external;
     /**
      * @dev Enables or disables an account in the whitelist.
      *

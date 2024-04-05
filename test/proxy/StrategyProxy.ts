@@ -99,6 +99,7 @@ describeif(network.name === "hardhat")("Strategy Proxy", function () {
       await proxyAdmin.getAddress(),
       StrategyAAVEv3.interface.encodeFunctionData("initialize", [
         owner.address,
+        owner.address,
         serviceRegistryAddress,
         ethers.keccak256(Buffer.from("cbETH")),
         ethers.keccak256(Buffer.from("cbETH/ETH Oracle")),

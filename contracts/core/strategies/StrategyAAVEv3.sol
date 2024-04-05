@@ -33,6 +33,7 @@ contract StrategyAAVEv3 is Initializable, StrategyAAVEv3Base {
     // solhint-disable no-empty-blocks
     function initialize(
         address initialOwner,
+        address initialGovernor,
         ServiceRegistry registry,
         bytes32 collateral,
         bytes32 oracle,
@@ -41,6 +42,7 @@ contract StrategyAAVEv3 is Initializable, StrategyAAVEv3Base {
     ) public initializer {
         _initializeStrategyAAVEv3Base(
             initialOwner,
+            initialGovernor,
             registry,
             collateral,
             oracle,

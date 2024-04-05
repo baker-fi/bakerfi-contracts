@@ -4,7 +4,7 @@ pragma experimental ABIEncoderV2;
 
 import {Settings} from "../core/Settings.sol";
 
-contract SettingsFuzzing {
+/*contract SettingsFuzzing {
     Settings private settings;
 
     constructor() {
@@ -24,3 +24,4 @@ contract SettingsFuzzing {
         return settings.getMaxLoanToValue() >= settings.getLoanToValue();
     }
 }
+*/

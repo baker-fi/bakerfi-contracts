@@ -34,8 +34,6 @@ describeif(network.name === "hardhat")("Proxy Settings", function () {
 
   it("Settings Initialization ", async function () {
     const { proxy } = await loadFixture(deployFunction);    
-    expect(await proxy.getLoanToValue()).to.equal(800 * 1e6);
-    expect(await proxy.getMaxLoanToValue()).to.equal(850 * 1e6);
     expect(await proxy.getWithdrawalFee()).to.equal(10 * 1e6);
     expect(await proxy.getPerformanceFee()).to.equal(10 * 1e6);
     expect(await proxy.getFeeReceiver()).to.equal(
@@ -45,8 +43,8 @@ describeif(network.name === "hardhat")("Proxy Settings", function () {
 
   it("Proxy Owner Update settings", async function () {
     const { proxy } = await loadFixture(deployFunction);    
-    await proxy.setLoanToValue(700 * 1e6);
-    expect(await proxy.getLoanToValue()).to.equal(
+    await proxy.setPerformanceFee(700 * 1e6);
+    expect(await proxy.getPerformanceFee()).to.equal(
       700 * 1e6
     );
   });
@@ -55,7 +53,7 @@ describeif(network.name === "hardhat")("Proxy Settings", function () {
     const { proxy, otherAccount } = await loadFixture(deployFunction);
     await expect(
       // @ts-expect-error
-      proxy.connect(otherAccount).setMaxLoanToValue(400 * 1e6)
+      proxy.connect(otherAccount).setPerformanceFee(400 * 1e6)
       // @ts-expect-error
     ).to.be.revertedWith("Ownable: caller is not the owner");
   });
@@ -64,7 +62,7 @@ describeif(network.name === "hardhat")("Proxy Settings", function () {
   it("Proxy Owner Upgrade settings implementation", async function () {
     const { deployer, proxyAdmin, proxy, proxyDeployment} = await loadFixture(deployFunction);        
     
-    await proxy.setLoanToValue(700 * 1e6);
+    await proxy.setPerformanceFee(700 * 1e6);
 
     const SettingsV2 = await ethers.getContractFactory("SettingsV2");   
     const settingsV2 = await SettingsV2.deploy();
@@ -82,7 +80,7 @@ describeif(network.name === "hardhat")("Proxy Settings", function () {
 
     const proxyNew = SettingsV2.attach(await proxy.getAddress());    
 
-    expect(await proxyNew.getLoanToValue()).to.equal(
+    expect(await proxyNew.getPerformanceFee()).to.equal(
       700 * 1e6
     );
     expect(await proxyNew.getNumber()).to.equal(10);
