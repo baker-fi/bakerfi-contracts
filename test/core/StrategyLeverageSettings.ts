@@ -34,7 +34,6 @@ describeif(network.name === "hardhat")("StrategyLeverageSettings", function () {
   it("Fail Transfer Governship - Invalid Address", async function () {
     const { settings, owner, otherAccount } = await loadFixture(deployFunction);
     await expect(
-      // @ts-expect-error
       settings
         .connect(otherAccount)
         .transferGovernorship("0x0000000000000000000000000000000000000000")
