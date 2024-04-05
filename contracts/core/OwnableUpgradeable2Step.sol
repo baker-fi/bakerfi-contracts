@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.24;
 
 /**
  * @title OwnableUpgradeable2Step

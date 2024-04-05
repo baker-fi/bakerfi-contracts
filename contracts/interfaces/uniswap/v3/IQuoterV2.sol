@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.24;
 
 /// @title QuoterV2 Interface
 /// @notice Supports quoting the calculated amounts from exact input or exact output swaps.
