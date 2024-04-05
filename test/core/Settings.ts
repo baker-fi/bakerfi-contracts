@@ -142,9 +142,7 @@ describeif(network.name === "hardhat")("Settings", function () {
   it("Owner is no able to update ❌", async function () {
     const { settings, owner, otherAccount } = await loadFixture(deployFunction);
     // @ts-expect-error
-    await expect(settings.setFeeReceiver(owner.address)).to.be.revertedWithCustomError(
-      settings, "CallerNotTheOwner"
-    );
+    await expect(settings.setFeeReceiver(owner.address)).to.be.revertedWith("Ownable: caller is not the owner");
   });
 
   it("Change Max Loan To value ✅", async function () {
@@ -196,7 +194,7 @@ describeif(network.name === "hardhat")("Settings", function () {
     await expect(
       settings.enableAccount(otherAccount.address, true)
     // @ts-expect-error
-    ).to.be.revertedWithCustomError(  settings, "CallerNotTheOwner");
+    ).to.be.revertedWith("Ownable: caller is not the owner");
   });
 
   it("Fail to enable an address that is enabled ✅", async function () {
@@ -241,7 +239,7 @@ describeif(network.name === "hardhat")("Settings", function () {
     await expect(
       settings.setMaxDepositInETH(ethers.parseUnits("1", 17))
     // @ts-expect-error
-    ).to.be.revertedWithCustomError(  settings, "CallerNotTheOwner");
+    ).to.be.revertedWith("Ownable: caller is not the owner");
   });
 
   
@@ -264,7 +262,7 @@ describeif(network.name === "hardhat")("Settings", function () {
     await expect(
       settings.setRebalancePriceMaxAge(3600)
     // @ts-expect-error
-    ).to.be.revertedWithCustomError(  settings, "CallerNotTheOwner");
+    ).to.be.revertedWith("Ownable: caller is not the owner");
   });
 
   it("Change Price Max Age ✅", async function () {
@@ -286,7 +284,7 @@ describeif(network.name === "hardhat")("Settings", function () {
     await expect(
       settings.setPriceMaxAge(3600)
       // @ts-expect-error
-    ).to.be.revertedWithCustomError(  settings, "CallerNotTheOwner");
+    ).to.be.revertedWith("Ownable: caller is not the owner");
   });
 
 

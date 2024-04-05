@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.24;
 
-import {OwnableUpgradeable2Step} from "./OwnableUpgradeable2Step.sol";
+import {Ownable2StepUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 import {PERCENTAGE_PRECISION, MAX_LOOPS} from "./Constants.sol";
 import {ISettings} from "../interfaces/core/ISettings.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
@@ -21,7 +21,7 @@ import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet
  * the fees, basic configuration parameters and the list of whitelisted adresess that can
  * interact with the system
  */
-contract Settings is OwnableUpgradeable2Step, ISettings {
+contract Settings is Ownable2StepUpgradeable, ISettings {
     error InvalidOwner();
     error WhiteListAlreadyEnabled();
     error WhiteListFailedToAdd();
@@ -117,7 +117,7 @@ contract Settings is OwnableUpgradeable2Step, ISettings {
      */
     function initialize(address initialOwner) public initializer {
         if (initialOwner == address(0)) revert InvalidOwner();
-        _Ownable2Step_init(initialOwner);
+        _transferOwnership(initialOwner);
         _withdrawalFee = 10 * 1e6; // 1%
         _performanceFee = 10 * 1e6; // 1%
         _feeReceiver = address(0); // No Fee Receiver
