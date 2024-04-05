@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {Ownable2StepUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
-import {PERCENTAGE_PRECISION, MAX_LOOPS} from "./Constants.sol";
+import {PERCENTAGE_PRECISION } from "./Constants.sol";
 import {ISettings} from "../interfaces/core/ISettings.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 /**

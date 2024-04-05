@@ -95,24 +95,12 @@ export class Settings extends Model<SettingsMethods> implements Deployable {
     return this.contract.self.getPastEvents('FeeReceiverChanged', filter);
   }
 
-  async getLoanToValueChangedEvents(filter: PastEventOptions): XPromiseEvent<Events.LoanToValueChangedEvent> {
-    return this.contract.self.getPastEvents('LoanToValueChanged', filter);
-  }
-
-  async getNrLoopsChangedEvents(filter: PastEventOptions): XPromiseEvent<Events.NrLoopsChangedEvent> {
-    return this.contract.self.getPastEvents('NrLoopsChanged', filter);
-  }
-
   async getOwnershipTransferredEvents(filter: PastEventOptions): XPromiseEvent<Events.OwnershipTransferredEvent> {
     return this.contract.self.getPastEvents('OwnershipTransferred', filter);
   }
 
   async getPerformanceFeeChangedEvents(filter: PastEventOptions): XPromiseEvent<Events.PerformanceFeeChangedEvent> {
     return this.contract.self.getPastEvents('PerformanceFeeChanged', filter);
-  }
-
-  async getSetMaxLoanToValueChangedEvents(filter: PastEventOptions): XPromiseEvent<Events.SetMaxLoanToValueChangedEvent> {
-    return this.contract.self.getPastEvents('SetMaxLoanToValueChanged', filter);
   }
 
   async getWithdrawalFeeChangedEvents(filter: PastEventOptions): XPromiseEvent<Events.WithdrawalFeeChangedEvent> {
