@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.24;
 
-import {OwnableUpgradeable2Step} from "./OwnableUpgradeable2Step.sol";
+import {Ownable2StepUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import {Rebase, RebaseLibrary} from "../libraries/RebaseLibrary.sol";
@@ -40,7 +40,7 @@ import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/Addr
  *
  */
 contract Vault is
-    OwnableUpgradeable2Step,
+    Ownable2StepUpgradeable,
     PausableUpgradeable,
     ReentrancyGuardUpgradeable,
     ERC20PermitUpgradeable,
@@ -111,7 +111,7 @@ contract Vault is
         __ERC20Permit_init(tokenName);
         __ERC20_init(tokenName, tokenSymbol);
         if (initialOwner == address(0)) revert InvalidOwner();        
-        _Ownable2Step_init(initialOwner);
+        _transferOwnership(initialOwner);
         _initUseSettings(registry);
         _strategy = strategy;
     }

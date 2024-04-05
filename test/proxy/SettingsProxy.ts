@@ -57,7 +57,7 @@ describeif(network.name === "hardhat")("Proxy Settings", function () {
       // @ts-expect-error
       proxy.connect(otherAccount).setMaxLoanToValue(400 * 1e6)
       // @ts-expect-error
-    ).to.be.revertedWithCustomError(proxy, "CallerNotTheOwner");
+    ).to.be.revertedWith("Ownable: caller is not the owner");
   });
 
 
