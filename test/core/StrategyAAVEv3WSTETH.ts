@@ -110,7 +110,7 @@ describeif(network.name === "hardhat")(
       });
       // Descrease the Collateral value by 10%
       await oracle.setLatestPrice(ethers.parseUnits("2394", 18));
-      await settings.setMaxLoanToValue(800 * 1e6);
+      await strategy.setMaxLoanToValue(800 * 1e6);
 
       expect(await strategy.getPosition()).to.deep.equal([
         41132566397488201301n,
@@ -229,6 +229,7 @@ async function deployFunction() {
   await ethOracle.setLatestPrice(ethers.parseUnits("2305", 18));
 
   const { proxy: proxyStrategy } = await deployStrategyAAVEv3WstETH(
+    owner.address,
     owner.address,
     serviceRegistryAddress,
     config.swapFeeTier,

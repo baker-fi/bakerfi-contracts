@@ -433,6 +433,7 @@ async function deployFunction() {
 
   const { proxy: proxyStrategy } = await deployAAVEv3StrategyAny(
     owner.address,
+    owner.address,
     serviceRegistryAddress,
     "cbETH",
     "cbETH/USD Oracle",

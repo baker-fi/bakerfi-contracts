@@ -81,6 +81,7 @@ export async function deployVault(
 
 export async function deployStrategyAAVEv3WstETH(
   owner: string,
+  governor: string,
   serviceRegistry: string,
   swapFreeTier: number,
   emodeCategory: number,
@@ -97,6 +98,7 @@ export async function deployStrategyAAVEv3WstETH(
     await proxyAdmin.getAddress(),
     StrategyAAVEv3.interface.encodeFunctionData("initialize", [
       owner,
+      governor,
       serviceRegistry,
       swapFreeTier,
       emodeCategory,
@@ -108,6 +110,7 @@ export async function deployStrategyAAVEv3WstETH(
 
 export async function deployAAVEv3StrategyAny(
   owner: string,
+  governor: string,
   serviceRegistry: string,
   collateral: string,
   oracle: string,
@@ -124,6 +127,7 @@ export async function deployAAVEv3StrategyAny(
     await proxyAdmin.getAddress(),
     StrategyAAVEv3.interface.encodeFunctionData("initialize", [
       owner,
+      governor,
       serviceRegistry,
       ethers.keccak256(Buffer.from(collateral)),
       ethers.keccak256(Buffer.from(oracle)),

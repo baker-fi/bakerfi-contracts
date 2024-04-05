@@ -284,7 +284,7 @@ describeif(network.name === "hardhat")(
       });
 
       await oracle.setLatestPrice(ethers.parseUnits("2394", 18));
-      await settings.setMaxLoanToValue(800 * 1e6);
+      await strategy.setMaxLoanToValue(800 * 1e6);
 
       await expect(vault.rebalance())
         .to.emit(aave3Pool, "Repay")
@@ -579,6 +579,7 @@ async function deployFunction() {
   await ethOracle.setLatestPrice(ethers.parseUnits("2305", 18));
 
   const { proxy: proxyStrategy } = await deployStrategyAAVEv3WstETH(
+    owner.address,
     owner.address,
     serviceRegistryAddress,
     config.swapFeeTier,

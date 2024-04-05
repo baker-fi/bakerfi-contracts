@@ -31,6 +31,8 @@ export interface AAVEv3StrategyAnyMethods {
 
   owner(): ContractCallMethod<string>;
 
+  governor(): ContractCallMethod<string>;
+
   registerSvc(): ContractCallMethod<string>;
 
   renounceOwnership(): ContractSendMethod
@@ -56,5 +58,17 @@ export interface AAVEv3StrategyAnyMethods {
   wETH(): ContractCallMethod<string>;
 
   wETHA(): ContractCallMethod<string>;
+  
+  getLoanToValue(): ContractCallMethod<number>;
+
+  getMaxLoanToValue(): ContractCallMethod<number>;
+
+  getNrLoops(): ContractCallMethod<number>;
+
+  setLoanToValue(loanToValue: number): ContractSendMethod
+
+  setMaxLoanToValue(maxLoanToValue: number): ContractSendMethod
+
+  setNrLoops(nrLoops: number): ContractSendMethod
 
 }

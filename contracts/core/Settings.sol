@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {Ownable2StepUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
-import {PERCENTAGE_PRECISION, MAX_LOOPS} from "./Constants.sol";
+import {PERCENTAGE_PRECISION } from "./Constants.sol";
 import {ISettings} from "../interfaces/core/ISettings.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 /**
@@ -58,28 +58,6 @@ contract Settings is Ownable2StepUpgradeable, ISettings {
      * If set to the zero address, there is no fee receiver.
      */
     address private _feeReceiver; // No Fee Receiver
-
-    /**
-     * @dev The loan-to-value ratio for managing loans.
-     *
-     * This private state variable holds the loan-to-value ratio, represented as an integer.
-     */
-    uint256 private _loanToValue; // 80%
-
-    /**
-     * @dev The maximum allowed loan-to-value ratio.
-     *
-     * This private state variable holds the maximum allowed loan-to-value ratio, represented as an integer.
-     */
-    uint256 private _maxLoanToValue; // 85%
-
-    /**
-     * @dev The number of loops for a specific process.
-     *
-     * This private state variable holds the number of loops for a specific process, represented as an unsigned integer.
-     */
-    uint8 private _nrLoops;
-
     /**
      * @dev The set of enabled accounts.
      *
@@ -121,9 +99,6 @@ contract Settings is Ownable2StepUpgradeable, ISettings {
         _withdrawalFee = 10 * 1e6; // 1%
         _performanceFee = 10 * 1e6; // 1%
         _feeReceiver = address(0); // No Fee Receiver
-        _loanToValue = 800 * 1e6; // 80%
-        _maxLoanToValue = 850 * 1e6; // 85%
-        _nrLoops = 10;
         _maxDepositInETH = 0;
         _priceRebalanceMaxAge = 5 minutes; // 5 Minutes Prices
         _priceMaxAge = 60 minutes;
@@ -163,69 +138,6 @@ contract Settings is Ownable2StepUpgradeable, ISettings {
      */
     function isAccountEnabled(address account) external view returns (bool) {
         return _enabledAccounts.length() == 0 || _enabledAccounts.contains(account);
-    }
-
-    /**
-     * @dev Sets the maximum allowed loan-to-value ratio.
-     *
-     * This function can only be called by the owner and is used to update the maximum allowed loan-to-value ratio.
-     * Emits a {MaxLoanToValueChanged} event upon successful update.
-     *
-     * @param maxLoanToValue The new maximum allowed loan-to-value ratio to be set.
-     *
-     * Requirements:
-     * - The caller must be the owner of the contract.
-     */
-    function setMaxLoanToValue(uint256 maxLoanToValue) external onlyOwner {
-        if (maxLoanToValue == 0) revert InvalidValue();
-        if (maxLoanToValue > PERCENTAGE_PRECISION) revert InvalidPercentage();
-        if (maxLoanToValue < _loanToValue) revert InvalidMaxLoanToValue();
-        _maxLoanToValue = maxLoanToValue;
-        emit MaxLoanToValueChanged(_maxLoanToValue);
-    }
-
-    /**
-     * @dev Retrieves the maximum allowed loan-to-value ratio.
-     *
-     * This function is externally callable and returns the maximum allowed loan-to-value ratio.
-     *
-     * @return maxLoanToValue The maximum allowed loan-to-value ratio.
-     */
-    function getMaxLoanToValue() external view returns (uint256) {
-        return _maxLoanToValue;
-    }
-
-    /**
-     * @dev Sets the general loan-to-value ratio.
-     *
-     * This function can only be called by the owner and is used to update the general loan-to-value ratio.
-     * Emits a {LoanToValueChanged} event upon successful update.
-     *
-     * @param loanToValue The new general loan-to-value ratio to be set.
-     *
-     * Requirements:
-     * - The caller must be the owner of the contract.
-     * - The new loan-to-value ratio must be less than or equal to the maximum allowed loan-to-value ratio.
-     * - The new loan-to-value ratio must be a valid percentage value.
-     * - The new loan-to-value ratio must be greater than 0.
-     */
-    function setLoanToValue(uint256 loanToValue) external onlyOwner {
-        if (loanToValue > _maxLoanToValue) revert InvalidValue();
-        if (loanToValue > PERCENTAGE_PRECISION) revert InvalidPercentage();
-        if (loanToValue == 0) revert InvalidValue();
-        _loanToValue = loanToValue;
-        emit LoanToValueChanged(_loanToValue);
-    }
-
-    /**
-     * @dev Retrieves the general loan-to-value ratio.
-     *
-     * This function is externally callable and returns the general loan-to-value ratio.
-     *
-     * @return loanToValue The general loan-to-value ratio.
-     */
-    function getLoanToValue() external view returns (uint256) {
-        return _loanToValue;
     }
 
     /**
@@ -312,35 +224,6 @@ contract Settings is Ownable2StepUpgradeable, ISettings {
      */
     function getFeeReceiver() external view returns (address) {
         return _feeReceiver;
-    }
-
-    /**
-     * @dev Retrieves the number of loops for our Recursive Staking Strategy
-     *
-     * This function is externally callable and returns the number of loops configured.
-     *
-     * @return nrLoops The number of loops.
-     */
-    function getNrLoops() external view returns (uint8) {
-        return _nrLoops;
-    }
-
-    /**
-     * @dev Sets the number of loops for our Recursive Staking Strategy
-     *
-     * This function can only be called by the owner and is used to update the number of loops.
-     * Emits an {NrLoopsChanged} event upon successful update.
-     *
-     * @param nrLoops The new number of loops to be set.
-     *
-     * Requirements:
-     * - The caller must be the owner of the contract.
-     * - The new number of loops must be less than the maximum allowed number of loops.
-     */
-    function setNrLoops(uint8 nrLoops) external onlyOwner {
-        if (nrLoops > MAX_LOOPS) revert InvalidLoopCount();
-        _nrLoops = nrLoops;
-        emit NrLoopsChanged(_nrLoops);
     }
 
     function getMaxDepositInETH() external view returns (uint256) {

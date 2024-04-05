@@ -43,7 +43,7 @@ const config: HardhatUserConfig = {
     local: {
       chainId: 1337,
       hardfork: 'shanghai',
-      url: "http://localhost:8545",
+      url: "http://127.0.0.1:8545",
       accounts: STAGING_ACCOUNTS_PKEYS,      
     },
     mainnet: {

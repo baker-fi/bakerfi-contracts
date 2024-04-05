@@ -140,6 +140,10 @@ export class StrategyAAVEv3
     return this.callTx(this.contract.methods.owner());
   }
 
+  async governor() {
+    return this.callTx(this.contract.methods.governor());
+  }
+
   async registerSvc() {
     return this.callTx(this.contract.methods.registerSvc());
   }
@@ -192,6 +196,30 @@ export class StrategyAAVEv3
     return this.callTx(this.contract.methods.wETHA());
   }
 
+  async getLoanToValue() { 
+    return this.callTx(this.contract.methods.getLoanToValue());
+  }
+
+  async getMaxLoanToValue() { 
+    return this.callTx(this.contract.methods.getMaxLoanToValue());
+  }
+
+  async getNrLoops() { 
+    return this.callTx(this.contract.methods.getNrLoops());
+  }
+
+  async setLoanToValue(loanToValue: number) { 
+    return this.sendTx(this.contract.methods.setLoanToValue(loanToValue));
+  }
+
+  async setMaxLoanToValue(maxLoanToValue: number) { 
+    return this.sendTx(this.contract.methods.setMaxLoanToValue(maxLoanToValue));
+  }
+
+  async setNrLoops(nrLoops: number) { 
+    return this.sendTx(this.contract.methods.setNrLoops(nrLoops));
+  }
+
   async getOwnershipTransferredEvents(
     filter: PastEventOptions
   ): XPromiseEvent<Events.OwnershipTransferredEvent> {
@@ -233,4 +261,17 @@ export class StrategyAAVEv3
   ): XPromiseEvent<Events.StrategyUndeployEvent> {
     return this.contract.self.getPastEvents("StrategyUndeploy", filter);
   }
+
+  async getLoanToValueChangedEvents(filter: PastEventOptions): XPromiseEvent<Events.LoanToValueChangedEvent> {
+    return this.contract.self.getPastEvents('LoanToValueChanged', filter);
+  }
+
+  async getNrLoopsChangedEvents(filter: PastEventOptions): XPromiseEvent<Events.NrLoopsChangedEvent> {
+    return this.contract.self.getPastEvents('NrLoopsChanged', filter);
+  }
+  
+  async getSetMaxLoanToValueChangedEvents(filter: PastEventOptions): XPromiseEvent<Events.SetMaxLoanToValueChangedEvent> {
+    return this.contract.self.getPastEvents('SetMaxLoanToValueChanged', filter);
+  }
+  
 }

@@ -175,6 +175,7 @@ async function main() {
   spinner.text = "Deploying StrategyAAVEv3WstETH";
   const { strategy, proxy: strategyProxy } = await deployStrategyAAVEv3WstETH(
     owner.address,
+    owner.address,
     await serviceRegistry.getAddress(),
     config.swapFeeTier,
     config.AAVEEModeCategory,

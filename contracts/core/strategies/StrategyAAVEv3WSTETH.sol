@@ -37,12 +37,14 @@ contract StrategyAAVEv3WstETH is Initializable, StrategyAAVEv3Base, UseWstETH, U
     // solhint-disable no-empty-blocks
     function initialize(
         address initialOwner,
+        address initialGovernor,
         ServiceRegistry registry,
         uint24 swapFeeTier,
         uint8 eModeCategory
     ) public initializer {
         _initializeStrategyAAVEv3Base(
             initialOwner,
+            initialGovernor,
             registry,
             WST_ETH_CONTRACT,
             WSTETH_USD_ORACLE_CONTRACT,
