@@ -143,18 +143,18 @@ task("vault:assets", "Prints an account's share balance")
   });
 
 
-task("settings:setLoanToValue", "Set Target Loan To value")
+task("strategy:setLoanToValue", "Set Target Loan To value")
   .addParam("value", "The new target LTV")
   .setAction(async ({value}, { ethers, network}) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Settting Target LTV ${value}`).start();
     try {
-      const settings = await ethers.getContractAt(
-        "Settings",
-        networkConfig.settingsProxy?? ""
+      const strategy = await ethers.getContractAt(
+        "StrategyAAVEv3",
+        networkConfig.strategyProxy?? ""
       );
-      await settings.setLoanToValue(value);
+      await strategy.setLoanToValue(value);
       spinner.succeed(`🧑‍🍳 Target LTV Changed to ${value} ✅ `);
     } catch (e) {
       console.log(e);
@@ -162,17 +162,17 @@ task("settings:setLoanToValue", "Set Target Loan To value")
     }
 });
 
-task("settings:getLoanToValue", "Set Target Loan To value")
+task("strategy:getLoanToValue", "Set Target Loan To value")
   .setAction(async ({value}, { ethers, network}) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Getting Target LTV `).start();
     try {
-      const settings = await ethers.getContractAt(
-        "Settings",
-        networkConfig.settingsProxy?? ""
+      const strategy = await ethers.getContractAt(
+        "StrategyAAVEv3",
+        networkConfig.strategyProxy?? ""
       );
-      const value = await settings.getLoanToValue();
+      const value = await strategy.getLoanToValue();
       spinner.succeed(`🧑‍🍳 LTV = ${value} `);
     } catch (e) {
       console.log(e);
@@ -188,11 +188,11 @@ task("settings:setMaxLoanToValue", "Set Max Target Loan To value")
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Settting Max Target LTV ${value}`).start();
     try {
-      const settings = await ethers.getContractAt(
-        "Settings",
-        networkConfig.settingsProxy?? ""
+      const strategy = await ethers.getContractAt(
+        "StrategyAAVEv3",
+        networkConfig.strategyProxy?? ""
       );
-      await settings.setMaxLoanToValue(value);
+      await strategy.setMaxLoanToValue(value);
       spinner.succeed(`🧑‍🍳 Max LTV Changed to  ${value} ✅ `);
     } catch (e) {
       console.log(e);
@@ -201,17 +201,17 @@ task("settings:setMaxLoanToValue", "Set Max Target Loan To value")
 });
 
 
-task("settings:getMaxLoanToValue", "Get Max Target Loan To value")
+task("strategy:getMaxLoanToValue", "Get Max Target Loan To value")
   .setAction(async ({}, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Getting Max Target LTV`).start();
     try {
-      const settings = await ethers.getContractAt(
-        "Settings",
-        networkConfig.settingsProxy?? ""
+      const strategy = await ethers.getContractAt(
+        "StrategyAAVEv3",
+        networkConfig.strategyProxy?? ""
       );
-      const value = await settings.getMaxLoanToValue();
+      const value = await strategy.getMaxLoanToValue();
       spinner.succeed(`🧑‍🍳 Max LTV ${value} `);
     } catch (e) {
       console.log(e);
@@ -316,17 +316,17 @@ task("settings:setFeeReceiver", "Set Fee Receiver Accoutn")
 });
 
 
-task("settings:getNrLoops", "Get Recursive Number of Loops")
+task("strategy:getNrLoops", "Get Recursive Number of Loops")
   .setAction(async ({}, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Gettting Nr Loop ${networkConfig.settings}`).start();
     try {
-      const settings = await ethers.getContractAt(
-        "Settings",
-        networkConfig.settingsProxy?? ""
+      const strategy = await ethers.getContractAt(
+        "StrategyAAVEv3",
+        networkConfig.strategyProxy?? ""
       );
-      const value = await settings.getNrLoops();
+      const value = await strategy.getNrLoops();
       spinner.succeed(`🧑‍🍳 Nr of Loops ${value} `);
     } catch (e) {
       console.log(e);
@@ -335,18 +335,18 @@ task("settings:getNrLoops", "Get Recursive Number of Loops")
 });
 
 
-task("settings:setNrLoops", "Set number of Loopps")
+task("strategy:setNrLoops", "Set number of Loopps")
   .addParam("value", "loop coount")
   .setAction(async ({value}, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Settting Nr Of Loops to ${value}`).start();
     try {
-      const settings = await ethers.getContractAt(
+      const strategy = await ethers.getContractAt(
         "Settings",
-        networkConfig.settingsProxy?? ""
+        networkConfig.strategyProxy?? ""
       );
-      await settings.setNrLoops(value);
+      await strategy.setNrLoops(value);
       spinner.succeed(`🧑‍🍳 Nr of Loops Changed to ${value} ✅ `);
     } catch (e) {
       console.log(e);
