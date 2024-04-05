@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.24;
 
 import {StrategyAAVEv3Base} from "./StrategyAAVEv3Base.sol";
 import {ServiceRegistry} from "../../core/ServiceRegistry.sol";

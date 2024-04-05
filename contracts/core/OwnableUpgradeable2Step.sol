@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: BUSL-1.1
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.24;
 
 /**
  * @title OwnableUpgradeable2Step
  * @dev This contract implements a two-step ownership transfer mechanism.
  */
 contract OwnableUpgradeable2Step is Initializable {
+    
     address private _owner;
     address private _pendingOwner;
 
@@ -90,4 +91,6 @@ contract OwnableUpgradeable2Step is Initializable {
     function owner() public view returns (address) {
         return _owner;
     }
+
+    uint256[48] private __gap;
 }

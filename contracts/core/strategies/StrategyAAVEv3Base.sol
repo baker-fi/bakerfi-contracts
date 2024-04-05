@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.24;
 
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {IERC3156FlashBorrowerUpgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashBorrowerUpgradeable.sol";
@@ -685,4 +685,6 @@ abstract contract StrategyAAVEv3Base is
     function renounceOwnership() public virtual override {
         revert InvalidOwner(); 
     }
+    
+    uint256[44] private __gap;
 }

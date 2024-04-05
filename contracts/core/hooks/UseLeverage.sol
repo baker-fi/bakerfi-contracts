@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.24;
 import {PERCENTAGE_PRECISION, MAX_LOOPS} from "../Constants.sol";
 
 contract UseLeverage {
@@ -7,6 +7,7 @@ contract UseLeverage {
     error InvalidLoanToValue();
     error InvalidPercentageValue();
     error InvalidTargetValue();
+    error InvalidDivisor();
     /**
      * @dev Calculates the leverage ratio based on the provided parameters.
      *
@@ -73,6 +74,7 @@ contract UseLeverage {
         if (colValue >= debt) revert InvalidTargetValue();
         uint256 numerator = debt - colValue;
         uint256 divisor = (PERCENTAGE_PRECISION - targetLoanToValue);
+        if (divisor == 0) revert InvalidDivisor();
         delta = (numerator * PERCENTAGE_PRECISION) / divisor;
     }
 }

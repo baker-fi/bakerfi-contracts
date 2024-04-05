@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.24;
 
 import {OwnableUpgradeable2Step} from "./OwnableUpgradeable2Step.sol";
 import {PausableUpgradeable} from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
@@ -340,4 +340,11 @@ contract Vault is
     function unpause() external onlyOwner {
         _unpause();
     }
+
+    /**
+     * @dev This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * 
+     */
+    uint256[49] private __gap;
 }
