@@ -228,6 +228,7 @@ async function deployStrategy(
     case "base":
       const res = await deployAAVEv3StrategyAny(
         deployer.address,
+        deployer.address,
         await serviceRegistry.getAddress(),
         config.strategy.collateral,
         config.strategy.oracle,
