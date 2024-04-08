@@ -11,7 +11,7 @@ import {
   deployFlashBorrowerMock,
 } from "../../scripts/common";
 
-describeif(network.name === "optimism_devnet")(
+describeif(network.name === "arbitrum_devnet")(
   "BalancerFlashLoan",
   function () {
     it("Borrow from Balancer Vault", async function () {

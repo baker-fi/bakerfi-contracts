@@ -253,7 +253,7 @@ export async function deployOptimism() {
     await vaultProxyDeploy.getAddress()
   );
 
-  await settingsProxy.setLoanToValue(ethers.parseUnits("800", 6));
+  await strategyProxy.setLoanToValue(ethers.parseUnits("800", 6));
   await strategyProxy.transferOwnership(await vaultProxy.getAddress());
   return {
     serviceRegistry,

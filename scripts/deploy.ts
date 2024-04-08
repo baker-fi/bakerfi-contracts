@@ -203,7 +203,7 @@ async function changeSettings(
   await strategy.transferOwnership(await vault.getAddress());
 
   spinner.text = "Changing Settigns ...";
-  await settings.setLoanToValue(ethers.parseUnits("800", 6));
+  await strategy.setLoanToValue(ethers.parseUnits("800", 6));
 }
 
 async function deployFlashLendInfra(serviceRegistry, config: any) {

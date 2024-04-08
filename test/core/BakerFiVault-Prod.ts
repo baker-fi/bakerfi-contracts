@@ -59,7 +59,7 @@ describeif(
     const { vault, settings, deployer, strategy} = await loadFixture(getDeployFunc());
     const depositAmount = ethers.parseUnits("10", 18);
 
-    await settings.setLoanToValue(ethers.parseUnits("500", 6));
+    await strategy.setLoanToValue(ethers.parseUnits("500", 6));
 
     await vault.deposit(deployer.address, {
       value: depositAmount,
@@ -99,8 +99,8 @@ describeif(
     const { vault, strategy, settings, aave3Pool, weth, deployer, wstETH } =
       await loadFixture(getDeployFunc());
 
-    await settings.setLoanToValue(ethers.parseUnits("500", 6));
-    await settings.setMaxLoanToValue(ethers.parseUnits("510", 6));
+    await strategy.setLoanToValue(ethers.parseUnits("500", 6));
+    await strategy.setMaxLoanToValue(ethers.parseUnits("510", 6));
 
     const depositAmount = ethers.parseUnits("1", 18);
 
@@ -114,8 +114,8 @@ describeif(
         return value >= 971432545612539374n;
       });
 
-    await settings.setLoanToValue(ethers.parseUnits("400", 6));
-    await settings.setMaxLoanToValue(ethers.parseUnits("400", 6));
+    await strategy.setLoanToValue(ethers.parseUnits("400", 6));
+    await strategy.setMaxLoanToValue(ethers.parseUnits("400", 6));
 
     await expect(vault.rebalance())
       .to.emit(strategy, "StrategyAmountUpdate")
