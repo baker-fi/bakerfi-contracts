@@ -181,7 +181,7 @@ task("strategy:getLoanToValue", "Set Target Loan To value")
 });
 
 
-task("settings:setMaxLoanToValue", "Set Max Target Loan To value")
+task("strategy:setMaxLoanToValue", "Set Max Target Loan To value")
   .addParam("value", "The new max LTV")
   .setAction(async ({value}, { ethers, network }) => {
     const networkName = network.name;
@@ -343,7 +343,7 @@ task("strategy:setNrLoops", "Set number of Loopps")
     const spinner = ora(`Settting Nr Of Loops to ${value}`).start();
     try {
       const strategy = await ethers.getContractAt(
-        "Settings",
+        "StrategyAAVEv3",
         networkConfig.strategyProxy?? ""
       );
       await strategy.setNrLoops(value);
