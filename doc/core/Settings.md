@@ -2,7 +2,8 @@
 
 ## Settings
 
-The settings could only be changed by the Owner and could be used by any contract by the system.
+The contract is responsible for managing all the properties and settings related to the protocol. 
+The contract is upgradeable by the BakerFi DAO. 
 
 _The `Settings` contract is used to manage protocol settings.
 It extends the `OwnableUpgradeable` contract and implements the `ISettings` interface.

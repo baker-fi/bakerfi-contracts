@@ -2,7 +2,14 @@
 
 ## IStrategy
 
-Deploys ETH and harvests yield
+This contract implements a strategy and could be used to deploy an asset receive an amplified and harvest a yield. 
+
+The Strategy could be for the user to interact with :
+
+- Flash Lend Adapter to leverage an asset position
+- Uniswap to convert between assets
+- Lend and Borrow from a Money Market
+- Interact with Oracles for accurate prices
 
 ### StrategyDeploy
 

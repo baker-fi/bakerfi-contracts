@@ -1,5 +1,17 @@
 # BakerFi Documentation 
 
+**BakerFi** to operate, it integrates with several decentralized protocols to achieve its maximum efficiency, namely:
+
+- Liquid staking providers such as Lido, Stader, Frax, or any other available staking service, that allow the possibility to achieve the standard yield for the user;
+- Lending and borrowing providers such as Aave, Morpho, Compound, Ajna, and others allow recursive borrowing and staking within the protocol;
+- DEXes and swapping services such as Uniswap, 1inch, Balancer,  Curve, and others to be able to swap between tokens, collateral, debt tokens, among others.
+
+The modular smart contract design allows the system to easily integrate with DeFi protocols that provide liquidity and security to our staking strategies.
+
+The Liquidation Protection is the protocol mechanism that ensures the redistribution of balances to prevent a lending liquidation on Aave, when the LTV goes beyond the rate limit defined by the DAO.
+
+[BakerFi Architecture!](architecture.png "BakerFi Architecture")
+
 
 # Contracts 
 

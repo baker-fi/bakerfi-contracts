@@ -1,5 +1,6 @@
 # Solidity API
 
+A Service registry is a contract that allows users to obtain the address of a specific contract providing a service within our protocol on a specific deployment/chain. This registry helps users locate and interact with contracts deployed on the blockchain without needing to manually search for or hardcode contract addresses.
 
 ### Contracts Description Table
 
