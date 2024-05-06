@@ -2,6 +2,8 @@
 
 ## BakerFiProxy
 
+@title
+
 ### constructor
 
 ```solidity

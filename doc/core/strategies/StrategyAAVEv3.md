@@ -2,7 +2,7 @@
 
 ## StrategyAAVEv3
 
-_This strategy is used by the bakerfi vault to deploy ETH capital 
+_This strategy is used by the bakerfi vault to deploy ETH capital
 on aave money market.
 
 The Collateral could be cbETH, wstETH, rETH against and the debt is always WETH
@@ -10,10 +10,16 @@ The Collateral could be cbETH, wstETH, rETH against and the debt is always WETH
 The strategy inherits all the business logic from StrategyAAVEv3Base and could be deployed
 on Optimism, Arbitrum , Base and Ethereum._
 
+### constructor
+
+```solidity
+constructor() public
+```
+
 ### initialize
 
 ```solidity
-function initialize(address initialOwner, contract ServiceRegistry registry, bytes32 collateral, bytes32 oracle, uint24 swapFeeTier, uint8 eModeCategory) public
+function initialize(address initialOwner, address initialGovernor, contract ServiceRegistry registry, bytes32 collateral, bytes32 oracle, uint24 swapFeeTier, uint8 eModeCategory) public
 ```
 
 ### _convertFromWETH

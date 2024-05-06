@@ -1,23 +1,19 @@
 # Solidity API
 
-## StrategyAAVEv3WstETH
+## AAVEv3StrategyAny
 
-_This strategy requires access to for Lido Finance contracts that run
-exclusively on Ethereum
+_This strategy is used by the bakerfi vault to deploy ETH capital 
+on aave money market.
 
-The strategy inherits all the business logic from StrategyAAVEv3Base and overrides the conversion
-mechanisms to convert from collateral token to debt token._
+The Collateral could be cbETH, wstETH, rETH against and the debt is always WETH
 
-### constructor
-
-```solidity
-constructor() public
-```
+The strategy inherits all the business logic from AAVEv3StrategyBase and could be deployed
+on Optimism, Arbitrum , Base and Ethereum._
 
 ### initialize
 
 ```solidity
-function initialize(address initialOwner, address initialGovernor, contract ServiceRegistry registry, uint24 swapFeeTier, uint8 eModeCategory) public
+function initialize(address initialOwner, contract ServiceRegistry registry, bytes32 collateral, bytes32 oracle, uint24 swapFeeTier, uint8 eModeCategory) public
 ```
 
 ### _convertFromWETH
@@ -26,7 +22,7 @@ function initialize(address initialOwner, address initialGovernor, contract Serv
 function _convertFromWETH(uint256 amount) internal virtual returns (uint256)
 ```
 
-_Internal function to convert the specified amount from WETH to the underlying collateral.
+_Internal function to convert the specified amount from WETH to the underlying assert cbETH, wstETH, rETH.
 
 This function is virtual and intended to be overridden in derived contracts for customized implementation._
 

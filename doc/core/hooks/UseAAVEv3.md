@@ -5,6 +5,24 @@
 _Abstract contract to integrate the use of AAVE v3 (Aave Protocol V2).
      Provides functions to initialize, access, supply, and borrow assets._
 
+### InvalidAAVEv3Contract
+
+```solidity
+error InvalidAAVEv3Contract()
+```
+
+### FailedToApproveAllowance
+
+```solidity
+error FailedToApproveAllowance()
+```
+
+### FailedToRepayDebt
+
+```solidity
+error FailedToRepayDebt()
+```
+
 ### _initUseAAVEv3
 
 ```solidity

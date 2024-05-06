@@ -1,38 +1,38 @@
 # Solidity API
 
-## StrategyAAVEv3Base
+## AAVEv3StrategyBase
 
 The Contract is abstract and needs to be extended to implement the
 conversion between WETH and the collateral
 
-_This contract implements a strategy and could be used to deploy ETH on a AAVE with
-the a recursive staking strategy and receive an amplified yield
+_This contract implements a strategy and could be used to deploy ETH on a AAVE with  
+the a recursive staking strategy and receive an amplified yield 
 
 The Strategy interacts with :
 
 ✅ BalancerFlashLender to request a flash loan from Balancer
-✅ Uniswap to convert from collateral token to WETH
-✅ Uniswap Quoter to reqques a precise price token
-✅ AAVE as the lending/borrow market
+✅ Uniswap to convert from collateral token to WETH 
+✅ Uniswap Quoter to reqques a precise price token 
+✅ AAVE as the lending/borrow market 
 
 The APY of this strategy depends on the followwin factors:
 
- ✅ Lido APY
- ✅ AAVE v3 Borrow Rate
- ✅ Target Loan to Value
- ✅ Number of Loops on the recursive Strategy
+ ✅ Lido APY 
+ ✅ AAVE v3 Borrow Rate 
+ ✅ Target Loan to Value 
+ ✅ Number of Loops on the recursive Strategy 
 
  Flow Deposit:
  1) Deploy X amount of ETH
  2) Borrow Y Amount of ETH
- 3) Deposit X+Y amount of Collateral in AAVE
- 4) Borrow Y ETH From AAVE to pay the flash loan
+ 3) Deposit X+Y amount of Collateral in AAVE 
+ 4) Borrow Y ETH From AAVE to pay the flash loan 
  5) Ends up with X+Y Amount of Collateral and Y of Debt
-
+   
  LeverageRatio = LeverageFunc(numberOfLoops, LTV)
  APY ~=  LidoAPY - (LidoAPY-AAVE_Borrow_Rate)*(1-leverateRatio);
 
- This strategy could work for
+ This strategy could work for 
  rETH/WETH
  awstETH/WETH_
 
@@ -52,104 +52,8 @@ enum FlashLoanAction {
 struct FlashLoanData {
   uint256 originalAmount;
   address receiver;
-  enum StrategyAAVEv3Base.FlashLoanAction action;
+  enum AAVEv3StrategyBase.FlashLoanAction action;
 }
-```
-
-### InvalidOwner
-
-```solidity
-error InvalidOwner()
-```
-
-### InvalidDebtOracle
-
-```solidity
-error InvalidDebtOracle()
-```
-
-### InvalidCollateralOracle
-
-```solidity
-error InvalidCollateralOracle()
-```
-
-### InvalidAAVEEMode
-
-```solidity
-error InvalidAAVEEMode()
-```
-
-### InvalidDeployAmount
-
-```solidity
-error InvalidDeployAmount()
-```
-
-### InvalidAllowance
-
-```solidity
-error InvalidAllowance()
-```
-
-### FailedToRunFlashLoan
-
-```solidity
-error FailedToRunFlashLoan()
-```
-
-### InvalidWithdrawAmount
-
-```solidity
-error InvalidWithdrawAmount()
-```
-
-### InvalidFlashLoanSender
-
-```solidity
-error InvalidFlashLoanSender()
-```
-
-### InvalidLoanInitiator
-
-```solidity
-error InvalidLoanInitiator()
-```
-
-### InvalidFlashLoanAsset
-
-```solidity
-error InvalidFlashLoanAsset()
-```
-
-### CollateralLowerThanDebt
-
-```solidity
-error CollateralLowerThanDebt()
-```
-
-### InvalidDeltaDebt
-
-```solidity
-error InvalidDeltaDebt()
-```
-
-### OraclePriceOutdated
-
-```solidity
-error OraclePriceOutdated()
-```
-
-### NoCollateralMarginToScale
-
-```solidity
-error NoCollateralMarginToScale()
-```
-
-### ETHTransferNotAllowed
-
-```solidity
-error ETHTransferNotAllowed(address sender)
 ```
 
 ### _pendingAmount
@@ -164,10 +68,10 @@ uint256 _pendingAmount
 uint24 _swapFeeTier
 ```
 
-### _initializeStrategyAAVEv3Base
+### _initializeAAVEv3StrategyBase
 
 ```solidity
-function _initializeStrategyAAVEv3Base(address initialOwner, address initialGovernor, contract ServiceRegistry registry, bytes32 collateralIERC20, bytes32 collateralOracle, uint24 swapFeeTier, uint8 eModeCategory) internal
+function _initializeAAVEv3StrategyBase(address initialOwner, contract ServiceRegistry registry, bytes32 collateralIERC20, bytes32 collateralOracle, uint24 swapFeeTier, uint8 eModeCategory) internal
 ```
 
 _Internal function to initialize the AAVEv3 strategy base.
@@ -180,12 +84,11 @@ service registry initialization, setting oracles, configuring AAVEv3 parameters,
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | initialOwner | address | The address to be set as the initial owner of the AAVEv3 strategy base contract. |
-| initialGovernor | address |  |
 | registry | contract ServiceRegistry | The service registry contract address to be used for initialization. |
 | collateralIERC20 | bytes32 | The hash representing the collateral ERC20 token in the service registry. |
 | collateralOracle | bytes32 | The hash representing the collateral/ETH oracle in the service registry. |
 | swapFeeTier | uint24 | The swap fee tier for Uniswap. |
-| eModeCategory | uint8 | The EMode category for the AAVEv3 strategy. Requirements: - The caller must be in the initializing state. - The initial owner address must not be the zero address. - The ETH/USD oracle and collateral/USD oracle addresses must be valid. - The EMode category must be successfully set for the AAVEv3 strategy. - Approval allowances must be successfully set for WETH and the collateral ERC20 token for UniSwap. |
+| eModeCategory | uint8 | The EMode category for the AAVEv3 strategy. Requirements: - The caller must be in the initializing state. - The initial owner address must not be the zero address. - The ETH/USD oracle and collateral/ETH oracle addresses must be valid. - The EMode category must be successfully set for the AAVEv3 strategy. - Approval allowances must be successfully set for WETH and the collateral ERC20 token for UniSwap. |
 
 ### receive
 
@@ -195,9 +98,8 @@ receive() external payable
 
 _Fallback function to receive Ether.
 
- This function is automatically called when the contract receives Ether 
- without a specific function call.
- It allows the contract to accept incoming Ether transactions._
+This function is automatically called when the contract receives Ether without a specific function call.
+It allows the contract to accept incoming Ether transactions._
 
 ### getPosition
 
@@ -221,7 +123,7 @@ and the loan-to-value ratio for the AAVEv3 strategy._
 ### deployed
 
 ```solidity
-function deployed(uint256 priceMaxAge) public view returns (uint256 totalOwnedAssets)
+function deployed() public view returns (uint256 totalOwnedAssets)
 ```
 
 _Retrieves the total owned assets by the Strategy in ETH
@@ -242,7 +144,7 @@ total owned assets is set to 0._
 function deploy() external payable returns (uint256 deployedAmount)
 ```
 
-_Deploys funds in the AAVEv3 strategy
+_Deploys funds in the AAVEv3 strategy 
 
 This function is externally callable only by the owner, and it involves the following steps:
 1. Wraps the received Ether into WETH.
@@ -290,8 +192,8 @@ This function allows the owner of the contract to undeploy a specified amount, w
 withdrawing the corresponding collateral, converting it to WETH, unwrapping WETH, and finally
 sending the resulting ETH to the contract owner. The undeployment is subject to reentrancy protection.
 The function returns the amount of ETH undeployed to the contract owner.
-The method is designed to ensure that the collateralization ratio (collateral value to debt value) remains within acceptable limits.
-It leverages a flash loan mechanism to obtain additional funds temporarily, covering any necessary adjustments required to maintain
+The method is designed to ensure that the collateralization ratio (collateral value to debt value) remains within acceptable limits. 
+It leverages a flash loan mechanism to obtain additional funds temporarily, covering any necessary adjustments required to maintain 
 the desired collateralization ratio._
 
 #### Parameters
@@ -338,7 +240,7 @@ Emits:
 ### _getPosition
 
 ```solidity
-function _getPosition(uint256 priceMaxAge) internal view returns (uint256 totalCollateralInEth, uint256 totalDebtInEth)
+function _getPosition() internal view returns (uint256 totalCollateralInEth, uint256 totalDebtInEth)
 ```
 
 _Retrieves the current collateral and debt positions of the contract.
@@ -440,16 +342,4 @@ This function calculates the equivalent amount in the underlying collateral base
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | amountOut | uint256 | The equivalent amount in the underlying collateral. |
-
-### renounceOwnership
-
-```solidity
-function renounceOwnership() public virtual
-```
-
-_Leaves the contract without owner. It will not be possible to call
-`onlyOwner` functions. Can only be called by the current owner.
-
-NOTE: Renouncing ownership will leave the contract without an owner,
-thereby disabling any functionality that is only available to the owner._
 

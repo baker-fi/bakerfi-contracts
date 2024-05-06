@@ -7,6 +7,30 @@ _Abstract contract to integrate the use of Wrapped stETH (WstETH).
 
 🚨 Class optimized to be included on upgradeable contracts_
 
+### InvalidWstETHContract
+
+```solidity
+error InvalidWstETHContract()
+```
+
+### InvalidStETHContract
+
+```solidity
+error InvalidStETHContract()
+```
+
+### FailedToApproveWstAllowance
+
+```solidity
+error FailedToApproveWstAllowance()
+```
+
+### FailedToApproveStAllowance
+
+```solidity
+error FailedToApproveStAllowance()
+```
+
 ### _initUseWstETH
 
 ```solidity

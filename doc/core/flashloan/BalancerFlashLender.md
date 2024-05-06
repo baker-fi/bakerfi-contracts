@@ -2,9 +2,57 @@
 
 ## BalancerFlashLender
 
-_This contract implements the ERC-3156 Flash Lender interface and serves as 
-"Adapter" contract for the balancer flash loan interface. This approach allows us 
+_This contract implements the ERC-3156 Flash Lender interface and serves as
+"Adapter" contract for the balancer flash loan interface. This approach allows us
 to have a static interface independent of the flash loan provider._
+
+### InvalidVaultAddress
+
+```solidity
+error InvalidVaultAddress()
+```
+
+### InvalidBorrower
+
+```solidity
+error InvalidBorrower()
+```
+
+### InvalidFlashLoadLender
+
+```solidity
+error InvalidFlashLoadLender()
+```
+
+### InvalidTokenList
+
+```solidity
+error InvalidTokenList()
+```
+
+### InvalidAmountList
+
+```solidity
+error InvalidAmountList()
+```
+
+### InvalidFeesAmount
+
+```solidity
+error InvalidFeesAmount()
+```
+
+### BorrowerCallbackFailed
+
+```solidity
+error BorrowerCallbackFailed()
+```
+
+### NoAllowanceToPayDebt
+
+```solidity
+error NoAllowanceToPayDebt()
+```
 
 ### CALLBACK_SUCCESS
 
@@ -41,7 +89,7 @@ _Function to get the maximum flash loan amount available for a given token._
 ### flashFee
 
 ```solidity
-function flashFee(address, uint256) external pure returns (uint256)
+function flashFee(address, uint256 amount) external view returns (uint256)
 ```
 
 ### flashLoan

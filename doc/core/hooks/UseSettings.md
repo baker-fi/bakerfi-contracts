@@ -2,6 +2,12 @@
 
 ## UseSettings
 
+### InvalidSettingsContract
+
+```solidity
+error InvalidSettingsContract()
+```
+
 ### _initUseSettings
 
 ```solidity

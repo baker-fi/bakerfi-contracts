@@ -5,6 +5,18 @@
 _Abstract contract to integrate the use of Wrapped Ether (WETH).
      Provides functions to initialize, access, and unwrap WETH._
 
+### InvalidWETHContract
+
+```solidity
+error InvalidWETHContract()
+```
+
+### FailedAllowance
+
+```solidity
+error FailedAllowance()
+```
+
 ### _initUseWETH
 
 ```solidity
