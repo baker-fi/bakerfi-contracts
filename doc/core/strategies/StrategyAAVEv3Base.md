@@ -36,6 +36,36 @@ The APY of this strategy depends on the followwin factors:
  rETH/WETH
  awstETH/WETH_
 
+
+### Contracts Description Table
+
+
+|  Contract  |         Type        |       Bases      |                  |                 |
+|:----------:|:-------------------:|:----------------:|:----------------:|:---------------:|
+|     └      |  **Function Name**  |  **Visibility**  |  **Mutability**  |  **Modifiers**  |
+||||||
+| **StrategyAAVEv3Base** | Implementation | StrategyLeverageSettings, IStrategy, IERC3156FlashBorrowerUpgradeable, UseWETH, UseIERC20, UseAAVEv3, UseSwapper, UseFlashLender, UseUniQuoter, ReentrancyGuardUpgradeable, UseLeverage, UseSettings |||
+| └ | _initializeStrategyAAVEv3Base | Internal 🔒 | 🛑  | onlyInitializing |
+| └ | <Receive Ether> | External ❗️ |  💵 |NO❗️ |
+| └ | getPosition | External ❗️ |   |NO❗️ |
+| └ | deployed | Public ❗️ |   |NO❗️ |
+| └ | deploy | External ❗️ |  💵 | onlyOwner nonReentrant |
+| └ | _supplyBorrow | Private 🔐 | 🛑  | |
+| └ | _payDebt | Private 🔐 | 🛑  | |
+| └ | _repayAndWithdraw | Private 🔐 | 🛑  | |
+| └ | onFlashLoan | External ❗️ | 🛑  |NO❗️ |
+| └ | undeploy | External ❗️ | 🛑  | onlyOwner nonReentrant |
+| └ | _adjustDebt | Internal 🔒 | 🛑  | |
+| └ | harvest | External ❗️ | 🛑  | onlyOwner nonReentrant |
+| └ | _getPosition | Internal 🔒 |   | |
+| └ | _undeploy | Private 🔐 | 🛑  | |
+| └ | _convertFromWETH | Internal 🔒 | 🛑  | |
+| └ | _convertToWETH | Internal 🔒 | 🛑  | |
+| └ | _toWETH | Internal 🔒 |   | |
+| └ | _fromWETH | Internal 🔒 |   | |
+| └ | renounceOwnership | Public ❗️ | 🛑  |NO❗️ |
+
+
 ### FlashLoanAction
 
 ```solidity

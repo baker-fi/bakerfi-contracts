@@ -6,6 +6,23 @@ _This contract implements the ERC-3156 Flash Lender interface and serves as
 "Adapter" contract for the balancer flash loan interface. This approach allows us
 to have a static interface independent of the flash loan provider._
 
+
+### Contracts Description Table
+
+
+|  Contract  |         Type        |       Bases      |                  |                 |
+|:----------:|:-------------------:|:----------------:|:----------------:|:---------------:|
+|     └      |  **Function Name**  |  **Visibility**  |  **Mutability**  |  **Modifiers**  |
+||||||
+| **BalancerFlashLender** | Implementation | IERC3156FlashLenderUpgradeable, IFlashLoanRecipient |||
+| └ | <Constructor> | Public ❗️ | 🛑  |NO❗️ |
+| └ | maxFlashLoan | External ❗️ |   |NO❗️ |
+| └ | flashFee | External ❗️ |   |NO❗️ |
+| └ | flashLoan | External ❗️ | 🛑  |NO❗️ |
+| └ | receiveFlashLoan | External ❗️ | 🛑  |NO❗️ |
+
+
+
 ### InvalidVaultAddress
 
 ```solidity

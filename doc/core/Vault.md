@@ -19,6 +19,39 @@ During the beta phase only whitelisted addresses are able to deposit and withdra
 
 The Contract is upgradeable and can use a BakerProxy in front of._
 
+
+### Contracts Description Table
+
+
+|  Contract  |         Type        |       Bases      |                  |                 |
+|:----------:|:-------------------:|:----------------:|:----------------:|:---------------:|
+|     └      |  **Function Name**  |  **Visibility**  |  **Mutability**  |  **Modifiers**  |
+||||||
+| **Vault** | Implementation | Ownable2StepUpgradeable, PausableUpgradeable, ReentrancyGuardUpgradeable, ERC20PermitUpgradeable, UseSettings, IVault |||
+| └ | <Constructor> | Public ❗️ | 🛑  |NO❗️ |
+| └ | initialize | Public ❗️ | 🛑  | initializer |
+| └ | rebalance | External ❗️ | 🛑  | nonReentrant whenNotPaused |
+| └ | <Receive Ether> | External ❗️ |  💵 |NO❗️ |
+| └ | deposit | External ❗️ |  💵 | nonReentrant whenNotPaused onlyWhiteListed |
+| └ | withdraw | External ❗️ | 🛑  | nonReentrant onlyWhiteListed whenNotPaused |
+| └ | totalAssets | Public ❗️ |   |NO❗️ |
+| └ | _totalAssets | Private 🔐 |   | |
+| └ | convertToShares | External ❗️ |   |NO❗️ |
+| └ | convertToAssets | External ❗️ |   |NO❗️ |
+| └ | tokenPerETH | External ❗️ |   |NO❗️ |
+| └ | _tokenPerETH | Internal 🔒 |   | |
+| └ | pause | External ❗️ | 🛑  | onlyOwner |
+| └ | unpause | External ❗️ | 🛑  | onlyOwner |
+
+
+#### Legend
+
+|  Symbol  |  Meaning  |
+|:--------:|-----------|
+|    🛑    | Function can modify state |
+|    💵    | Function is payable |
+
+
 ### InvalidOwner
 
 ```solidity

@@ -10,6 +10,20 @@ The Collateral could be cbETH, wstETH, rETH against and the debt is always WETH
 The strategy inherits all the business logic from StrategyAAVEv3Base and could be deployed
 on Optimism, Arbitrum , Base and Ethereum._
 
+
+### Contracts Description Table
+
+
+|  Contract  |         Type        |       Bases      |                  |                 |
+|:----------:|:-------------------:|:----------------:|:----------------:|:---------------:|
+|     └      |  **Function Name**  |  **Visibility**  |  **Mutability**  |  **Modifiers**  |
+||||||
+| **StrategyAAVEv3** | Implementation | Initializable, StrategyAAVEv3Base |||
+| └ | <Constructor> | Public ❗️ | 🛑  |NO❗️ |
+| └ | initialize | Public ❗️ | 🛑  | initializer |
+| └ | _convertFromWETH | Internal 🔒 | 🛑  | |
+| └ | _convertToWETH | Internal 🔒 | 🛑  | |
+
 ### constructor
 
 ```solidity

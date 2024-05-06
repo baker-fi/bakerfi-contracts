@@ -1,5 +1,30 @@
 # Solidity API
 
+
+### Contracts Description Table
+
+
+|  Contract  |         Type        |       Bases      |                  |                 |
+|:----------:|:-------------------:|:----------------:|:----------------:|:---------------:|
+|     └      |  **Function Name**  |  **Visibility**  |  **Mutability**  |  **Modifiers**  |
+||||||
+| **ServiceRegistry** | Implementation | Ownable, IServiceRegistry |||
+| └ | <Constructor> | Public ❗️ | 🛑  |NO❗️ |
+| └ | registerService | External ❗️ | 🛑  | onlyOwner |
+| └ | unregisterService | External ❗️ | 🛑  | onlyOwner |
+| └ | getServiceNameHash | External ❗️ |   |NO❗️ |
+| └ | getService | External ❗️ |   |NO❗️ |
+| └ | getServiceFromHash | External ❗️ |   |NO❗️ |
+
+
+ Legend
+
+|  Symbol  |  Meaning  |
+|:--------:|-----------|
+|    🛑    | Function can modify state |
+|    💵    | Function is payable |
+
+
 ## FLASH_LENDER_CONTRACT
 
 ```solidity

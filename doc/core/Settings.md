@@ -12,6 +12,41 @@ This contract is going to be used by any service on the Bakerfi system to retrie
 the fees, basic configuration parameters and the list of whitelisted adresess that can
 interact with the system_
 
+
+### Contracts Description Table
+
+
+|  Contract  |         Type        |       Bases      |                  |                 |
+|:----------:|:-------------------:|:----------------:|:----------------:|:---------------:|
+|     └      |  **Function Name**  |  **Visibility**  |  **Mutability**  |  **Modifiers**  |
+||||||
+| **Settings** | Implementation | Ownable2StepUpgradeable, ISettings |||
+| └ | <Constructor> | Public ❗️ | 🛑  |NO❗️ |
+| └ | initialize | Public ❗️ | 🛑  | initializer |
+| └ | enableAccount | External ❗️ | 🛑  | onlyOwner |
+| └ | isAccountEnabled | External ❗️ |   |NO❗️ |
+| └ | setWithdrawalFee | External ❗️ | 🛑  | onlyOwner |
+| └ | getWithdrawalFee | External ❗️ |   |NO❗️ |
+| └ | setPerformanceFee | External ❗️ | 🛑  | onlyOwner |
+| └ | getPerformanceFee | External ❗️ |   |NO❗️ |
+| └ | setFeeReceiver | External ❗️ | 🛑  | onlyOwner |
+| └ | getFeeReceiver | External ❗️ |   |NO❗️ |
+| └ | getMaxDepositInETH | External ❗️ |   |NO❗️ |
+| └ | setMaxDepositInETH | External ❗️ | 🛑  | onlyOwner |
+| └ | setRebalancePriceMaxAge | External ❗️ | 🛑  | onlyOwner |
+| └ | getRebalancePriceMaxAge | External ❗️ |   |NO❗️ |
+| └ | setPriceMaxAge | External ❗️ | 🛑  | onlyOwner |
+| └ | getPriceMaxAge | External ❗️ |   |NO❗️ |
+
+
+ Legend
+
+|  Symbol  |  Meaning  |
+|:--------:|-----------|
+|    🛑    | Function can modify state |
+|    💵    | Function is payable |
+
+
 ### InvalidOwner
 
 ```solidity
