@@ -77,14 +77,23 @@ npx hardhat --network local settings:setWithdrawalFee --value 160000000
 ## Read and Write Max Loan To Value
 
 ```
-npx hardhat --network local settings:setMaxLoanToValue --value 86000000
-npx hardhat --network local settings:getMaxLoanToValue
+npx hardhat --network local strategy:setMaxLoanToValue --value 86000000
+npx hardhat --network local strategy:getMaxLoanToValue
 ```
 ### Read and Write Loan To Value
 
 ```
-npx hardhat --network local settings:getLoanToValue
-npx hardhat --network local settings:setLoanToValue --value 810000000
+npx hardhat --network local strategy:getLoanToValue
+npx hardhat --network local strategy:setLoanToValue --value 810000000
 ```
+
+### Read and Write Number of Loops
+
+```
+npx hardhat --network local strategy:getNrLoops
+npx hardhat --network local strategy:getNrLoops --value 810000000
+```
+
+
 
 ## 

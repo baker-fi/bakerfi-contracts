@@ -5,6 +5,8 @@ import { describeif } from "../common";
 
 import {AbiCoder} from "ethers";
 
+const WETH_USD_FEED_ID = "0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace";
+
 describeif(network.name === "hardhat")("Pyth Oracle Tests", function () {
     
     async function deployFunction() {
@@ -14,8 +16,8 @@ describeif(network.name === "hardhat")("Pyth Oracle Tests", function () {
         
         const PythOracle = await ethers.getContractFactory("PythOracle");
         const pythOracle = await PythOracle.deploy(
-            ethers.keccak256(Buffer.from("WETH/USD")),
-                await pythMock.getAddress()
+            WETH_USD_FEED_ID,
+            await pythMock.getAddress()
         );
         await pythOracle.waitForDeployment();
         return { pythMock, pythOracle} ;
@@ -28,7 +30,7 @@ describeif(network.name === "hardhat")("Pyth Oracle Tests", function () {
        const updateData = new AbiCoder().encode([
             "tuple(bytes32, tuple(int64, uint64, int32, uint),  tuple(int64, uint64, int32, uint))"], 
             [[
-                ethers.keccak256(Buffer.from("WETH/USD")),
+                WETH_USD_FEED_ID,
                 [120000,0, -2, 1706801584],
                 [120000,0, -2, 1706801584]
             ]
@@ -44,7 +46,7 @@ describeif(network.name === "hardhat")("Pyth Oracle Tests", function () {
        const updateData = new AbiCoder().encode([
             "tuple(bytes32, tuple(int64, uint64, int32, uint),  tuple(int64, uint64, int32, uint))"], 
             [[
-                ethers.keccak256(Buffer.from("WETH/USD")),
+                WETH_USD_FEED_ID,
                 [12,0, 2, 1706801584],
                 [12,0, 2, 1706801584]
             ]
@@ -60,7 +62,7 @@ describeif(network.name === "hardhat")("Pyth Oracle Tests", function () {
         const updateData = new AbiCoder().encode([
             "tuple(bytes32, tuple(int64, uint64, int32, uint),  tuple(int64, uint64, int32, uint))"], 
             [[
-                ethers.keccak256(Buffer.from("WETH/USD")),
+                WETH_USD_FEED_ID,
                 [1200,0, 2, 1706801584],
                 [1200,0, 2, 1706801584]
             ]]);  
