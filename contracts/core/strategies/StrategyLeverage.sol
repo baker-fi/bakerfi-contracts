@@ -15,13 +15,11 @@ import {UseUniQuoter} from "../hooks/UseUniQuoter.sol";
 import {UseSettings} from "../hooks/UseSettings.sol";
 import {UseWETH} from "../hooks/UseWETH.sol";
 import {UseFlashLender} from "../hooks/UseFlashLender.sol";
-import {UseAAVEv3} from "../hooks/UseAAVEv3.sol";
 import {UseSwapper} from "../hooks/UseSwapper.sol";
 import {UseIERC20} from "../hooks/UseIERC20.sol";
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import {ETH_USD_ORACLE_CONTRACT} from "../ServiceRegistry.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {StrategyLeverageSettings} from "./StrategyLeverageSettings.sol";
 import {IQuoterV2} from "../../interfaces/uniswap/v3/IQuoterV2.sol";
 
