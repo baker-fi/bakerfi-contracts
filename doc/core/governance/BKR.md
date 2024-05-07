@@ -1,10 +1,10 @@
 # Solidity API
 
-## BPie
+## BKR
 
-_Baker Pie , the BakerFi Governance ERC-20 Token 
+_Baker, the BakerFi Governance ERC-20 Token
 
-500M Total Supply 
+500M Total Supply
 
 No Taxes and no Bullshit_
 

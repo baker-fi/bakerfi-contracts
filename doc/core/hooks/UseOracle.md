@@ -2,6 +2,12 @@
 
 ## UseOracle
 
+### InvalidOracleContract
+
+```solidity
+error InvalidOracleContract()
+```
+
 ### _initUseOracle
 
 ```solidity
@@ -17,6 +23,6 @@ function oracle() public view returns (contract IOracle)
 ### getLastPrice
 
 ```solidity
-function getLastPrice() public view returns (uint256)
+function getLastPrice() public view returns (struct IOracle.Price)
 ```
 

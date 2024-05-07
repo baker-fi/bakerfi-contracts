@@ -2,6 +2,12 @@
 
 ## UseIERC20
 
+### InvalidIERC20Contract
+
+```solidity
+error InvalidIERC20Contract()
+```
+
 ### _initUseIERC20
 
 ```solidity

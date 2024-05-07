@@ -2,16 +2,22 @@
 
 ## StrategyAAVEv3WstETH
 
-_This strategy requires access to for Lido Finance contracts that run 
-exclusively on Ethereum 
+_This strategy requires access to for Lido Finance contracts that run
+exclusively on Ethereum
 
-The strategy inherits all the business logic from StrategyAAVEv3Base and overrides the conversion 
+The strategy inherits all the business logic from StrategyAAVEv3Base and overrides the conversion
 mechanisms to convert from collateral token to debt token._
+
+### constructor
+
+```solidity
+constructor() public
+```
 
 ### initialize
 
 ```solidity
-function initialize(address initialOwner, contract ServiceRegistry registry, uint24 swapFeeTier, uint8 eModeCategory) public
+function initialize(address initialOwner, address initialGovernor, contract ServiceRegistry registry, uint24 swapFeeTier, uint8 eModeCategory) public
 ```
 
 ### _convertFromWETH

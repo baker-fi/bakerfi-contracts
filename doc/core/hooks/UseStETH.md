@@ -2,6 +2,12 @@
 
 ## UseStETH
 
+### UseStETHInvalidStETHContract
+
+```solidity
+error UseStETHInvalidStETHContract()
+```
+
 ### _initUseStETH
 
 ```solidity

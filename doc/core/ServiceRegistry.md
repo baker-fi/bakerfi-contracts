@@ -1,5 +1,31 @@
 # Solidity API
 
+A Service registry is a contract that allows users to obtain the address of a specific contract providing a service within our protocol on a specific deployment/chain. This registry helps users locate and interact with contracts deployed on the blockchain without needing to manually search for or hardcode contract addresses.
+
+### Contracts Description Table
+
+
+|  Contract  |         Type        |       Bases      |                  |                 |
+|:----------:|:-------------------:|:----------------:|:----------------:|:---------------:|
+|     └      |  **Function Name**  |  **Visibility**  |  **Mutability**  |  **Modifiers**  |
+||||||
+| **ServiceRegistry** | Implementation | Ownable, IServiceRegistry |||
+| └ | <Constructor> | Public ❗️ | 🛑  |NO❗️ |
+| └ | registerService | External ❗️ | 🛑  | onlyOwner |
+| └ | unregisterService | External ❗️ | 🛑  | onlyOwner |
+| └ | getServiceNameHash | External ❗️ |   |NO❗️ |
+| └ | getService | External ❗️ |   |NO❗️ |
+| └ | getServiceFromHash | External ❗️ |   |NO❗️ |
+
+
+ Legend
+
+|  Symbol  |  Meaning  |
+|:--------:|-----------|
+|    🛑    | Function can modify state |
+|    💵    | Function is payable |
+
+
 ## FLASH_LENDER_CONTRACT
 
 ```solidity
@@ -24,22 +50,28 @@ bytes32 ST_ETH_CONTRACT
 bytes32 WST_ETH_CONTRACT
 ```
 
+## BKR_CONTRACT
+
+```solidity
+bytes32 BKR_CONTRACT
+```
+
 ## AAVE_V3_CONTRACT
 
 ```solidity
 bytes32 AAVE_V3_CONTRACT
 ```
 
-## WSTETH_ETH_ORACLE_CONTRACT
+## WSTETH_USD_ORACLE_CONTRACT
 
 ```solidity
-bytes32 WSTETH_ETH_ORACLE_CONTRACT
+bytes32 WSTETH_USD_ORACLE_CONTRACT
 ```
 
-## CBETH_ETH_ORACLE_CONTRACT
+## CBETH_USD_ORACLE_CONTRACT
 
 ```solidity
-bytes32 CBETH_ETH_ORACLE_CONTRACT
+bytes32 CBETH_USD_ORACLE_CONTRACT
 ```
 
 ## ETH_USD_ORACLE_CONTRACT
@@ -90,6 +122,12 @@ bytes32 UNISWAP_QUOTER_CONTRACT
 bytes32 STRATEGY_CONTRACT
 ```
 
+## PYTH_CONTRACT
+
+```solidity
+bytes32 PYTH_CONTRACT
+```
+
 ## ServiceRegistry
 
 Service registry that could be used resolve a service address with the
@@ -98,38 +136,23 @@ name of the service.
 This contract inherits from the `Ownable` contract and implements the `IServiceRegistry` interface.
 It serves as a registry for managing various services and dependencies within BakerFI System.
 
-### ServiceUnregistered
+### InvalidOwner
 
 ```solidity
-event ServiceUnregistered(bytes32 nameHash)
+error InvalidOwner()
 ```
 
-_Emitted when a service is unregistered from the ServiceRegistry.
-
-This event provides the name hash of the unregistered service._
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| nameHash | bytes32 | The hash of the name of the unregistered service. |
-
-### ServiceRegistered
+### ServiceAlreadySet
 
 ```solidity
-event ServiceRegistered(bytes32 nameHash, address service)
+error ServiceAlreadySet()
 ```
 
-_Emitted when a service is registered in the ServiceRegistry.
+### ServiceUnknown
 
-This event provides the name hash of the registered service and its address._
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| nameHash | bytes32 | The hash of the name of the registered service. |
-| service | address | The address of the registered service. |
+```solidity
+error ServiceUnknown()
+```
 
 ### constructor
 

@@ -2,6 +2,36 @@
 
 ## UseLeverage
 
+### InvalidNumberOfLoops
+
+```solidity
+error InvalidNumberOfLoops()
+```
+
+### InvalidLoanToValue
+
+```solidity
+error InvalidLoanToValue()
+```
+
+### InvalidPercentageValue
+
+```solidity
+error InvalidPercentageValue()
+```
+
+### InvalidTargetValue
+
+```solidity
+error InvalidTargetValue()
+```
+
+### InvalidDivisor
+
+```solidity
+error InvalidDivisor()
+```
+
 ### calculateLeverageRatio
 
 ```solidity

@@ -2,6 +2,12 @@
 
 ## UseStrategy
 
+### InvalidStrategyContract
+
+```solidity
+error InvalidStrategyContract()
+```
+
 ### _initUseStrategy
 
 ```solidity

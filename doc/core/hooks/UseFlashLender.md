@@ -2,6 +2,12 @@
 
 ## UseFlashLender
 
+### InvalidFlashLenderContract
+
+```solidity
+error InvalidFlashLenderContract()
+```
+
 ### _initUseFlashLender
 
 ```solidity

@@ -22,17 +22,22 @@ contract ETHOracle is IOracle {
         _ethPriceFeed = IChainlinkAggregator(ethPriceFeed);
     }
 
-    function getPrecision() external pure override returns (uint256) {
+    function getPrecision() public pure override returns (uint256) {
         return _PRECISION;
     }
 
     //  cbETH/ETH
-    function getLatestPrice() external view override returns (IOracle.Price memory price) {
+    function getLatestPrice() public view override returns (IOracle.Price memory price) {
         (, int256 answer, uint256 startedAt, uint256 updatedAt,) = _ethPriceFeed.latestRoundData();
         if ( answer<= 0 ) revert InvalidPriceFromOracle();        
         if ( startedAt ==0 || updatedAt == 0 ) revert InvalidPriceUpdatedAt();    
 
         price.price = uint256(answer);
         price.lastUpdate = updatedAt;
+    }
+
+    function getSafeLatestPrice(uint256 age) public view override returns (IOracle.Price memory price) {
+        price = getLatestPrice();
+        if(block.timestamp - price.lastUpdate > age) revert  PriceOutdated();
     }
 }

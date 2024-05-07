@@ -25,7 +25,7 @@ describeif(network.name === "hardhat")(
   function () {
     it("Test Initialized Strategy", async function () {
       const { owner, strategy } = await loadFixture(deployFunction);
-      expect(await strategy.getPosition()).to.deep.equal([0n, 0n, 0n]);
+      expect(await strategy.getPosition(0)).to.deep.equal([0n, 0n, 0n]);
       expect(await strategy.deployed(0)).to.equal(0);
     });
 
@@ -38,7 +38,7 @@ describeif(network.name === "hardhat")(
         })
       ).to.changeEtherBalances([owner.address], [ethers.parseUnits("10", 18)]);
 
-      expect(await strategy.getPosition()).to.deep.equal([
+      expect(await strategy.getPosition(0)).to.deep.equal([
         45702851552764668112n,
         35740737736704000000n,
         782024239n,
@@ -61,7 +61,7 @@ describeif(network.name === "hardhat")(
       expect(strategy.harvest())
         .to.emit(strategy, "StrategyProfit")
         .withArgs(4969613303000000000n);
-      expect(await strategy.getPosition()).to.deep.equal([
+      expect(await strategy.getPosition(0)).to.deep.equal([
         50273136708041134924n,
         35740737736704000000n,
         710931126n,
@@ -78,7 +78,7 @@ describeif(network.name === "hardhat")(
         value: ethers.parseUnits("10", 18),
       });
 
-      expect(await strategy.getPosition()).to.deep.equal([
+      expect(await strategy.getPosition(0)).to.deep.equal([
         45702851552764668112n,
         35740737736704000000n,
         782024239n,
@@ -93,7 +93,7 @@ describeif(network.name === "hardhat")(
         .to.emit(strategy, "StrategyLoss")
         .withArgs(927802249567403037n);
 
-      expect(await strategy.getPosition()).to.deep.equal([
+      expect(await strategy.getPosition(0)).to.deep.equal([
         44775049303197265075n,
         35740737736704000000n,
         798228886n,
@@ -112,7 +112,7 @@ describeif(network.name === "hardhat")(
       await oracle.setLatestPrice(ethers.parseUnits("2394", 18));
       await strategy.setMaxLoanToValue(800 * 1e6);
 
-      expect(await strategy.getPosition()).to.deep.equal([
+      expect(await strategy.getPosition(0)).to.deep.equal([
         41132566397488201301n,
         35740737736704000000n,
         868915821n,
@@ -122,7 +122,7 @@ describeif(network.name === "hardhat")(
         .to.emit(strategy, "StrategyAmountUpdate")
         .withArgs(5391828660784201301n);
 
-      expect(await strategy.getPosition()).to.deep.equal([
+      expect(await strategy.getPosition(0)).to.deep.equal([
         26397162466518195135n,
         21567314643136805200n,
         817031552n,

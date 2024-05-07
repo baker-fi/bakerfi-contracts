@@ -2,7 +2,16 @@
 
 ## ISwapHandler
 
+_A contract that converts one token to another_
+
 ### SwapParams
+
+Params for swaps using SwapHub contract and swap handlers
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
 
 ```solidity
 struct SwapParams {

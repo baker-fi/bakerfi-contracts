@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.24;
 
-import {StrategyAAVEv3Base} from "./StrategyAAVEv3Base.sol";
+import {StrategyLeverage} from "./StrategyLeverage.sol";
 import {ServiceRegistry} from "../../core/ServiceRegistry.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-
+import {UseAAVEv3} from "../hooks/UseAAVEv3.sol";
+import {DataTypes} from "../../interfaces/aave/v3/IPoolV3.sol";
+import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 /**
  * @title  AAVE v3 Recursive Staking Strategy for anyETH/WETH
  *
@@ -22,8 +23,15 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
  * The strategy inherits all the business logic from StrategyAAVEv3Base and could be deployed
  * on Optimism, Arbitrum , Base and Ethereum.
  */
-contract StrategyAAVEv3 is Initializable, StrategyAAVEv3Base {
+contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3{
     using SafeERC20 for IERC20;
+    using AddressUpgradeable for address;
+    using AddressUpgradeable for address payable;
+    
+    error FailedToApproveAllowanceForAAVE();
+    error InvalidAAVEEMode();
+    error FailedToRepayDebt();
+    error InvalidWithdrawAmount();
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
@@ -39,63 +47,73 @@ contract StrategyAAVEv3 is Initializable, StrategyAAVEv3Base {
         bytes32 oracle,
         uint24 swapFeeTier,
         uint8 eModeCategory
-    ) public initializer {
-        _initializeStrategyAAVEv3Base(
+    ) public initializer {        
+        _initializeStrategyBase(
             initialOwner,
             initialGovernor,
             registry,
             collateral,
             oracle,
-            swapFeeTier,
-            eModeCategory
+            swapFeeTier
+        );
+        _initUseAAVEv3(registry);
+        aaveV3().setUserEMode(eModeCategory);
+        if (aaveV3().getUserEMode(address(this)) != eModeCategory) revert InvalidAAVEEMode();
+    }
+
+
+    /**
+     * Get the Current Position on AAVE v3 Money Market
+     * 
+     * @return collateralBalance  The Collateral Balance Amount
+     * @return debtBalance  -  The Debt Token Balance Amount
+     */   
+    function _getMMPosition() internal virtual override view returns ( uint256 collateralBalance, uint256 debtBalance ) {
+        DataTypes.ReserveData memory wethReserve = (aaveV3().getReserveData(wETHA()));
+        DataTypes.ReserveData memory colleteralReserve = (aaveV3().getReserveData(ierc20A()));
+        debtBalance = IERC20(wethReserve.variableDebtTokenAddress).balanceOf(address(this));
+        collateralBalance = IERC20(colleteralReserve.aTokenAddress).balanceOf(
+            address(this)
         );
     }
 
-    /**
-     * @dev Internal function to convert the specified amount from WETH to the underlying assert cbETH, wstETH, rETH.
-     *
-     * This function is virtual and intended to be overridden in derived contracts for customized implementation.
-     *
-     * @param amount The amount to convert from WETH.
-     * @return uint256 The converted amount in the underlying collateral.
-     */
-    function _convertFromWETH(uint256 amount) internal virtual override returns (uint256) {
-        // 1. Swap WETH -> cbETH/wstETH/rETH
-        return
-            _swap(
-                ISwapHandler.SwapParams(
-                    wETHA(), // Asset In
-                    ierc20A(), // Asset Out
-                    ISwapHandler.SwapType.EXACT_INPUT, // Swap Mode
-                    amount, // Amount In
-                    0, // Amount Out
-                    _swapFeeTier, // Fee Pair Tier
-                    bytes("") // User Payload
-                )
-            );
+    
+    function _supply( address assetIn,
+        uint256 amountIn) internal override virtual  {
+        if (!IERC20(assetIn).approve(aaveV3A(), amountIn)) revert FailedToApproveAllowanceForAAVE();
+        aaveV3().supply(assetIn, amountIn, address(this), 0);
     }
 
     /**
-     * @dev Internal function to convert the specified amount to WETH from the underlying collateral.
-     *
-     * This function is virtual and intended to be overridden in derived contracts for customized implementation.
-     *
-     * @param amount The amount to convert to WETH.
-     * @return uint256 The converted amount in WETH.
+     * @dev Supplies an asset and borrows another asset from AAVE v3.
+     * @param assetIn The address of the asset to supply.
+     * @param amountIn The amount of the asset to supply.
+     * @param assetOut The address of the asset to borrow.
+     * @param borrowOut The amount of the asset to borrow.
      */
-    function _convertToWETH(uint256 amount) internal virtual override returns (uint256) {
-        // 1.Swap cbETH -> WETH/wstETH/rETH
-        return
-            _swap(
-                ISwapHandler.SwapParams(
-                    ierc20A(), // Asset In
-                    wETHA(), // Asset Out
-                    ISwapHandler.SwapType.EXACT_INPUT, // Swap Mode
-                    amount, // Amount In
-                    0, // Amount Out
-                    _swapFeeTier, // Fee Pair Tier
-                    bytes("") // User Payload
-                )
-            );
+    function _supplyAndBorrow(
+        address assetIn,
+        uint256 amountIn,
+        address assetOut,
+        uint256 borrowOut
+    ) internal override virtual{
+        _supply(assetIn, amountIn);
+        aaveV3().setUserUseReserveAsCollateral(assetIn, true);
+        aaveV3().borrow(assetOut, borrowOut, 2, 0, address(this));
+    }
+
+    /**
+     * @dev Repays a borrowed asset on AAVE v3.
+     * @param assetIn The address of the borrowed asset to repay.
+     * @param amount The amount of the borrowed asset to repay.
+     */
+    function _repay(address assetIn, uint256 amount) internal override virtual {
+        if (!IERC20(assetIn).approve(aaveV3A(), amount)) revert FailedToApproveAllowanceForAAVE();
+        if (aaveV3().repay(assetIn, amount, 2, address(this)) != amount) revert FailedToRepayDebt();
+    }
+
+    function _withdraw(address assetOut, uint256 amount,  address to) internal override virtual{
+        if (aaveV3().withdraw(assetOut, amount, to) != amount)
+            revert InvalidWithdrawAmount();
     }
 }

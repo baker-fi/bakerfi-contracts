@@ -1,6 +1,6 @@
 # Solidity API
 
-## BakeryGovernor
+## BakerFiGovernor
 
 ### constructor
 

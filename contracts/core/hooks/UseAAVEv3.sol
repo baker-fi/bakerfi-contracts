@@ -23,8 +23,7 @@ abstract contract UseAAVEv3 is Initializable {
     IPoolV3 private _aavev3;
 
     error InvalidAAVEv3Contract();
-    error FailedToApproveAllowance();
-    error FailedToRepayDebt();
+
 
     /**
      * @dev Initializes the UseAAVEv3 contract.
@@ -33,6 +32,7 @@ abstract contract UseAAVEv3 is Initializable {
     function _initUseAAVEv3(ServiceRegistry registry) internal onlyInitializing {
         _aavev3 = IPoolV3(registry.getServiceFromHash(AAVE_V3_CONTRACT));
         if (address(_aavev3) == address(0)) revert InvalidAAVEv3Contract();
+       
     }
 
     /**
@@ -51,32 +51,4 @@ abstract contract UseAAVEv3 is Initializable {
         return address(_aavev3);
     }
 
-    /**
-     * @dev Supplies an asset and borrows another asset from AAVE v3.
-     * @param assetIn The address of the asset to supply.
-     * @param amountIn The amount of the asset to supply.
-     * @param assetOut The address of the asset to borrow.
-     * @param borrowOut The amount of the asset to borrow.
-     */
-    function _supplyAndBorrow(
-        address assetIn,
-        uint256 amountIn,
-        address assetOut,
-        uint256 borrowOut
-    ) internal {
-        if (!IERC20(assetIn).approve(aaveV3A(), amountIn)) revert FailedToApproveAllowance();
-        aaveV3().supply(assetIn, amountIn, address(this), 0);
-        aaveV3().setUserUseReserveAsCollateral(assetIn, true);
-        aaveV3().borrow(assetOut, borrowOut, 2, 0, address(this));
-    }
-
-    /**
-     * @dev Repays a borrowed asset on AAVE v3.
-     * @param assetIn The address of the borrowed asset to repay.
-     * @param amount The amount of the borrowed asset to repay.
-     */
-    function _repay(address assetIn, uint256 amount) internal {
-        if (!IERC20(assetIn).approve(aaveV3A(), amount)) revert FailedToApproveAllowance();
-        if (aaveV3().repay(assetIn, amount, 2, address(this)) != amount) revert FailedToRepayDebt();
-    }
 }

@@ -2,6 +2,12 @@
 
 ## UseUniQuoter
 
+### InvalidUniQuoterContract
+
+```solidity
+error InvalidUniQuoterContract()
+```
+
 ### _initUseUniQuoter
 
 ```solidity

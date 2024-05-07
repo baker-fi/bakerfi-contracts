@@ -61,7 +61,13 @@ The compiled artifacts will be placed in the ./artifacts directory.
 To run the automated tests, execute the following command:
 
 ```
-npx hardhat test
+npm run test
+
+# With Gas Report 
+npm run test:gas
+
+# With Gas Report + Test Coverage 
+npm run test:coverage
 ```
 
 This will execute the tests defined in the ./test directory.
@@ -82,8 +88,6 @@ npm run ganache:dev
 # Open a separate terminal to run the deployment script
 npx hardhat run scripts/deploy-dev.ts
 ```
-
-
 
 Replace <network-name> with the desired network from your configuration.
 

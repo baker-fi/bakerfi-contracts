@@ -4,59 +4,107 @@
 
 _The BakerFi vault deployed to any supported chain (Arbitrum One, Optimism, Ethereum,...)
 
-This is smart contract where the users deposit their ETH and receives a share of the pool <x>brETH. 
-A share of the pool is an ERC-20 Token (transferable) and could be used to later to withdraw their 
-owned amount of the pool that could contain (Assets + Yield ). This vault could use a customized IStrategy 
+This is smart contract where the users deposit their ETH and receives a share of the pool <x>brETH.
+A share of the pool is an ERC-20 Token (transferable) and could be used to later to withdraw their
+owned amount of the pool that could contain (Assets + Yield ). This vault could use a customized IStrategy
 to deploy the capital and harvest an yield.
 
-The Contract is able to charge a performance and withdraw fee that is send to the treasury 
+The Contract is able to charge a performance and withdraw fee that is send to the treasury
 owned account when the fees are set by the deploy owner.
 
-The Vault is Pausable by the the governor and is using the settings contract to retrieve base 
+The Vault is Pausable by the the governor and is using the settings contract to retrieve base
 performance, withdraw fees and other kind of settings.
 
 During the beta phase only whitelisted addresses are able to deposit and withdraw
- 
+
 The Contract is upgradeable and can use a BakerProxy in front of._
 
-### Deposit
+
+### Contracts Description Table
+
+
+|  Contract  |         Type        |       Bases      |                  |                 |
+|:----------:|:-------------------:|:----------------:|:----------------:|:---------------:|
+|     └      |  **Function Name**  |  **Visibility**  |  **Mutability**  |  **Modifiers**  |
+||||||
+| **Vault** | Implementation | Ownable2StepUpgradeable, PausableUpgradeable, ReentrancyGuardUpgradeable, ERC20PermitUpgradeable, UseSettings, IVault |||
+| └ | <Constructor> | Public ❗️ | 🛑  |NO❗️ |
+| └ | initialize | Public ❗️ | 🛑  | initializer |
+| └ | rebalance | External ❗️ | 🛑  | nonReentrant whenNotPaused |
+| └ | <Receive Ether> | External ❗️ |  💵 |NO❗️ |
+| └ | deposit | External ❗️ |  💵 | nonReentrant whenNotPaused onlyWhiteListed |
+| └ | withdraw | External ❗️ | 🛑  | nonReentrant onlyWhiteListed whenNotPaused |
+| └ | totalAssets | Public ❗️ |   |NO❗️ |
+| └ | _totalAssets | Private 🔐 |   | |
+| └ | convertToShares | External ❗️ |   |NO❗️ |
+| └ | convertToAssets | External ❗️ |   |NO❗️ |
+| └ | tokenPerETH | External ❗️ |   |NO❗️ |
+| └ | _tokenPerETH | Internal 🔒 |   | |
+| └ | pause | External ❗️ | 🛑  | onlyOwner |
+| └ | unpause | External ❗️ | 🛑  | onlyOwner |
+
+
+#### Legend
+
+|  Symbol  |  Meaning  |
+|:--------:|-----------|
+|    🛑    | Function can modify state |
+|    💵    | Function is payable |
+
+
+### InvalidOwner
 
 ```solidity
-event Deposit(address depositor, address receiver, uint256 amount, uint256 shares)
+error InvalidOwner()
 ```
 
-_Emitted when a ETH deposit is made to the contract.
-
-This event provides information about the depositor, receiver, deposited amount,
-and the corresponding number of shares minted as a result of the deposit._
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| depositor | address | The address initiating the deposit. |
-| receiver | address | The address receiving the minted shares. |
-| amount | uint256 | The amount of Ether deposited. |
-| shares | uint256 | The number of shares minted for the deposit. |
-
-### Withdraw
+### InvalidDepositAmount
 
 ```solidity
-event Withdraw(address owner, uint256 amount, uint256 shares)
+error InvalidDepositAmount()
 ```
 
-_Emitted when a withdrawal is made from the contract.
+### InvalidAssetsState
 
-This event provides information about the owner initiating the withdrawal, the withdrawn amount,
-and the corresponding number of shares burned as a result of the withdrawal._
+```solidity
+error InvalidAssetsState()
+```
 
-#### Parameters
+### MaxDepositReached
 
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| owner | address | The address initiating the withdrawal. |
-| amount | uint256 | The amount of Ether withdrawn after fees. |
-| shares | uint256 | The number of shares burned for the withdrawal. |
+```solidity
+error MaxDepositReached()
+```
+
+### NotEnoughBalanceToWithdraw
+
+```solidity
+error NotEnoughBalanceToWithdraw()
+```
+
+### InvalidWithdrawAmount
+
+```solidity
+error InvalidWithdrawAmount()
+```
+
+### NoAssetsToWithdraw
+
+```solidity
+error NoAssetsToWithdraw()
+```
+
+### NoPermissions
+
+```solidity
+error NoPermissions()
+```
+
+### ETHTransferNotAllowed
+
+```solidity
+error ETHTransferNotAllowed(address sender)
+```
 
 ### onlyWhiteListed
 
@@ -70,10 +118,16 @@ This modifier ensures that only addresses listed in the account whitelist
 within the contract's settings are allowed to proceed with the function call.
 If the caller's address is not whitelisted, the function call will be rejected._
 
+### constructor
+
+```solidity
+constructor() public
+```
+
 ### initialize
 
 ```solidity
-function initialize(address initialOwner, contract ServiceRegistry registry, contract IStrategy strategy) public
+function initialize(address initialOwner, string tokenName, string tokenSymbol, contract ServiceRegistry registry, contract IStrategy strategy) public
 ```
 
 _Initializes the contract with specified parameters.
@@ -88,6 +142,8 @@ and Strategy._
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | initialOwner | address | The address that will be set as the initial owner of the contract. |
+| tokenName | string |  |
+| tokenSymbol | string |  |
 | registry | contract ServiceRegistry | The ServiceRegistry contract to be associated with this contract. |
 | strategy | contract IStrategy | The IStrategy contract to be set as the strategy for this contract. Emits an {OwnershipTransferred} event and initializes ERC20 and ERC20Permit features. It also ensures that the initialOwner is a valid address and sets up the ServiceRegistry and Strategy for the contract. |
 
@@ -122,6 +178,8 @@ This function is marked as external and payable. It is automatically called
 when Ether is sent to the contract, such as during a regular transfer or as part
 of a self-destruct operation.
 
+Only Transfers from the strategy during the withdraw are allowed
+
 Emits no events and allows the contract to accept Ether._
 
 ### deposit
@@ -155,11 +213,11 @@ the strategy's `deploy` function to handle the deposit._
 function withdraw(uint256 shares) external returns (uint256 amount)
 ```
 
-_Withdraws a specified number of vault's shares, converting them to ETH and 
+_Withdraws a specified number of vault's shares, converting them to ETH and
 transferring to the caller.
 
 This function is externally callable, marked as non-reentrant, and restricted to whitelisted addresses.
-It checks for sufficient balance, non-zero share amount, and undeploy the capital from the strategy 
+It checks for sufficient balance, non-zero share amount, and undeploy the capital from the strategy
 to handle the withdrawal request. It calculates withdrawal fees, transfers Ether to the caller, and burns the
 withdrawn shares._
 
@@ -255,4 +313,22 @@ and the total assets under management by the strategy._
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | [0] | uint256 | rate The calculated token-to-ETH exchange rate. |
+
+### _tokenPerETH
+
+```solidity
+function _tokenPerETH(uint256 priceMaxAge) internal view returns (uint256)
+```
+
+### pause
+
+```solidity
+function pause() external
+```
+
+### unpause
+
+```solidity
+function unpause() external
+```
 
