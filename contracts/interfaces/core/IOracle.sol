@@ -15,7 +15,8 @@ abstract contract IOracle {
         uint256 price;
         uint256 lastUpdate;
     }
-    error OutdatedPrice();
+
+    error PriceOutdated();
 
     /**
      * @notice Retrieves the precision of the price information provided by the Oracle.

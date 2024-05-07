@@ -107,7 +107,7 @@ abstract contract StrategyLeverage is
     error InvalidFlashLoanAsset();
     error CollateralLowerThanDebt();
     error InvalidDeltaDebt();
-    error OraclePriceOutdated();
+    error PriceOutdated();
     error NoCollateralMarginToScale();
     error ETHTransferNotAllowed(address sender);
     error FailedToApproveAllowance();
@@ -169,7 +169,8 @@ abstract contract StrategyLeverage is
      *
      *  This function is automatically called when the contract receives Ether 
      *  without a specific function call.
-     *  It allows the contract to accept incoming Ether transactions.
+     *
+     *  It allows the contract to accept incoming Ether fromn the WETH contract
      */
     receive() external payable {
         if (msg.sender != wETHA()) revert ETHTransferNotAllowed(msg.sender);
@@ -188,12 +189,12 @@ abstract contract StrategyLeverage is
      * Requirements:
      * - The AAVEv3 strategy must be properly configured and initialized.
      */
-    function getPosition()
+    function getPosition(uint256 priceMaxAge)
         external
         view
         returns (uint256 totalCollateralInEth, uint256 totalDebtInEth, uint256 loanToValue)
     {
-        (totalCollateralInEth, totalDebtInEth) = _getPosition(0);
+        (totalCollateralInEth, totalDebtInEth) = _getPosition(priceMaxAge);
         if (totalCollateralInEth == 0) {
             loanToValue = 0;
         } else {
@@ -453,7 +454,7 @@ abstract contract StrategyLeverage is
                     (priceMaxAge > 0 &&
                         (collateralPrice.lastUpdate >= (block.timestamp - priceMaxAge))))
             ) {
-                revert OraclePriceOutdated();
+                revert PriceOutdated();
             }
             totalCollateralInEth = (collateralBalance * collateralPrice.price) / ethPrice.price;
         }

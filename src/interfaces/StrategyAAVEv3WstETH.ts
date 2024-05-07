@@ -19,7 +19,7 @@ export interface StrategyAAVEv3WstETHMethods {
 
   flashLenderA(): ContractCallMethod<string>;
 
-  getPosition(): ContractCallMethod<{'totalCollateralInEth': number;'totalDebtInEth': number;'loanToValue': number;}>;
+  getPosition(maxAge: number): ContractCallMethod<{'totalCollateralInEth': number;'totalDebtInEth': number;'loanToValue': number;}>;
 
   harvest(): ContractSendMethod;
 

@@ -108,8 +108,8 @@ export class StrategyAAVEv3
     return this.callTx(this.contract.methods.flashLenderA());
   }
 
-  async getPosition() {
-    return this.callTx(this.contract.methods.getPosition());
+  async getPosition(maxAge: number) {
+    return this.callTx(this.contract.methods.getPosition(maxAge));
   }
 
   async harvest() {

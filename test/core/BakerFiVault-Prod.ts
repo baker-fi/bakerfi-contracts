@@ -19,9 +19,9 @@ describeif(
     expect(await vault.symbol()).to.equal("brETH");
     expect(await vault.balanceOf(deployer.address)).to.equal(0);
     expect(await vault.totalSupply()).to.equal(0);
-    expect((await strategy.getPosition())[0]).to.equal(0);
-    expect((await strategy.getPosition())[1]).to.equal(0);
-    expect((await strategy.getPosition())[2]).to.equal(0);
+    expect((await strategy.getPosition(0))[0]).to.equal(0);
+    expect((await strategy.getPosition(0))[1]).to.equal(0);
+    expect((await strategy.getPosition(0))[2]).to.equal(0);
     expect(await vault.totalAssets()).to.equal(0);
   });
 
@@ -35,16 +35,16 @@ describeif(
     expect(await vault.balanceOf(deployer.address))
       .to.greaterThan(ethers.parseUnits("9", 17))
       .lessThanOrEqual(ethers.parseUnits("11", 17));
-    expect((await strategy.getPosition())[0])
+    expect((await strategy.getPosition(0))[0])
       .to.greaterThan(ethers.parseUnits("40", 17))
       .lessThanOrEqual(ethers.parseUnits("46", 17));
-    expect((await strategy.getPosition())[1])
+    expect((await strategy.getPosition(0))[1])
       .to.greaterThan(ethers.parseUnits("33", 17))
       .lessThanOrEqual(ethers.parseUnits("37", 17));
     expect(await vault.totalAssets())
       .to.greaterThan(ethers.parseUnits("9", 17))
       .lessThanOrEqual(ethers.parseUnits("11", 17));
-    expect((await strategy.getPosition())[2])
+    expect((await strategy.getPosition(0))[2])
       .to.greaterThan(700000000n)
       .lessThanOrEqual(810000000n);
     expect(await vault.totalSupply())
@@ -71,16 +71,16 @@ describeif(
     expect(await vault.balanceOf(deployer.address))
       .to.greaterThan(ethers.parseUnits("4", 18))
       .lessThanOrEqual(ethers.parseUnits("6", 18));
-    expect((await strategy.getPosition())[0])
+    expect((await strategy.getPosition(0))[0])
       .to.greaterThan(ethers.parseUnits("9", 18))
       .lessThanOrEqual(ethers.parseUnits("11", 18));
-    expect((await strategy.getPosition())[1])
+    expect((await strategy.getPosition(0))[1])
       .to.greaterThan(ethers.parseUnits("4", 18))
       .lessThanOrEqual(ethers.parseUnits("6", 18));
     expect(await vault.totalAssets())
       .to.greaterThan(ethers.parseUnits("4", 18))
       .lessThanOrEqual(ethers.parseUnits("6", 18));
-    expect((await strategy.getPosition())[2])
+    expect((await strategy.getPosition(0))[2])
       .to.greaterThan(400000000n)
       .lessThanOrEqual(600000000n);
     expect(await vault.totalSupply())
@@ -122,7 +122,7 @@ describeif(
       .withArgs((value) => {
         return value >= 902114986650737323n;
       });
-    expect((await strategy.getPosition())[2])
+    expect((await strategy.getPosition(0))[2])
       .to.greaterThan(300000000n)
       .lessThanOrEqual(410000000n);
   });
@@ -162,9 +162,9 @@ describeif(
     await vault.withdraw(withrawing);
     expect(await vault.balanceOf(deployer.address)).to.equal(0n);
     expect(await vault.totalSupply()).to.equal(0n);
-    expect((await strategy.getPosition())[0]).to.equal(1n);
-    expect((await strategy.getPosition())[1]).to.equal(0n);
-    expect((await strategy.getPosition())[2]).to.equal(0n);
+    expect((await strategy.getPosition(0))[0]).to.equal(1n);
+    expect((await strategy.getPosition(0))[1]).to.equal(0n);
+    expect((await strategy.getPosition(0))[2]).to.equal(0n);
     expect(await vault.tokenPerETH()).to.equal(ethers.parseUnits("1", 18));
 });
   

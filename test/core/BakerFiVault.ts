@@ -157,19 +157,21 @@ describeif(network.name === "hardhat")("BakerFi Vault For L2s", function () {
     // Price Max Age 6 Min
     await settings.setPriceMaxAge(360);
 
-    // advance time by one hour and mine a new block
-    await time.increase(3600);
+
 
     await vault.deposit(owner.address, {
       value: ethers.parseUnits("10", 18),
     });
+
+    // advance time by one hour and mine a new block
+    await time.increase(3600);
 
     await expect(
       vault.deposit(owner.address, {
         value: ethers.parseUnits("10", 18),
       })
       // @ts-expect-error
-    ).to.be.revertedWithCustomError(strategy, "OraclePriceOutdated");
+    ).to.be.revertedWithCustomError(strategy, "PriceOutdated");
   });
 
   it("Deposit Fails when the prices are outdated", async () => {
@@ -179,20 +181,20 @@ describeif(network.name === "hardhat")("BakerFi Vault For L2s", function () {
 
     // Price Max Age 6 Min
     await settings.setPriceMaxAge(360);
-
-    // advance time by one hour and mine a new block
-    await time.increase(3600);
-
+    
     await vault.deposit(owner.address, {
       value: ethers.parseUnits("10", 18),
     });
+
+    // advance time by one hour and mine a new block
+    await time.increase(3600);
 
     await expect(
       vault.deposit(owner.address, {
         value: ethers.parseUnits("10", 18),
       })
       // @ts-expect-error
-    ).to.be.revertedWithCustomError(strategy, "OraclePriceOutdated");
+    ).to.be.revertedWithCustomError(strategy, "PriceOutdated");
   });
 
   it("Deposit Success with old prices", async () => {

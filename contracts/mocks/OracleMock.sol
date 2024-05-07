@@ -4,9 +4,11 @@ pragma solidity ^0.8.24;
 import {IOracle} from "../interfaces/core/IOracle.sol";
 
 contract OracleMock is IOracle {
+    
     uint256 internal _exchangeRate = 1130 * (1e6);
     uint256 internal _lastUpdate;
     uint256 internal immutable PRICE_PRECISION = 1e9;
+
 
     constructor() {
         _lastUpdate = block.timestamp;
@@ -30,5 +32,7 @@ contract OracleMock is IOracle {
      function getSafeLatestPrice(uint256 maxAge) public view override returns (IOracle.Price memory price) {
         price.price = _exchangeRate;
         price.lastUpdate = _lastUpdate;
+        if((block.timestamp - price.lastUpdate) > maxAge) revert  PriceOutdated();
+
     }
 }

@@ -30,7 +30,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
         value: ethers.parseUnits("10", 18),
       })
     ).to.changeEtherBalances([owner.address], [ethers.parseUnits("10", 18)]);
-    expect(await strategy.getPosition()).to.deep.equal([
+    expect(await strategy.getPosition(0)).to.deep.equal([
       45702851552764668112n,
       35740737736704000000n,
       782024239n,
@@ -45,7 +45,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
     await strategy.deploy({
       value: ethers.parseUnits("10", 18),
     });
-    expect(await strategy.getPosition()).to.deep.equal([
+    expect(await strategy.getPosition(0)).to.deep.equal([
       45702851552764668112n,
       35740737736704000000n,
       782024239n,
@@ -199,7 +199,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
     // advance time by one hour and mine a new block
     await time.increase(3600);
     await expect(strategy.harvest()).to.be.revertedWithCustomError(
-      strategy, "OraclePriceOutdated"
+      strategy, "PriceOutdated"
     );
   });
 

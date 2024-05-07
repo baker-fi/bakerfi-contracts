@@ -41,6 +41,6 @@ contract WstETHToETHOracleETH is IOracle {
 
     function getSafeLatestPrice(uint256 age) public view override returns (IOracle.Price memory price) {
         price = getLatestPrice();
-        if((block.timestamp - price.lastUpdate) > age) revert  OutdatedPrice();
+        if((block.timestamp - price.lastUpdate) > age) revert  PriceOutdated();
     }
 }
