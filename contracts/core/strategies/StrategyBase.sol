@@ -418,7 +418,14 @@ abstract contract StrategyBase is
         emit StrategyAmountUpdate(newDeployedAmount);
         _deployedAmount = newDeployedAmount;
     }
-    
+        
+
+    /**
+     * Get the Money Market Position Balances (Collateral, Debt) in Token Balances
+     * 
+     * @return collateralBalance 
+     * @return debtBalance 
+     */
     function _getMMPosition() internal virtual view returns (uint256 collateralBalance, uint256 debtBalance )  ;
     /**
      * @dev Retrieves the current collateral and debt positions of the contract.
@@ -535,6 +542,7 @@ abstract contract StrategyBase is
         (uint256 amountIn, , , ) = uniQuoter().quoteExactOutputSingle(
             IQuoterV2.QuoteExactOutputSingleParams(ierc20A(), wETHA(), debtAmount + fee, 500, 0)
         );    
+        
         _withdraw(ierc20A(), amountIn, address(this) );
 
         uint256 output = _swap(
@@ -615,8 +623,8 @@ abstract contract StrategyBase is
      */
     function _toWETH(uint256 amountIn) internal view returns (uint256 amountOut) {
         amountOut =
-            (amountIn * _collateralOracle.getLatestPrice().price) /
-            _ethUSDOracle.getLatestPrice().price;
+            (amountIn * _collateralOracle.getSafeLatestPrice(settings().getPriceMaxAge()).price) /
+            _ethUSDOracle.getSafeLatestPrice(settings().getPriceMaxAge()).price;
     }
 
     /**
@@ -629,8 +637,8 @@ abstract contract StrategyBase is
      */
     function _fromWETH(uint256 amountIn) internal view returns (uint256 amountOut) {
         amountOut =
-            (amountIn * _ethUSDOracle.getLatestPrice().price) /
-            _collateralOracle.getLatestPrice().price;
+            (amountIn * _ethUSDOracle.getSafeLatestPrice(settings().getPriceMaxAge()).price) /
+            _collateralOracle.getSafeLatestPrice(settings().getPriceMaxAge()).price;
     }
 
 
@@ -702,7 +710,10 @@ abstract contract StrategyBase is
     }
 
 
-
+    /**
+     * Money Market Functions to overrided by different implementations 
+     * 
+     */
     function _supply( address assetIn, uint256 amountIn) internal virtual;
     function _supplyAndBorrow( address assetIn, uint256 amountIn, address assetOut, uint256 borrowOut) internal virtual;
     function _repay(address assetIn, uint256 amount) internal virtual;

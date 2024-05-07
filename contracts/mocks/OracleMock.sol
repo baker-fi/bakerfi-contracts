@@ -12,12 +12,12 @@ contract OracleMock is IOracle {
         _lastUpdate = block.timestamp;
     }
 
-    function getPrecision() external pure override returns (uint256) {
+    function getPrecision() public pure override returns (uint256) {
         return PRICE_PRECISION;
     }
 
     //  WSETH/ETH
-    function getLatestPrice() external view override returns (IOracle.Price memory price) {
+    function getLatestPrice() public view override returns (IOracle.Price memory price) {
         price.price = _exchangeRate;
         price.lastUpdate = _lastUpdate;
     }
@@ -25,5 +25,10 @@ contract OracleMock is IOracle {
     function setLatestPrice(uint256 exchangeRate) external {
         _exchangeRate = exchangeRate;
         _lastUpdate = block.timestamp;
+    }
+
+     function getSafeLatestPrice(uint256 maxAge) public view override returns (IOracle.Price memory price) {
+        price.price = _exchangeRate;
+        price.lastUpdate = _lastUpdate;
     }
 }

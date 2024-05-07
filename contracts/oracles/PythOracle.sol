@@ -10,6 +10,7 @@ contract PythOracle is IOracle {
     error InvalidPriceUpdate();
     error NoEnoughFee();
 
+
     IPyth private immutable _pyth;
     bytes32 private immutable _priceID;
     uint256 private constant _PRECISION = 18;
@@ -27,15 +28,17 @@ contract PythOracle is IOracle {
     /**
      * Get the Price precision
      */
-    function getPrecision() public pure returns (uint256) {
+    function getPrecision() public pure override returns (uint256) {
         return _PRECISION;
     }
 
     /**
      * Get the Internal Price from Pyth Smart Contract
      */
-    function _getPriceInternal() private view returns (IOracle.Price memory outPrice) {
-        PythStructs.Price memory price = _pyth.getPriceUnsafe(_priceID);
+    function _getPriceInternal(uint256 age) private view returns (IOracle.Price memory outPrice) {
+        PythStructs.Price memory price = age == 0 ? 
+            _pyth.getPriceUnsafe(_priceID): 
+            _pyth.getPriceNoOlderThan(_priceID, age);
 
         if (price.expo >= 0) {
             outPrice.price =
@@ -62,13 +65,21 @@ contract PythOracle is IOracle {
         uint256 fee = _pyth.getUpdateFee(priceUpdates);
         if (msg.value < fee) revert NoEnoughFee();
         _pyth.updatePriceFeeds{value: fee}(priceUpdates);
-        return _getPriceInternal();
+        return _getPriceInternal(0);
     }
 
     /**
      * Get the Latest Price
      */
-    function getLatestPrice() public view returns (IOracle.Price memory) {
-        return _getPriceInternal();
+    function getLatestPrice() public view override returns (IOracle.Price memory) {
+        return _getPriceInternal(0);
+    }
+
+    /**
+     * Get the Latest Price
+     */
+    function getSafeLatestPrice(uint256 maxAge) public view override returns (IOracle.Price memory price) {
+        price = _getPriceInternal(maxAge);
+        
     }
 }

@@ -5,12 +5,9 @@ import {StrategyBase} from "./StrategyBase.sol";
 import {ServiceRegistry} from "../../core/ServiceRegistry.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {UseAAVEv3} from "../hooks/UseAAVEv3.sol";
 import {DataTypes} from "../../interfaces/aave/v3/IPoolV3.sol";
-
-import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 /**
  * @title  AAVE v3 Recursive Staking Strategy for anyETH/WETH
