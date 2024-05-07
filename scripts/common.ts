@@ -96,7 +96,7 @@ export async function deployStrategyAAVEv3WstETH(
   const proxy = await BakerFiProxy.deploy(
     await strategy.getAddress(),
     await proxyAdmin.getAddress(),
-    StrategyAAVEv3.interface.encodeFunctionData("initialize", [
+    StrategyAAVEv3.interface.encodeFunctionData("initializeWstETH", [
       owner,
       governor,
       serviceRegistry,

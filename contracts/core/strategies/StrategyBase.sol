@@ -5,10 +5,9 @@ import {IERC3156FlashBorrowerUpgradeable} from "@openzeppelin/contracts-upgradea
 import {ServiceRegistry} from "../../core/ServiceRegistry.sol";
 import {IERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
-import {IQuoterV2} from "../../interfaces/uniswap/v3/IQuoterV2.sol";
+
 import {PERCENTAGE_PRECISION} from "../Constants.sol";
 import {IOracle} from "../../interfaces/core/IOracle.sol";
-import {DataTypes} from "../../interfaces/aave/v3/IPoolV3.sol";
 import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
 import {IStrategy} from "../../interfaces/core/IStrategy.sol";
 import {UseLeverage} from "../hooks/UseLeverage.sol";
@@ -65,13 +64,12 @@ import {StrategyLeverageSettings} from "./StrategyLeverageSettings.sol";
  * @notice The Contract is abstract and needs to be extended to implement the
  * conversion between WETH and the collateral
  */
-abstract contract StrategyAAVEv3Base is
+abstract contract StrategyBase is
     StrategyLeverageSettings,
     IStrategy,
     IERC3156FlashBorrowerUpgradeable,
     UseWETH,
     UseIERC20,
-    UseAAVEv3,
     UseSwapper,
     UseFlashLender,
     UseUniQuoter,
@@ -100,7 +98,6 @@ abstract contract StrategyAAVEv3Base is
     error InvalidOwner();
     error InvalidDebtOracle();
     error InvalidCollateralOracle();
-    error InvalidAAVEEMode();
     error InvalidDeployAmount();
     error InvalidAllowance();
     error FailedToRunFlashLoan();
@@ -113,6 +110,7 @@ abstract contract StrategyAAVEv3Base is
     error OraclePriceOutdated();
     error NoCollateralMarginToScale();
     error ETHTransferNotAllowed(address sender);
+    error FailedToApproveAllowance();
 
     uint256 internal _pendingAmount = 0;
     uint256 private _deployedAmount = 0;
@@ -132,29 +130,26 @@ abstract contract StrategyAAVEv3Base is
      * @param collateralIERC20 The hash representing the collateral ERC20 token in the service registry.
      * @param collateralOracle The hash representing the collateral/ETH oracle in the service registry.
      * @param swapFeeTier The swap fee tier for Uniswap.
-     * @param eModeCategory The EMode category for the AAVEv3 strategy.
      *
      * Requirements:
      * - The caller must be in the initializing state.
      * - The initial owner address must not be the zero address.
      * - The ETH/USD oracle and collateral/USD oracle addresses must be valid.
-     * - The EMode category must be successfully set for the AAVEv3 strategy.
      * - Approval allowances must be successfully set for WETH and the collateral ERC20 token for UniSwap.
      */
-    function _initializeStrategyAAVEv3Base(
+    function _initializeStrategyBase(
         address initialOwner,
         address initialGovernor,
         ServiceRegistry registry,
         bytes32 collateralIERC20,
         bytes32 collateralOracle,
-        uint24 swapFeeTier,
-        uint8 eModeCategory
+        uint24 swapFeeTier
     ) internal onlyInitializing {
         if (initialOwner == address(0)) revert InvalidOwner();
         _initLeverageSettings(initialOwner, initialGovernor);
         _initUseWETH(registry);
         _initUseIERC20(registry, collateralIERC20);
-        _initUseAAVEv3(registry);
+  
         _initUseSwapper(registry);
         _initUseFlashLender(registry);
         _initUseUniQuoter(registry);
@@ -164,8 +159,7 @@ abstract contract StrategyAAVEv3Base is
         _swapFeeTier = swapFeeTier;
         if (address(_ethUSDOracle) == address(0)) revert InvalidDebtOracle();
         if (address(_collateralOracle) == address(0)) revert InvalidCollateralOracle();       
-        aaveV3().setUserEMode(eModeCategory);
-        if (aaveV3().getUserEMode(address(this)) != eModeCategory) revert InvalidAAVEEMode();
+
         if (!wETH().approve(uniRouterA(), 2 ** 256 - 1)) revert FailedToApproveAllowance();
         if (!ierc20().approve(uniRouterA(), 2 ** 256 - 1)) revert FailedToApproveAllowance();
     }
@@ -286,14 +280,7 @@ abstract contract StrategyAAVEv3Base is
      * Requirements:
      * - The AAVEv3 strategy must be properly configured and initialized.
      */
-    function _supplyBorrow(uint256 amount, uint256 loanAmount, uint256 fee) private {
-        uint256 collateralIn = _convertFromWETH(amount + loanAmount);
-        // Deposit on AAVE Collateral and Borrow ETH
-        _supplyAndBorrow(ierc20A(), collateralIn, wETHA(), loanAmount + fee);
-        uint256 collateralInETH = _toWETH(collateralIn);
-        _pendingAmount = collateralInETH - loanAmount - fee;
-        emit StrategyDeploy(msg.sender, _pendingAmount);
-    }
+    function _supplyBorrow(uint256 amount, uint256 loanAmount, uint256 fee) internal virtual;
 
     /**
      * @dev Repays the debt on AAVEv3 strategy, handling the withdrawal and swap operations.
@@ -309,34 +296,7 @@ abstract contract StrategyAAVEv3Base is
      * Requirements:
      * - The AAVEv3 strategy must be properly configured and initialized.
      */
-    function _payDebt(uint256 debtAmount, uint256 fee) private {
-        _repay(wETHA(), debtAmount);
-        // Get a Quote to know how much collateral i require to pay debt
-        (uint256 amountIn, , , ) = uniQuoter().quoteExactOutputSingle(
-            IQuoterV2.QuoteExactOutputSingleParams(ierc20A(), wETHA(), debtAmount + fee, 500, 0)
-        );
-        if (aaveV3().withdraw(ierc20A(), amountIn, address(this)) != amountIn)
-            revert InvalidWithdrawAmount();
-
-        uint256 output = _swap(
-            ISwapHandler.SwapParams(
-                ierc20A(),
-                wETHA(),
-                ISwapHandler.SwapType.EXACT_OUTPUT,
-                amountIn,
-                debtAmount + fee,
-                _swapFeeTier,
-                bytes("")
-            )
-        );
-        // When there are leftovers from the swap, deposit then back
-        uint256 wethLefts = output > (debtAmount + fee) ? output - (debtAmount + fee) : 0;
-        if (wethLefts > 0) {
-            if (!wETH().approve(aaveV3A(), wethLefts)) revert FailedToApproveAllowance();
-            aaveV3().supply(wETHA(), wethLefts, address(this), 0);
-        }
-        emit StrategyUndeploy(msg.sender, debtAmount);
-    }
+    function _payDebt(uint256 debtAmount, uint256 fee) internal virtual;
 
     /**
      * @dev Repays a specified amount, withdraws collateral, and sends the remaining ETH to the specified receiver.
@@ -359,27 +319,7 @@ abstract contract StrategyAAVEv3Base is
         uint256 repayAmount,
         uint256 fee,
         address payable receiver
-    ) private {
-        DataTypes.ReserveData memory reserve = aaveV3().getReserveData(ierc20A());
-        uint256 balanceOf = IERC20Upgradeable(reserve.aTokenAddress).balanceOf(address(this));
-        uint256 convertedAmount = _fromWETH(withdrawAmountInETh);
-        uint256 withdrawAmount = balanceOf > convertedAmount ? convertedAmount : balanceOf;
-        _repay(wETHA(), repayAmount);
-
-        if (aaveV3().withdraw(ierc20A(), withdrawAmount, address(this)) != withdrawAmount) {
-            revert InvalidWithdrawAmount();
-        }
-        // Convert Collateral to WETH
-        uint256 wETHAmount = _convertToWETH(withdrawAmount);
-        // Calculate how much ETH i am able to withdraw
-        uint256 ethToWithdraw = wETHAmount - repayAmount - fee;
-        // Unwrap wETH
-        _unwrapWETH(ethToWithdraw);
-        // Withdraw ETh to Receiver
-        payable(receiver).sendValue(ethToWithdraw);
-        emit StrategyUndeploy(msg.sender, ethToWithdraw);
-        _pendingAmount = ethToWithdraw;
-    }
+    ) internal virtual;
 
     /**
      * @dev Handles the execution of actions after receiving a flash loan.
@@ -533,7 +473,8 @@ abstract contract StrategyAAVEv3Base is
         emit StrategyAmountUpdate(newDeployedAmount);
         _deployedAmount = newDeployedAmount;
     }
-
+    
+    function _getMMPosition() internal virtual view returns (uint256 collateralBalance, uint256 debtBalance )  ;
     /**
      * @dev Retrieves the current collateral and debt positions of the contract.
      *
@@ -549,14 +490,8 @@ abstract contract StrategyAAVEv3Base is
         totalCollateralInEth = 0;
         totalDebtInEth = 0;
 
-        DataTypes.ReserveData memory wethReserve = (aaveV3().getReserveData(wETHA()));
-        DataTypes.ReserveData memory colleteralReserve = (aaveV3().getReserveData(ierc20A()));
-
-        uint256 wethBalance = IERC20(wethReserve.variableDebtTokenAddress).balanceOf(address(this));
-        uint256 collateralBalance = IERC20(colleteralReserve.aTokenAddress).balanceOf(
-            address(this)
-        );
-
+        (uint256 collateralBalance,  uint256 debtBalance ) = _getMMPosition();
+    
         if (collateralBalance != 0) {
             IOracle.Price memory ethPrice = _ethUSDOracle.getLatestPrice();
             IOracle.Price memory collateralPrice = _collateralOracle.getLatestPrice();
@@ -570,8 +505,8 @@ abstract contract StrategyAAVEv3Base is
             }
             totalCollateralInEth = (collateralBalance * collateralPrice.price) / ethPrice.price;
         }
-        if (wethBalance != 0) {
-            totalDebtInEth = wethBalance;
+        if (debtBalance != 0) {
+            totalDebtInEth = debtBalance;
         }
     }
 
@@ -635,15 +570,29 @@ abstract contract StrategyAAVEv3Base is
         //_pendingAmount = 0;
     }
 
-    /**
-     * @dev Internal function to convert the specified amount from WETH to the underlying collateral.
+       /**
+     * @dev Internal function to convert the specified amount from WETH to the underlying assert cbETH, wstETH, rETH.
      *
      * This function is virtual and intended to be overridden in derived contracts for customized implementation.
      *
      * @param amount The amount to convert from WETH.
      * @return uint256 The converted amount in the underlying collateral.
      */
-    function _convertFromWETH(uint256 amount) internal virtual returns (uint256);
+    function _convertFromWETH(uint256 amount) internal virtual returns (uint256) {
+        // 1. Swap WETH -> cbETH/wstETH/rETH
+        return
+            _swap(
+                ISwapHandler.SwapParams(
+                    wETHA(), // Asset In
+                    ierc20A(), // Asset Out
+                    ISwapHandler.SwapType.EXACT_INPUT, // Swap Mode
+                    amount, // Amount In
+                    0, // Amount Out
+                    _swapFeeTier, // Fee Pair Tier
+                    bytes("") // User Payload
+                )
+            );
+    }
 
     /**
      * @dev Internal function to convert the specified amount to WETH from the underlying collateral.
@@ -653,7 +602,21 @@ abstract contract StrategyAAVEv3Base is
      * @param amount The amount to convert to WETH.
      * @return uint256 The converted amount in WETH.
      */
-    function _convertToWETH(uint256 amount) internal virtual returns (uint256);
+    function _convertToWETH(uint256 amount) internal virtual returns (uint256) {
+        // 1.Swap cbETH -> WETH/wstETH/rETH
+        return
+            _swap(
+                ISwapHandler.SwapParams(
+                    ierc20A(), // Asset In
+                    wETHA(), // Asset Out
+                    ISwapHandler.SwapType.EXACT_INPUT, // Swap Mode
+                    amount, // Amount In
+                    0, // Amount Out
+                    _swapFeeTier, // Fee Pair Tier
+                    bytes("") // User Payload
+                )
+            );
+    }
 
     /**
      * @dev Internal function to convert the specified amount in the underlying collateral to WETH.

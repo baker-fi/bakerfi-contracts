@@ -104,12 +104,6 @@ error InvalidDebtOracle()
 error InvalidCollateralOracle()
 ```
 
-### InvalidAAVEEMode
-
-```solidity
-error InvalidAAVEEMode()
-```
-
 ### InvalidDeployAmount
 
 ```solidity

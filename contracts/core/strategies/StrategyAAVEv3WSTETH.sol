@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.24;
 
-import {StrategyAAVEv3Base} from "./StrategyAAVEv3Base.sol";
+import {StrategyAAVEv3} from "./StrategyAAVEv3.sol";
 import {ServiceRegistry} from "../../core/ServiceRegistry.sol";
 import {UseStETH} from "../hooks/UseStETH.sol";
 import {UseWstETH} from "../hooks/UseWstETH.sol";
@@ -25,7 +25,7 @@ import {WST_ETH_CONTRACT, WSTETH_USD_ORACLE_CONTRACT} from "../ServiceRegistry.s
  * mechanisms to convert from collateral token to debt token.
  *
  */
-contract StrategyAAVEv3WstETH is Initializable, StrategyAAVEv3Base, UseWstETH, UseStETH {
+contract StrategyAAVEv3WstETH is Initializable, StrategyAAVEv3, UseWstETH, UseStETH {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using AddressUpgradeable for address payable;
 
@@ -35,14 +35,14 @@ contract StrategyAAVEv3WstETH is Initializable, StrategyAAVEv3Base, UseWstETH, U
     }
 
     // solhint-disable no-empty-blocks
-    function initialize(
+    function initializeWstETH(
         address initialOwner,
         address initialGovernor,
         ServiceRegistry registry,
         uint24 swapFeeTier,
         uint8 eModeCategory
     ) public initializer {
-        _initializeStrategyAAVEv3Base(
+        initialize(
             initialOwner,
             initialGovernor,
             registry,
