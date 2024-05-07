@@ -23,6 +23,7 @@ import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/Addr
 import {ETH_USD_ORACLE_CONTRACT} from "../ServiceRegistry.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {StrategyLeverageSettings} from "./StrategyLeverageSettings.sol";
+import {IQuoterV2} from "../../interfaces/uniswap/v3/IQuoterV2.sol";
 
 /**
  * @title AAVE v3 Recursive Staking Strategy
@@ -101,7 +102,6 @@ abstract contract StrategyBase is
     error InvalidDeployAmount();
     error InvalidAllowance();
     error FailedToRunFlashLoan();
-    error InvalidWithdrawAmount();
     error InvalidFlashLoanSender();
     error InvalidLoanInitiator();
     error InvalidFlashLoanAsset();
@@ -265,61 +265,6 @@ abstract contract StrategyBase is
         // Pending amount is not cleared to save gas
         // _pendingAmount = 0;
     }
-
-    /**
-     * @dev Executes the supply and borrow operations on AAVE, converting assets from WETH.
-     *
-     * This function is private and is used internally in the AAVEv3 strategy for depositing collateral
-     * and borrowing ETH on the AAVE platform. It involves converting assets from WETH to the respective
-     * tokens, supplying collateral, and borrowing ETH. The strategy owned value is logged on the  `StrategyDeploy` event.
-     *
-     * @param amount The amount to be supplied to AAVE (collateral) in WETH.
-     * @param loanAmount The amount to be borrowed from AAVE in WETH.
-     * @param fee The fee amount in WETH associated with the flash loan.
-     *
-     * Requirements:
-     * - The AAVEv3 strategy must be properly configured and initialized.
-     */
-    function _supplyBorrow(uint256 amount, uint256 loanAmount, uint256 fee) internal virtual;
-
-    /**
-     * @dev Repays the debt on AAVEv3 strategy, handling the withdrawal and swap operations.
-     *
-     * This private function is used internally to repay the debt on the AAVEv3 strategy. It involves repaying
-     * the debt on AAVE, obtaining a quote for the required collateral, withdrawing the collateral from AAVE, and
-     * swapping the collateral to obtain the necessary WETH. The leftover WETH after the swap is deposited back
-     * into AAVE if there are any. The function emits the `StrategyUndeploy` event after the debt repayment.
-     *
-     * @param debtAmount The amount of debt in WETH to be repaid on AAVE.
-     * @param fee The fee amount in WETH associated with the debt repayment.
-     *
-     * Requirements:
-     * - The AAVEv3 strategy must be properly configured and initialized.
-     */
-    function _payDebt(uint256 debtAmount, uint256 fee) internal virtual;
-
-    /**
-     * @dev Repays a specified amount, withdraws collateral, and sends the remaining ETH to the specified receiver.
-     *
-     * This private function is used internally to repay a specified amount on AAVE, withdraw collateral, and send
-     * the remaining ETH to the specified receiver. It involves checking the available balance, repaying the debt on
-     * AAVE, withdrawing the specified amount of collateral, converting collateral to WETH, unwrapping WETH, and finally
-     * sending the remaining ETH to the receiver. The function emits the `StrategyUndeploy` event after the operation.
-     *
-     * @param withdrawAmountInETh The amount of collateral to be withdrawn in WETH.
-     * @param repayAmount The amount of debt in WETH to be repaid on AAVE.
-     * @param fee The fee amount in WETH associated with the operation.
-     * @param receiver The address to receive the remaining ETH after debt repayment and withdrawal.
-     *
-     * Requirements:
-     * - The AAVEv3 strategy must be properly configured and initialized.
-     */
-    function _repayAndWithdraw(
-        uint256 withdrawAmountInETh,
-        uint256 repayAmount,
-        uint256 fee,
-        address payable receiver
-    ) internal virtual;
 
     /**
      * @dev Handles the execution of actions after receiving a flash loan.
@@ -570,6 +515,48 @@ abstract contract StrategyBase is
         //_pendingAmount = 0;
     }
 
+        /**
+     * @dev Repays the debt on AAVEv3 strategy, handling the withdrawal and swap operations.
+     *
+     * This private function is used internally to repay the debt on the AAVEv3 strategy. It involves repaying
+     * the debt on AAVE, obtaining a quote for the required collateral, withdrawing the collateral from AAVE, and
+     * swapping the collateral to obtain the necessary WETH. The leftover WETH after the swap is deposited back
+     * into AAVE if there are any. The function emits the `StrategyUndeploy` event after the debt repayment.
+     *
+     * @param debtAmount The amount of debt in WETH to be repaid on AAVE.
+     * @param fee The fee amount in WETH associated with the debt repayment.
+     *
+     * Requirements:
+     * - The AAVEv3 strategy must be properly configured and initialized.
+     */
+      function _payDebt(uint256 debtAmount, uint256 fee) internal {
+        _repay(wETHA(), debtAmount);
+        // Get a Quote to know how much collateral i require to pay debt
+        (uint256 amountIn, , , ) = uniQuoter().quoteExactOutputSingle(
+            IQuoterV2.QuoteExactOutputSingleParams(ierc20A(), wETHA(), debtAmount + fee, 500, 0)
+        );    
+        _withdraw(ierc20A(), amountIn, address(this) );
+
+        uint256 output = _swap(
+            ISwapHandler.SwapParams(
+                ierc20A(),
+                wETHA(),
+                ISwapHandler.SwapType.EXACT_OUTPUT,
+                amountIn,
+                debtAmount + fee,
+                _swapFeeTier,
+                bytes("")
+            )
+        );
+        // When there are leftovers from the swap, deposit then back
+        uint256 wethLefts = output > (debtAmount + fee) ? output - (debtAmount + fee) : 0;
+        if (wethLefts > 0) {
+            _supply(wETHA(), wethLefts);
+        }
+        emit StrategyUndeploy(msg.sender, debtAmount);
+    }
+
+
        /**
      * @dev Internal function to convert the specified amount from WETH to the underlying assert cbETH, wstETH, rETH.
      *
@@ -645,6 +632,81 @@ abstract contract StrategyBase is
             (amountIn * _ethUSDOracle.getLatestPrice().price) /
             _collateralOracle.getLatestPrice().price;
     }
+
+
+    /**
+     * @dev Executes the supply and borrow operations on AAVE, converting assets from WETH.
+     *
+     * This function is private and is used internally in the AAVEv3 strategy for depositing collateral
+     * and borrowing ETH on the AAVE platform. It involves converting assets from WETH to the respective
+     * tokens, supplying collateral, and borrowing ETH. The strategy owned value is logged on the  `StrategyDeploy` event.
+     *
+     * @param amount The amount to be supplied to AAVE (collateral) in WETH.
+     * @param loanAmount The amount to be borrowed from AAVE in WETH.
+     * @param fee The fee amount in WETH associated with the flash loan.
+     *
+     * Requirements:
+     * - The AAVEv3 strategy must be properly configured and initialized.
+     */
+    function _supplyBorrow(uint256 amount, uint256 loanAmount, uint256 fee) internal {
+        uint256 collateralIn = _convertFromWETH(amount + loanAmount);
+        // Deposit on AAVE Collateral and Borrow ETH
+        _supplyAndBorrow(ierc20A(), collateralIn, wETHA(), loanAmount + fee);
+        uint256 collateralInETH = _toWETH(collateralIn);
+        _pendingAmount = collateralInETH - loanAmount - fee;
+        emit StrategyDeploy(msg.sender, _pendingAmount);
+    }
+
+
+        /**
+     * @dev Repays a specified amount, withdraws collateral, and sends the remaining ETH to the specified receiver.
+     *
+     * This private function is used internally to repay a specified amount on AAVE, withdraw collateral, and send
+     * the remaining ETH to the specified receiver. It involves checking the available balance, repaying the debt on
+     * AAVE, withdrawing the specified amount of collateral, converting collateral to WETH, unwrapping WETH, and finally
+     * sending the remaining ETH to the receiver. The function emits the `StrategyUndeploy` event after the operation.
+     *
+     * @param withdrawAmountInETh The amount of collateral to be withdrawn in WETH.
+     * @param repayAmount The amount of debt in WETH to be repaid on AAVE.
+     * @param fee The fee amount in WETH associated with the operation.
+     * @param receiver The address to receive the remaining ETH after debt repayment and withdrawal.
+     *
+     * Requirements:
+     * - The AAVEv3 strategy must be properly configured and initialized.
+     */
+    function _repayAndWithdraw(
+        uint256 withdrawAmountInETh,
+        uint256 repayAmount,
+        uint256 fee,
+        address payable receiver
+    ) internal {
+
+        (uint256 collateralBalance,) = _getMMPosition();
+        uint256 convertedAmount = _fromWETH(withdrawAmountInETh);
+        uint256 withdrawAmount = collateralBalance > convertedAmount ? convertedAmount : collateralBalance;
+        
+        _repay(wETHA(), repayAmount);                        
+        
+        _withdraw(ierc20A(), withdrawAmount, address(this));
+
+        // Convert Collateral to WETH
+        uint256 wETHAmount = _convertToWETH(withdrawAmount);
+        // Calculate how much ETH i am able to withdraw
+        uint256 ethToWithdraw = wETHAmount - repayAmount - fee;
+        // Unwrap wETH
+        _unwrapWETH(ethToWithdraw);
+        // Withdraw ETh to Receiver
+        payable(receiver).sendValue(ethToWithdraw);
+        emit StrategyUndeploy(msg.sender, ethToWithdraw);
+        _pendingAmount = ethToWithdraw;
+    }
+
+
+
+    function _supply( address assetIn, uint256 amountIn) internal virtual;
+    function _supplyAndBorrow( address assetIn, uint256 amountIn, address assetOut, uint256 borrowOut) internal virtual;
+    function _repay(address assetIn, uint256 amount) internal virtual;
+    function _withdraw(address assetOut, uint256 amount,  address to) internal virtual;
 
     function renounceOwnership() public virtual override {
         revert InvalidOwner(); 
