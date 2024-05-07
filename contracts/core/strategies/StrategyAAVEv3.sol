@@ -64,8 +64,9 @@ contract StrategyAAVEv3 is Initializable, StrategyBase, UseAAVEv3{
 
     /**
      * Get the Current Position on AAVE v3 Money Market
-     * @return collateralBalance 
-     * @return debtBalance 
+     * 
+     * @return collateralBalance  The Collateral Balance Amount
+     * @return debtBalance  -  The Debt Token Balance Amount
      */   
     function _getMMPosition() internal virtual override view returns ( uint256 collateralBalance, uint256 debtBalance ) {
         DataTypes.ReserveData memory wethReserve = (aaveV3().getReserveData(wETHA()));
@@ -76,7 +77,7 @@ contract StrategyAAVEv3 is Initializable, StrategyBase, UseAAVEv3{
         );
     }
 
-
+    
     function _supply( address assetIn,
         uint256 amountIn) internal override virtual  {
         if (!IERC20(assetIn).approve(aaveV3A(), amountIn)) revert FailedToApproveAllowanceForAAVE();

@@ -26,7 +26,7 @@ import {StrategyLeverageSettings} from "./StrategyLeverageSettings.sol";
 import {IQuoterV2} from "../../interfaces/uniswap/v3/IQuoterV2.sol";
 
 /**
- * @title AAVE v3 Recursive Staking Strategy
+ * @title Base Recursive Staking Strategy
  *
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
@@ -58,7 +58,7 @@ import {IQuoterV2} from "../../interfaces/uniswap/v3/IQuoterV2.sol";
  *  LeverageRatio = LeverageFunc(numberOfLoops, LTV)
  *  APY ~=  LidoAPY - (LidoAPY-AAVE_Borrow_Rate)*(1-leverateRatio);
  *
- *  This strategy could work for
+ *  This strategy could work for 
  *  rETH/WETH
  *  awstETH/WETH
  *
