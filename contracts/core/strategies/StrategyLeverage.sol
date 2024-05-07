@@ -65,7 +65,7 @@ import {IQuoterV2} from "../../interfaces/uniswap/v3/IQuoterV2.sol";
  * @notice The Contract is abstract and needs to be extended to implement the
  * conversion between WETH and the collateral
  */
-abstract contract StrategyBase is
+abstract contract StrategyLeverage is
     StrategyLeverageSettings,
     IStrategy,
     IERC3156FlashBorrowerUpgradeable,

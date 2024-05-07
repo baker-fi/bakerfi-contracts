@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.24;
 
-import {StrategyBase} from "./StrategyBase.sol";
+import {StrategyLeverage} from "./StrategyLeverage.sol";
 import {ServiceRegistry} from "../../core/ServiceRegistry.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -23,7 +23,7 @@ import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/Addr
  * The strategy inherits all the business logic from StrategyAAVEv3Base and could be deployed
  * on Optimism, Arbitrum , Base and Ethereum.
  */
-contract StrategyAAVEv3 is Initializable, StrategyBase, UseAAVEv3{
+contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3{
     using SafeERC20 for IERC20;
     using AddressUpgradeable for address;
     using AddressUpgradeable for address payable;
