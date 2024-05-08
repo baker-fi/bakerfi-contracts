@@ -444,8 +444,8 @@ abstract contract StrategyLeverage is
         (uint256 collateralBalance,  uint256 debtBalance ) = _getMMPosition();
     
         if (collateralBalance != 0) {
-            IOracle.Price memory ethPrice = _ethUSDOracle.getLatestPrice();
-            IOracle.Price memory collateralPrice = _collateralOracle.getLatestPrice();
+            IOracle.Price memory ethPrice = _ethUSDOracle.getSafeLatestPrice(settings().getPriceMaxAge());
+            IOracle.Price memory collateralPrice = _collateralOracle.getSafeLatestPrice(settings().getPriceMaxAge());
             if (
                 !(priceMaxAge == 0 ||
                     (priceMaxAge > 0 && (ethPrice.lastUpdate >= (block.timestamp - priceMaxAge))) ||
