@@ -272,7 +272,8 @@ contract Vault is
      * @dev Retrieves the total assets controlled/belonging to the vault
      *
      * This function is publicly accessible and provides a view of the total assets currently
-     * deployed in the current strategy.
+     * deployed in the current strategy. This function uses the latest prices 
+     * and does not revert on outdated prices
      *
      * @return amount The total assets under management by the strategy.
      */
@@ -280,6 +281,11 @@ contract Vault is
         amount = _strategy.deployed(0);
     }
 
+    /**
+     * @dev Retrieves the total assets and reverts when the prices are outdated and a priceAge is 
+     * bigger than 0.
+     * @param priceMaxAge The maximum age of the price without reverting
+     */
     function _totalAssets(uint256 priceMaxAge) private view returns (uint256 amount) {
         amount = _strategy.deployed(priceMaxAge);
     }
@@ -333,10 +339,25 @@ contract Vault is
         return (totalSupply() * 1 ether) / position;
     }
 
+    /**
+     * @dev Pauses the Contract 
+     * 
+     * Only the Owner is ablet to pause the vault.
+     * 
+     * When the contract is paused the deposit, withdraw and rebalance could not be called without 
+     * a revert 
+     * 
+     */
     function pause() external onlyOwner {
         _pause();
     }
 
+    /**
+     * @dev Unpauses the contract
+     
+     * Only the Owner is ablet to unpause the vault.
+     * 
+     */
     function unpause() external onlyOwner {
         _unpause();
     }

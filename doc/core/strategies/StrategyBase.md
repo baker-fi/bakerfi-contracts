@@ -1,6 +1,6 @@
 # Solidity API
 
-## StrategyAAVEv3Base
+## StrategyBase
 
 The Contract is abstract and needs to be extended to implement the
 conversion between WETH and the collateral
@@ -45,7 +45,7 @@ The APY of this strategy depends on the followwin factors:
 |     └      |  **Function Name**  |  **Visibility**  |  **Mutability**  |  **Modifiers**  |
 ||||||
 | **StrategyAAVEv3Base** | Implementation | StrategyLeverageSettings, IStrategy, IERC3156FlashBorrowerUpgradeable, UseWETH, UseIERC20, UseAAVEv3, UseSwapper, UseFlashLender, UseUniQuoter, ReentrancyGuardUpgradeable, UseLeverage, UseSettings |||
-| └ | _initializeStrategyAAVEv3Base | Internal 🔒 | 🛑  | onlyInitializing |
+| └ | _initializeStrategyBase | Internal 🔒 | 🛑  | onlyInitializing |
 | └ | <Receive Ether> | External ❗️ |  💵 |NO❗️ |
 | └ | getPosition | External ❗️ |   |NO❗️ |
 | └ | deployed | Public ❗️ |   |NO❗️ |
@@ -102,12 +102,6 @@ error InvalidDebtOracle()
 
 ```solidity
 error InvalidCollateralOracle()
-```
-
-### InvalidAAVEEMode
-
-```solidity
-error InvalidAAVEEMode()
 ```
 
 ### InvalidDeployAmount

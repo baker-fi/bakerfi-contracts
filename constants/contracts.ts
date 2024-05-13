@@ -56,7 +56,8 @@ export const deployConfigMap : {[key: string]: DeployConfig} =
         strategyProxy: "0x203a091dAe3B98144885927b0A2cf7Ead341b2C6",
         vault: "0xb99b2F8f3d121f2B491Cc61b84689a5638E106B4",  
         vaultProxy: "0x3AE68Fa5cF690ECa79fDc59b2f6B1c3eE05a3118",   
-        bkr: "0x17f498e79c166abc68ea1cB1a3b5E540279682D8"    
+        bkr: "0x17f498e79c166abc68ea1cB1a3b5E540279682D8",
+        pyth: "0xBA3da4Bb5623E1CCa241cfC3010132c1c1388b4D",
     },
     "arbitrum": {
         proxyAdmin: "0xa641256b225e215c559cdC58F8757ad7140A2723",

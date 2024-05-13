@@ -12,3 +12,4 @@ cache
 artifacts
 dist
 crytic-export
+.DS_Store

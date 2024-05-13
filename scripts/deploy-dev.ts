@@ -221,7 +221,15 @@ async function main() {
   const bkr = await deployBKR(owner.address, serviceRegistry);
   result.push(["BKR", await bkr.getAddress()]);
 
-  spinner.succeed("🧑‍🍳 BakerFi Served 🍰 ");
+
+  // 3. Deploy Pyth Mock Contract
+  spinner.text = "Deploying Pyth Mock";
+  const PythMock = await ethers.getContractFactory("PythMock");
+  const pythMock = await PythMock.deploy();
+  await pythMock.waitForDeployment();
+  result.push(["PythMock", await pythMock.getAddress()]);
+  
+  spinner.succeed("🧑‍🍳 BakerFi Served 🍰");
   console.table(result);
   process.exit(0);
 }

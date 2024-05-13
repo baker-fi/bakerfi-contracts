@@ -14,9 +14,10 @@ import "../interfaces/pyth/PythStructs.sol";
  *
  */
 contract PythMock is IPyth {
-    bytes32 constant WSTETH_USD_ORACLE_FEED_ID = keccak256(bytes("WSETH/USD"));
-    bytes32 constant WETH_USD_ORACLE_FEED_ID = keccak256(bytes("WETH/USD"));
-    bytes32 constant CBETH_USD_ORACLE_FEED_ID = keccak256(bytes("CBETH/USD"));
+    
+    bytes32 constant WSTETH_USD_ORACLE_FEED_ID = bytes32(hex"6df640f3b8963d8f8358f791f352b8364513f6ab1cca5ed3f1f7b5448980e784");
+    bytes32 constant WETH_USD_ORACLE_FEED_ID = bytes32(hex"ff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace");
+    bytes32 constant CBETH_USD_ORACLE_FEED_ID = bytes32(hex"15ecddd26d49e1a8f1de9376ebebc03916ede873447c1255d2d5891b92ce5717");
 
     // Mapping from Ids to Prices
     mapping(bytes32 => PythStructs.Price) private _prices;

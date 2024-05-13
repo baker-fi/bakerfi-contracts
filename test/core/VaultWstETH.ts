@@ -31,9 +31,9 @@ describeif(network.name === "hardhat")(
       expect(await vault.symbol()).to.equal("brETH");
       expect(await vault.balanceOf(owner.address)).to.equal(0);
       expect(await vault.totalSupply()).to.equal(0);
-      expect((await strategy.getPosition())[0]).to.equal(0);
-      expect((await strategy.getPosition())[1]).to.equal(0);
-      expect((await strategy.getPosition())[2]).to.equal(0);
+      expect((await strategy.getPosition(0))[0]).to.equal(0);
+      expect((await strategy.getPosition(0))[1]).to.equal(0);
+      expect((await strategy.getPosition(0))[2]).to.equal(0);
       expect(await vault.tokenPerETH()).to.equal(ethers.parseUnits("1", 18));
     });
 
@@ -59,10 +59,10 @@ describeif(network.name === "hardhat")(
       expect(await vault.balanceOf(owner.address)).to.equal(
         9962113816060668112n
       );
-      expect((await strategy.getPosition())[0]).to.equal(45702851552764668112n);
-      expect((await strategy.getPosition())[1]).to.equal(35740737736704000000n);
+      expect((await strategy.getPosition(0))[0]).to.equal(45702851552764668112n);
+      expect((await strategy.getPosition(0))[1]).to.equal(35740737736704000000n);
       expect(await vault.totalAssets()).to.equal(9962113816060668112n);
-      expect((await strategy.getPosition())[2]).to.equal(782024239);
+      expect((await strategy.getPosition(0))[2]).to.equal(782024239);
       expect(await vault.totalSupply()).to.equal(9962113816060668112n);
       expect(await vault.tokenPerETH()).to.equal(1000000000000000000n);
     });
@@ -90,10 +90,10 @@ describeif(network.name === "hardhat")(
       expect(await vault.balanceOf(owner.address)).to.equal(
         8962113816060668112n
       );
-      expect((await strategy.getPosition())[0]).to.equal(41115185511636981793n);
-      expect((await strategy.getPosition())[1]).to.equal(32153071688990855996n);
+      expect((await strategy.getPosition(0))[0]).to.equal(41115185511636981793n);
+      expect((await strategy.getPosition(0))[1]).to.equal(32153071688990855996n);
       expect(await vault.totalAssets()).to.equal(8962113822646125797n);
-      expect((await strategy.getPosition())[2]).to.equal(782024239n);
+      expect((await strategy.getPosition(0))[2]).to.equal(782024239n);
       expect(await vault.totalSupply()).to.equal(8962113816060668112n);
       expect(await vault.tokenPerETH()).to.equal(999999999265189238n);
     });
@@ -150,14 +150,14 @@ describeif(network.name === "hardhat")(
       });
 
       expect(await vault.totalAssets()).to.equal(9962113816060668112n);
-      expect((await strategy.getPosition())[0]).to.equal(45702851552764668112n);
-      expect((await strategy.getPosition())[1]).to.equal(35740737736704000000n);
+      expect((await strategy.getPosition(0))[0]).to.equal(45702851552764668112n);
+      expect((await strategy.getPosition(0))[1]).to.equal(35740737736704000000n);
       // =~1% Increase in Value
       await oracle.setLatestPrice(ethers.parseUnits("2686", 18));
 
       expect(await vault.totalAssets()).to.equal(10408833417704232537n);
-      expect((await strategy.getPosition())[0]).to.equal(46149571154408232537n);
-      expect((await strategy.getPosition())[1]).to.equal(35740737736704000000n);
+      expect((await strategy.getPosition(0))[0]).to.equal(46149571154408232537n);
+      expect((await strategy.getPosition(0))[1]).to.equal(35740737736704000000n);
       await settings.setFeeReceiver(otherAccount.address);
       await expect(vault.rebalance())
         .to.emit(vault, "Transfer")
@@ -206,12 +206,12 @@ describeif(network.name === "hardhat")(
 
       expect(await vault.balanceOf(owner.address)).to.equal(0);
       expect(await vault.totalSupply()).to.equal(0);
-      expect((await strategy.getPosition())[0]).to.equal(1);
-      expect((await strategy.getPosition())[1]).to.equal(0);
+      expect((await strategy.getPosition(0))[0]).to.equal(1);
+      expect((await strategy.getPosition(0))[1]).to.equal(0);
       expect(balanceAfter - balanceBefore).to.greaterThan(
         ethers.parseUnits("9", 18)
       );
-      expect((await strategy.getPosition())[2]).to.equal(0);
+      expect((await strategy.getPosition(0))[2]).to.equal(0);
       expect(await vault.tokenPerETH()).to.equal(ethers.parseUnits("1", 18));
     });
 
@@ -235,10 +235,10 @@ describeif(network.name === "hardhat")(
       expect(await vault.balanceOf(owner.address)).to.equal(
         9997818848764668112n
       );
-      expect((await strategy.getPosition())[0]).to.equal(45702851552764668112n);
-      expect((await strategy.getPosition())[1]).to.equal(35705032704000000000n);
+      expect((await strategy.getPosition(0))[0]).to.equal(45702851552764668112n);
+      expect((await strategy.getPosition(0))[1]).to.equal(35705032704000000000n);
       expect(await vault.totalAssets()).to.equal(9997818848764668112n);
-      expect((await strategy.getPosition())[2]).to.equal(781242996n);
+      expect((await strategy.getPosition(0))[2]).to.equal(781242996n);
       expect(await vault.totalSupply()).to.equal(9997818848764668112n);
       expect(await vault.tokenPerETH()).to.equal(1000000000000000000n);
     });
