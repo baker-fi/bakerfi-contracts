@@ -525,7 +525,7 @@ abstract contract StrategyLeverage is
         //_pendingAmount = 0;
     }
 
-        /**
+    /**
      * @dev Repays the debt on AAVEv3 strategy, handling the withdrawal and swap operations.
      *
      * This private function is used internally to repay the debt on the AAVEv3 strategy. It involves repaying
@@ -714,14 +714,39 @@ abstract contract StrategyLeverage is
 
 
     /**
-     * Money Market Functions to overrided by different implementations 
+     * Money Market Functions 
      * 
+     * The derived and money market specific classes should implement these functions to 
+     * be used on a Leverage Strategy.
+     */
+
+    /**
+     *  @dev Deposit an asset assetIn on a money market 
      */
     function _supply( address assetIn, uint256 amountIn) internal virtual;
+    
+    /**
+     * @dev Deposit and borrow and asset using the asset deposited as collateral
+     */
     function _supplyAndBorrow( address assetIn, uint256 amountIn, address assetOut, uint256 borrowOut) internal virtual;
+    
+    /**
+     *  @dev Repay any borrow debt 
+     */
     function _repay(address assetIn, uint256 amount) internal virtual;
+    
+    /**
+     * @dev  Withdraw a deposited asset from a money market
+     * 
+     * @param assetOut The asset to withdraw
+     * @param amount The amoun to withdraw 
+     * @param to the account that will receive the asset
+     */
     function _withdraw(address assetOut, uint256 amount,  address to) internal virtual;
 
+    /**
+     * @dev 
+     */
     function renounceOwnership() public virtual override {
         revert InvalidOwner(); 
     }

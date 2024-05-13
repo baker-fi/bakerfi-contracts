@@ -77,7 +77,12 @@ contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3{
         );
     }
 
-    
+    /**
+     * Deposit an asset on the AAVEv3 Pool
+     * 
+     * @param assetIn the asset to deposit 
+     * @param amountIn the amount to deposit
+     */
     function _supply( address assetIn,
         uint256 amountIn) internal override virtual  {
         if (!IERC20(assetIn).approve(aaveV3A(), amountIn)) revert FailedToApproveAllowanceForAAVE();
@@ -112,6 +117,12 @@ contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3{
         if (aaveV3().repay(assetIn, amount, 2, address(this)) != amount) revert FailedToRepayDebt();
     }
 
+    /**
+     * Withdraw an asset from the AAVE pool 
+     * @param assetOut The address of the asset to withdraw.
+     * @param amount  The amount of the asset to withdraw.
+     * @param to The assets receiver account
+     */
     function _withdraw(address assetOut, uint256 amount,  address to) internal override virtual{
         if (aaveV3().withdraw(assetOut, amount, to) != amount)
             revert InvalidWithdrawAmount();
