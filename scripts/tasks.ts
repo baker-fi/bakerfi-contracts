@@ -599,3 +599,42 @@ task("pyth:priceUpdate", "Update Required Prices")
     spinner.fail("Failed 💥");
   }
 });
+
+
+task("settings:getPriceMaxAge", "Get Max Price Age")
+  .setAction(async ({}, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Gettting Nr Loop ${networkConfig.settings}`).start();
+    try {
+      const settings = await ethers.getContractAt(
+        "Settings",
+        networkConfig.settingsProxy?? ""
+      );
+      const value = await settings.getPriceMaxAge();
+      spinner.succeed(`🧑‍🍳 Price Max Age ${value} `);
+    } catch (e) {
+      console.log(e);
+      spinner.fail("Failed 💥");
+    }
+});
+
+
+task("settings:setPriceMaxAge", "Set number of Loopps")
+  .addParam("value", "loop coount")
+  .setAction(async ({value}, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Settting Nr Of Loops to ${value}`).start();
+    try {
+      const settings = await ethers.getContractAt(
+        "Settings",
+        networkConfig.settingsProxy?? ""
+      );
+      await settings.setPriceMaxAge(value);
+      spinner.succeed(`🧑‍🍳 Price Max Age Changed to ${value} ✅ `);
+    } catch (e) {
+      console.log(e);
+      spinner.fail("Failed 💥");
+    }
+});

@@ -140,7 +140,7 @@ contract PythMock is IPyth {
                 _prices[feeds[i].id].price = feeds[i].price.price;
                 _prices[feeds[i].id].expo = feeds[i].price.expo;
                 _prices[feeds[i].id].conf = feeds[i].price.conf;
-                _prices[feeds[i].id].publishTime = feeds[i].price.publishTime;
+                _prices[feeds[i].id].publishTime = block.timestamp;
 
                 emit PriceFeedUpdate(
                     feeds[i].id,
