@@ -1,11 +1,12 @@
 {
-  "name": "bakerfi-contracts",
-  "version": "1.0.0-alpha.3",
+  "name": "@baker-fi/sdk",
+  "version": "v1.0.0-alpha.8",
   "description": "",
   "main": "dist/src/index.js",
   "module": "dist/src/index.js",
   "files": [
     "files",
+    "artifacts/contracts",
     "dist",
     "README.md"
   ],
