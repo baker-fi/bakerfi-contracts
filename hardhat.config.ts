@@ -1,4 +1,5 @@
 import "dotenv/config";
+import "hardhat-flat-exporter";
 import "hardhat-contract-sizer";
 import "solidity-coverage";
 import "@nomiclabs/hardhat-solhint";
@@ -6,6 +7,7 @@ import "hardhat-gas-reporter";
 import '@nomicfoundation/hardhat-ethers'
 import '@nomicfoundation/hardhat-chai-matchers'
 import "@nomicfoundation/hardhat-toolbox";
+
 import "hardhat-contract-sizer";
 import { HardhatUserConfig } from "hardhat/config";
 import { STAGING_ACCOUNTS_PKEYS} from "./constants/test-accounts";
@@ -14,7 +16,7 @@ import "@nomicfoundation/hardhat-verify";
 //import "hardhat-tracer";
 import 'solidity-docgen';
 import "./scripts/tasks";
-import "hardhat-flat-exporter";
+
 
 const devAccounts: HardhatNetworkAccountUserConfig[] =  STAGING_ACCOUNTS_PKEYS.map(
   key=>  { return {privateKey: key, balance: "1000000000000000000000000"}}); 
@@ -150,11 +152,6 @@ const config: HardhatUserConfig = {
     disambiguatePaths: false,
     runOnCompile: false,
     strict: true
-  },
-  flattenExporter: {
-    src: "./contracts",
-    path: "./flat",
-    clear: true,
   }, 
   docgen: {
     outputDir: "doc",
