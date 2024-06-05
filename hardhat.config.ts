@@ -49,13 +49,15 @@ const config: HardhatUserConfig = {
       accounts: STAGING_ACCOUNTS_PKEYS,      
     },
     ethereum: {
-      url: process.env.WEB3_RPC_ETH_MAIN_NET_URL ,
+      url: process.env.WEB3_RPC_ETH_MAIN_NET_URL || 
+        `https://rpc.ankr.com/eth/${process.env.ANKR_API_KEY}`,
       gasPrice: 120 * 1000000000,
       chainId: 1,
     },
     arbitrum: {
       url: 
-        process.env.WEB3_RPC_ARBITRUM_URL,
+        process.env.WEB3_RPC_ARBITRUM_URL || 
+          `https://rpc.ankr.com/arbitrum/${process.env.ANKR_API_KEY}`,
       chainId: 42161,
       blockGasLimit: 900000,
       ...process.env.BAKERFI_PRIVATE_KEY ? { 
@@ -63,12 +65,14 @@ const config: HardhatUserConfig = {
       }: {},
     },
     optimism: {
-      url: process.env.WEB3_RPC_OPTIMISM_URL,
+      url: process.env.WEB3_RPC_OPTIMISM_URL || 
+        `https://rpc.ankr.com/optimism/${process.env.ANKR_API_KEY}`,
       hardfork: 'shanghai',
       chainId: 10,            
     },
     base: {
-      url: process.env.WEB3_RPC_BASE_URL,
+      url: process.env.WEB3_RPC_BASE_URL || 
+        `https://rpc.ankr.com/base/${process.env.ANKR_API_KEY}`,
       chainId: 8453,          
     },
     ethereum_devnet: {
