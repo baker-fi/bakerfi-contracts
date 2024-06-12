@@ -50,7 +50,7 @@ async function price(registerAddress: any) {
     const registry = await hre.ethers.getContractAt("ServiceRegistry",  registerAddress);
     const oracleAddress = await registry.getService("cbETH/ETH Oracle");
     console.log("bETH/ETH Oracle =", oracleAddress);
-    const oracle = await hre.ethers.getContractAt("CbETHToETHOracle",  oracleAddress);
+    const oracle = await hre.ethers.getContractAt("ChainLinkOracle",  oracleAddress);
     console.log("cbETH/ETH =", await oracle.getLatestPrice());
 }
 
