@@ -34,7 +34,8 @@ contract ChainLinkOracle is IOracle {
     }
 
     /**
-     * 
+     * Get the Latest price from the Chainlink aggregator and convert the price taking into account
+     * the price decimals.
      */
     function getLatestPrice() public view override returns (IOracle.Price memory price) {
           (, int256 answer, uint256 startedAt ,uint256 updatedAt,) = _priceFeed.latestRoundData();
