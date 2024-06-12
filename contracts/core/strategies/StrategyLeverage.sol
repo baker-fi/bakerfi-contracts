@@ -541,19 +541,24 @@ abstract contract StrategyLeverage is
      */
       function _payDebt(uint256 debtAmount, uint256 fee) internal {
         _repay(wETHA(), debtAmount);
-        // Get a Quote to know how much collateral i require to pay debt
-        (uint256 amountIn, , , ) = uniQuoter().quoteExactOutputSingle(
-            IQuoterV2.QuoteExactOutputSingleParams(ierc20A(), wETHA(), debtAmount + fee, 500, 0)
+        // Get a Quote to know how much collateral i require to pay debt , includes also 
+        // the max Slippage
+        (, uint256 amountInMax) = getExactOutputMaxInput(
+            ierc20A(), 
+            wETHA(), 
+            debtAmount + fee, 
+            _swapFeeTier, 
+            getMaxSlippage()                    
         );    
         
-        _withdraw(ierc20A(), amountIn, address(this) );
+        _withdraw(ierc20A(), amountInMax, address(this) );
 
         uint256 output = _swap(
             ISwapHandler.SwapParams(
                 ierc20A(),
                 wETHA(),
                 ISwapHandler.SwapType.EXACT_OUTPUT,
-                amountIn,
+                amountInMax,
                 debtAmount + fee,
                 _swapFeeTier,
                 bytes("")
@@ -577,6 +582,16 @@ abstract contract StrategyLeverage is
      * @return uint256 The converted amount in the underlying collateral.
      */
     function _convertFromWETH(uint256 amount) internal virtual returns (uint256) {
+      uint256 amountOutMinimum = 0;
+        if (getMaxSlippage() > 0) {
+            (, amountOutMinimum) = getExactInputMinimumOutput(
+                ierc20A(), // Asset In
+                wETHA(), // Asset Out
+                amount,
+                _swapFeeTier,
+                getMaxSlippage()
+            );
+        }
         // 1. Swap WETH -> cbETH/wstETH/rETH
         return
             _swap(
@@ -585,7 +600,7 @@ abstract contract StrategyLeverage is
                     ierc20A(), // Asset Out
                     ISwapHandler.SwapType.EXACT_INPUT, // Swap Mode
                     amount, // Amount In
-                    0, // Amount Out
+                    amountOutMinimum, // Amount Out
                     _swapFeeTier, // Fee Pair Tier
                     bytes("") // User Payload
                 )
@@ -601,6 +616,17 @@ abstract contract StrategyLeverage is
      * @return uint256 The converted amount in WETH.
      */
     function _convertToWETH(uint256 amount) internal virtual returns (uint256) {
+
+      uint256 amountOutMinimum = 0;
+        if (getMaxSlippage() > 0) {
+            (, amountOutMinimum) = getExactInputMinimumOutput(
+                ierc20A(), // Asset In
+                wETHA(), // Asset Out
+                amount,
+                _swapFeeTier,
+                getMaxSlippage()
+            );
+        }
         // 1.Swap cbETH -> WETH/wstETH/rETH
         return
             _swap(
@@ -609,7 +635,7 @@ abstract contract StrategyLeverage is
                     wETHA(), // Asset Out
                     ISwapHandler.SwapType.EXACT_INPUT, // Swap Mode
                     amount, // Amount In
-                    0, // Amount Out
+                    amountOutMinimum, // Amount Out
                     _swapFeeTier, // Fee Pair Tier
                     bytes("") // User Payload
                 )

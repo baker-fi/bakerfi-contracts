@@ -69,7 +69,7 @@ abstract contract UseSwapper is ISwapHandler, Initializable {
                     tokenIn: params.underlyingIn,
                     tokenOut: params.underlyingOut,
                     amountIn: params.amountIn,
-                    amountOutMinimum: 0,
+                    amountOutMinimum: params.amountOut,
                     fee: fee,
                     recipient: address(this),
                     sqrtPriceLimitX96: 0

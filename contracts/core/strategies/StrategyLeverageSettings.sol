@@ -39,6 +39,9 @@ contract StrategyLeverageSettings is GovernableOwnable {
      */
     event NrLoopsChanged(uint256 indexed value);
 
+
+    event MaxSlippageChanged(uint256 indexed value);
+
     /**
      * @dev The loan-to-value ratio for managing loans.
      *
@@ -60,6 +63,8 @@ contract StrategyLeverageSettings is GovernableOwnable {
      */
     uint8 private _nrLoops;
 
+    uint256 private _maxSlippage;
+
     function _initLeverageSettings(
         address initialOwner,
         address initialGovernor
@@ -68,6 +73,7 @@ contract StrategyLeverageSettings is GovernableOwnable {
         _loanToValue = 800 * 1e6; // 80%
         _maxLoanToValue = 850 * 1e6; // 85%
         _nrLoops = 10;
+        _maxSlippage= 0;// 1% ;
     }
 
     /**
@@ -159,6 +165,17 @@ contract StrategyLeverageSettings is GovernableOwnable {
         if (nrLoops > MAX_LOOPS) revert InvalidLoopCount();
         _nrLoops = nrLoops;
         emit NrLoopsChanged(_nrLoops);
+    }
+
+    function getMaxSlippage() public view returns (uint256) {
+        return _maxSlippage;
+    }
+
+    function setMaxSlippage(uint256 slippage) external onlyGovernor {
+        if (slippage > PERCENTAGE_PRECISION) revert InvalidPercentage();
+        if (slippage == 0) revert InvalidValue();
+        _maxSlippage = slippage;
+        emit MaxSlippageChanged(slippage);
     }
 
 }

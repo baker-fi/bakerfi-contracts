@@ -11,6 +11,7 @@ import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/Addr
 import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {WST_ETH_CONTRACT, WSTETH_USD_ORACLE_CONTRACT} from "../ServiceRegistry.sol";
+import {IQuoterV2} from "../../interfaces/uniswap/v3/IQuoterV2.sol";
 
 /**
  * @title  AAVE v3 Recursive Staking Strategy for awstETH/WETH on EThereum
@@ -85,6 +86,17 @@ contract StrategyAAVEv3WstETH is Initializable, StrategyAAVEv3, UseWstETH, UseSt
      * @return uint256 The converted amount in WETH.
      */
     function _convertToWETH(uint256 amount) internal virtual override returns (uint256) {
+        
+        uint256 amountOutMinimum = 0;
+        if (getMaxSlippage() > 0) {
+            (, amountOutMinimum) = getExactInputMinimumOutput(
+                wstETHA(), // Asset In
+                wETHA(), // Asset Out
+                amount,
+                _swapFeeTier,
+                getMaxSlippage()
+            );
+        }
         // Convert from wstETH -> weth directly
         return
             _swap(
@@ -93,7 +105,7 @@ contract StrategyAAVEv3WstETH is Initializable, StrategyAAVEv3, UseWstETH, UseSt
                     wETHA(), // Asset Out
                     ISwapHandler.SwapType.EXACT_INPUT, // Swap Mode
                     amount, // Amount In
-                    0, // Amount Out
+                    amountOutMinimum, // Amount Out
                     _swapFeeTier, // Fee Pair Tier
                     bytes("") // User Payload
                 )
