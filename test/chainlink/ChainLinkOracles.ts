@@ -6,6 +6,20 @@ import { describeif } from "../common";
 
 import BaseConfig from "../../scripts/config";
 
+export async function deploy() {
+    const [owner] = await ethers.getSigners();
+    const networkName = network.name;
+    const config = BaseConfig[networkName];
+    const WstETHToETHOracle = await ethers.getContractFactory("ChainLinkOracle");
+    const wstETHToETH = await WstETHToETHOracle.deploy(config.wstETHToETH);
+    const EthToUSD = await ethers.getContractFactory("ChainLinkOracle");
+    const ethToUSD = await EthToUSD.deploy(config.wstETHToETH);
+    const CbETHToETH = await ethers.getContractFactory("ChainLinkOracle");
+    const cbETHToETH = await CbETHToETH.deploy(config.cbETHToETH);
+    return { owner, wstETHToETH, ethToUSD, cbETHToETH };
+}
+
+
 describeif(
     network.name === "arbitrum_devnet"
 )("Testing ChainLink Oracles on Devnet" , function () {
@@ -43,18 +57,53 @@ describeif(
 })
 
 
-export async function deploy() {
-    const [owner] = await ethers.getSigners();
-    const networkName = network.name;
-    const config = BaseConfig[networkName];
-    const WstETHToETHOracle = await ethers.getContractFactory("WstETHToETHOracle");
-    const wstETHToETH = await WstETHToETHOracle.deploy(config.wstETHToETH);
+describeif(network.name === "hardhat")
+    ("Testing ChainLink Oracles with Aggregator Mocks" , function () {
 
-    const EthToUSD = await ethers.getContractFactory("ETHOracle");
-    const ethToUSD = await EthToUSD.deploy(config.wstETHToETH);
+    async function deployFunction() {
+        const ChainLinkAggregator = await ethers.getContractFactory("ChainLinkAggregatorMock")
+        const aggregator = await ChainLinkAggregator.deploy();
+        await aggregator.waitForDeployment();
 
-    const CbETHToETH = await ethers.getContractFactory("CbETHToETHOracle");
-    const cbETHToETH = await CbETHToETH.deploy(config.cbETHToETH);
+        const ChainLinkOracle = await ethers.getContractFactory("ChainLinkOracle");        
+        const oracle = await ChainLinkOracle.deploy(
+            await aggregator.getAddress()
+        );
+        await oracle.waitForDeployment();
+        return {oracle, aggregator};
+    }   
 
-    return { owner, wstETHToETH, ethToUSD, cbETHToETH };
-}
+    it("Check Default Price and Decimals", async function () {    
+        const { oracle,  aggregator} = await loadFixture(deployFunction);
+        const [price, updatedAt] = await oracle.getLatestPrice();
+        const block = await ethers.provider.getBlock(0);
+        expect(price).to.equal(3500n*(10n**18n));
+        expect(await aggregator.decimals()).to.equal(6);
+        expect(updatedAt).to.greaterThan(block?.timestamp);
+    });
+
+
+    it("Check Price after changing prices", async function () {    
+        const { oracle,  aggregator} = await loadFixture(deployFunction);
+        
+        await aggregator.setLatestPrice(3600n*(10n**6n));    
+        
+        const blockNumber = await ethers.provider.getBlockNumber();
+        const block = await ethers.provider.getBlock(blockNumber);        
+        
+        const [price, updatedAt] = await oracle.getLatestPrice();
+        
+        expect(price).to.equal(3600n*(10n**18n));
+        expect(updatedAt).to.equal(block?.timestamp);
+    });
+
+
+    it("Check Min Price", async function () {    
+        const { oracle,  aggregator} = await loadFixture(deployFunction);        
+        await aggregator.setLatestPrice(1);         
+        const [price] = await oracle.getLatestPrice();        
+        expect(price).to.equal(1n*(10n**12n));
+    });
+    
+
+})

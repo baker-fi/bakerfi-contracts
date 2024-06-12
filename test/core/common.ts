@@ -397,7 +397,7 @@ export async function deployEthereum() {
 }
 
 async function deployWstETHToETHOracle(config: any, serviceRegistry: any) {
-  const WSETHToETH = await ethers.getContractFactory("WstETHToETHOracleETH");
+  const WSETHToETH = await ethers.getContractFactory("ChainLinkOracle");
   const oracle = await WSETHToETH.deploy(
     config.oracle.chainLink,
     config.wstETH
