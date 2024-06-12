@@ -424,7 +424,7 @@ task("oracle:collateral", "Get the wstETH/ETH Price from Oracle")
     const spinner = ora(`Getting On Chain Price ${account}`).start();
     try {
       const oracle = await ethers.getContractAt(
-        "WstETHToETHOracle",
+        "ChainLinkOracle",
         networkConfig.wstETHETHOracle
       );
       const price = await oracle.getLatestPrice();

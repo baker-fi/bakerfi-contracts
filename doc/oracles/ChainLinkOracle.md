@@ -1,11 +1,10 @@
 # Solidity API
 
-## ETHOracle
+## ChainLinkOracle
 
-ETH/USD Oracle using chainlink data feeds
+CBETH/ETH Oracle using chainlink data feeds
 
- For more information about the feed go to 
- https://data.chain.link/feeds/arbitrum/mainnet/eth-usd
+ https://data.chain.link/feeds/base/base/cbeth-eth
 
 ### InvalidPriceFromOracle
 
@@ -22,7 +21,7 @@ error InvalidPriceUpdatedAt()
 ### constructor
 
 ```solidity
-constructor(address ethPriceFeed) public
+constructor(address stCbETHToETHPriceFeed) public
 ```
 
 ### getPrecision
