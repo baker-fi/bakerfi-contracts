@@ -543,13 +543,14 @@ abstract contract StrategyLeverage is
         _repay(wETHA(), debtAmount);
         // Get a Quote to know how much collateral i require to pay debt , includes also 
         // the max Slippage
-        (,uint256 amountInMax) = getExactOutputMaxInput(
+        (, uint256 amountInMax) = getExactOutputMaxInput(
             ierc20A(), 
             wETHA(), 
             debtAmount + fee, 
             _swapFeeTier, 
             getMaxSlippage()                    
         );    
+        
         _withdraw(ierc20A(), amountInMax, address(this) );
 
        (uint256 amountIn,) = _swap(
