@@ -253,7 +253,7 @@ export async function deployOptimism() {
     "Vault",
     await vaultProxyDeploy.getAddress()
   );
-
+  await strategyProxy.setMaxSlippage(5n*(10n**7n));
   await strategyProxy.setLoanToValue(ethers.parseUnits("800", 6));
   await strategyProxy.transferOwnership(await vaultProxy.getAddress());
   return {
@@ -366,6 +366,7 @@ export async function deployEthereum() {
   const weth = await ethers.getContractAt("IWETH", config.weth);
   const aave3Pool = await ethers.getContractAt("IPoolV3", config.AAVEPool);
   const wstETH = await ethers.getContractAt("IERC20", config.wstETH);
+  
 
   const settingsProxy = await ethers.getContractAt(
     "Settings",
@@ -379,7 +380,7 @@ export async function deployEthereum() {
     "Vault",
     await vaultProxyDeploy.getAddress()
   );
-
+  await strategyProxy.setMaxSlippage(5n*(10n**7n));
   await settingsProxy.setLoanToValue(ethers.parseUnits("800", 6));
   await strategyProxy.transferOwnership(await vaultProxy.getAddress());
 
