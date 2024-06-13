@@ -2,7 +2,7 @@ import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers, network } from "hardhat";
 import { describeif } from "../common";
-import { deployLeverage, deployServiceRegistry } from "../../scripts/common";
+import { deployServiceRegistry } from "../../scripts/common";
 
 describeif(network.name === "hardhat")("UseQuoter", function () {
 
