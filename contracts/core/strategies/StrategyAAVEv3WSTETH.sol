@@ -11,7 +11,6 @@ import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/Addr
 import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {WST_ETH_CONTRACT, WSTETH_USD_ORACLE_CONTRACT} from "../ServiceRegistry.sol";
-import {IQuoterV2} from "../../interfaces/uniswap/v3/IQuoterV2.sol";
 
 /**
  * @title  AAVE v3 Recursive Staking Strategy for awstETH/WETH on EThereum
