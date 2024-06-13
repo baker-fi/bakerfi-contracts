@@ -12,7 +12,6 @@ describeif(network.name === "hardhat")("UseQuoter", function () {
      */
     async function deployFunction() {
         const [owner] = await ethers.getSigners();
-        const networkName = network.name;
 
         const serviceRegistry = await deployServiceRegistry(owner.address);
 
