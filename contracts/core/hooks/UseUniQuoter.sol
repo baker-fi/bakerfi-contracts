@@ -11,6 +11,7 @@ abstract contract UseUniQuoter is Initializable {
     IQuoterV2 private _quoter;
 
     error InvalidUniQuoterContract();
+    error InvalidSlippageInput();
 
     function _initUseUniQuoter(ServiceRegistry registry) internal onlyInitializing {
         _quoter = IQuoterV2(registry.getServiceFromHash(UNISWAP_QUOTER_CONTRACT));
@@ -32,6 +33,7 @@ abstract contract UseUniQuoter is Initializable {
         uint24 feeTier, 
         uint256 slippageTolerance) public returns (uint256 amountOut, uint256 amountOutMinimum)
     {
+        if ( slippageTolerance >  PERCENTAGE_PRECISION) revert InvalidSlippageInput();
         (amountOut, , , ) = _quoter.quoteExactInputSingle(
             IQuoterV2.QuoteExactInputSingleParams(
             tokenIn,
@@ -51,7 +53,6 @@ abstract contract UseUniQuoter is Initializable {
         uint24 feeTier, 
         uint256 slippageTolerance) public returns (uint256 amountIn, uint256 amountInMax)
     {
-
         (amountIn, , , ) = _quoter.quoteExactOutputSingle(
             IQuoterV2.QuoteExactOutputSingleParams(
             tokenIn,

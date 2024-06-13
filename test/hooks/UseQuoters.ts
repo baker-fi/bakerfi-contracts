@@ -101,4 +101,128 @@ describe.only("UseQuoter", function () {
         expect(txRes[0]).equal(50n*(10n**16n));
         expect(txRes[1]).equal(495n*(10n**15n));
     });
+
+
+    it("test getExactOutputMaxInput - Price Rate double", async function () {
+        const { quoter, useUniQuoter, serviceRegistry} = await loadFixture(deployFunction);
+        expect(await useUniQuoter.uniQuoterA()).equal(
+            await quoter.getAddress(),
+        );
+        await quoter.setRatio(2n*(10n**9n));
+        const txRes = await useUniQuoter.getExactOutputMaxInput.staticCall(
+            await quoter.getAddress(), 
+            await quoter.getAddress(), 
+            1n*(10n**18n),
+            10,
+            1n*(10n**7n) // 1%
+        );
+        expect(txRes[0]).equal(200n*(10n**16n));
+        expect(txRes[1]).equal(202n*(10n**16n));
+    });
+
+    it("test singleInput - Slippage 0", async function () {
+        const { quoter, useUniQuoter, serviceRegistry} = await loadFixture(deployFunction);
+        expect(await useUniQuoter.uniQuoterA()).equal(
+            await quoter.getAddress(),
+        );
+        await quoter.setRatio(2n*(10n**9n));
+        const txRes = await useUniQuoter.getExactInputMinimumOutput.staticCall(
+            await quoter.getAddress(), 
+            await quoter.getAddress(), 
+            1n*(10n**18n),
+            10,
+            0// 1%
+        );
+        expect(txRes[0]).equal(50n*(10n**16n));
+        expect(txRes[1]).equal(50n*(10n**16n));
+    });
+
+
+    it("test singleOutput - Slippage 0", async function () {
+        const { quoter, useUniQuoter, serviceRegistry} = await loadFixture(deployFunction);
+        expect(await useUniQuoter.uniQuoterA()).equal(
+            await quoter.getAddress(),
+        );
+        await quoter.setRatio(2n*(10n**9n));
+        const txRes = await useUniQuoter.getExactOutputMaxInput.staticCall(
+            await quoter.getAddress(), 
+            await quoter.getAddress(), 
+            1n*(10n**18n),
+            10,
+            0 // 1%
+        );
+        expect(txRes[0]).equal(200n*(10n**16n));
+        expect(txRes[1]).equal(200n*(10n**16n));
+    });
+    it("test singleInput - Slippage 100%", async function () {
+        const { quoter, useUniQuoter, serviceRegistry} = await loadFixture(deployFunction);
+        expect(await useUniQuoter.uniQuoterA()).equal(
+            await quoter.getAddress(),
+        );
+        await quoter.setRatio(2n*(10n**9n));
+        const txRes = await useUniQuoter.getExactInputMinimumOutput.staticCall(
+            await quoter.getAddress(), 
+            await quoter.getAddress(), 
+            1n*(10n**18n),
+            10,
+            1n*(10n**9n)// 1%
+        );
+        expect(txRes[0]).equal(50n*(10n**16n));
+        expect(txRes[1]).equal(0);
+    });
+
+
+    it("test singleOutput - Slippage 100%", async function () {
+        const { quoter, useUniQuoter, serviceRegistry} = await loadFixture(deployFunction);
+        expect(await useUniQuoter.uniQuoterA()).equal(
+            await quoter.getAddress(),
+        );
+        await quoter.setRatio(2n*(10n**9n));
+        const txRes = await useUniQuoter.getExactOutputMaxInput.staticCall(
+            await quoter.getAddress(), 
+            await quoter.getAddress(), 
+            1n*(10n**18n),
+            10,
+            1n*(10n**9n) // 1%
+        );
+        expect(txRes[0]).equal(200n*(10n**16n));
+        expect(txRes[1]).equal(400n*(10n**16n));
+    });
+
+    it("test singleOutput - Slippage 400%", async function () {
+        const { quoter, useUniQuoter, serviceRegistry} = await loadFixture(deployFunction);
+        expect(await useUniQuoter.uniQuoterA()).equal(
+            await quoter.getAddress(),
+        );
+        await quoter.setRatio(2n*(10n**9n));
+        const txRes = await useUniQuoter.getExactOutputMaxInput.staticCall(
+            await quoter.getAddress(), 
+            await quoter.getAddress(), 
+            1n*(10n**18n),
+            10,
+            4n*(10n**9n) // 1%
+        );
+        expect(txRes[0]).equal(200n*(10n**16n));
+        expect(txRes[1]).equal(1000n*(10n**16n));
+    });
+
+
+    it("Revert singleInput for 200% ❌", async function () {
+        const { quoter, useUniQuoter, serviceRegistry} = await loadFixture(deployFunction);
+        expect(await useUniQuoter.uniQuoterA()).equal(
+            await quoter.getAddress(),
+        );
+        await quoter.setRatio(2n*(10n**9n));
+        await expect(
+            useUniQuoter.getExactInputMinimumOutput.staticCall(
+                await quoter.getAddress(), 
+                await quoter.getAddress(), 
+                1n*(10n**18n),
+                10,
+                2n*(10n**9n) // 200%
+            )
+          ).to.be.revertedWithCustomError(useUniQuoter, "InvalidSlippageInput");
+    });
+
+    
 })
