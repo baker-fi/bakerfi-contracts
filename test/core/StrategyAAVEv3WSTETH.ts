@@ -123,12 +123,12 @@ describeif(network.name === "hardhat")(
         .withArgs(5391828660784201301n);
 
       expect(await strategy.getPosition(0)).to.deep.equal([
-        26397162466518195135n,
-        21567314643136805200n,
-        817031552n,
+        28364338891302690959n, 
+        21567314643136805200n, 
+        760367259n
       ]);
 
-      expect(await strategy.deployed(0)).to.equal(4829847823381389935n);
+      expect(await strategy.deployed(0)).to.equal(6797024248165885759n);
     });
 
     it("Harvest Loss - Collateral Value is lower than debt", async function () {

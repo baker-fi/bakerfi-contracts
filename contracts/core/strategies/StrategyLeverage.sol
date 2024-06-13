@@ -22,6 +22,7 @@ import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/Addr
 import {ETH_USD_ORACLE_CONTRACT} from "../ServiceRegistry.sol";
 import {StrategyLeverageSettings} from "./StrategyLeverageSettings.sol";
 
+import "hardhat/console.sol";
 /**
  * @title Base Recursive Staking Strategy
  *
@@ -542,17 +543,16 @@ abstract contract StrategyLeverage is
         _repay(wETHA(), debtAmount);
         // Get a Quote to know how much collateral i require to pay debt , includes also 
         // the max Slippage
-        (, uint256 amountInMax) = getExactOutputMaxInput(
+        (,uint256 amountInMax) = getExactOutputMaxInput(
             ierc20A(), 
             wETHA(), 
             debtAmount + fee, 
             _swapFeeTier, 
             getMaxSlippage()                    
         );    
-        
         _withdraw(ierc20A(), amountInMax, address(this) );
 
-        uint256 output = _swap(
+       (uint256 amountIn,) = _swap(
             ISwapHandler.SwapParams(
                 ierc20A(),
                 wETHA(),
@@ -564,13 +564,12 @@ abstract contract StrategyLeverage is
             )
         );
         // When there are leftovers from the swap, deposit then back
-        uint256 wethLefts = output > (debtAmount + fee) ? output - (debtAmount + fee) : 0;
-        if (wethLefts > 0) {
-            _supply(wETHA(), wethLefts);
+        uint256 swapLefts = amountIn < amountInMax ? amountInMax - amountIn : 0;
+        if (swapLefts > 0) {
+            _supply(ierc20A(), swapLefts);
         }
         emit StrategyUndeploy(msg.sender, debtAmount);
     }
-
 
        /**
      * @dev Internal function to convert the specified amount from WETH to the underlying assert cbETH, wstETH, rETH.
@@ -592,8 +591,7 @@ abstract contract StrategyLeverage is
             );
         }
         // 1. Swap WETH -> cbETH/wstETH/rETH
-        return
-            _swap(
+         (,uint256 amountOut ) = _swap(
                 ISwapHandler.SwapParams(
                     wETHA(), // Asset In
                     ierc20A(), // Asset Out
@@ -604,6 +602,7 @@ abstract contract StrategyLeverage is
                     bytes("") // User Payload
                 )
             );
+        return amountOut;
     }
 
     /**
@@ -627,8 +626,7 @@ abstract contract StrategyLeverage is
             );
         }
         // 1.Swap cbETH -> WETH/wstETH/rETH
-        return
-            _swap(
+        (,uint256 amountOut ) = _swap(
                 ISwapHandler.SwapParams(
                     ierc20A(), // Asset In
                     wETHA(), // Asset Out
@@ -638,7 +636,8 @@ abstract contract StrategyLeverage is
                     _swapFeeTier, // Fee Pair Tier
                     bytes("") // User Payload
                 )
-            );
+        );
+        return amountOut;
     }
 
     /**

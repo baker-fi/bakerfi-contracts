@@ -303,7 +303,7 @@ describeif(network.name === "hardhat")(
           14187596516660761994n
         );
 
-      expect(await vault.totalAssets()).to.equal(4829847823381389935n);
+      expect(await vault.totalAssets()).to.equal(6797024248165885759n);
     });
 
     it.skip("Withdraw - Invalid Receiver", async () => {

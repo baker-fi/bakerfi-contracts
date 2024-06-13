@@ -97,7 +97,7 @@ contract StrategyAAVEv3WstETH is Initializable, StrategyAAVEv3, UseWstETH, UseSt
             );
         }
         // Convert from wstETH -> weth directly
-        return
+        (,uint256 amountOut ) =
             _swap(
                 ISwapHandler.SwapParams(
                     wstETHA(), // Asset In
@@ -108,6 +108,7 @@ contract StrategyAAVEv3WstETH is Initializable, StrategyAAVEv3, UseWstETH, UseSt
                     _swapFeeTier, // Fee Pair Tier
                     bytes("") // User Payload
                 )
-            );
+        );
+        return amountOut;
     }
 }
