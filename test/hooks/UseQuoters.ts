@@ -4,8 +4,7 @@ import { ethers, network } from "hardhat";
 import { describeif } from "../common";
 import { deployLeverage, deployServiceRegistry } from "../../scripts/common";
 
-//describeif(network.name === "hardhat")
-describe.only("UseQuoter", function () {
+describeif(network.name === "hardhat")("UseQuoter", function () {
 
     /**
      * Deploys the UseUniQuoter with a proxy
