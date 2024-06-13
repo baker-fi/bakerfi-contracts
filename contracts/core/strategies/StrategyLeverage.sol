@@ -585,8 +585,8 @@ abstract contract StrategyLeverage is
       uint256 amountOutMinimum = 0;
         if (getMaxSlippage() > 0) {
             (, amountOutMinimum) = getExactInputMinimumOutput(
-                ierc20A(), // Asset In
-                wETHA(), // Asset Out
+                wETHA(), // Asset In
+                ierc20A(), // Asset Out
                 amount,
                 _swapFeeTier,
                 getMaxSlippage()

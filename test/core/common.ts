@@ -125,6 +125,7 @@ export async function deployBase() {
   );
 
   await settingsProxy.setTargetLTV(ethers.parseUnits("500", 6));
+  await strategyProxy.setMaxSlippage(5n*(10n**7n));
   await strategyProxy.transferOwnership(await vaultProxyDeploy.getAddress());
 
   return {
