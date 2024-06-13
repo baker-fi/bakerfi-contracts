@@ -21,7 +21,6 @@ import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/se
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import {ETH_USD_ORACLE_CONTRACT} from "../ServiceRegistry.sol";
 import {StrategyLeverageSettings} from "./StrategyLeverageSettings.sol";
-import {IQuoterV2} from "../../interfaces/uniswap/v3/IQuoterV2.sol";
 
 /**
  * @title Base Recursive Staking Strategy
