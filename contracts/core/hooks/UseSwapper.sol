@@ -69,7 +69,7 @@ abstract contract UseSwapper is ISwapHandler, Initializable {
                 IV3SwapRouter.ExactInputSingleParams({
                     tokenIn: params.underlyingIn,
                     tokenOut: params.underlyingOut,
-                    amountIn: params.amountIn,
+                    amountIn: amountIn,
                     amountOutMinimum: params.amountOut,
                     fee: fee,
                     recipient: address(this),
@@ -79,7 +79,7 @@ abstract contract UseSwapper is ISwapHandler, Initializable {
             if (amountOut == 0) {
                 revert SwapFailed();
             }
-            emit Swap(params.underlyingIn, params.underlyingOut, params.amountIn, amountOut);
+            emit Swap(params.underlyingIn, params.underlyingOut, amountIn, amountOut);
             // Exact Output
         } else if (params.mode == ISwapHandler.SwapType.EXACT_OUTPUT) {
             amountOut = params.amountOut;
@@ -89,15 +89,12 @@ abstract contract UseSwapper is ISwapHandler, Initializable {
                     tokenOut: params.underlyingOut,
                     fee: fee,
                     recipient: address(this),
-                    amountOut: params.amountOut,
+                    amountOut: amountOut,
                     amountInMaximum: params.amountIn,
                     sqrtPriceLimitX96: 0
                 })
             );
-           /* if (amountIn < params.amountIn) {
-               IERC20(params.underlyingIn).safeTransfer(address(this), params.amountIn - amountIn);
-            }*/
-            emit Swap(params.underlyingIn, params.underlyingOut, amountIn, params.amountOut);
+            emit Swap(params.underlyingIn, params.underlyingOut, amountIn, amountOut);
         }
     }
 }
