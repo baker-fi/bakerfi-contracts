@@ -112,6 +112,39 @@ describeif(network.name === "hardhat")("StrategyLeverageSettings", function () {
       // @ts-expect-error
     ).to.be.revertedWithCustomError(settings, "InvalidLoopCount");
   });
+
+
+  it("Change Max Slippage ✅", async function () {
+    const { settings, otherAccount } = await loadFixture(deployFunction);
+    // @ts-expect-error
+    await settings.connect(otherAccount).setMaxSlippage(1* 1e7);
+    // @ts-expect-error
+    expect(await settings.connect(otherAccount).getMaxSlippage()).to.equal(
+      1* 1e7
+    );
+  });
+
+  it("Change Max Slippage ❌ - Invalid Value", async function () {
+    const { settings, otherAccount } = await loadFixture(deployFunction);
+    // @ts-expect-error
+    await expect(
+      // @ts-expect-error
+      settings.connect(otherAccount).setMaxSlippage(2*1e9)
+      // @ts-expect-error
+    ).to.be.revertedWithCustomError(settings, "InvalidPercentage");
+  });
+
+  it("Change Max Slippage ❌ - No Permissions", async function () {
+    const { settings, otherAccount } = await loadFixture(deployFunction);
+    // @ts-expect-error
+    await expect(
+      // @ts-expect-error
+      settings.setMaxSlippage(1*1e8)
+      // @ts-expect-error
+    ).to.be.revertedWithCustomError(settings, "CallerNotTheGovernor");
+    
+  });
+
 });
 
 /**
