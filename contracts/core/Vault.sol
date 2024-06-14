@@ -60,7 +60,10 @@ contract Vault is
     error InvalidWithdrawAmount();
     error NoAssetsToWithdraw();
     error NoPermissions();
+    error InvalidShareBalance();
     error ETHTransferNotAllowed(address sender);
+
+    uint256 private constant _MINIMUM_SHARE_BALANCE = 1000;
 
     /**
      * @dev The IStrategy contract representing the strategy for managing assets.
@@ -222,6 +225,12 @@ contract Vault is
 
         uint256 amount = abi.decode(result, (uint256));
         shares = total.toBase(amount, false);
+
+        // Prevent First Deposit Inflation attack
+        if (total.base == 0 && shares < _MINIMUM_SHARE_BALANCE ) {
+            revert InvalidShareBalance();
+        }
+
         _mint(receiver, shares);
         emit Deposit(msg.sender, receiver, msg.value, shares);
     }
@@ -255,7 +264,16 @@ contract Vault is
             totalSupply();
         if (withdrawAmount == 0) revert NoAssetsToWithdraw();
         amount = _strategy.undeploy(withdrawAmount);
+        
         uint256 fee = 0;
+        uint256 afterShares = totalSupply() - shares;
+        
+        // There have to be at least 1000 shares left to prevent reseting the 
+        // share/amount ratio (unless it's fully emptied)
+        if ( afterShares != 0 &&  afterShares <  _MINIMUM_SHARE_BALANCE ) {
+            revert InvalidShareBalance();
+        }
+
         _burn(msg.sender, shares);
         // Withdraw ETh to Receiver and pay withdrawal Fees
         if (settings().getWithdrawalFee() != 0 && settings().getFeeReceiver() != address(0)) {
