@@ -23,7 +23,7 @@ describeif(
     expect(await vault.totalAssets()).to.equal(0);
   });
 
-  it("Deposit 1 ETH", async function () {
+  it.only("Deposit 1 ETH", async function () {
     const { vault, deployer, strategy } = await loadFixture(getDeployFunc());
 
     const depositAmount = ethers.parseUnits("1", 18);
@@ -153,7 +153,7 @@ describeif(
       .lessThanOrEqual(ethers.parseUnits("6", 17));
   });
 
-  it.only("Deposit and Withdraw all the shares from a user", async function () {
+  it("Deposit and Withdraw all the shares from a user", async function () {
     const { deployer, vault, strategy } = await loadFixture(getDeployFunc());
 
     await vault.deposit(deployer.address, {

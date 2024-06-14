@@ -6,7 +6,7 @@ export const feeds  = {
 
 export default {    
     "ethereum_devnet": {
-        uniswapRouter: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", // Validated 
+        uniswapRouter: "0xE592427A0AEce92De3Edee1F18E0157C05861564", // Validated 
         uniswapQuoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e", 
         balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
         weth: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
@@ -45,7 +45,7 @@ export default {
         vaultSharesSymbol: "baseAAVEv3brETH",
     },
     "optimism_devnet": {
-        uniswapRouter: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", // Validated 
+        uniswapRouter: "0xE592427A0AEce92De3Edee1F18E0157C05861564", // Validated 
         uniswapQuoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e", // Validated 
         balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Validated
         weth: "0x4200000000000000000000000000000000000006",  // Validated
@@ -92,7 +92,7 @@ export default {
         vaultSharesSymbol: "localAAVEv3brETH",
     },
     "arbitrum_devnet": {
-        uniswapRouter: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", // Validated 
+        uniswapRouter: "0xE592427A0AEce92De3Edee1F18E0157C05861564", // Validated 
         uniswapQuoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e", // Validated 
         balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Validated
         weth: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",  // Validated
@@ -113,7 +113,7 @@ export default {
         vaultSharesSymbol: "arbAAAv3ETH",
     },
     "arbitrum": {
-        uniswapRouter: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", // Validated 
+        uniswapRouter: "0xE592427A0AEce92De3Edee1F18E0157C05861564", // Validated 
         uniswapQuoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e", // Validated 
         balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Validated
         weth: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",  // Validated

@@ -22,7 +22,7 @@ amount0Delta and amount1Delta can both be 0 if no tokens were swapped._
 | amount1Delta | int256 | The amount of token1 that was sent (negative) or must be received (positive) by the pool by the end of the swap. If positive, the callback must send that amount of token1 to the pool. |
 | data | bytes | Any data passed through by the caller via the IUniswapV3PoolActions#swap call |
 
-## IV3SwapRouter
+## ISwapRouter
 
 Functions for swapping tokens via Uniswap V3
 
@@ -43,7 +43,7 @@ struct ExactInputSingleParams {
 ### exactInputSingle
 
 ```solidity
-function exactInputSingle(struct IV3SwapRouter.ExactInputSingleParams params) external payable returns (uint256 amountOut)
+function exactInputSingle(struct ISwapRouter.ExactInputSingleParams params) external payable returns (uint256 amountOut)
 ```
 
 Swaps `amountIn` of one token for as much as possible of another token
@@ -52,7 +52,7 @@ Swaps `amountIn` of one token for as much as possible of another token
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| params | struct IV3SwapRouter.ExactInputSingleParams | The parameters necessary for the swap, encoded as `ExactInputSingleParams` in calldata |
+| params | struct ISwapRouter.ExactInputSingleParams | The parameters necessary for the swap, encoded as `ExactInputSingleParams` in calldata |
 
 #### Return Values
 
@@ -74,7 +74,7 @@ struct ExactInputParams {
 ### exactInput
 
 ```solidity
-function exactInput(struct IV3SwapRouter.ExactInputParams params) external payable returns (uint256 amountOut)
+function exactInput(struct ISwapRouter.ExactInputParams params) external payable returns (uint256 amountOut)
 ```
 
 Swaps `amountIn` of one token for as much as possible of another along the specified path
@@ -83,7 +83,7 @@ Swaps `amountIn` of one token for as much as possible of another along the speci
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| params | struct IV3SwapRouter.ExactInputParams | The parameters necessary for the multi-hop swap, encoded as `ExactInputParams` in calldata |
+| params | struct ISwapRouter.ExactInputParams | The parameters necessary for the multi-hop swap, encoded as `ExactInputParams` in calldata |
 
 #### Return Values
 
@@ -108,7 +108,7 @@ struct ExactOutputSingleParams {
 ### exactOutputSingle
 
 ```solidity
-function exactOutputSingle(struct IV3SwapRouter.ExactOutputSingleParams params) external payable returns (uint256 amountIn)
+function exactOutputSingle(struct ISwapRouter.ExactOutputSingleParams params) external payable returns (uint256 amountIn)
 ```
 
 Swaps as little as possible of one token for `amountOut` of another token
@@ -117,7 +117,7 @@ Swaps as little as possible of one token for `amountOut` of another token
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| params | struct IV3SwapRouter.ExactOutputSingleParams | The parameters necessary for the swap, encoded as `ExactOutputSingleParams` in calldata |
+| params | struct ISwapRouter.ExactOutputSingleParams | The parameters necessary for the swap, encoded as `ExactOutputSingleParams` in calldata |
 
 #### Return Values
 
@@ -139,7 +139,7 @@ struct ExactOutputParams {
 ### exactOutput
 
 ```solidity
-function exactOutput(struct IV3SwapRouter.ExactOutputParams params) external payable returns (uint256 amountIn)
+function exactOutput(struct ISwapRouter.ExactOutputParams params) external payable returns (uint256 amountIn)
 ```
 
 Swaps as little as possible of one token for `amountOut` of another along the specified path (reversed)
@@ -148,7 +148,7 @@ Swaps as little as possible of one token for `amountOut` of another along the sp
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| params | struct IV3SwapRouter.ExactOutputParams | The parameters necessary for the multi-hop swap, encoded as `ExactOutputParams` in calldata |
+| params | struct ISwapRouter.ExactOutputParams | The parameters necessary for the multi-hop swap, encoded as `ExactOutputParams` in calldata |
 
 #### Return Values
 

@@ -22,7 +22,6 @@ import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/Addr
 import {ETH_USD_ORACLE_CONTRACT} from "../ServiceRegistry.sol";
 import {StrategyLeverageSettings} from "./StrategyLeverageSettings.sol";
 
-import "hardhat/console.sol";
 /**
  * @title Base Recursive Staking Strategy
  *
