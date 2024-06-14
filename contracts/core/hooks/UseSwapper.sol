@@ -56,7 +56,7 @@ abstract contract UseSwapper is ISwapHandler, Initializable {
 
     function _swap(
         ISwapHandler.SwapParams memory params
-    ) internal override returns (uint256 amountOut) {
+    ) internal override returns (uint256 amountIn, uint256 amountOut) {
         if (params.underlyingIn == address(0)) revert InvalidInputToken();
         if (params.underlyingOut == address(0)) revert InvalidOutputToken();
         uint24 fee = params.feeTier;
@@ -64,11 +64,12 @@ abstract contract UseSwapper is ISwapHandler, Initializable {
 
         // Exact Input
         if (params.mode == ISwapHandler.SwapType.EXACT_INPUT) {
+            amountIn = params.amountIn;
             amountOut = _uniRouter.exactInputSingle(
                 IV3SwapRouter.ExactInputSingleParams({
                     tokenIn: params.underlyingIn,
                     tokenOut: params.underlyingOut,
-                    amountIn: params.amountIn,
+                    amountIn: amountIn,
                     amountOutMinimum: params.amountOut,
                     fee: fee,
                     recipient: address(this),
@@ -78,25 +79,22 @@ abstract contract UseSwapper is ISwapHandler, Initializable {
             if (amountOut == 0) {
                 revert SwapFailed();
             }
-            emit Swap(params.underlyingIn, params.underlyingOut, params.amountIn, amountOut);
+            emit Swap(params.underlyingIn, params.underlyingOut, amountIn, amountOut);
             // Exact Output
         } else if (params.mode == ISwapHandler.SwapType.EXACT_OUTPUT) {
-            uint256 amountIn = _uniRouter.exactOutputSingle(
+            amountOut = params.amountOut;
+            amountIn = _uniRouter.exactOutputSingle(
                 IV3SwapRouter.ExactOutputSingleParams({
                     tokenIn: params.underlyingIn,
                     tokenOut: params.underlyingOut,
                     fee: fee,
                     recipient: address(this),
-                    amountOut: params.amountOut,
+                    amountOut: amountOut,
                     amountInMaximum: params.amountIn,
                     sqrtPriceLimitX96: 0
                 })
             );
-            if (amountIn < params.amountIn) {
-                IERC20(params.underlyingIn).safeTransfer(address(this), params.amountIn - amountIn);
-            }
-            emit Swap(params.underlyingIn, params.underlyingOut, amountIn, params.amountOut);
-            amountOut = params.amountOut;
+            emit Swap(params.underlyingIn, params.underlyingOut, amountIn, amountOut);
         }
     }
 }
