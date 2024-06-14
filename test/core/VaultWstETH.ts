@@ -192,7 +192,7 @@ describeif(network.name === "hardhat")(
     });
 
     it("Withdraw - Burn all brETH", async function () {
-      const { owner, vault, strategy, settings, otherAccount, anotherAccount } =
+      const { owner, vault, strategy } =
         await loadFixture(deployFunction);
       await vault.deposit(owner.address, {
         value: ethers.parseUnits("10", 18),
@@ -436,7 +436,7 @@ describeif(network.name === "hardhat")(
     });
 
     it("Rebalance - Assets on Uncollateralized positions ", async () => {
-      const { owner, vault, strategy, settings, otherAccount } =
+      const { owner, vault, strategy } =
         await loadFixture(deployWithMockStrategyFunction);
       await vault.deposit(owner.address, {
         value: 10000,
