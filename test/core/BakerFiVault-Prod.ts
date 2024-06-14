@@ -153,7 +153,7 @@ describeif(
       .lessThanOrEqual(ethers.parseUnits("6", 17));
   });
 
-  it.only("Deposit and Withdraw all the shares from a user", async function () {
+  it("Deposit and Withdraw all the shares from a user", async function () {
     const { deployer, vault, strategy } = await loadFixture(getDeployFunc());
 
     await vault.deposit(deployer.address, {
