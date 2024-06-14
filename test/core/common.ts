@@ -14,7 +14,6 @@ import {
 } from "../../scripts/common";
 
 import BaseConfig from "../../scripts/config";
-import ora from "ora";
 
 export async function deployBase() {
   const [deployer, otherAccount] = await ethers.getSigners();
