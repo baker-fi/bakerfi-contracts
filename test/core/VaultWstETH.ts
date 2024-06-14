@@ -215,6 +215,19 @@ describeif(network.name === "hardhat")(
       expect(await vault.tokenPerETH()).to.equal(ethers.parseUnits("1", 18));
     });
 
+    it("Withdraw - a withdraw that reaches the minimum shares should fail", async function () {
+      const { owner, vault, strategy } =
+        await loadFixture(deployFunction);
+      await vault.deposit(owner.address, {
+        value: ethers.parseUnits("10", 18),
+      });
+
+      const balanceOf = await vault.balanceOf(owner.address);
+      await expect(vault.withdraw(balanceOf-100n)).
+        to.be.revertedWithCustomError(vault, "InvalidShareBalance");;
+            
+    });
+
     it("Deposit with No Flash Loan Fees", async () => {
       const {
         owner,
@@ -377,21 +390,17 @@ describeif(network.name === "hardhat")(
     });
 
     // Mocked Strategy
-
-    it("Deposit - Withdraw", async () => {
-      const { owner, vault, strategy } = await loadFixture(
+    it("Deposit 10 Wei - should fail no mininum share balance reached", async () => {
+      const { owner, vault } = await loadFixture(
         deployWithMockStrategyFunction
       );
       await expect(
         vault.deposit(owner.address, {
-          value: 1,
+          value: 10,
         })
-      )
-        .to.emit(strategy, "StrategyAmountUpdate")
-        .withArgs(1n);
-      expect(await vault.totalAssets()).to.equal(1n);
-      expect(await vault.totalSupply()).to.equal(1n);
+      ).to.be.revertedWithCustomError(vault, "InvalidShareBalance");               
     });
+    
 
     it("Deposit - Fails Deposit when debt is higher than collateral ", async () => {
       const { owner, vault, strategy } = await loadFixture(
