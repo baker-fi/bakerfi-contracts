@@ -3,7 +3,7 @@ import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers, network } from "hardhat";
 import { describeif } from "../common";
-
+import { time } from "@nomicfoundation/hardhat-network-helpers";
 import BaseConfig from "../../scripts/config";
 
 export async function deploy() {
@@ -11,11 +11,11 @@ export async function deploy() {
     const networkName = network.name;
     const config = BaseConfig[networkName];
     const WstETHToETHOracle = await ethers.getContractFactory("ChainLinkOracle");
-    const wstETHToETH = await WstETHToETHOracle.deploy(config.wstETHToETH);
+    const wstETHToETH = await WstETHToETHOracle.deploy(config.wstETHToETH, 0, 0);
     const EthToUSD = await ethers.getContractFactory("ChainLinkOracle");
-    const ethToUSD = await EthToUSD.deploy(config.wstETHToETH);
+    const ethToUSD = await EthToUSD.deploy(config.wstETHToETH, 0, 0);
     const CbETHToETH = await ethers.getContractFactory("ChainLinkOracle");
-    const cbETHToETH = await CbETHToETH.deploy(config.cbETHToETH);
+    const cbETHToETH = await CbETHToETH.deploy(config.cbETHToETH, 0, 0);
     return { owner, wstETHToETH, ethToUSD, cbETHToETH };
 }
 
@@ -25,7 +25,7 @@ describeif(
 )("Testing ChainLink Oracles on Devnet" , function () {
 
    it("Testing wstETH/ETH Oracle",async () => {
-    const { owner, wstETHToETH, ethToUSD } = await loadFixture(deploy);
+    const { wstETHToETH } = await loadFixture(deploy);
 
     const [price, updatedAt] = await wstETHToETH.getLatestPrice();
     // @ts-expect-error
@@ -67,7 +67,9 @@ describeif(network.name === "hardhat")
 
         const ChainLinkOracle = await ethers.getContractFactory("ChainLinkOracle");        
         const oracle = await ChainLinkOracle.deploy(
-            await aggregator.getAddress()
+            await aggregator.getAddress(),
+            100n*(10n**18n), 
+            100000n*(10n**18n), 
         );
         await oracle.waitForDeployment();
         return {oracle, aggregator};
@@ -80,6 +82,47 @@ describeif(network.name === "hardhat")
         expect(price).to.equal(3500n*(10n**18n));
         expect(await aggregator.decimals()).to.equal(6);
         expect(updatedAt).to.greaterThan(block?.timestamp);
+    });
+
+
+    it("Check Safe Price", async function () {    
+        const { oracle,  aggregator} = await loadFixture(deployFunction);
+        const [price, updatedAt] = await oracle.getSafeLatestPrice(0);
+        const block = await ethers.provider.getBlock(0);
+        expect(price).to.equal(3500n*(10n**18n));
+        expect(await aggregator.decimals()).to.equal(6);
+        expect(updatedAt).to.greaterThan(block?.timestamp);
+    });
+
+    it("Check Safe Price Fails when hight than max", async function () {    
+        const { oracle,  aggregator} = await loadFixture(deployFunction);
+
+        await aggregator.setLatestPrice(1000000n*(10n**6n));    
+
+        await expect(
+            oracle.getSafeLatestPrice(0)                           
+          ).to.be.revertedWithCustomError(oracle, "InvalidPriceFromOracle");
+       
+    });
+
+    it("Check Safe Price Fails when the time the price is outdated", async function () {    
+        const { oracle, } = await loadFixture(deployFunction);
+
+        await time.increase(3600);
+
+        await expect(
+            oracle.getSafeLatestPrice(120)                           
+          ).to.be.revertedWithCustomError(oracle, "PriceOutdated");
+       
+    });
+
+
+    it("Check Safe Price Fails when lower than min", async function () {    
+        const { oracle,  aggregator} = await loadFixture(deployFunction);
+        await aggregator.setLatestPrice(10n*(10n**6n));    
+        await expect(
+            oracle.getSafeLatestPrice(0)                           
+          ).to.be.revertedWithCustomError(oracle, "InvalidPriceFromOracle");       
     });
 
 

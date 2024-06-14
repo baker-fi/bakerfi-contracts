@@ -14,7 +14,6 @@ import {
 } from "../../scripts/common";
 
 import BaseConfig from "../../scripts/config";
-import ora from "ora";
 
 export async function deployBase() {
   const [deployer, otherAccount] = await ethers.getSigners();
@@ -401,8 +400,9 @@ export async function deployEthereum() {
 async function deployWstETHToETHOracle(config: any, serviceRegistry: any) {
   const WSETHToETH = await ethers.getContractFactory("ChainLinkOracle");
   const oracle = await WSETHToETH.deploy(
-    config.oracle.chainLink,
-    config.wstETH
+    config.wstETH,
+    0,
+    0
   );
   await oracle.waitForDeployment();
   await serviceRegistry.registerService(
