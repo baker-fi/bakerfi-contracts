@@ -53,7 +53,7 @@ describeif(
       .lessThanOrEqual(ethers.parseUnits("11", 17));
   });
 
-  it.only("Deposit + Withdraw", async function () {
+  it("Deposit + Withdraw", async function () {
     const { vault, settings, deployer, strategy } = await loadFixture(
       getDeployFunc()
     );
