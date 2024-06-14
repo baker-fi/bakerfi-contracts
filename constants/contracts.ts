@@ -66,7 +66,7 @@ export const deployConfigMap : {[key: string]: DeployConfig} =
         stETH: "0x07C1F45Dc0a620E6716d8A45485B8f0A79E270F8",
         wstETH: "0x5979D7b546E38E414F7E9822514be443A4800529",
         flashLender: "0x2db37f9DcD838B06a40Dc1aB171a8eBB474ef44C",
-        uniswapRouter: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", 
+        uniswapRouter: "0xE592427A0AEce92De3Edee1F18E0157C05861564", 
         uniswapQuoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e",
         AAVEv3Pool: "0x794a61358D6845594F94dc1DB02A252b5b4814aD", 
         wstETHETHOracle: "0x63121b44680C502FDeDC725cd7CBcD37E0967d88",
