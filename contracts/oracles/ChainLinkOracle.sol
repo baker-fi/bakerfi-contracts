@@ -13,6 +13,15 @@ contract ChainLinkOracle is IOracle {
     uint8                private immutable  _extPriceDecimals;    
     uint8                private constant   _PRICE_DECIMALS = 18;
     uint256              private constant   _PRECISION = 10 ** _PRICE_DECIMALS;
+
+    // Price Circuit Breaker to prevent staled and prices from the aggreagator
+    // The data feed aggregator includes both minAnswer and maxAnswer values. 
+    // On most data feeds, these values are no longer used and they do not stop 
+    // your application from reading the most recent answer. 
+    // We decided to implement our immutable circuit breakers followin chainlink 
+    // documentation 
+    uint256              private immutable  _minPrice = 0;
+    uint256              private immutable  _maxPrice = 0;
     
     error InvalidPriceFromOracle();
     error InvalidPriceUpdatedAt();
@@ -22,8 +31,14 @@ contract ChainLinkOracle is IOracle {
      * 
      * @param priceFeed The Price Feed Chain Address.
      */
-    constructor(address priceFeed) {
+    constructor(
+        address priceFeed,
+        uint256 minPrice,
+        uint256 maxPrice
+    ) {
         _priceFeed = IChainlinkAggregator(priceFeed);
+        _minPrice = minPrice;
+        _maxPrice = maxPrice;
         // From the reference documentation the decimals does not change for any 
         // for any price feed.
         _extPriceDecimals = _priceFeed.decimals();
@@ -46,8 +61,10 @@ contract ChainLinkOracle is IOracle {
         price.lastUpdate = updatedAt;
     }
 
-    function getSafeLatestPrice(uint256 age) public view override returns (IOracle.Price memory price) {
+    function getSafeLatestPrice(uint256 maxAge) public view override returns (IOracle.Price memory price) {
         price = getLatestPrice();
-        if ( (block.timestamp - price.lastUpdate) > age) revert  PriceOutdated();
+        if ( age!= 0 && (block.timestamp - price.lastUpdate) > maxAge) revert PriceOutdated();
+        if(_minPrice > 0 && price.price < _minPrice ) revert InvalidPriceFromOracle();
+        if(_maxPrice > 0 && price.price > _maxPrice ) revert InvalidPriceFromOracle();
     }
 }
