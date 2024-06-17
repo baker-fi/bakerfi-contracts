@@ -6,6 +6,7 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 import {IERC3156FlashLenderUpgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashLenderUpgradeable.sol";
 import {IFlashLoanRecipient} from "../../interfaces/balancer/IFlashLoan.sol";
 import {IVault} from "../../interfaces/balancer/IVault.sol";
+import {MathLibrary} from "../../libraries/MathLibrary.sol";
 import {ServiceRegistry, BALANCER_VAULT_CONTRACT} from "../../core/ServiceRegistry.sol";
 import {IERC3156FlashBorrowerUpgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashBorrowerUpgradeable.sol";
 
@@ -31,6 +32,7 @@ contract BalancerFlashLender is IERC3156FlashLenderUpgradeable, IFlashLoanRecipi
     error NoAllowanceToPayDebt();
 
     using SafeERC20 for IERC20;
+    using MathLibrary for uint256;
 
     bytes32 public constant CALLBACK_SUCCESS = keccak256("ERC3156FlashBorrower.onFlashLoan");
 
@@ -60,7 +62,7 @@ contract BalancerFlashLender is IERC3156FlashLenderUpgradeable, IFlashLoanRecipi
             return 0;
         }
 
-        return (amount * perc) / _BALANCER_MAX_FEE_PERCENTAGE;
+        return amount.mulDivUp(perc, _BALANCER_MAX_FEE_PERCENTAGE);
     }
 
     /**

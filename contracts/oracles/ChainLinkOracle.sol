@@ -8,6 +8,7 @@ import {IChainlinkAggregator} from "../interfaces/chainlink/IChainlinkAggregator
  * Chainlink General Oracle using chainlink data feeds
  */
 contract ChainLinkOracle is IOracle {
+    
     IChainlinkAggregator private immutable _priceFeed;
     uint8 private immutable _extPriceDecimals;
     uint8 private constant _PRICE_DECIMALS = 18;
