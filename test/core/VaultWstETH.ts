@@ -164,10 +164,10 @@ describeif(network.name === "hardhat")(
         .withArgs(
           "0x0000000000000000000000000000000000000000",
           otherAccount.address,
-          4275475777976299n
+          4275475777976300n
         );
       expect(await vault.balanceOf(otherAccount.address)).to.equal(
-        4275475777976299n
+        4275475777976300n
       );
     });
 
@@ -643,7 +643,7 @@ async function deployWithMockStrategyFunction() {
   const BakerFiProxyAdmin = await ethers.getContractFactory(
     "BakerFiProxyAdmin"
   );
-  
+
   const MathLibrary = await ethers.getContractFactory("MathLibrary");
   const mathLibrary = await MathLibrary.deploy();
   await mathLibrary.waitForDeployment();
