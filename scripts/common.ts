@@ -356,7 +356,17 @@ export async function deployUniSwapper(owner: string, serviceRegistry: any) {
 }
 
 export async function deployBalancerFL(serviceRegistry: any) {
-  const FlashLender = await ethers.getContractFactory("BalancerFlashLender");
+
+
+  const MathLibrary = await ethers.getContractFactory("MathLibrary");
+  const ml = await MathLibrary.deploy();
+  await ml.waitForDeployment();
+  const FlashLender = await ethers.getContractFactory("BalancerFlashLender", {
+    libraries: {
+      MathLibrary: await ml.getAddress(),
+    }
+
+  });
   const fl = await FlashLender.deploy(await serviceRegistry.getAddress());
   await fl.waitForDeployment();
   await serviceRegistry.registerService(
