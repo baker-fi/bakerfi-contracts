@@ -64,6 +64,7 @@ contract Vault is
     error ETHTransferNotAllowed(address sender);
 
     uint256 private constant _MINIMUM_SHARE_BALANCE = 1000;
+    uint256 private constant _ONE = 1e18;
 
     /**
      * @dev The IStrategy contract representing the strategy for managing assets.
@@ -214,7 +215,7 @@ contract Vault is
         uint256 maxDeposit = settings().getMaxDepositInETH();
         if (maxDeposit > 0) {
             uint256 afterDeposit = msg.value +
-                ((balanceOf(msg.sender) * _tokenPerETH(maxPriceAge)) / 1e18);
+                ((balanceOf(msg.sender) * _ONE) / _tokenPerETH(maxPriceAge));
             if (afterDeposit > maxDeposit) revert MaxDepositReached();
         }
 
@@ -342,7 +343,12 @@ contract Vault is
      * This function is externally callable and provides a view of the current exchange rate
      * between the token and ETH. It calculates the rate based on the total supply of the token
      * and the total assets under management by the strategy.
-     *
+     * 
+     *   brETHSupply  ------   DeployedETH 
+     *   tokenPerETH  ------   1 ETH
+     *  
+     *   x = SupplybrETH * 1ETH / Deployed ETH 
+     *   
      * @return rate The calculated token-to-ETH exchange rate.
      */
     function tokenPerETH() external view override returns (uint256) {
