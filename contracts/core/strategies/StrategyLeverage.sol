@@ -338,8 +338,8 @@ abstract contract StrategyLeverage is
     function _adjustDebt(
         uint256 totalCollateralBaseInEth,
         uint256 totalDebtBaseInEth
-    ) internal returns (uint256 deltaDebt) {
-        deltaDebt = calculateDebtToPay(
+    ) internal returns (uint256 deltaAmount) {
+        uint256 deltaDebt = calculateDebtToPay(
             getLoanToValue(),
             totalCollateralBaseInEth,
             totalDebtBaseInEth
@@ -361,6 +361,7 @@ abstract contract StrategyLeverage is
             revert FailedToRunFlashLoan();
         }
         _flashLoanArgsHash = 0;
+       deltaAmount = deltaDebt + fee;
     }
 
     /**
