@@ -168,6 +168,47 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
     ).to.be.revertedWithCustomError(pStrategy, "InvalidFlashLoanAsset");
   });
 
+  it("onFlashLoan - Failed to Validate Flash Loan Args", async () => {
+    const { weth, owner, serviceRegistry, otherAccount, aave3Pool, config } =
+      await loadFixture(deployFunction);
+    const BakerFiProxyAdmin = await ethers.getContractFactory(
+      "BakerFiProxyAdmin"
+    );
+    const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
+    await proxyAdmin.waitForDeployment();
+    await serviceRegistry.unregisterService(
+      ethers.keccak256(Buffer.from("FlashLender"))
+    );
+    await serviceRegistry.registerService(
+      ethers.keccak256(Buffer.from("FlashLender")),
+      owner.address
+    );
+    const { proxy: proxyStrategy } = await deployAAVEv3StrategyAny(
+      owner.address,
+      owner.address,
+      await serviceRegistry.getAddress(),
+      "cbETH",
+      "cbETH/ETH Oracle",
+      config.swapFeeTier,
+      config.AAVEEModeCategory,
+      proxyAdmin
+    );
+    const pStrategy = await ethers.getContractAt(
+      "StrategyAAVEv3",
+      await proxyStrategy.getAddress()
+    );
+
+    await expect(
+      pStrategy.onFlashLoan(
+        await proxyStrategy.getAddress(),
+        await weth.getAddress(),
+        ethers.parseUnits("10", 18),
+        0,
+        "0x"
+      )
+    ).to.be.revertedWithCustomError(pStrategy, "FailedToAuthenticateArgs");
+  });
+
   it("OnFlashLoan - Attacker", async () => {
     const { weth, serviceRegistry, strategy } = await loadFixture(
       deployFunction

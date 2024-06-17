@@ -55,7 +55,7 @@ import {StrategyLeverageSettings} from "./StrategyLeverageSettings.sol";
  *  LeverageRatio = LeverageFunc(numberOfLoops, LTV)
  *  APY ~=  LidoAPY - (LidoAPY-AAVE_Borrow_Rate)*(1-leverateRatio);
  *
- *  This strategy could work for 
+ *  This strategy could work for
  *  rETH/WETH
  *  awstETH/WETH
  *
@@ -108,6 +108,7 @@ abstract contract StrategyLeverage is
     error NoCollateralMarginToScale();
     error ETHTransferNotAllowed(address sender);
     error FailedToApproveAllowance();
+    error FailedToAuthenticateArgs();
 
     uint256 internal _pendingAmount = 0;
     uint256 private _deployedAmount = 0;
@@ -115,6 +116,8 @@ abstract contract StrategyLeverage is
     IOracle private _collateralOracle;
     IOracle private _ethUSDOracle;
     uint24 internal _swapFeeTier;
+
+    bytes32 private _flashLoanArgsHash = 0;
 
     /**
      * @dev Internal function to initialize the AAVEv3 strategy base.
@@ -146,7 +149,7 @@ abstract contract StrategyLeverage is
         _initLeverageSettings(initialOwner, initialGovernor);
         _initUseWETH(registry);
         _initUseIERC20(registry, collateralIERC20);
-  
+
         _initUseSwapper(registry);
         _initUseFlashLender(registry);
         _initUseUniQuoter(registry);
@@ -155,7 +158,7 @@ abstract contract StrategyLeverage is
         _ethUSDOracle = IOracle(registry.getServiceFromHash(ETH_USD_ORACLE_CONTRACT));
         _swapFeeTier = swapFeeTier;
         if (address(_ethUSDOracle) == address(0)) revert InvalidDebtOracle();
-        if (address(_collateralOracle) == address(0)) revert InvalidCollateralOracle();       
+        if (address(_collateralOracle) == address(0)) revert InvalidCollateralOracle();
 
         if (!wETH().approve(uniRouterA(), 2 ** 256 - 1)) revert FailedToApproveAllowance();
         if (!ierc20().approve(uniRouterA(), 2 ** 256 - 1)) revert FailedToApproveAllowance();
@@ -164,7 +167,7 @@ abstract contract StrategyLeverage is
     /**
      * @dev Fallback function to receive Ether.
      *
-     *  This function is automatically called when the contract receives Ether 
+     *  This function is automatically called when the contract receives Ether
      *  without a specific function call.
      *
      *  It allows the contract to accept incoming Ether fromn the WETH contract
@@ -186,7 +189,9 @@ abstract contract StrategyLeverage is
      * Requirements:
      * - The AAVEv3 strategy must be properly configured and initialized.
      */
-    function getPosition(uint256 priceMaxAge)
+    function getPosition(
+        uint256 priceMaxAge
+    )
         external
         view
         returns (uint256 totalCollateralInEth, uint256 totalDebtInEth, uint256 loanToValue)
@@ -237,26 +242,25 @@ abstract contract StrategyLeverage is
         // 1. Wrap Ethereum
         address(wETHA()).functionCallWithValue(abi.encodeWithSignature("deposit()"), msg.value);
         // 2. Initiate a WETH Flash Loan
-        uint256 leverage = calculateLeverageRatio(
-            msg.value,
-            getLoanToValue(),
-            getNrLoops()
-        );
+        uint256 leverage = calculateLeverageRatio(msg.value, getLoanToValue(), getNrLoops());
         uint256 loanAmount = leverage - msg.value;
         uint256 fee = flashLender().flashFee(wETHA(), loanAmount);
-        //§uint256 allowance = wETH().allowance(address(this), flashLenderA());
-        if(!wETH().approve(flashLenderA(), loanAmount + fee)) revert FailedToApproveAllowance();
+
+        if (!wETH().approve(flashLenderA(), loanAmount + fee)) revert FailedToApproveAllowance();
+        bytes memory data = abi.encode(msg.value, msg.sender, FlashLoanAction.SUPPLY_BOORROW);
+        _flashLoanArgsHash = keccak256(abi.encodePacked(address(this), wETHA(), loanAmount, data));
         if (
             !flashLender().flashLoan(
                 IERC3156FlashBorrowerUpgradeable(this),
                 wETHA(),
                 loanAmount,
-                abi.encode(msg.value, msg.sender, FlashLoanAction.SUPPLY_BOORROW)
+                data
             )
         ) {
+            _flashLoanArgsHash = 0;
             revert FailedToRunFlashLoan();
         }
-
+        _flashLoanArgsHash = 0;
         deployedAmount = _pendingAmount;
         _deployedAmount = _deployedAmount + deployedAmount;
         emit StrategyAmountUpdate(_deployedAmount);
@@ -296,6 +300,8 @@ abstract contract StrategyLeverage is
         if (initiator != address(this)) revert InvalidLoanInitiator();
         // Only Allow WETH Flash Loans
         if (token != wETHA()) revert InvalidFlashLoanAsset();
+        if (_flashLoanArgsHash != keccak256(abi.encodePacked(initiator, token, amount, callData)))
+            revert FailedToAuthenticateArgs();        
         FlashLoanData memory data = abi.decode(callData, (FlashLoanData));
         if (data.action == FlashLoanAction.SUPPLY_BOORROW) {
             _supplyBorrow(data.originalAmount, amount, fee);
@@ -340,17 +346,21 @@ abstract contract StrategyLeverage is
         );
         uint256 fee = flashLender().flashFee(wETHA(), deltaDebt);
         // uint256 allowance = wETH().allowance(address(this), flashLenderA());
+        bytes memory data = abi.encode(deltaDebt, address(0), FlashLoanAction.PAY_DEBT);
         if (!wETH().approve(flashLenderA(), deltaDebt + fee)) revert FailedToApproveAllowance();
+        _flashLoanArgsHash = keccak256(abi.encodePacked(address(this), wETHA(), deltaDebt, data));
         if (
             !flashLender().flashLoan(
                 IERC3156FlashBorrowerUpgradeable(this),
                 wETHA(),
                 deltaDebt,
-                abi.encode(deltaDebt, address(0), FlashLoanAction.PAY_DEBT)
+                data
             )
         ) {
+            _flashLoanArgsHash = 0;
             revert FailedToRunFlashLoan();
         }
+        _flashLoanArgsHash = 0;
        deltaAmount = deltaDebt + fee;
     }
 
@@ -417,15 +427,18 @@ abstract contract StrategyLeverage is
         emit StrategyAmountUpdate(newDeployedAmount);
         _deployedAmount = newDeployedAmount;
     }
-        
 
     /**
      * Get the Money Market Position Balances (Collateral, Debt) in Token Balances
-     * 
-     * @return collateralBalance 
-     * @return debtBalance 
+     *
+     * @return collateralBalance
+     * @return debtBalance
      */
-    function _getMMPosition() internal virtual view returns (uint256 collateralBalance, uint256 debtBalance )  ;
+    function _getMMPosition()
+        internal
+        view
+        virtual
+        returns (uint256 collateralBalance, uint256 debtBalance);
     /**
      * @dev Retrieves the current collateral and debt positions of the contract.
      *
@@ -441,15 +454,15 @@ abstract contract StrategyLeverage is
         totalCollateralInEth = 0;
         totalDebtInEth = 0;
 
-        (uint256 collateralBalance,  uint256 debtBalance ) = _getMMPosition();
-    
-        if (collateralBalance != 0) {            
-            IOracle.Price memory ethPrice = priceMaxAge == 0 ?
-                _ethUSDOracle.getLatestPrice():
-                _ethUSDOracle.getSafeLatestPrice(priceMaxAge);
-            IOracle.Price memory collateralPrice = priceMaxAge == 0 ? 
-                _collateralOracle.getLatestPrice():
-                _collateralOracle.getSafeLatestPrice(priceMaxAge);
+        (uint256 collateralBalance, uint256 debtBalance) = _getMMPosition();
+
+        if (collateralBalance != 0) {
+            IOracle.Price memory ethPrice = priceMaxAge == 0
+                ? _ethUSDOracle.getLatestPrice()
+                : _ethUSDOracle.getSafeLatestPrice(priceMaxAge);
+            IOracle.Price memory collateralPrice = priceMaxAge == 0
+                ? _collateralOracle.getLatestPrice()
+                : _collateralOracle.getSafeLatestPrice(priceMaxAge);
             if (
                 !(priceMaxAge == 0 ||
                     (priceMaxAge > 0 && (ethPrice.lastUpdate >= (block.timestamp - priceMaxAge))) ||
@@ -503,16 +516,27 @@ abstract contract StrategyLeverage is
         //uint256 allowance = wETH().allowance(address(this), flashLenderA());
         if (!wETH().approve(flashLenderA(), deltaDebtInETH + fee))
             revert FailedToApproveAllowance();
+
+        bytes memory data = abi.encode(
+            deltaCollateralInETH,
+            receiver,
+            FlashLoanAction.PAY_DEBT_WITHDRAW
+        );
+        _flashLoanArgsHash = keccak256(
+            abi.encodePacked(address(this), wETHA(), deltaDebtInETH, data)
+        );
         if (
             !flashLender().flashLoan(
                 IERC3156FlashBorrowerUpgradeable(this),
                 wETHA(),
                 deltaDebtInETH,
-                abi.encode(deltaCollateralInETH, receiver, FlashLoanAction.PAY_DEBT_WITHDRAW)
+                data
             )
         ) {
+            _flashLoanArgsHash = 0;
             revert FailedToRunFlashLoan();
         }
+        _flashLoanArgsHash = 0;
         // Update the amount of ETH deployed on the contract
         undeployedAmount = _pendingAmount;
         if (undeployedAmount > _deployedAmount) {
@@ -539,21 +563,21 @@ abstract contract StrategyLeverage is
      * Requirements:
      * - The AAVEv3 strategy must be properly configured and initialized.
      */
-      function _payDebt(uint256 debtAmount, uint256 fee) internal {
+    function _payDebt(uint256 debtAmount, uint256 fee) internal {
         _repay(wETHA(), debtAmount);
-        // Get a Quote to know how much collateral i require to pay debt , includes also 
+        // Get a Quote to know how much collateral i require to pay debt , includes also
         // the max Slippage
         (, uint256 amountInMax) = getExactOutputMaxInput(
-            ierc20A(), 
-            wETHA(), 
-            debtAmount + fee, 
-            _swapFeeTier, 
-            getMaxSlippage()                    
-        );    
-        
-        _withdraw(ierc20A(), amountInMax, address(this) );
+            ierc20A(),
+            wETHA(),
+            debtAmount + fee,
+            _swapFeeTier,
+            getMaxSlippage()
+        );
 
-       (uint256 amountIn,) = _swap(
+        _withdraw(ierc20A(), amountInMax, address(this));
+
+        (uint256 amountIn, ) = _swap(
             ISwapHandler.SwapParams(
                 ierc20A(),
                 wETHA(),
@@ -572,7 +596,7 @@ abstract contract StrategyLeverage is
         emit StrategyUndeploy(msg.sender, debtAmount);
     }
 
-       /**
+    /**
      * @dev Internal function to convert the specified amount from WETH to the underlying assert cbETH, wstETH, rETH.
      *
      * This function is virtual and intended to be overridden in derived contracts for customized implementation.
@@ -581,7 +605,7 @@ abstract contract StrategyLeverage is
      * @return uint256 The converted amount in the underlying collateral.
      */
     function _convertFromWETH(uint256 amount) internal virtual returns (uint256) {
-      uint256 amountOutMinimum = 0;
+        uint256 amountOutMinimum = 0;
         if (getMaxSlippage() > 0) {
             (, amountOutMinimum) = getExactInputMinimumOutput(
                 wETHA(), // Asset In
@@ -592,17 +616,17 @@ abstract contract StrategyLeverage is
             );
         }
         // 1. Swap WETH -> cbETH/wstETH/rETH
-         (,uint256 amountOut ) = _swap(
-                ISwapHandler.SwapParams(
-                    wETHA(), // Asset In
-                    ierc20A(), // Asset Out
-                    ISwapHandler.SwapType.EXACT_INPUT, // Swap Mode
-                    amount, // Amount In
-                    amountOutMinimum, // Amount Out
-                    _swapFeeTier, // Fee Pair Tier
-                    bytes("") // User Payload
-                )
-            );
+        (, uint256 amountOut) = _swap(
+            ISwapHandler.SwapParams(
+                wETHA(), // Asset In
+                ierc20A(), // Asset Out
+                ISwapHandler.SwapType.EXACT_INPUT, // Swap Mode
+                amount, // Amount In
+                amountOutMinimum, // Amount Out
+                _swapFeeTier, // Fee Pair Tier
+                bytes("") // User Payload
+            )
+        );
         return amountOut;
     }
 
@@ -615,8 +639,7 @@ abstract contract StrategyLeverage is
      * @return uint256 The converted amount in WETH.
      */
     function _convertToWETH(uint256 amount) internal virtual returns (uint256) {
-
-      uint256 amountOutMinimum = 0;
+        uint256 amountOutMinimum = 0;
         if (getMaxSlippage() > 0) {
             (, amountOutMinimum) = getExactInputMinimumOutput(
                 ierc20A(), // Asset In
@@ -627,16 +650,16 @@ abstract contract StrategyLeverage is
             );
         }
         // 1.Swap cbETH -> WETH/wstETH/rETH
-        (,uint256 amountOut ) = _swap(
-                ISwapHandler.SwapParams(
-                    ierc20A(), // Asset In
-                    wETHA(), // Asset Out
-                    ISwapHandler.SwapType.EXACT_INPUT, // Swap Mode
-                    amount, // Amount In
-                    amountOutMinimum, // Amount Out
-                    _swapFeeTier, // Fee Pair Tier
-                    bytes("") // User Payload
-                )
+        (, uint256 amountOut) = _swap(
+            ISwapHandler.SwapParams(
+                ierc20A(), // Asset In
+                wETHA(), // Asset Out
+                ISwapHandler.SwapType.EXACT_INPUT, // Swap Mode
+                amount, // Amount In
+                amountOutMinimum, // Amount Out
+                _swapFeeTier, // Fee Pair Tier
+                bytes("") // User Payload
+            )
         );
         return amountOut;
     }
@@ -669,7 +692,6 @@ abstract contract StrategyLeverage is
             _collateralOracle.getSafeLatestPrice(settings().getPriceMaxAge()).price;
     }
 
-
     /**
      * @dev Executes the supply and borrow operations on AAVE, converting assets from WETH.
      *
@@ -693,8 +715,7 @@ abstract contract StrategyLeverage is
         emit StrategyDeploy(msg.sender, _pendingAmount);
     }
 
-
-        /**
+    /**
      * @dev Repays a specified amount, withdraws collateral, and sends the remaining ETH to the specified receiver.
      *
      * This private function is used internally to repay a specified amount on AAVE, withdraw collateral, and send
@@ -716,13 +737,14 @@ abstract contract StrategyLeverage is
         uint256 fee,
         address payable receiver
     ) internal {
-
-        (uint256 collateralBalance,) = _getMMPosition();
+        (uint256 collateralBalance, ) = _getMMPosition();
         uint256 convertedAmount = _fromWETH(withdrawAmountInETh);
-        uint256 withdrawAmount = collateralBalance > convertedAmount ? convertedAmount : collateralBalance;
-        
-        _repay(wETHA(), repayAmount);                        
-        
+        uint256 withdrawAmount = collateralBalance > convertedAmount
+            ? convertedAmount
+            : collateralBalance;
+
+        _repay(wETHA(), repayAmount);
+
         _withdraw(ierc20A(), withdrawAmount, address(this));
 
         // Convert Collateral to WETH
@@ -737,44 +759,48 @@ abstract contract StrategyLeverage is
         _pendingAmount = ethToWithdraw;
     }
 
-
     /**
-     * Money Market Functions 
-     * 
-     * The derived and money market specific classes should implement these functions to 
+     * Money Market Functions
+     *
+     * The derived and money market specific classes should implement these functions to
      * be used on a Leverage Strategy.
      */
 
     /**
-     *  @dev Deposit an asset assetIn on a money market 
+     *  @dev Deposit an asset assetIn on a money market
      */
-    function _supply( address assetIn, uint256 amountIn) internal virtual;
-    
+    function _supply(address assetIn, uint256 amountIn) internal virtual;
+
     /**
      * @dev Deposit and borrow and asset using the asset deposited as collateral
      */
-    function _supplyAndBorrow( address assetIn, uint256 amountIn, address assetOut, uint256 borrowOut) internal virtual;
-    
-    /**
-     *  @dev Repay any borrow debt 
-     */
-    function _repay(address assetIn, uint256 amount) internal virtual;
-    
-    /**
-     * @dev  Withdraw a deposited asset from a money market
-     * 
-     * @param assetOut The asset to withdraw
-     * @param amount The amoun to withdraw 
-     * @param to the account that will receive the asset
-     */
-    function _withdraw(address assetOut, uint256 amount,  address to) internal virtual;
+    function _supplyAndBorrow(
+        address assetIn,
+        uint256 amountIn,
+        address assetOut,
+        uint256 borrowOut
+    ) internal virtual;
 
     /**
-     * @dev 
+     *  @dev Repay any borrow debt
+     */
+    function _repay(address assetIn, uint256 amount) internal virtual;
+
+    /**
+     * @dev  Withdraw a deposited asset from a money market
+     *
+     * @param assetOut The asset to withdraw
+     * @param amount The amoun to withdraw
+     * @param to the account that will receive the asset
+     */
+    function _withdraw(address assetOut, uint256 amount, address to) internal virtual;
+
+    /**
+     * @dev
      */
     function renounceOwnership() public virtual override {
-        revert InvalidOwner(); 
+        revert InvalidOwner();
     }
-    
+
     uint256[44] private __gap;
 }
