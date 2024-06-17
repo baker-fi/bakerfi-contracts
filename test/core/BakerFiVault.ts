@@ -22,8 +22,7 @@ import { time } from "@nomicfoundation/hardhat-network-helpers";
  * Unit Tests for BakerFi Vault with a regular AAVEv3Strategy
  */
 
-describeif(network.name === "hardhat")
-("BakerFi Vault For L2s", function () {
+describeif(network.name === "hardhat")("BakerFi Vault For L2s", function () {
   it("Deposit with no Flash Loan Fees", async function () {
     const { owner, vault, weth, aave3Pool, strategy, cbETH, flashLender } =
       await loadFixture(deployFunction);
@@ -366,8 +365,13 @@ async function deployFunction() {
   const BakerFiProxyAdmin = await ethers.getContractFactory(
     "BakerFiProxyAdmin"
   );
+  
   const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
   await proxyAdmin.waitForDeployment();
+
+  const MathLibrary = await ethers.getContractFactory("MathLibrary");
+  const mathLibrary = await MathLibrary.deploy();
+  await mathLibrary.waitForDeployment();
 
   // Deploy Flash Lender
   const flashLender = await deployFlashLender(
@@ -456,7 +460,8 @@ async function deployFunction() {
     "brETH",
     serviceRegistryAddress,
     await proxyStrategy.getAddress(),
-    proxyAdmin
+    mathLibrary,
+    proxyAdmin,   
   );
 
   await pStrategy.transferOwnership(await proxy.getAddress());

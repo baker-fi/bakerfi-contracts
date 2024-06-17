@@ -41,6 +41,11 @@ async function main() {
   await proxyAdmin.waitForDeployment();
   result.push(["Proxy Admin", await proxyAdmin.getAddress()]);
 
+  spinner.text = "Deploying Math Library";
+  const MathLibrary = await ethers.getContractFactory("MathLibrary");
+  const mathLibrary = await MathLibrary.deploy();
+  await mathLibrary.waitForDeployment();
+  result.push(["Math Library", await mathLibrary.getAddress()]);
   /********************************************
    *  Registry Service
    ********************************************/
@@ -101,7 +106,8 @@ async function main() {
   spinner.text = "Deploying Flash Lender Adapter";
   const flashLenderAdapter = await deployFlashLendInfra(
     serviceRegistry,
-    config
+    config,
+    mathLibrary
   );
   result.push(["Flash Lender", await flashLenderAdapter.getAddress()]);
   /********************************************
@@ -165,6 +171,7 @@ async function main() {
     config.vaultSharesSymbol,
     await serviceRegistry.getAddress(),
     await (strategyProxy as any).getAddress(),
+    mathLibrary,
     proxyAdmin
   );
   result.push(["BakerFi Vault 📟", await vault.getAddress()]);
@@ -190,7 +197,7 @@ async function changeSettings(
   spinner: any,
   settingsAddress: string,
   strategyAddress: string,
-  vaultAddress: string
+  vaultAddress: string,
 ) {
   const settings = await ethers.getContractAt("Settings", settingsAddress);
   const vault = await ethers.getContractAt("Vault", vaultAddress);
@@ -206,12 +213,12 @@ async function changeSettings(
   await strategy.setLoanToValue(ethers.parseUnits("800", 6));
 }
 
-async function deployFlashLendInfra(serviceRegistry, config: any) {
+async function deployFlashLendInfra(serviceRegistry, config: any, mathLibrary: any) {
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from("Balancer Vault")),
     config.balancerVault
   );
-  const flashLender = await deployBalancerFL(serviceRegistry);
+  const flashLender = await deployBalancerFL(serviceRegistry, mathLibrary);
   return flashLender;
 }
 

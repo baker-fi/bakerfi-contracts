@@ -532,6 +532,11 @@ async function deployFunction() {
   const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
   await proxyAdmin.waitForDeployment();
 
+
+  const MathLibrary = await ethers.getContractFactory("MathLibrary");
+  const mathLibrary = await MathLibrary.deploy();
+  await mathLibrary.waitForDeployment();
+
   // 1. Deploy Flash Lender
   const flashLender = await deployFlashLender(
     serviceRegistry,
@@ -607,6 +612,7 @@ async function deployFunction() {
     "brETH",
     serviceRegistryAddress,
     await proxyStrategy.getAddress(),
+    mathLibrary,
     proxyAdmin
   );
 
@@ -637,10 +643,19 @@ async function deployWithMockStrategyFunction() {
   const BakerFiProxyAdmin = await ethers.getContractFactory(
     "BakerFiProxyAdmin"
   );
+  
+  const MathLibrary = await ethers.getContractFactory("MathLibrary");
+  const mathLibrary = await MathLibrary.deploy();
+  await mathLibrary.waitForDeployment();
+
   const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
   await proxyAdmin.waitForDeployment();
   const BakerFiProxy = await ethers.getContractFactory("BakerFiProxy");
-  const Vault = await ethers.getContractFactory("Vault");
+  const Vault = await ethers.getContractFactory("Vault", {
+    libraries: {
+      MathLibrary: await mathLibrary.getAddress()
+    }
+  });
   const vault = await Vault.deploy();
   await vault.waitForDeployment();
 

@@ -485,7 +485,11 @@ task("deploy:upgrade:vault", "Upgrade the settings Contract")
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Upgrading Vault Contract`).start();
     try {
-      const Vault = await ethers.getContractFactory("Vault");   
+      const Vault = await ethers.getContractFactory("Vault", {
+        libraries: {
+          MathLibrary: networkConfig.mathLibrary
+        }
+      });   
       const vault = await Vault.deploy();
       await vault.waitForDeployment();
       const proxyAdmin = await ethers.getContractAt("ProxyAdmin", networkConfig?.proxyAdmin?? "");
