@@ -22,7 +22,7 @@ contract UseLeverage {
         uint8 nrLoops
     ) public pure returns (uint256) {
         if (nrLoops > MAX_LOOPS) revert InvalidNumberOfLoops();
-        if (loanToValue == 0 || loanToValue >= PERCENTAGE_PRECISION) revert InvalidLoanToValue();
+        if (loanToValue == 0 || loanToValue > PERCENTAGE_PRECISION) revert InvalidLoanToValue();
         uint256 leverage = baseValue;
         uint256 prev = baseValue;
         for (uint8 i = 1; i <= nrLoops; ) {
