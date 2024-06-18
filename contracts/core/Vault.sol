@@ -14,7 +14,7 @@ import {ERC20PermitUpgradeable} from "@openzeppelin/contracts-upgradeable/token/
 import {UseSettings} from "./hooks/UseSettings.sol";
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
-
+import {MathLibrary} from "../libraries/MathLibrary.sol";
 /**
  * @title BakerFi Vault 🏦🧑‍🍳
  *
@@ -51,6 +51,7 @@ contract Vault is
     using SafeERC20Upgradeable for ERC20Upgradeable;
     using AddressUpgradeable for address;
     using AddressUpgradeable for address payable;
+    using MathLibrary for uint256;
 
     error InvalidOwner();
     error InvalidDepositAmount();
@@ -278,7 +279,7 @@ contract Vault is
         _burn(msg.sender, shares);
         // Withdraw ETh to Receiver and pay withdrawal Fees
         if (settings().getWithdrawalFee() != 0 && settings().getFeeReceiver() != address(0)) {
-            fee = (amount * settings().getWithdrawalFee()) / PERCENTAGE_PRECISION;
+            fee = amount.mulDivUp(settings().getWithdrawalFee(), PERCENTAGE_PRECISION);
             payable(msg.sender).sendValue(amount - fee);
             payable(settings().getFeeReceiver()).sendValue(fee);
         } else {

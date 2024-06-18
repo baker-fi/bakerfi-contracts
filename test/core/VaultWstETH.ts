@@ -172,7 +172,7 @@ describeif(network.name === "hardhat")(
     });
 
     it("Withdraw With Service Fees", async function () {
-      const { owner, vault, settings, otherAccount, anotherAccount } =
+      const { owner, vault, settings, otherAccount } =
         await loadFixture(deployFunction);
 
       const provider = ethers.provider;
@@ -232,10 +232,8 @@ describeif(network.name === "hardhat")(
       const {
         owner,
         vault,
-        strategy,
-        otherAccount,
-        flashLender,
-        anotherAccount,
+        strategy,        
+        flashLender,        
       } = await loadFixture(deployFunction);
 
       await flashLender.setFlashLoanFee(0);
@@ -285,7 +283,6 @@ describeif(network.name === "hardhat")(
         vault,
         wstETH,
         weth,
-        settings,
         strategy,
         oracle,
         aave3Pool,
@@ -516,7 +513,6 @@ describeif(network.name === "hardhat")(
  */
 async function deployFunction() {
   const networkName = network.name;
-  const chainId = network.config.chainId;
   const config = BaseConfig[networkName];
   const [owner, otherAccount, anotherAccount] = await ethers.getSigners();
   const STETH_MAX_SUPPLY = ethers.parseUnits("1000010000", 18);
@@ -531,6 +527,11 @@ async function deployFunction() {
   );
   const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
   await proxyAdmin.waitForDeployment();
+
+
+  const MathLibrary = await ethers.getContractFactory("MathLibrary");
+  const mathLibrary = await MathLibrary.deploy();
+  await mathLibrary.waitForDeployment();
 
   // 1. Deploy Flash Lender
   const flashLender = await deployFlashLender(
@@ -607,6 +608,7 @@ async function deployFunction() {
     "brETH",
     serviceRegistryAddress,
     await proxyStrategy.getAddress(),
+    mathLibrary,
     proxyAdmin
   );
 
@@ -633,14 +635,23 @@ async function deployFunction() {
 }
 
 async function deployWithMockStrategyFunction() {
-  const [owner, otherAccount, anotherAccount] = await ethers.getSigners();
+  const [owner, otherAccount ] = await ethers.getSigners();
   const BakerFiProxyAdmin = await ethers.getContractFactory(
     "BakerFiProxyAdmin"
   );
+  
+  const MathLibrary = await ethers.getContractFactory("MathLibrary");
+  const mathLibrary = await MathLibrary.deploy();
+  await mathLibrary.waitForDeployment();
+
   const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
   await proxyAdmin.waitForDeployment();
   const BakerFiProxy = await ethers.getContractFactory("BakerFiProxy");
-  const Vault = await ethers.getContractFactory("Vault");
+  const Vault = await ethers.getContractFactory("Vault", {
+    libraries: {
+      MathLibrary: await mathLibrary.getAddress()
+    }
+  });
   const vault = await Vault.deploy();
   await vault.waitForDeployment();
 

@@ -88,7 +88,7 @@ abstract contract StrategyLeverage is
     }
 
     bytes32 private constant _SUCCESS_MESSAGE = keccak256("ERC3156FlashBorrower.onFlashLoan");
-
+ 
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using AddressUpgradeable for address;
     using AddressUpgradeable for address payable;

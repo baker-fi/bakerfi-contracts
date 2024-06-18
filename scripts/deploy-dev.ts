@@ -49,6 +49,12 @@ async function main() {
   await proxyAdmin.waitForDeployment();
   result.push(["Proxy Admin", await proxyAdmin.getAddress()]);
 
+  spinner.text = "Deploying Math Library";
+  const MathLibrary = await ethers.getContractFactory("MathLibrary");
+  const mathLibrary = await MathLibrary.deploy();
+  await mathLibrary.waitForDeployment();
+  result.push(["Math Library", await mathLibrary.getAddress()]);
+
   // 1. Deploy the Service Registry
   const serviceRegistry = await deployServiceRegistry(owner.address);
   spinner.text = "Deploying Registry";
@@ -208,6 +214,7 @@ async function main() {
     config.vaultSharesSymbol,
     await serviceRegistry.getAddress(),
     await strategyProxy.getAddress(),
+    mathLibrary,
     proxyAdmin
   );
   result.push(["BakerFi Vault 🕋", await vault.getAddress()]);
@@ -227,9 +234,6 @@ async function main() {
   spinner.text = "Deploying BKR";
   const bkr = await deployBKR(owner.address, serviceRegistry);
   result.push(["BKR", await bkr.getAddress()]);
-
-
-
   
   spinner.succeed("🧑‍🍳 BakerFi Served 🍰");
   console.table(result);
