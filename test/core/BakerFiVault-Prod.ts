@@ -60,8 +60,6 @@ describeif(
     const depositAmount = ethers.parseUnits("10", 18);
 
     await strategy.setLoanToValue(ethers.parseUnits("500", 6));
-    
-
 
     await vault.deposit(deployer.address, {
       value: depositAmount,
