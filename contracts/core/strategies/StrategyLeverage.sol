@@ -466,9 +466,10 @@ abstract contract StrategyLeverage is
                 : _collateralOracle.getSafeLatestPrice(priceOptions);
             if (
                 !(priceOptions.maxAge == 0 ||
-                    (priceOptions.maxAge > 0 && (ethPrice.lastUpdate >= (block.timestamp - priceOptions.maxAge))) ||
+                    (priceOptions.maxAge > 0 && 
+                        (ethPrice.lastUpdate > (block.timestamp - priceOptions.maxAge))) ||
                     (priceOptions.maxAge > 0 &&
-                        (collateralPrice.lastUpdate >= (block.timestamp - priceOptions.maxAge))))
+                        (collateralPrice.lastUpdate > (block.timestamp - priceOptions.maxAge))))
             ) {
                 revert PriceOutdated();
             }
