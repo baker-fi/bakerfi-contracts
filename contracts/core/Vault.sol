@@ -246,13 +246,13 @@ contract Vault is
      * withdrawn shares.
      *
      * @param shares The number of shares to be withdrawn.
-     * @return amount The amount of Ether withdrawn after fees.
+     * @return retAmount The amount of Ether withdrawn after fees.
      *
      * Emits a {Withdraw} event after successfully handling the withdrawal.
      */
     function withdraw(
         uint256 shares
-    ) external override nonReentrant onlyWhiteListed whenNotPaused returns (uint256 amount) {
+    ) external override nonReentrant onlyWhiteListed whenNotPaused returns (uint256 retAmount) {
         if (balanceOf(msg.sender) < shares) revert NotEnoughBalanceToWithdraw();
         if (shares == 0) revert InvalidWithdrawAmount();
         /**
@@ -264,8 +264,8 @@ contract Vault is
         uint256 withdrawAmount = (shares * _totalAssets(settings().getPriceMaxAge())) /
             totalSupply();
         if (withdrawAmount == 0) revert NoAssetsToWithdraw();
-        amount = _strategy.undeploy(withdrawAmount);
         
+        uint256 amount = _strategy.undeploy(withdrawAmount);
         uint256 fee = 0;
         uint256 afterShares = totalSupply() - shares;
         
@@ -285,6 +285,7 @@ contract Vault is
             payable(msg.sender).sendValue(amount);
         }     
         emit Withdraw(msg.sender, amount - fee, shares); 
+        retAmount = amount - fee;
     }
 
     /**
