@@ -3,6 +3,7 @@ pragma solidity ^0.8.24;
 
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {IStrategy} from "../interfaces/core/IStrategy.sol";
+import {IOracle} from "../interfaces/core/IOracle.sol";
 
 contract StrategyMock is IStrategy {
     using Address for address payable;
@@ -27,7 +28,7 @@ contract StrategyMock is IStrategy {
         return amount;
     }
 
-    function deployed(uint256) external view override returns (uint256 actualAmount) {
+    function deployed(IOracle.PriceOptions memory) external view override returns (uint256 actualAmount) {
         uint256 col = address(this).balance;
         uint256 deb = (col * _debRatio) / 100;
         actualAmount = col >= deb ? col - deb : 0;

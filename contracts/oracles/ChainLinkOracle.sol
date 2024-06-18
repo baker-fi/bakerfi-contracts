@@ -58,10 +58,10 @@ contract ChainLinkOracle is IOracle {
     }
 
     function getSafeLatestPrice(
-        uint256 maxAge
+       PriceOptions memory priceOptions
     ) public view override returns (IOracle.Price memory price) {
         price = getLatestPrice();
-        if (maxAge != 0 && (block.timestamp - price.lastUpdate) > maxAge) revert PriceOutdated();
+        if (priceOptions.maxAge != 0 && (block.timestamp - price.lastUpdate) > priceOptions.maxAge) revert PriceOutdated();
         if (_minPrice > 0 && price.price < _minPrice) revert InvalidPriceFromOracle();
         if (_maxPrice > 0 && price.price > _maxPrice) revert InvalidPriceFromOracle();
     }

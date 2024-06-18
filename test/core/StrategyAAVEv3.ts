@@ -30,12 +30,12 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
         value: ethers.parseUnits("10", 18),
       })
     ).to.changeEtherBalances([owner.address], [ethers.parseUnits("10", 18)]);
-    expect(await strategy.getPosition(0)).to.deep.equal([
+    expect(await strategy.getPosition([0,0])).to.deep.equal([
       45702851552764668112n,
       35740737736704000000n,
       782024239n,
     ]);
-    expect(await strategy.deployed(0)).to.equal(9962113816060668112n);
+    expect(await strategy.deployed([0,0])).to.equal(9962113816060668112n);
   });
 
   it("Test Undeploy", async function () {
@@ -45,12 +45,12 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
     await strategy.deploy({
       value: ethers.parseUnits("10", 18),
     });
-    expect(await strategy.getPosition(0)).to.deep.equal([
+    expect(await strategy.getPosition([0,0])).to.deep.equal([
       45702851552764668112n,
       35740737736704000000n,
       782024239n,
     ]);
-    expect(await strategy.deployed(0)).to.equal(9962113816060668112n);
+    expect(await strategy.deployed([0,0])).to.equal(9962113816060668112n);
     // Receive ~=5 ETH
     await expect(
       strategy.undeploy(ethers.parseUnits("5", 18))

@@ -77,6 +77,8 @@ contract Settings is Ownable2StepUpgradeable, ISettings {
 
     uint256 private _priceMaxAge;
 
+    uint256 private _priceMaxConf;
+
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
@@ -102,6 +104,7 @@ contract Settings is Ownable2StepUpgradeable, ISettings {
         _maxDepositInETH = 0;
         _priceRebalanceMaxAge = 5 minutes; // 5 Minutes Prices
         _priceMaxAge = 60 minutes;
+        _priceMaxConf = 0;
     }
 
     /**
@@ -253,5 +256,14 @@ contract Settings is Ownable2StepUpgradeable, ISettings {
         return _priceMaxAge;
     }
 
-    uint256[40] private __gap;
+    function setPriceMaxConf(uint256 value) external onlyOwner {
+        _priceMaxConf = value;
+        emit PriceMaxConfChange(value);
+    }
+
+    function getPriceMaxConf() external view returns (uint256) {
+        return _priceMaxConf;
+    }
+
+    uint256[39] private __gap;
 }
