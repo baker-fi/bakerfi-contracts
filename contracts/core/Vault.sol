@@ -157,9 +157,8 @@ contract Vault is
                      */
                     uint256 feeInEthScaled = uint256(balanceChange) *
                         settings().getPerformanceFee();
-                    uint256 sharesToMint = (feeInEthScaled * totalSupply()) /
-                        _totalAssets(maxPriceAge) /
-                        PERCENTAGE_PRECISION;
+                    uint256 sharesToMint = feeInEthScaled.mulDivUp(
+                        totalSupply(), _totalAssets(maxPriceAge) * PERCENTAGE_PRECISION);
                     _mint(settings().getFeeReceiver(), sharesToMint);
                 }
             }

@@ -195,7 +195,7 @@ async function main() {
 async function changeSettings(
   spinner: any,
   strategyAddress: string,
-  vaultAddress: string
+  vaultAddress: string,
 ) {
 
   const vault = await ethers.getContractAt("Vault", vaultAddress);
