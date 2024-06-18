@@ -184,7 +184,6 @@ async function main() {
    ********************************************/
   await changeSettings(
     spinner,
-    await settinsProxyDeploy.getAddress(),
     await (strategyProxy as any).getAddress(),
     await (vaultProxy as any).getAddress()
   );
@@ -195,11 +194,10 @@ async function main() {
 
 async function changeSettings(
   spinner: any,
-  settingsAddress: string,
   strategyAddress: string,
-  vaultAddress: string,
+  vaultAddress: string
 ) {
-  const settings = await ethers.getContractAt("Settings", settingsAddress);
+
   const vault = await ethers.getContractAt("Vault", vaultAddress);
   const strategy = await ethers.getContractAt(
     "StrategyAAVEv3",

@@ -68,7 +68,7 @@ export async function deployBase() {
     config.cbETH
   );
   // 9. Deploy the Oracle
-  const oracle = await deployCbETHToUSDOracle(serviceRegistry, config.pyth);
+  await deployCbETHToUSDOracle(serviceRegistry, config.pyth);
 
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from("Uniswap Quoter")),
