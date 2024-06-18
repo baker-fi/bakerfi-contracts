@@ -67,7 +67,7 @@ contract PythOracle is IOracle {
         _pyth.updatePriceFeeds{value: fee}(priceUpdates);
         uint256 excessETH = msg.value - fee;
         if(excessETH != 0) {
-           payable(msg.sender).call{value: excessETH}("");
+            payable(msg.sender).transfer(excessETH);
         }
         return _getPriceInternal(0);
     }
