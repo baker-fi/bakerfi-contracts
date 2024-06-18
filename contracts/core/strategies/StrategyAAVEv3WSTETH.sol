@@ -53,7 +53,6 @@ contract StrategyAAVEv3WstETH is Initializable, StrategyAAVEv3, UseWstETH, UseSt
         );
         _initUseWstETH(registry);
         _initUseStETH(registry);
-        if (!stETH().approve(uniRouterA(), 2 ** 256 - 1)) revert FailedToApproveAllowance();
     }
     // solhint-enable no-empty-blocks
     /**
