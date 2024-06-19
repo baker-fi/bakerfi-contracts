@@ -16,6 +16,11 @@ abstract contract IOracle {
         uint256 lastUpdate;
     }
 
+    struct PriceOptions {
+        uint256 maxAge;
+        uint256 maxConf;
+    }
+
     error PriceOutdated();
 
     /**
@@ -39,7 +44,7 @@ abstract contract IOracle {
      * @dev This function is view-only and does not modify the state of the contract.
      * @return The latest price from the Oracle as a uint256.
      */
-    function getSafeLatestPrice(uint256 maxAge) public view virtual returns (Price memory);
+    function getSafeLatestPrice(PriceOptions memory priceOptions) public view virtual returns (Price memory);
 
 }
 

@@ -190,13 +190,13 @@ abstract contract StrategyLeverage is
      * - The AAVEv3 strategy must be properly configured and initialized.
      */
     function getPosition(
-        uint256 priceMaxAge
+        IOracle.PriceOptions memory priceOptions
     )
         external
         view
         returns (uint256 totalCollateralInEth, uint256 totalDebtInEth, uint256 loanToValue)
     {
-        (totalCollateralInEth, totalDebtInEth) = _getPosition(priceMaxAge);
+        (totalCollateralInEth, totalDebtInEth) = _getPosition(priceOptions);
         if (totalCollateralInEth == 0) {
             loanToValue = 0;
         } else {
@@ -216,8 +216,8 @@ abstract contract StrategyLeverage is
      * Requirements:
      * - The AAVEv3 strategy must be properly configured and initialized.
      */
-    function deployed(uint256 priceMaxAge) public view returns (uint256 totalOwnedAssets) {
-        (uint256 totalCollateralInEth, uint256 totalDebtInEth) = _getPosition(priceMaxAge);
+    function deployed(IOracle.PriceOptions memory priceOptions) public view returns (uint256 totalOwnedAssets) {
+        (uint256 totalCollateralInEth, uint256 totalDebtInEth) = _getPosition(priceOptions);
         totalOwnedAssets = totalCollateralInEth > totalDebtInEth
             ? (totalCollateralInEth - totalDebtInEth)
             : 0;
@@ -385,9 +385,10 @@ abstract contract StrategyLeverage is
      * @return balanceChange The change in strategy balance as an int256 value.
      */
     function harvest() external override onlyOwner nonReentrant returns (int256 balanceChange) {
-        (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition(
-            settings().getRebalancePriceMaxAge()
-        );
+        (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition(IOracle.PriceOptions({
+            maxAge: settings().getRebalancePriceMaxAge(),
+            maxConf: settings().getPriceMaxConf()            
+        }));
 
         if (totalCollateralBaseInEth == 0 || totalDebtBaseInEth == 0) {
             return 0;
@@ -449,20 +450,20 @@ abstract contract StrategyLeverage is
      * @return totalDebtInEth The total debt position in ETH.
      */
     function _getPosition(
-        uint256 priceMaxAge
+        IOracle.PriceOptions memory priceOptions
     ) internal view returns (uint256 totalCollateralInEth, uint256 totalDebtInEth) {
         totalCollateralInEth = 0;
         totalDebtInEth = 0;
 
         (uint256 collateralBalance, uint256 debtBalance) = _getMMPosition();
-
+        uint256 priceMaxAge = priceOptions.maxAge;
         if (collateralBalance != 0) {
             IOracle.Price memory ethPrice = priceMaxAge == 0
                 ? _ethUSDOracle.getLatestPrice()
-                : _ethUSDOracle.getSafeLatestPrice(priceMaxAge);
+                : _ethUSDOracle.getSafeLatestPrice(priceOptions);
             IOracle.Price memory collateralPrice = priceMaxAge == 0
                 ? _collateralOracle.getLatestPrice()
-                : _collateralOracle.getSafeLatestPrice(priceMaxAge);
+                : _collateralOracle.getSafeLatestPrice(priceOptions);
             if (
                 !(priceMaxAge == 0 ||
                     (priceMaxAge > 0 && (ethPrice.lastUpdate >= (block.timestamp - priceMaxAge))) ||
@@ -496,9 +497,10 @@ abstract contract StrategyLeverage is
         uint256 amount,
         address payable receiver
     ) private returns (uint256 undeployedAmount) {
-        (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition(
-            settings().getPriceMaxAge()
-        );
+        (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition(IOracle.PriceOptions({
+            maxAge: settings().getPriceMaxAge(),
+            maxConf: settings().getPriceMaxConf()            
+        }));
         // When the position is in liquidation state revert the transaction
         if (totalCollateralBaseInEth <= totalDebtBaseInEth) revert NoCollateralMarginToScale();
         uint256 percentageToBurn = (amount * PERCENTAGE_PRECISION) /
@@ -674,8 +676,14 @@ abstract contract StrategyLeverage is
      */
     function _toWETH(uint256 amountIn) internal view returns (uint256 amountOut) {
         amountOut =
-            (amountIn * _collateralOracle.getSafeLatestPrice(settings().getPriceMaxAge()).price) /
-            _ethUSDOracle.getSafeLatestPrice(settings().getPriceMaxAge()).price;
+            (amountIn * _collateralOracle.getSafeLatestPrice(IOracle.PriceOptions({
+                maxAge: settings().getPriceMaxAge(),
+                maxConf: settings().getPriceMaxConf()
+            })).price) /
+            _ethUSDOracle.getSafeLatestPrice(IOracle.PriceOptions({
+                maxAge: settings().getPriceMaxAge(),
+                maxConf: settings().getPriceMaxConf()
+            })).price;
     }
 
     /**
@@ -688,8 +696,14 @@ abstract contract StrategyLeverage is
      */
     function _fromWETH(uint256 amountIn) internal view returns (uint256 amountOut) {
         amountOut =
-            (amountIn * _ethUSDOracle.getSafeLatestPrice(settings().getPriceMaxAge()).price) /
-            _collateralOracle.getSafeLatestPrice(settings().getPriceMaxAge()).price;
+            (amountIn * _ethUSDOracle.getSafeLatestPrice(IOracle.PriceOptions({
+                maxAge: settings().getPriceMaxAge(),
+                maxConf: settings().getPriceMaxConf()
+            })).price) /
+            _collateralOracle.getSafeLatestPrice(IOracle.PriceOptions({
+                maxAge: settings().getPriceMaxAge(),
+                maxConf: settings().getPriceMaxConf()
+            })).price;
     }
 
     /**

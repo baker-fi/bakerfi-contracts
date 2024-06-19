@@ -87,7 +87,7 @@ describeif(network.name === "hardhat")
 
     it("Check Safe Price", async function () {    
         const { oracle,  aggregator} = await loadFixture(deployFunction);
-        const [price, updatedAt] = await oracle.getSafeLatestPrice(0);
+        const [price, updatedAt] = await oracle.getSafeLatestPrice([0,0]);
         const block = await ethers.provider.getBlock(0);
         expect(price).to.equal(3500n*(10n**18n));
         expect(await aggregator.decimals()).to.equal(6);
@@ -100,7 +100,7 @@ describeif(network.name === "hardhat")
         await aggregator.setLatestPrice(1000000n*(10n**6n));    
 
         await expect(
-            oracle.getSafeLatestPrice(0)                           
+            oracle.getSafeLatestPrice([0,0])                           
           ).to.be.revertedWithCustomError(oracle, "InvalidPriceFromOracle");
        
     });
@@ -111,7 +111,7 @@ describeif(network.name === "hardhat")
         await time.increase(3600);
 
         await expect(
-            oracle.getSafeLatestPrice(120)                           
+            oracle.getSafeLatestPrice([120,0])                           
           ).to.be.revertedWithCustomError(oracle, "PriceOutdated");
        
     });
@@ -121,7 +121,7 @@ describeif(network.name === "hardhat")
         const { oracle,  aggregator} = await loadFixture(deployFunction);
         await aggregator.setLatestPrice(10n*(10n**6n));    
         await expect(
-            oracle.getSafeLatestPrice(0)                           
+            oracle.getSafeLatestPrice([0,0])                           
           ).to.be.revertedWithCustomError(oracle, "InvalidPriceFromOracle");       
     });
 

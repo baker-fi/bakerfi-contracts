@@ -29,10 +29,10 @@ contract OracleMock is IOracle {
         _lastUpdate = block.timestamp;
     }
 
-     function getSafeLatestPrice(uint256 maxAge) public view override returns (IOracle.Price memory price) {
+     function getSafeLatestPrice(IOracle.PriceOptions memory options) public view override returns (IOracle.Price memory price) {
         price.price = _exchangeRate;
         price.lastUpdate = _lastUpdate;
-        if((block.timestamp - price.lastUpdate) > maxAge) revert  PriceOutdated();
+        if((block.timestamp - price.lastUpdate) > options.maxAge) revert  PriceOutdated();
 
     }
 }

@@ -19,7 +19,10 @@ export interface AAVEv3StrategyAnyMethods {
 
   flashLenderA(): ContractCallMethod<string>;
 
-  getPosition(maxAge: number): ContractCallMethod<{'totalCollateralInEth': number;'totalDebtInEth': number;'loanToValue': number;}>;
+  getPosition(priceOptions: {
+    maxAge: number;
+    maxConf: number;
+  }): ContractCallMethod<{'totalCollateralInEth': number;'totalDebtInEth': number;'loanToValue': number;}>;
 
   harvest(): ContractSendMethod;
 
@@ -41,7 +44,10 @@ export interface AAVEv3StrategyAnyMethods {
 
   settingsA(): ContractCallMethod<string>;
 
-  deployed(maxAge: number): ContractCallMethod<{'totalOwnedAssets': number;}>;
+  deployed(priceOptions: {
+    maxAge: number;
+    maxConf: number;
+  }): ContractCallMethod<{'totalOwnedAssets': number;}>;
 
   transferOwnership(newOwner: string): ContractSendMethod
 
