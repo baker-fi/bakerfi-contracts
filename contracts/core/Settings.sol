@@ -69,7 +69,6 @@ contract Settings is Ownable2StepUpgradeable, ISettings {
      * @dev Max Allowed ETH Deposit per Wallet
      */
     uint256 private _maxDepositInETH;
-
     /**
      * @dev Max Age for sensitive price operations
      */
@@ -228,42 +227,73 @@ contract Settings is Ownable2StepUpgradeable, ISettings {
     function getFeeReceiver() external view returns (address) {
         return _feeReceiver;
     }
-
+    /**
+     * @notice Retrieves the maximum deposit allowed in ETH.
+     * @return The maximum deposit value in ETH.
+     */
     function getMaxDepositInETH() external view returns (uint256) {
         return _maxDepositInETH;
     }
-
+    
+    /**
+     * @notice Sets the maximum deposit allowed in ETH.
+     * @param value The maximum deposit value to be set in ETH.
+     */
     function setMaxDepositInETH(uint256 value) external onlyOwner {
         _maxDepositInETH = value;
         emit MaxDepositInETHChanged(value);
     }
 
+    /**
+     * @notice Sets the maximum age of the price data used for rebalancing.
+     * @param value The maximum age in seconds.
+     */
     function setRebalancePriceMaxAge(uint256 value) external onlyOwner {
         _priceRebalanceMaxAge = value;
         emit RebalancePriceMaxAgeChange(value);
     }
 
+    /**
+     * @notice Retrieves the maximum age of the price data used for rebalancing.
+     * @return The maximum age in seconds.
+     */
     function getRebalancePriceMaxAge() external view returns (uint256) {
         return _priceRebalanceMaxAge;
     }
-
+    
+    /**
+     * @notice Sets the maximum age of the price data.
+     * @param value The maximum age in seconds.
+     */
     function setPriceMaxAge(uint256 value) external onlyOwner {
         _priceMaxAge = value;
         emit PriceMaxAgeChange(value);
     }
 
+    /**
+     * @notice Retrieves the maximum age of the price data.
+     * @return The maximum age in seconds.
+     */
     function getPriceMaxAge() external view returns (uint256) {
         return _priceMaxAge;
     }
 
+    /**
+     * @notice Sets the maximum confidence level for the price data in percentage
+     * @param value The maximum confidence level.
+     */
     function setPriceMaxConf(uint256 value) external onlyOwner {
         _priceMaxConf = value;
         emit PriceMaxConfChange(value);
     }
-
+    
+    /**
+     * @notice Retrieves the maximum confidence level for the price data.
+     * @return The maximum confidence level.
+     */
     function getPriceMaxConf() external view returns (uint256) {
         return _priceMaxConf;
     }
 
-    uint256[39] private __gap;
+    uint256[42] private __gap;
 }

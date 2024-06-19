@@ -153,7 +153,7 @@ interface ISettings {
      */
     function getPriceMaxAge() external view returns (uint256);
 
-     /**
+    /**
      * @notice Sets the maximum confidence level for the price data in percentage
      * @param value The maximum confidence level.
      */
