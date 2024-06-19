@@ -283,6 +283,7 @@ contract Settings is Ownable2StepUpgradeable, ISettings {
      * @param value The maximum confidence level.
      */
     function setPriceMaxConf(uint256 value) external onlyOwner {
+        if (value >= PERCENTAGE_PRECISION) revert InvalidPercentage();
         _priceMaxConf = value;
         emit PriceMaxConfChange(value);
     }
