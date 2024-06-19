@@ -456,19 +456,19 @@ abstract contract StrategyLeverage is
         totalDebtInEth = 0;
 
         (uint256 collateralBalance, uint256 debtBalance) = _getMMPosition();
-        uint256 maxAge = priceOptions.maxAge;
+        uint256 priceMaxAge = priceOptions.maxAge;
         if (collateralBalance != 0) {
-            IOracle.Price memory ethPrice = maxAge == 0
+            IOracle.Price memory ethPrice = priceMaxAge == 0
                 ? _ethUSDOracle.getLatestPrice()
                 : _ethUSDOracle.getSafeLatestPrice(priceOptions);
-            IOracle.Price memory collateralPrice = maxAge == 0
+            IOracle.Price memory collateralPrice = priceMaxAge == 0
                 ? _collateralOracle.getLatestPrice()
                 : _collateralOracle.getSafeLatestPrice(priceOptions);
             if (
-                !(maxAge == 0 ||
-                    (maxAge > 0 && (ethPrice.lastUpdate >= (block.timestamp - maxAge))) ||
-                    (maxAge > 0 &&
-                        (collateralPrice.lastUpdate >= (block.timestamp - maxAge))))
+                !(priceMaxAge == 0 ||
+                    (priceMaxAge > 0 && (ethPrice.lastUpdate >= (block.timestamp - priceMaxAge))) ||
+                    (priceMaxAge > 0 &&
+                        (collateralPrice.lastUpdate >= (block.timestamp - priceMaxAge))))
             ) {
                 revert PriceOutdated();
             }
