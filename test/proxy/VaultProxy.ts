@@ -17,6 +17,9 @@ describeif(network.name === "hardhat")("Vault Proxy", function () {
 
 async function deployFunction() {
   const [deployer, otherAccount] = await ethers.getSigners();
+  const MathLibrary = await ethers.getContractFactory("MathLibrary");
+  const mathLibrary = await MathLibrary.deploy();
+  await mathLibrary.waitForDeployment();
 
   // Deploy Proxy Admin
   const BakerFiProxyAdmin = await ethers.getContractFactory(
@@ -43,7 +46,11 @@ async function deployFunction() {
   );
 
   // Deploy Vault Default Implementation
-  const Vault = await ethers.getContractFactory("Vault");
+  const Vault = await ethers.getContractFactory("Vault", {
+    libraries: {
+      MathLibrary: await mathLibrary.getAddress()
+    }
+  });
   const vault = await Vault.deploy();
   await vault.waitForDeployment();
 

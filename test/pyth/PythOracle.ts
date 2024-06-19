@@ -58,7 +58,7 @@ describeif(network.name === "hardhat")("Pyth Oracle Tests", function () {
     });
 
     it("Pyth Oracle Tests - Update and Get the Latest Price", async function () {
-        const { pythMock, pythOracle } = await loadFixture(deployFunction);    
+        const { pythOracle } = await loadFixture(deployFunction);    
         const updateData = new AbiCoder().encode([
             "tuple(bytes32, tuple(int64, uint64, int32, uint),  tuple(int64, uint64, int32, uint))"], 
             [[
@@ -72,4 +72,58 @@ describeif(network.name === "hardhat")("Pyth Oracle Tests", function () {
        const [price] = await pythOracle.getLatestPrice();
        expect(price).to.equal(ethers.parseUnits("120000", 18));
     })
+
+
+    it("Pyth Oracle Tests - Test Max Confidence", async function () {
+        const { pythOracle } = await loadFixture(deployFunction);    
+        const updateData = new AbiCoder().encode([
+            "tuple(bytes32, tuple(int64, uint64, int32, uint),  tuple(int64, uint64, int32, uint))"], 
+            [[
+                WETH_USD_FEED_ID,
+                [1200,10, 2, 1706801584],
+                [1200,10, 2, 1706801584]
+            ]]);  
+       await pythOracle.getAndUpdatePrice(updateData, {
+        value: 10,
+       });
+       // 10% Max Confidence
+       const [price] = await pythOracle.getSafeLatestPrice([0, 1*(10**8)]);
+       expect(price).to.equal(ethers.parseUnits("120000", 18));
+    })
+    
+    it("Pyth Oracle Tests - Max Confidence fails", async function () {
+        const { pythOracle } = await loadFixture(deployFunction);    
+        const updateData = new AbiCoder().encode([
+            "tuple(bytes32, tuple(int64, uint64, int32, uint),  tuple(int64, uint64, int32, uint))"], 
+            [[
+                WETH_USD_FEED_ID,
+                [1200,140, 2, 1706801584],
+                [1200,140, 2, 1706801584]
+            ]]);  
+       await pythOracle.getAndUpdatePrice(updateData, {
+        value: 10,
+       });       
+      // 10% Max Confidence
+       await expect(
+        pythOracle.getSafeLatestPrice([0, 1*(10**8)])
+        // @ts-expect-error
+      ).to.be.revertedWithCustomError(pythOracle, "InvalidPriceAnswer");      
+    })
+
+    it("Pyth Oracle Tests - Max Exponent", async function () {
+        const { pythMock, pythOracle } = await loadFixture(deployFunction);    
+        const updateData = new AbiCoder().encode([
+            "tuple(bytes32, tuple(int64, uint64, int32, uint),  tuple(int64, uint64, int32, uint))"], 
+            [[
+                WETH_USD_FEED_ID,
+                [1200,0, 30, 1706801584],
+                [1200,0, 30, 1706801584]
+            ]]); 
+        await pythMock.updatePriceFeeds([updateData], {value: 10 });
+        await expect(
+            pythOracle.getSafeLatestPrice([0, 1*(10**8)])
+        // @ts-expect-error
+      ).to.be.revertedWithCustomError(pythOracle, "InvalidPriceAnswer");      
+    })    
+   
 });

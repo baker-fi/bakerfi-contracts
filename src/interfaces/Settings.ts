@@ -37,4 +37,8 @@ export interface SettingsMethods {
 
   getPriceMaxAge(): ContractCallMethod<number>;
 
+  setPriceMaxConf(confPerc: number): ContractSendMethod;
+
+  getPriceMaxConf(): ContractCallMethod<number>;
+
 }

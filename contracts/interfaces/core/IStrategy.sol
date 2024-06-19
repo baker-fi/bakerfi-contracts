@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.24;
 
+import {IOracle } from "./IOracle.sol";
+
 /**
  * @title ETH Deploy Strategy
  *
@@ -86,5 +88,5 @@ interface IStrategy {
      *
      * @return assets The total owned assets in Ether.
      */
-    function deployed(uint256 priceMaxAge) external view returns (uint256 assets);
+    function deployed(IOracle.PriceOptions memory options) external view returns (uint256 assets);
 }

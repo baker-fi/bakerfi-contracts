@@ -108,8 +108,11 @@ export class StrategyAAVEv3
     return this.callTx(this.contract.methods.flashLenderA());
   }
 
-  async getPosition(maxAge: number) {
-    return this.callTx(this.contract.methods.getPosition(maxAge));
+  async getPosition(priceOptions: {
+    maxAge: number;
+    maxConf: number;
+  }) {
+    return this.callTx(this.contract.methods.getPosition(priceOptions));
   }
 
   async harvest() {
@@ -160,8 +163,11 @@ export class StrategyAAVEv3
     return this.callTx(this.contract.methods.settingsA());
   }
 
-  async deployed(amount: number) {
-    return this.callTx(this.contract.methods.deployed(amount));
+  async deployed(priceOptions: {
+    maxAge: number;
+    maxConf: number;
+  }) {
+    return this.callTx(this.contract.methods.deployed(priceOptions));
   }
 
   async transferOwnership(newOwner: string) {

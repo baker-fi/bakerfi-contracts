@@ -1,11 +1,8 @@
 import ora from "ora";
-import { ErrorDecoder } from 'ethers-decode-error'
 import { task } from "hardhat/config";
 import DeployConfig from "../constants/contracts";
 import {pythFeedIds} from "../constants/contracts";
 import {PriceServiceConnection} from "@pythnetwork/price-service-client";
-
-
 
 task("balance", "Prints an account's balance")
   .addParam("account", "The account's address")
@@ -87,7 +84,6 @@ task("vault:balance", "Prints an account's share balance")
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Geeting ${account} balance`).start();
-    const signers = await ethers.getSigners();
     try {
         const vault = await ethers.getContractAt(
           "Vault",
@@ -424,7 +420,7 @@ task("oracle:collateral", "Get the wstETH/ETH Price from Oracle")
     const spinner = ora(`Getting On Chain Price ${account}`).start();
     try {
       const oracle = await ethers.getContractAt(
-        "WstETHToETHOracle",
+        "ChainLinkOracle",
         networkConfig.wstETHETHOracle
       );
       const price = await oracle.getLatestPrice();
@@ -485,7 +481,11 @@ task("deploy:upgrade:vault", "Upgrade the settings Contract")
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Upgrading Vault Contract`).start();
     try {
-      const Vault = await ethers.getContractFactory("Vault");   
+      const Vault = await ethers.getContractFactory("Vault", {
+        libraries: {
+          MathLibrary: networkConfig.mathLibrary
+        }
+      });   
       const vault = await Vault.deploy();
       await vault.waitForDeployment();
       const proxyAdmin = await ethers.getContractAt("ProxyAdmin", networkConfig?.proxyAdmin?? "");
@@ -598,4 +598,43 @@ task("pyth:priceUpdate", "Update Required Prices")
     console.log(`${e.reason} - ${e.code}`);
     spinner.fail("Failed 💥");
   }
+});
+
+
+task("settings:getPriceMaxAge", "Get Max Price Age")
+  .setAction(async ({}, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Gettting Nr Loop ${networkConfig.settings}`).start();
+    try {
+      const settings = await ethers.getContractAt(
+        "Settings",
+        networkConfig.settingsProxy?? ""
+      );
+      const value = await settings.getPriceMaxAge();
+      spinner.succeed(`🧑‍🍳 Price Max Age ${value} `);
+    } catch (e) {
+      console.log(e);
+      spinner.fail("Failed 💥");
+    }
+});
+
+
+task("settings:setPriceMaxAge", "Set number of Loopps")
+  .addParam("value", "loop coount")
+  .setAction(async ({value}, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Settting Nr Of Loops to ${value}`).start();
+    try {
+      const settings = await ethers.getContractAt(
+        "Settings",
+        networkConfig.settingsProxy?? ""
+      );
+      await settings.setPriceMaxAge(value);
+      spinner.succeed(`🧑‍🍳 Price Max Age Changed to ${value} ✅ `);
+    } catch (e) {
+      console.log(e);
+      spinner.fail("Failed 💥");
+    }
 });

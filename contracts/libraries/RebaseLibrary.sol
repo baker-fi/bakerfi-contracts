@@ -34,7 +34,7 @@ library RebaseLibrary {
         uint256 elastic,
         bool roundUp
     ) internal pure returns (uint256 base) {
-        if (total.elastic == 0) {
+        if (total.elastic == 0 || total.base == 0) {
             base = elastic;
         } else {
             base = (elastic * total.base) / total.elastic;

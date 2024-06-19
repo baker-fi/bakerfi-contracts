@@ -57,6 +57,8 @@ interface ISettings {
 
     event PriceMaxAgeChange(uint256 indexed value);
 
+    event PriceMaxConfChange(uint256 indexed value);
+
     /**
      * @dev Emitted when the Maximum Deposit ETH is changed
      * @param value The new amount that is allowed to be deposited
@@ -114,16 +116,54 @@ interface ISettings {
      * @return enabled A boolean indicating whether the account is enabled (true) or not (false) in the whitelist.
      */
     function isAccountEnabled(address account) external view returns (bool);
-
+    
+    /**
+     * @notice Retrieves the maximum deposit allowed in ETH.
+     * @return The maximum deposit value in ETH.
+     */
     function getMaxDepositInETH() external view returns (uint256);
 
+     /**
+     * @notice Sets the maximum deposit allowed in ETH.
+     * @param value The maximum deposit value to be set in ETH.
+     */
     function setMaxDepositInETH(uint256 value) external;
 
+    /**
+     * @notice Sets the maximum age of the price data used for rebalancing.
+     * @param value The maximum age in seconds.
+     */
     function setRebalancePriceMaxAge(uint256 value) external;
-
+    
+    /**
+     * @notice Retrieves the maximum age of the price data used for rebalancing.
+     * @return The maximum age in seconds.
+     */
     function getRebalancePriceMaxAge() external view returns (uint256);
 
+     /**
+     * @notice Sets the maximum age of the price data.
+     * @param value The maximum age in seconds.
+     */
     function setPriceMaxAge(uint256 value) external;
-
+    
+    /**
+     * @notice Retrieves the maximum age of the price data.
+     * @return The maximum age in seconds.
+     */
     function getPriceMaxAge() external view returns (uint256);
+
+    /**
+     * @notice Sets the maximum confidence level for the price data in percentage
+     * @param value The maximum confidence level.
+     */
+    function setPriceMaxConf(uint256 value) external;
+
+    /**
+     * @notice Retrieves the maximum confidence level for the price data.
+     * @return The maximum confidence level.
+     */
+    function getPriceMaxConf() external view returns (uint256);
+
 }
+

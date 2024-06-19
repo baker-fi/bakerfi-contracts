@@ -53,7 +53,6 @@ contract StrategyAAVEv3WstETH is Initializable, StrategyAAVEv3, UseWstETH, UseSt
         );
         _initUseWstETH(registry);
         _initUseStETH(registry);
-        if (!stETH().approve(uniRouterA(), 2 ** 256 - 1)) revert FailedToApproveAllowance();
     }
     // solhint-enable no-empty-blocks
     /**
@@ -85,18 +84,30 @@ contract StrategyAAVEv3WstETH is Initializable, StrategyAAVEv3, UseWstETH, UseSt
      * @return uint256 The converted amount in WETH.
      */
     function _convertToWETH(uint256 amount) internal virtual override returns (uint256) {
+        
+        uint256 amountOutMinimum = 0;
+        if (getMaxSlippage() > 0) {
+            (, amountOutMinimum) = getExactInputMinimumOutput(
+                wstETHA(), // Asset In
+                wETHA(), // Asset Out
+                amount,
+                _swapFeeTier,
+                getMaxSlippage()
+            );
+        }
         // Convert from wstETH -> weth directly
-        return
+        (,uint256 amountOut ) =
             _swap(
                 ISwapHandler.SwapParams(
                     wstETHA(), // Asset In
                     wETHA(), // Asset Out
                     ISwapHandler.SwapType.EXACT_INPUT, // Swap Mode
                     amount, // Amount In
-                    0, // Amount Out
+                    amountOutMinimum, // Amount Out
                     _swapFeeTier, // Fee Pair Tier
                     bytes("") // User Payload
                 )
-            );
+        );
+        return amountOut;
     }
 }

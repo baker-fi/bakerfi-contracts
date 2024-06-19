@@ -9,6 +9,7 @@ export type DeployConfig = {
     stETH: string | null;    
     wstETH: string | null;    
     flashLender: string;    
+    mathLibrary: string;
     uniswapRouter: string;    
     uniswapQuoter: string;    
     AAVEv3Pool:string;    
@@ -39,34 +40,36 @@ export const pythFeedIds = {
 export const deployConfigMap : {[key: string]: DeployConfig} = 
 {
     "local": {
-        proxyAdmin: "0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e",
-        serviceRegistry: "0x5bC13d5ce928Ae6e414A831D173E86fD040deBb9",       
-        weth: "0xd7630A747b24b7245ff60e3095aD04684dC1a292",  
-        stETH: "0x2C263d29775dC27167c58aB7B18dc6C942c141B0",
-        wstETH: "0x27F56eb75a1EBbE7e7218e8fCa5FF51E3d655f22",
-        flashLender: "0x5Ac32814f9EB4d415779892890a216b244FcB3B5",
-        uniswapRouter: "0x621e8cdBc878Bdda95d0247B71FeBE0a8b2d4EE3", 
-        uniswapQuoter: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4",
-        AAVEv3Pool: "0xE8A1e868E4736669b73B9E26BE22129bD6B4E83d", 
-        wstETHETHOracle: "0x501F860caE70FA5058f1D33458F6066fdB62A591",
-        ethUSDOracle: "0xF8D0e82B1EE3EEc7AEcDAa4E1c94E29fe3Db712E",
-        settings: "0x26A76D21edD8049fd394786976EF578010569FcB", 
-        settingsProxy: "0xB7d0add4df75aa719bE464e860C8c40bb7FA2122",       
-        strategy: "0xe33CA06EaaAF46A98C5631CF6c847fC50067E727",
-        strategyProxy: "0x203a091dAe3B98144885927b0A2cf7Ead341b2C6",
-        vault: "0xb99b2F8f3d121f2B491Cc61b84689a5638E106B4",  
-        vaultProxy: "0x3AE68Fa5cF690ECa79fDc59b2f6B1c3eE05a3118",   
-        bkr: "0x17f498e79c166abc68ea1cB1a3b5E540279682D8",
-        pyth: "0xBA3da4Bb5623E1CCa241cfC3010132c1c1388b4D",
+        proxyAdmin: "0xb69111A7484F6B19924DEB33F85efe639c62261c",
+        serviceRegistry: "0x028a30409088FdF206C592f5157683756D925BD9",       
+        mathLibrary: "0x71cB86757758f113F5D0b01333f85Dac212569bb",
+        weth: "0x9bEdd996f815Cd35f44175b168A1133237506786",  
+        stETH: "0x3bFbDC1dD6AD9082bfA1d6B86D3f74b89dBC7481",
+        wstETH: "0x66AECB655efaBAa6D8EB7FE7Aa90689337139302",
+        flashLender: "0x5F75130B53c8Ed8920e43e21d2222C66D65C9D91",
+        uniswapRouter: "0x50C3f554f4338D43A84C23A6c7430e6Fc11Fd8fe", 
+        uniswapQuoter: "0x3e0916a8b98e06F3b7a8Af28cd4acF4af5eB88d1",
+        AAVEv3Pool: "0x26596c1F83c69654a3F0B7a2134bc3FDeb254AD8", 
+        wstETHETHOracle: "0x0D71c0d80C1552AeaF5003Dd4c20D0196720902F",
+        ethUSDOracle: "0x17887E2324B4FEDAaa45fFdE16cD553E1c3837a9",
+        settings: "0x5814278Bb09A2A952829763cF0BA6f649550644A", 
+        settingsProxy: "0x2c8dA25B924EDE15b0BdaD7b96f59CbD9385fa3B",       
+        strategy: "0xD98EF1B7Ff678007f86B541265177De014550017",
+        strategyProxy: "0x6c0C17276328328730513f3e1113E67145a06Cb9",
+        vault: "0x205de1c2f6C8Ec6f16dB544b16e63412Bc16337E",  
+        vaultProxy: "0x5d5Cac6Fd0126f62c29B0AE7807dC7724F5D4c79",   
+        bkr: "0x3aED96402DB80662588BE79b7125acf6D2902971",
+        pyth: "0x275eEa051D414a0Ee56D39b9B0dB82D3627AC5d7",
     },
     "arbitrum": {
         proxyAdmin: "0xa641256b225e215c559cdC58F8757ad7140A2723",
-        serviceRegistry: "0x82405993C4473A4364DF9D0C09E1A81Ecef9CA25",       
+        serviceRegistry: "0x82405993C4473A4364DF9D0C09E1A81Ecef9CA25",    
+        mathLibrary: "",   
         weth: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",  
         stETH: "0x07C1F45Dc0a620E6716d8A45485B8f0A79E270F8",
         wstETH: "0x5979D7b546E38E414F7E9822514be443A4800529",
         flashLender: "0x2db37f9DcD838B06a40Dc1aB171a8eBB474ef44C",
-        uniswapRouter: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", 
+        uniswapRouter: "0xE592427A0AEce92De3Edee1F18E0157C05861564", 
         uniswapQuoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e",
         AAVEv3Pool: "0x794a61358D6845594F94dc1DB02A252b5b4814aD", 
         wstETHETHOracle: "0x63121b44680C502FDeDC725cd7CBcD37E0967d88",

@@ -36,7 +36,7 @@ describeif(network.name === "hardhat")("Strategy Proxy", function () {
 
     const BakerFiProxy = await ethers.getContractFactory("BakerFiProxy");
     // 1. Deploy Flash Lender
-    const flashLender = await deployFlashLender(
+    await deployFlashLender(
       serviceRegistry,
       weth,
       FLASH_LENDER_DEPOSIT
@@ -86,7 +86,7 @@ describeif(network.name === "hardhat")("Strategy Proxy", function () {
     // Deploy AAVEv3 Mock Pool
     await deployAaveV3(cbETH, weth, serviceRegistry, AAVE_DEPOSIT);
     // Deploy cbETH/ETH Oracle
-    const oracle = await deployOracleMock(serviceRegistry, "cbETH/ETH Oracle");
+    await deployOracleMock(serviceRegistry, "cbETH/ETH Oracle");
     const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");
     await ethOracle.setLatestPrice(ethers.parseUnits("1", 18));
     await deployQuoterV2Mock(serviceRegistry);
@@ -121,8 +121,8 @@ describeif(network.name === "hardhat")("Strategy Proxy", function () {
 
   it("Strategy Initialization", async function () {
     const { strategyProxy } = await loadFixture(deployFunction);
-    expect(await strategyProxy.getPosition(0)).to.deep.equal([0n, 0n, 0n]);
-    expect(await strategyProxy.deployed(0)).to.equal(0);
+    expect(await strategyProxy.getPosition([0,0])).to.deep.equal([0n, 0n, 0n]);
+    expect(await strategyProxy.deployed([0,0])).to.equal(0);
   })
 
   

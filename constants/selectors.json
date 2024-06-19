@@ -521,7 +521,7 @@
   "IUniswapV3SwapCallback": {
     "0xbda5fe3a": "uniswapV3SwapCallback"
   },
-  "IV3SwapRouter": {
+  "ISwapRouter": {
     "0x4c0c3b04": "exactInputSingle",
     "0xbda5fe3a": "uniswapV3SwapCallback",
     "0xc135bc9a": "exactInput",
@@ -699,21 +699,5 @@
     "0xe4f9bf5d": "decreaseAllowance",
     "0xf75d7555": "increaseAllowance",
     "0xfdbf7dd9": "unwrap"
-  },
-  "ETHOracle": {
-    "0x019bd026": "getPrecision",
-    "0xb5340e4a": "getLatestPrice"
-  },
-  "WstETHToETHOracle": {
-    "0x019bd026": "getPrecision",
-    "0xb5340e4a": "getLatestPrice"
-  },
-  "WstETHToETHOracleETH": {
-    "0x019bd026": "getPrecision",
-    "0xb5340e4a": "getLatestPrice"
-  },
-  "CbETHToETHOracle": {
-    "0x019bd026": "getPrecision",
-    "0xb5340e4a": "getLatestPrice"
   }
 }

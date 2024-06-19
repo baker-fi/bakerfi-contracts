@@ -91,6 +91,14 @@ export class Settings extends Model<SettingsMethods> implements Deployable {
     return this.callTx(this.contract.methods.getPriceMaxAge());
   }
 
+  async setPriceMaxConf(value: number) {
+    return this.sendTx(this.contract.methods.setPriceMaxConf(value));
+  }
+
+  async getPriceMaxConf() {
+    return this.callTx(this.contract.methods.getPriceMaxConf());
+  }
+
   async getFeeReceiverChangedEvents(filter: PastEventOptions): XPromiseEvent<Events.FeeReceiverChangedEvent> {
     return this.contract.self.getPastEvents('FeeReceiverChanged', filter);
   }
@@ -113,6 +121,10 @@ export class Settings extends Model<SettingsMethods> implements Deployable {
 
   async getPriceMaxAgeChangeEvents(filter: PastEventOptions): XPromiseEvent<Events.PriceMaxAgeChangeEvent> {
     return this.contract.self.getPastEvents('PriceMaxAgeChange', filter);
+  }
+
+  async getPriceMaxConfChangeEvents(filter: PastEventOptions): XPromiseEvent<Events.PriceMaxConfChangeEvent> {
+    return this.contract.self.getPastEvents('PriceMaxConfChange', filter);
   }
 
 }

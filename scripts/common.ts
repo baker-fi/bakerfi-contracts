@@ -5,7 +5,7 @@ import { feeds } from "./config";
 export async function deployFlashLender(
   serviceRegistry,
   weth,
-  depositedAmount
+  depositedAmount,
 ) {
   const MockFlashLender = await ethers.getContractFactory("MockFlashLender");
   const flashLender = await MockFlashLender.deploy(await weth.getAddress());
@@ -57,9 +57,14 @@ export async function deployVault(
   tokenSymbol: string,
   serviceRegistry: string,
   strategy: string,
-  proxyAdmin?: any
+  mathLibrary: any,
+  proxyAdmin?: any,
 ) {
-  const Vault = await ethers.getContractFactory("Vault");
+  const Vault = await ethers.getContractFactory("Vault", {
+    libraries: {
+      MathLibrary: await mathLibrary.getAddress(),
+    }
+  });
   const vault = await Vault.deploy();
   await vault.waitForDeployment();
 
@@ -355,8 +360,14 @@ export async function deployUniSwapper(owner: string, serviceRegistry: any) {
   return swapper;
 }
 
-export async function deployBalancerFL(serviceRegistry: any) {
-  const FlashLender = await ethers.getContractFactory("BalancerFlashLender");
+export async function deployBalancerFL(serviceRegistry: any, ml: any) {
+
+  const FlashLender = await ethers.getContractFactory("BalancerFlashLender", {
+    libraries: {
+      MathLibrary: await ml.getAddress(),
+    }
+
+  });
   const fl = await FlashLender.deploy(await serviceRegistry.getAddress());
   await fl.waitForDeployment();
   await serviceRegistry.registerService(

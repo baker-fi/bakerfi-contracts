@@ -23,7 +23,7 @@ import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/Addr
  * The strategy inherits all the business logic from StrategyAAVEv3Base and could be deployed
  * on Optimism, Arbitrum , Base and Ethereum.
  */
-contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3{
+contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
     using SafeERC20 for IERC20;
     using AddressUpgradeable for address;
     using AddressUpgradeable for address payable;
@@ -76,7 +76,6 @@ contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3{
             address(this)
         );
     }
-
     /**
      * Deposit an asset on the AAVEv3 Pool
      * 

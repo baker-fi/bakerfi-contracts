@@ -5,3 +5,4 @@ export interface WithdrawalFeeChangedEvent { returnValues: {'value': number;} }
 export interface AccountWhiteListEvent { returnValues: {'account': string , 'enabled': boolean; } }
 export interface PriceMaxAgeChangeEvent { returnValues: {'value': number;} }
 export interface RebalancePriceMaxAgeChangeEvent { returnValues: {'value': number;} }
+export interface PriceMaxConfChangeEvent { returnValues: {'value': number;} }

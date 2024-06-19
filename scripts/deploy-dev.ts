@@ -5,9 +5,10 @@ import {
   deployServiceRegistry,
   deployStEth,
   deployQuoterV2Mock,
+  deployWSTETHToUSDOracle,
   deployVault,
   deployWETH,
-  deployOracleMock,
+  deployETHOracle,
   deployWStEth,
   deployStrategyAAVEv3WstETH,
   deploySettings,
@@ -47,6 +48,12 @@ async function main() {
   const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
   await proxyAdmin.waitForDeployment();
   result.push(["Proxy Admin", await proxyAdmin.getAddress()]);
+
+  spinner.text = "Deploying Math Library";
+  const MathLibrary = await ethers.getContractFactory("MathLibrary");
+  const mathLibrary = await MathLibrary.deploy();
+  await mathLibrary.waitForDeployment();
+  result.push(["Math Library", await mathLibrary.getAddress()]);
 
   // 1. Deploy the Service Registry
   const serviceRegistry = await deployServiceRegistry(owner.address);
@@ -156,19 +163,25 @@ async function main() {
   );
   result.push(["AAVE v3 Mock", await aaveV3PoolMock.getAddress()]);
 
+
+  // 3. Deploy Pyth Mock Contract
+  spinner.text = "Deploying Pyth Mock";
+  const PythMock = await ethers.getContractFactory("PythMock");
+  const pythMock = await PythMock.deploy();
+  await pythMock.waitForDeployment();
+  result.push(["PythMock", await pythMock.getAddress()]);
+
   // 9. Deploy wstETH/ETH Oracle
   spinner.text = "Deploying Uniswap Quoter";
   const uniQuoter = await deployQuoterV2Mock(serviceRegistry);
   result.push(["Uniswap Quoter", await uniQuoter.getAddress()]);
 
   spinner.text = "Deploying wstETH/USD Oracle";
-  const oracle = await deployOracleMock(serviceRegistry, "wstETH/USD Oracle");
-  await oracle.setLatestPrice(ethers.parseUnits("2660", 18));
+  const oracle = await deployWSTETHToUSDOracle(serviceRegistry, await pythMock.getAddress());
   result.push(["wstETH/USD Oracle", await oracle.getAddress()]);
 
   spinner.text = "Deploying ETH/USD Oracle ";
-  const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");
-  await ethOracle.setLatestPrice(ethers.parseUnits("2305", 18));
+  const ethOracle = await deployETHOracle(serviceRegistry, await pythMock.getAddress());
   result.push(["ETH/USD Oracle", await ethOracle.getAddress()]);
 
   // Deploying Proxied Strategy
@@ -201,6 +214,7 @@ async function main() {
     config.vaultSharesSymbol,
     await serviceRegistry.getAddress(),
     await strategyProxy.getAddress(),
+    mathLibrary,
     proxyAdmin
   );
   result.push(["BakerFi Vault 🕋", await vault.getAddress()]);
@@ -220,14 +234,6 @@ async function main() {
   spinner.text = "Deploying BKR";
   const bkr = await deployBKR(owner.address, serviceRegistry);
   result.push(["BKR", await bkr.getAddress()]);
-
-
-  // 3. Deploy Pyth Mock Contract
-  spinner.text = "Deploying Pyth Mock";
-  const PythMock = await ethers.getContractFactory("PythMock");
-  const pythMock = await PythMock.deploy();
-  await pythMock.waitForDeployment();
-  result.push(["PythMock", await pythMock.getAddress()]);
   
   spinner.succeed("🧑‍🍳 BakerFi Served 🍰");
   console.table(result);

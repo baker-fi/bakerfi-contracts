@@ -14,7 +14,6 @@ import {
 } from "../../scripts/common";
 
 import BaseConfig from "../../scripts/config";
-import ora from "ora";
 
 export async function deployBase() {
   const [deployer, otherAccount] = await ethers.getSigners();
@@ -24,6 +23,11 @@ export async function deployBase() {
   const BakerFiProxyAdmin = await ethers.getContractFactory(
     "BakerFiProxyAdmin"
   );
+
+  const MathLibrary = await ethers.getContractFactory("MathLibrary");
+  const mathLibrary = await MathLibrary.deploy();
+  await mathLibrary.waitForDeployment();
+
   const proxyAdmin = await BakerFiProxyAdmin.deploy(deployer.address);
   await proxyAdmin.waitForDeployment();
 
@@ -64,7 +68,7 @@ export async function deployBase() {
     config.cbETH
   );
   // 9. Deploy the Oracle
-  const oracle = await deployCbETHToUSDOracle(serviceRegistry, config.pyth);
+  await deployCbETHToUSDOracle(serviceRegistry, config.pyth);
 
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from("Uniswap Quoter")),
@@ -78,7 +82,7 @@ export async function deployBase() {
   );
 
   // 11. Flash Lender Adapter
-  await deployBalancerFL(serviceRegistry);
+  await deployBalancerFL(serviceRegistry, mathLibrary);
   await deployETHOracle(serviceRegistry, config.pyth);
 
   // 12. Deploy the Strategy
@@ -105,6 +109,7 @@ export async function deployBase() {
     "brETH",
     await serviceRegistry.getAddress(),
     await strategyProxyDeploy.getAddress(),
+    mathLibrary,
     proxyAdmin
   );
 
@@ -125,6 +130,7 @@ export async function deployBase() {
   );
 
   await settingsProxy.setTargetLTV(ethers.parseUnits("500", 6));
+  await strategyProxy.setMaxSlippage(5n*(10n**7n));
   await strategyProxy.transferOwnership(await vaultProxyDeploy.getAddress());
 
   return {
@@ -150,6 +156,10 @@ export async function deployOptimism() {
   );
   const proxyAdmin = await BakerFiProxyAdmin.deploy(deployer.address);
   await proxyAdmin.waitForDeployment();
+
+  const MathLibrary = await ethers.getContractFactory("MathLibrary");
+  const mathLibrary = await MathLibrary.deploy();
+  await mathLibrary.waitForDeployment();
 
   // 1. Deploy Service Registry
   const serviceRegistry = await deployServiceRegistry(deployer.address);
@@ -205,7 +215,7 @@ export async function deployOptimism() {
   );
 
   // 11. Flash Lender Adapter
-  await deployBalancerFL(serviceRegistry);
+  await deployBalancerFL(serviceRegistry, mathLibrary);
 
   await deployETHOracle(serviceRegistry, config.pyth);
 
@@ -226,6 +236,7 @@ export async function deployOptimism() {
     await strategyProxyDeploy.getAddress()
   );
 
+
   // 13. Deploy the Vault
   const { proxy: vaultProxyDeploy } = await deployVault(
     deployer.address,
@@ -233,6 +244,7 @@ export async function deployOptimism() {
     "brETH",
     await serviceRegistry.getAddress(),
     await strategyProxyDeploy.getAddress(),
+    mathLibrary,
     proxyAdmin
   );
 
@@ -252,7 +264,7 @@ export async function deployOptimism() {
     "Vault",
     await vaultProxyDeploy.getAddress()
   );
-
+  await strategyProxy.setMaxSlippage(5n*(10n**7n));
   await strategyProxy.setLoanToValue(ethers.parseUnits("800", 6));
   await strategyProxy.transferOwnership(await vaultProxy.getAddress());
   return {
@@ -273,6 +285,11 @@ export async function deployEthereum() {
   const [deployer, otherAccount] = await ethers.getSigners();
   const networkName = network.name;
   const config = BaseConfig[networkName];
+
+  
+  const MathLibrary = await ethers.getContractFactory("MathLibrary");
+  const mathLibrary = await MathLibrary.deploy();
+  await mathLibrary.waitForDeployment();
 
   const BakerFiProxyAdmin = await ethers.getContractFactory(
     "BakerFiProxyAdmin"
@@ -333,7 +350,7 @@ export async function deployEthereum() {
   );
 
   // 11. Flash Lender Adapter
-  await deployBalancerFL(serviceRegistry);
+  await deployBalancerFL(serviceRegistry, mathLibrary);
 
   await deployETHOracle(serviceRegistry, config.pyth);
 
@@ -359,12 +376,14 @@ export async function deployEthereum() {
     "brETH",
     await serviceRegistry.getAddress(),
     await strategyProxyDeploy.getAddress(),
+    mathLibrary,
     proxyAdmin
   );
 
   const weth = await ethers.getContractAt("IWETH", config.weth);
   const aave3Pool = await ethers.getContractAt("IPoolV3", config.AAVEPool);
   const wstETH = await ethers.getContractAt("IERC20", config.wstETH);
+  
 
   const settingsProxy = await ethers.getContractAt(
     "Settings",
@@ -378,7 +397,7 @@ export async function deployEthereum() {
     "Vault",
     await vaultProxyDeploy.getAddress()
   );
-
+  await strategyProxy.setMaxSlippage(5n*(10n**7n));
   await settingsProxy.setLoanToValue(ethers.parseUnits("800", 6));
   await strategyProxy.transferOwnership(await vaultProxy.getAddress());
 
@@ -397,10 +416,11 @@ export async function deployEthereum() {
 }
 
 async function deployWstETHToETHOracle(config: any, serviceRegistry: any) {
-  const WSETHToETH = await ethers.getContractFactory("WstETHToETHOracleETH");
+  const WSETHToETH = await ethers.getContractFactory("ChainLinkOracle");
   const oracle = await WSETHToETH.deploy(
-    config.oracle.chainLink,
-    config.wstETH
+    config.wstETH,
+    0,
+    0
   );
   await oracle.waitForDeployment();
   await serviceRegistry.registerService(

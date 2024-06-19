@@ -7,6 +7,7 @@ import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/
 import {Rebase, RebaseLibrary} from "../libraries/RebaseLibrary.sol";
 import {ServiceRegistry} from "../core/ServiceRegistry.sol";
 import {IVault} from "../interfaces/core/IVault.sol";
+import {IOracle} from "../interfaces/core/IOracle.sol";
 import {IStrategy} from "../interfaces/core/IStrategy.sol";
 import {SafeERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import {PERCENTAGE_PRECISION} from "./Constants.sol";
@@ -14,7 +15,7 @@ import {ERC20PermitUpgradeable} from "@openzeppelin/contracts-upgradeable/token/
 import {UseSettings} from "./hooks/UseSettings.sol";
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
-
+import {MathLibrary} from "../libraries/MathLibrary.sol";
 /**
  * @title BakerFi Vault 🏦🧑‍🍳
  *
@@ -51,6 +52,7 @@ contract Vault is
     using SafeERC20Upgradeable for ERC20Upgradeable;
     using AddressUpgradeable for address;
     using AddressUpgradeable for address payable;
+    using MathLibrary for uint256;
 
     error InvalidOwner();
     error InvalidDepositAmount();
@@ -60,7 +62,11 @@ contract Vault is
     error InvalidWithdrawAmount();
     error NoAssetsToWithdraw();
     error NoPermissions();
+    error InvalidShareBalance();
     error ETHTransferNotAllowed(address sender);
+
+    uint256 private constant _MINIMUM_SHARE_BALANCE = 1000;
+    uint256 private constant _ONE = 1e18;
 
     /**
      * @dev The IStrategy contract representing the strategy for managing assets.
@@ -135,7 +141,11 @@ contract Vault is
         returns (int256 balanceChange)
     {
         uint256 maxPriceAge = settings().getRebalancePriceMaxAge();
-        uint256 currentPos = _totalAssets(maxPriceAge);
+        uint256 maxPriceConf = settings().getPriceMaxConf();
+        uint256 currentPos = _totalAssets(  IOracle.PriceOptions({
+                maxAge: maxPriceAge,
+                maxConf: maxPriceConf
+            }));
         if (currentPos > 0) {
             balanceChange = _strategy.harvest();
             if (balanceChange > 0) {
@@ -152,9 +162,14 @@ contract Vault is
                      */
                     uint256 feeInEthScaled = uint256(balanceChange) *
                         settings().getPerformanceFee();
-                    uint256 sharesToMint = (feeInEthScaled * totalSupply()) /
-                        _totalAssets(maxPriceAge) /
-                        PERCENTAGE_PRECISION;
+                    uint256 sharesToMint = feeInEthScaled.mulDivUp(
+                        totalSupply(), 
+                        _totalAssets(
+                            IOracle.PriceOptions({
+                                maxAge: maxPriceAge,
+                                maxConf: maxPriceConf
+                            })
+                        ) * PERCENTAGE_PRECISION);
                     _mint(settings().getFeeReceiver(), sharesToMint);
                 }
             }
@@ -186,7 +201,7 @@ contract Vault is
      *
      * @param receiver The address to receive the minted shares.
      * @return shares The number of shares minted for the specified receiver.
-     */
+     */    
     function deposit(
         address receiver
     )
@@ -200,7 +215,13 @@ contract Vault is
     {
         if (msg.value == 0) revert InvalidDepositAmount();
         uint256 maxPriceAge = settings().getPriceMaxAge();
-        Rebase memory total = Rebase(_totalAssets(maxPriceAge), totalSupply());
+        uint256 maxPriceConf = settings().getPriceMaxConf();
+        Rebase memory total = Rebase(_totalAssets(
+           IOracle.PriceOptions({
+                maxAge: maxPriceAge,
+                maxConf: maxPriceConf
+            })
+        ), totalSupply());
         if (
             // Or the Rebase is unititialized
             !((total.elastic == 0 && total.base == 0) ||
@@ -211,7 +232,10 @@ contract Vault is
         uint256 maxDeposit = settings().getMaxDepositInETH();
         if (maxDeposit > 0) {
             uint256 afterDeposit = msg.value +
-                ((balanceOf(msg.sender) * _tokenPerETH(maxPriceAge)) / 1e18);
+                ((balanceOf(msg.sender) * _ONE) / _tokenPerETH(  IOracle.PriceOptions({
+                maxAge: maxPriceAge,
+                maxConf: maxPriceConf
+            })));
             if (afterDeposit > maxDeposit) revert MaxDepositReached();
         }
 
@@ -222,6 +246,12 @@ contract Vault is
 
         uint256 amount = abi.decode(result, (uint256));
         shares = total.toBase(amount, false);
+
+        // Prevent First Deposit Inflation attack
+        if (total.base == 0 && shares < _MINIMUM_SHARE_BALANCE ) {
+            revert InvalidShareBalance();
+        }
+
         _mint(receiver, shares);
         emit Deposit(msg.sender, receiver, msg.value, shares);
     }
@@ -236,13 +266,13 @@ contract Vault is
      * withdrawn shares.
      *
      * @param shares The number of shares to be withdrawn.
-     * @return amount The amount of Ether withdrawn after fees.
+     * @return retAmount The amount of Ether withdrawn after fees.
      *
      * Emits a {Withdraw} event after successfully handling the withdrawal.
      */
     function withdraw(
         uint256 shares
-    ) external override nonReentrant onlyWhiteListed whenNotPaused returns (uint256 amount) {
+    ) external override nonReentrant onlyWhiteListed whenNotPaused returns (uint256 retAmount) {
         if (balanceOf(msg.sender) < shares) revert NotEnoughBalanceToWithdraw();
         if (shares == 0) revert InvalidWithdrawAmount();
         /**
@@ -251,21 +281,34 @@ contract Vault is
          *
          *   withdrawAmount = share * totalAssets() / totalSupply()
          */
-        uint256 withdrawAmount = (shares * _totalAssets(settings().getPriceMaxAge())) /
+        uint256 withdrawAmount = (shares * _totalAssets(IOracle.PriceOptions({
+                maxAge: settings().getPriceMaxAge(),
+                maxConf: settings().getPriceMaxConf()
+        }))) /
             totalSupply();
         if (withdrawAmount == 0) revert NoAssetsToWithdraw();
-        amount = _strategy.undeploy(withdrawAmount);
+        
+        uint256 amount = _strategy.undeploy(withdrawAmount);
         uint256 fee = 0;
+        uint256 afterShares = totalSupply() - shares;
+        
+        // There have to be at least 1000 shares left to prevent reseting the 
+        // share/amount ratio (unless it's fully emptied)
+        if ( afterShares != 0 &&  afterShares <  _MINIMUM_SHARE_BALANCE ) {
+            revert InvalidShareBalance();
+        }
+
         _burn(msg.sender, shares);
         // Withdraw ETh to Receiver and pay withdrawal Fees
         if (settings().getWithdrawalFee() != 0 && settings().getFeeReceiver() != address(0)) {
-            fee = (amount * settings().getWithdrawalFee()) / PERCENTAGE_PRECISION;
+            fee = amount.mulDivUp(settings().getWithdrawalFee(), PERCENTAGE_PRECISION);
             payable(msg.sender).sendValue(amount - fee);
             payable(settings().getFeeReceiver()).sendValue(fee);
         } else {
             payable(msg.sender).sendValue(amount);
         }     
         emit Withdraw(msg.sender, amount - fee, shares); 
+        retAmount = amount - fee;
     }
 
     /**
@@ -278,16 +321,19 @@ contract Vault is
      * @return amount The total assets under management by the strategy.
      */
     function totalAssets() public view override returns (uint256 amount) {
-        amount = _strategy.deployed(0);
+        amount = _strategy.deployed(IOracle.PriceOptions({ 
+                maxAge: 0,
+                maxConf: 0
+            }));
     }
 
     /**
      * @dev Retrieves the total assets and reverts when the prices are outdated and a priceAge is 
      * bigger than 0.
-     * @param priceMaxAge The maximum age of the price without reverting
+     * @param priceOptions The maximum age of the price without reverting
      */
-    function _totalAssets(uint256 priceMaxAge) private view returns (uint256 amount) {
-        amount = _strategy.deployed(priceMaxAge);
+    function _totalAssets(IOracle.PriceOptions memory priceOptions) private view returns (uint256 amount) {
+        amount = _strategy.deployed(priceOptions );
     }
 
     /**
@@ -324,15 +370,23 @@ contract Vault is
      * This function is externally callable and provides a view of the current exchange rate
      * between the token and ETH. It calculates the rate based on the total supply of the token
      * and the total assets under management by the strategy.
-     *
+     * 
+     *   brETHSupply  ------   DeployedETH 
+     *   tokenPerETH  ------   1 ETH
+     *  
+     *   x = SupplybrETH * 1ETH / Deployed ETH 
+     *   
      * @return rate The calculated token-to-ETH exchange rate.
      */
     function tokenPerETH() external view override returns (uint256) {
-        return _tokenPerETH(0);
+        return _tokenPerETH(IOracle.PriceOptions({ 
+                maxAge: 0,
+                maxConf: 0
+            }));
     }
 
-    function _tokenPerETH(uint256 priceMaxAge) internal view returns (uint256) {
-        uint256 position = _totalAssets(priceMaxAge);
+    function _tokenPerETH(IOracle.PriceOptions memory priceOptions) internal view returns (uint256) {
+        uint256 position = _totalAssets(priceOptions);
         if (totalSupply() == 0 || position == 0) {
             return 1 ether;
         }

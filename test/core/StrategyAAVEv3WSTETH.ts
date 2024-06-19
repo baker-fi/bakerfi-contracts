@@ -25,8 +25,8 @@ describeif(network.name === "hardhat")(
   function () {
     it("Test Initialized Strategy", async function () {
       const { owner, strategy } = await loadFixture(deployFunction);
-      expect(await strategy.getPosition(0)).to.deep.equal([0n, 0n, 0n]);
-      expect(await strategy.deployed(0)).to.equal(0);
+      expect(await strategy.getPosition([0,0])).to.deep.equal([0n, 0n, 0n]);
+      expect(await strategy.deployed([0,0])).to.equal(0);
     });
 
     it("Test Deploy", async function () {
@@ -38,12 +38,12 @@ describeif(network.name === "hardhat")(
         })
       ).to.changeEtherBalances([owner.address], [ethers.parseUnits("10", 18)]);
 
-      expect(await strategy.getPosition(0)).to.deep.equal([
+      expect(await strategy.getPosition([0,0])).to.deep.equal([
         45702851552764668112n,
         35740737736704000000n,
         782024239n,
       ]);
-      expect(await strategy.deployed(0)).to.equal(9962113816060668112n);
+      expect(await strategy.deployed([0,0])).to.equal(9962113816060668112n);
     });
 
     it("Harvest Profit - No Debt Adjust", async function () {
@@ -61,12 +61,12 @@ describeif(network.name === "hardhat")(
       expect(strategy.harvest())
         .to.emit(strategy, "StrategyProfit")
         .withArgs(4969613303000000000n);
-      expect(await strategy.getPosition(0)).to.deep.equal([
+      expect(await strategy.getPosition([0,0])).to.deep.equal([
         50273136708041134924n,
         35740737736704000000n,
         710931126n,
       ]);
-      expect(await strategy.deployed(0)).to.equal(14532398971337134924n);
+      expect(await strategy.deployed([0,0])).to.equal(14532398971337134924n);
     });
 
     it("Harvest Loss - No Debt Adjust", async function () {
@@ -78,13 +78,13 @@ describeif(network.name === "hardhat")(
         value: ethers.parseUnits("10", 18),
       });
 
-      expect(await strategy.getPosition(0)).to.deep.equal([
+      expect(await strategy.getPosition([0,0])).to.deep.equal([
         45702851552764668112n,
         35740737736704000000n,
         782024239n,
       ]);
 
-      expect(await strategy.deployed(0)).to.equal(9962113816060668112n);
+      expect(await strategy.deployed([0,0])).to.equal(9962113816060668112n);
 
       // Increment the Collateral value by 10%
       await oracle.setLatestPrice(ethers.parseUnits("2606", 18));
@@ -93,13 +93,13 @@ describeif(network.name === "hardhat")(
         .to.emit(strategy, "StrategyLoss")
         .withArgs(927802249567403037n);
 
-      expect(await strategy.getPosition(0)).to.deep.equal([
+      expect(await strategy.getPosition([0,0])).to.deep.equal([
         44775049303197265075n,
         35740737736704000000n,
         798228886n,
       ]);
 
-      expect(await strategy.deployed(0)).to.equal(9034311566493265075n);
+      expect(await strategy.deployed([0,0])).to.equal(9034311566493265075n);
     });
 
     it("Harvest - Debt Adjust", async function () {
@@ -112,7 +112,7 @@ describeif(network.name === "hardhat")(
       await oracle.setLatestPrice(ethers.parseUnits("2394", 18));
       await strategy.setMaxLoanToValue(800 * 1e6);
 
-      expect(await strategy.getPosition(0)).to.deep.equal([
+      expect(await strategy.getPosition([0,0])).to.deep.equal([
         41132566397488201301n,
         35740737736704000000n,
         868915821n,
@@ -122,13 +122,13 @@ describeif(network.name === "hardhat")(
         .to.emit(strategy, "StrategyAmountUpdate")
         .withArgs(5391828660784201301n);
 
-      expect(await strategy.getPosition(0)).to.deep.equal([
-        26397162466518195135n,
-        21567314643136805200n,
-        817031552n,
+      expect(await strategy.getPosition([0,0])).to.deep.equal([
+        28364338891302690959n, 
+        21567314643136805200n, 
+        760367259n
       ]);
 
-      expect(await strategy.deployed(0)).to.equal(4829847823381389935n);
+      expect(await strategy.deployed([0,0])).to.equal(6797024248165885759n);
     });
 
     it("Harvest Loss - Collateral Value is lower than debt", async function () {

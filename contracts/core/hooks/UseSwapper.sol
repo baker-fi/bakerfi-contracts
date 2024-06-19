@@ -5,7 +5,7 @@ pragma experimental ABIEncoderV2;
 import {ServiceRegistry, UNISWAP_ROUTER_CONTRACT} from "../ServiceRegistry.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
-import {IV3SwapRouter} from "../../interfaces/uniswap/v3/ISwapRouter.sol";
+import {ISwapRouter} from "../../interfaces/uniswap/v3/ISwapRouter.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
@@ -39,14 +39,14 @@ abstract contract UseSwapper is ISwapHandler, Initializable {
     );
     error SwapFailed();
 
-    IV3SwapRouter private _uniRouter;
+    ISwapRouter private _uniRouter;
 
     function _initUseSwapper(ServiceRegistry registry) internal onlyInitializing {
-        _uniRouter = IV3SwapRouter(registry.getServiceFromHash(UNISWAP_ROUTER_CONTRACT));
+        _uniRouter = ISwapRouter(registry.getServiceFromHash(UNISWAP_ROUTER_CONTRACT));
         if (address(_uniRouter) == address(0)) revert InvalidUniRouterContract();
     }
 
-    function uniRouter() public view returns (IV3SwapRouter) {
+    function uniRouter() public view returns (ISwapRouter) {
         return _uniRouter;
     }
 
@@ -56,7 +56,7 @@ abstract contract UseSwapper is ISwapHandler, Initializable {
 
     function _swap(
         ISwapHandler.SwapParams memory params
-    ) internal override returns (uint256 amountOut) {
+    ) internal override returns (uint256 amountIn, uint256 amountOut) {
         if (params.underlyingIn == address(0)) revert InvalidInputToken();
         if (params.underlyingOut == address(0)) revert InvalidOutputToken();
         uint24 fee = params.feeTier;
@@ -64,12 +64,14 @@ abstract contract UseSwapper is ISwapHandler, Initializable {
 
         // Exact Input
         if (params.mode == ISwapHandler.SwapType.EXACT_INPUT) {
+            amountIn = params.amountIn;
             amountOut = _uniRouter.exactInputSingle(
-                IV3SwapRouter.ExactInputSingleParams({
+                ISwapRouter.ExactInputSingleParams({
                     tokenIn: params.underlyingIn,
                     tokenOut: params.underlyingOut,
-                    amountIn: params.amountIn,
-                    amountOutMinimum: 0,
+                    amountIn: amountIn,
+                    amountOutMinimum: params.amountOut,
+                    deadline: block.timestamp,
                     fee: fee,
                     recipient: address(this),
                     sqrtPriceLimitX96: 0
@@ -78,25 +80,23 @@ abstract contract UseSwapper is ISwapHandler, Initializable {
             if (amountOut == 0) {
                 revert SwapFailed();
             }
-            emit Swap(params.underlyingIn, params.underlyingOut, params.amountIn, amountOut);
+            emit Swap(params.underlyingIn, params.underlyingOut, amountIn, amountOut);
             // Exact Output
         } else if (params.mode == ISwapHandler.SwapType.EXACT_OUTPUT) {
-            uint256 amountIn = _uniRouter.exactOutputSingle(
-                IV3SwapRouter.ExactOutputSingleParams({
+            amountOut = params.amountOut;
+            amountIn = _uniRouter.exactOutputSingle(
+                ISwapRouter.ExactOutputSingleParams({
                     tokenIn: params.underlyingIn,
                     tokenOut: params.underlyingOut,
                     fee: fee,
+                    deadline: block.timestamp,
                     recipient: address(this),
-                    amountOut: params.amountOut,
+                    amountOut: amountOut,
                     amountInMaximum: params.amountIn,
                     sqrtPriceLimitX96: 0
                 })
             );
-            if (amountIn < params.amountIn) {
-                IERC20(params.underlyingIn).safeTransfer(address(this), params.amountIn - amountIn);
-            }
-            emit Swap(params.underlyingIn, params.underlyingOut, amountIn, params.amountOut);
-            amountOut = params.amountOut;
+            emit Swap(params.underlyingIn, params.underlyingOut, amountIn, amountOut);
         }
     }
 }

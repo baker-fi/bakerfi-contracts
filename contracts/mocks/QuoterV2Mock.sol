@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IQuoterV2} from "../interfaces/uniswap/v3/IQuoterV2.sol";
-import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract QuoterV2Mock is IQuoterV2 {
+    
     uint256 RATIO_PRECISION = 1e9;
     uint256 private _ratio = 1e9;
 
@@ -67,7 +66,7 @@ contract QuoterV2Mock is IQuoterV2 {
             uint256 gasEstimate
         )
     {
-        amountIn = params.amount / (RATIO_PRECISION / _ratio);
+        amountIn = params.amount * _ratio / RATIO_PRECISION ;
         return (amountIn, 0, 0, 0);
     }
 }
