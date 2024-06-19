@@ -19,7 +19,10 @@ export interface StrategyAAVEv3WstETHMethods {
 
   flashLenderA(): ContractCallMethod<string>;
 
-  getPosition(maxAge: number): ContractCallMethod<{'totalCollateralInEth': number;'totalDebtInEth': number;'loanToValue': number;}>;
+  getPosition(priceOptions: {
+    maxAge: number;
+    maxConf: number;
+  }): ContractCallMethod<{'totalCollateralInEth': number;'totalDebtInEth': number;'loanToValue': number;}>;
 
   harvest(): ContractSendMethod;
 
@@ -38,6 +41,11 @@ export interface StrategyAAVEv3WstETHMethods {
   settings(): ContractCallMethod<string>;
 
   settingsA(): ContractCallMethod<string>;
+
+  deployed(priceOptions: {
+    maxAge: number;
+    maxConf: number;
+  }): ContractCallMethod<{'totalOwnedAssets': number;}>;
 
   stETH(): ContractCallMethod<string>;
 

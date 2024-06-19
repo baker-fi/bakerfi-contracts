@@ -197,6 +197,38 @@ describeif(network.name === "hardhat")("Settings", function () {
     expect(await settings.pendingOwner()).to.equal("0x0000000000000000000000000000000000000000");
     expect(await settings.owner()).to.equal(owner.address);
   });
+
+
+  it("Change Price Max Conf ✅", async function () {
+    const { settings, otherAccount } = await loadFixture(deployFunction);
+
+    await settings
+      .connect(otherAccount)
+      // @ts-expect-error
+      .setPriceMaxConf(1n*(10n**7n));
+
+    // @ts-expect-error
+    expect(await settings.connect(otherAccount).getPriceMaxConf()).to.equal(
+      10000000n
+    );
+  });
+
+  it("Only Owner can change Price Max Conf", async function () {
+    const { settings } = await loadFixture(deployFunction);
+    await expect(
+      settings.setPriceMaxConf(1n*(10n**7n))
+      // @ts-expect-error
+    ).to.be.revertedWith("Ownable: caller is not the owner");
+  });
+
+  it("Only Owner can change Price Max Conf", async function () {
+    const { settings, otherAccount } = await loadFixture(deployFunction);
+    await expect(
+      settings.connect(otherAccount).setPriceMaxConf(1n*(10n**10n))
+      // @ts-expect-error
+    ).to.be.revertedWithCustomError(settings, "InvalidPercentage");
+  });
+
 });
 
 
