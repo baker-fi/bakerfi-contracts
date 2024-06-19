@@ -141,7 +141,6 @@ describeif(network.name === "hardhat")(
         vault,
         oracle,
         otherAccount,
-        aave3Pool,
         strategy,
         settings,
       } = await loadFixture(deployFunction);
