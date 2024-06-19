@@ -98,8 +98,18 @@ export class StrategyAAVEv3WstETH
     return this.callTx(this.contract.methods.flashLenderA());
   }
 
-  async getPosition(maxAge: number) {
-    return this.callTx(this.contract.methods.getPosition(maxAge));
+  async getPosition(priceOptions: {
+    maxAge: number;
+    maxConf: number;
+  }) {
+    return this.callTx(this.contract.methods.getPosition(priceOptions));
+  }
+
+  async deployed(priceOptions: {
+    maxAge: number;
+    maxConf: number;
+  }) {
+    return this.callTx(this.contract.methods.deployed(priceOptions));
   }
 
   async harvest() {
