@@ -55,7 +55,7 @@ async function main() {
   /********************************************
    *  Settings
    ********************************************/
-  spinner.text = "Registiring WETH";
+  spinner.text = `Registiring WETH as ${config.weth}`;
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from("WETH")),
     config.weth
@@ -76,7 +76,7 @@ async function main() {
   /********************************************
    *  Uniswap Router
    ********************************************/
-  spinner.text = "Registiring Uniswap Router Contract";
+  spinner.text = `Registiring Uniswap Router Contract ${config.uniswapRouter}`;
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from("Uniswap Router")),
     config.uniswapRouter
@@ -85,7 +85,7 @@ async function main() {
   /********************************************
    *  Uniswap Quoter
    ********************************************/
-  spinner.text = "Registiring Uniswap Quoter Contract";
+  spinner.text = `Registiring Uniswap Quoter Contract ${config.uniswapQuoter}`;
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from("Uniswap Quoter")),
     config.uniswapQuoter
@@ -134,21 +134,17 @@ async function main() {
     result.push(["wstETH", config.wstETH]);
   }
   /********************************************
-   * <Collateral>/USD Deploy
+   * Deploy Oracles
    ********************************************/
-  spinner.text = "Deploying Collateral/USD Oracle";
-  const colETHOracle = await deployCollateralOracle(
-    config,
-    serviceRegistry,
-    config.pyth
-  );
-  result.push(["Collateral/USDC Oracle", await colETHOracle.getAddress()]);
-  /********************************************
-   * ETH/USD Deploy
-   ********************************************/
-  spinner.text = "Deploying ETH/USD Oracle";
-  const ethUSDOracle = await deployETHOracle(serviceRegistry, config.pyth);
-  result.push(["ETH/USD Oracle", await ethUSDOracle.getAddress()]);
+  for(const oracle of config.oracles) {
+    spinner.text = `Deploying ${oracle.pair} Oracle`;
+    const chainOracle = await deployOracle(
+      oracle.pair,
+      serviceRegistry,
+      config.pyth
+    );
+    result.push([`${oracle.pair} Oracle`, await chainOracle.getAddress()]);
+  }
   /********************************************
    * STRATEGY Deploy
    ********************************************/
@@ -255,17 +251,21 @@ async function deployStrategy(
  * @param serviceRegistry
  * @returns
  */
-async function deployCollateralOracle(config: any, serviceRegistry, pyth) {
+async function deployOracle(pair: string, serviceRegistry, pyth) {
   let oracle;
-  switch (config.oracle.type) {
-    case "cbETH":
+  switch (pair) {
+    case "cbETH/USD":
       oracle = await deployCbETHToUSDOracle(serviceRegistry, pyth);
       break;
 
-    case "wstETH":
+    case "wstETH/USD":
       oracle = await deployWSTETHToUSDOracle(serviceRegistry, pyth);
       break;
+    case "ETH/USD":
+        oracle = await deployETHOracle(serviceRegistry, pyth);
+        break;
     default:
+        throw Error("Unknow Oracle type")
       break;
   }
   return oracle;

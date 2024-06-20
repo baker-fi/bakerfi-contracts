@@ -79,7 +79,7 @@ export default {
         wstETH: "0xf93e63A0d1ec46402065b862f08ad0962d5b2C88",
         stETH: "0x07C1F45Dc0a620E6716d8A45485B8f0A79E270F8",
         oracles: [{
-            pair: "wstETH/ETH",
+            pair: "wstETH/USD",
             address: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4"
         },{
             pair: "ETH/USD",
@@ -97,8 +97,13 @@ export default {
         balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Validated
         weth: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",  // Validated
         wstETH: "0x5979D7b546E38E414F7E9822514be443A4800529", // Validated
-        wstETHToETH: "0xb523ae262d20a936bc152e6023996e46fdc2a95d",
-        cbETHToETH: "0xa668682974E3f121185a3cD94f00322beC674275",
+        oracles: [{
+            pair: "wstETH/USD",
+            address: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4"
+        },{
+            pair: "ETH/USD",
+            address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
+        }],
         ethToUSD: "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612",
         strategy: {
             type: "base",
@@ -118,11 +123,13 @@ export default {
         balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Validated
         weth: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",  // Validated
         wstETH: "0x5979D7b546E38E414F7E9822514be443A4800529", // Validated
-        oracle: {
-            type: "wstETH",
-            chainLink: "0xb523ae262d20a936bc152e6023996e46fdc2a95d", // wstETH / ETH
-        },
-        ethOracle: "0x639fe6ab55c921f74e7fac1ee960c0b6293ba612",
+        oracles: [{
+            pair: "wstETH/USD",
+            address: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4"
+        },{
+            pair: "ETH/USD",
+            address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
+        }],
         strategy: {
             type: "base",
             collateral: "wstETH",
