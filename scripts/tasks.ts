@@ -1,7 +1,7 @@
 import ora from "ora";
 import { task } from "hardhat/config";
 import DeployConfig from "../constants/contracts";
-import {pythFeedIds} from "../constants/contracts";
+import {PythFeedNameEnum, feedIds} from "../constants/pyth";
 import {PriceServiceConnection} from "@pythnetwork/price-service-client";
 
 task("balance", "Prints an account's balance")
@@ -570,9 +570,9 @@ task("pyth:priceUpdate", "Update Required Prices")
 
     const priceIds = [
       // You can find the ids of prices at https://pyth.network/developers/price-feed-ids
-      pythFeedIds.CBETH_USD_FEED_ID, // BTC/USD price id
-      pythFeedIds.ETH_USD_FEED_ID,
-      pythFeedIds.WSETH_USD_FEED_ID, // ETH/USD price id
+      feedIds[PythFeedNameEnum.CBETH_USD], // BTC/USD price id
+      feedIds[PythFeedNameEnum.ETH_USD],
+      feedIds[PythFeedNameEnum.WSTETH_USD], // ETH/USD price id
     ];
     // Get the latest values of the price feeds as json objects.
     // If you set `binary: true` above, then this method also returns signed price updates for the on-chain Pyth contract.
