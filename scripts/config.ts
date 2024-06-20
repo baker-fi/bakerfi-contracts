@@ -25,19 +25,46 @@ export default {
         vaultSharesName: "AAVEv3 Bread ETH",
         vaultSharesSymbol: "AAVEv3brETH",
     },
+    "base": {
+        uniswapRouter: "0x2626664c2603336E57B271c5C0b26F421741e481", // Validated 
+        uniswapQuoter: "0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a", // Validated 
+        balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Validated
+        weth: "0x4200000000000000000000000000000000000006",  // Validated
+        wstETH: "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452", // Validated
+        oracles: [{
+            pair: "wstETH/USD",
+            address: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4"
+        },{
+            pair: "ETH/USD",
+            address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
+        }],
+        AAVEEModeCategory: 1,       
+        strategy: "base",        
+        swapFeeTier: 500,        
+        AAVEPool: "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5", // Validated      
+        pyth: "0x8250f4aF4B972684F7b336503E2D6dFeDeB1487a", 
+        vaultSharesName: "Base AAVEv3 Bread ETH",
+        vaultSharesSymbol: "baseAAVEv3brETH",
+    },
     "base_devnet": {
         uniswapRouter: "0x2626664c2603336E57B271c5C0b26F421741e481", // Validated 
         uniswapQuoter: "0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a", // Validated 
         balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Validated
         weth: "0x4200000000000000000000000000000000000006",  // Validated
-        cbETH: "0x2ae3f1ec7f1f5012cfeab0185bfc7aa3cf0dec22", // Validated
-        oracle: {
-            type: "cbETH",
-            chainLink: "0x806b4ac04501c29769051e42783cf04dce41440b",
-        },
-        ethOracle: "0x71041dddad3595f9ced3dccfbe3d1f4b0a16bb70",
+        wstETH: "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452", // Validated
+        oracles: [{
+            pair: "wstETH/USD",
+            address: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4"
+        },{
+            pair: "ETH/USD",
+            address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
+        }],
         AAVEEModeCategory: 1,       
-        strategy: "base",        
+        strategy: {
+            type: "base",
+            collateral: "wstETH",
+            oracle: "wstETH/USD Oracle"
+        },
         swapFeeTier: 500,        
         AAVEPool: "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5", // Validated      
         pyth: "0x8250f4aF4B972684F7b336503E2D6dFeDeB1487a", 
