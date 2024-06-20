@@ -49,7 +49,7 @@ export async function deployBase() {
   // 5. Register UniswapV3 Universal Router
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from("Uniswap Router")),
-    config.uniswapRouter
+    config.uniswapRouter02
   );
 
   // 6. Deploy the BakerFi Uniswap Router Adapter
@@ -186,7 +186,7 @@ export async function deployOptimism() {
   // 5. Register UniswapV3 Universal Router
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from("Uniswap Router")),
-    config.uniswapRouter
+    config.uniswapRouter02
   );
 
   // 7. Register AAVE V3 Service
@@ -315,7 +315,7 @@ export async function deployEthereum() {
   // Register UniswapV3 Universal Router on Service Register
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from("Uniswap Router")),
-    config.uniswapRouter
+    config.uniswapRouter02
   );
 
   // Register AAVE V3 Service on Service Register
@@ -439,8 +439,7 @@ export function getDeployFunc() {
       deployFunc = deployOptimism;
       break;
     case "base_devnet":
-      // @ts-expect-error
-      deployFunc = deployBase;
+      deployFunc = deployOptimism;
       break;
     case "arbitrum_devnet":
       deployFunc = deployOptimism;

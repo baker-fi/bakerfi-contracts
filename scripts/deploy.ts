@@ -76,12 +76,12 @@ async function main() {
   /********************************************
    *  Uniswap Router
    ********************************************/
-  spinner.text = `Registiring Uniswap Router Contract ${config.uniswapRouter}`;
+  spinner.text = `Registiring Uniswap Router Contract ${config.uniswapRouter02}`;
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from("Uniswap Router")),
-    config.uniswapRouter
+    config.uniswapRouter02
   );
-  result.push(["Uniswap V3 Router", config.uniswapRouter]);
+  result.push(["Uniswap V3 Router", config.uniswapRouter02]);
   /********************************************
    *  Uniswap Quoter
    ********************************************/

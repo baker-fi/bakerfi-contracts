@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.24;
 
+// Adapted version from 
+// https://github.com/Uniswap/swap-router-contracts/blob/v1.1.0/contracts/interfaces/IV3SwapRouter.sol
+// Using Uniswap Router 02
+
 interface IUniswapV3SwapCallback {
     /// @notice Called to `msg.sender` after executing a swap via IUniswapV3Pool#swap.
     /// @dev In the implementation you must pay the pool tokens owed for the swap.
@@ -20,13 +24,12 @@ interface IUniswapV3SwapCallback {
 
 /// @title Router token swapping functionality
 /// @notice Functions for swapping tokens via Uniswap V3
-interface ISwapRouter is IUniswapV3SwapCallback {
+interface IV3SwapRouter is IUniswapV3SwapCallback {
     struct ExactInputSingleParams {
         address tokenIn;
         address tokenOut;
         uint24 fee;
         address recipient;
-        uint256 deadline;
         uint256 amountIn;
         uint256 amountOutMinimum;
         uint160 sqrtPriceLimitX96;
@@ -42,7 +45,6 @@ interface ISwapRouter is IUniswapV3SwapCallback {
     struct ExactInputParams {
         bytes path;
         address recipient;
-        uint256 deadline;
         uint256 amountIn;
         uint256 amountOutMinimum;
     }
@@ -59,7 +61,6 @@ interface ISwapRouter is IUniswapV3SwapCallback {
         address tokenOut;
         uint24 fee;
         address recipient;
-        uint256 deadline;
         uint256 amountOut;
         uint256 amountInMaximum;
         uint160 sqrtPriceLimitX96;
@@ -75,7 +76,6 @@ interface ISwapRouter is IUniswapV3SwapCallback {
     struct ExactOutputParams {
         bytes path;
         address recipient;
-        uint256 deadline;
         uint256 amountOut;
         uint256 amountInMaximum;
     }

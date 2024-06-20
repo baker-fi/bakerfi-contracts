@@ -5,7 +5,7 @@ pragma experimental ABIEncoderV2;
 import {ServiceRegistry, UNISWAP_ROUTER_CONTRACT} from "../ServiceRegistry.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
-import {ISwapRouter} from "../../interfaces/uniswap/v3/ISwapRouter.sol";
+import {IV3SwapRouter} from "../../interfaces/uniswap/v3/IV3SwapRouter.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
@@ -39,14 +39,14 @@ abstract contract UseSwapper is ISwapHandler, Initializable {
     );
     error SwapFailed();
 
-    ISwapRouter private _uniRouter;
+    IV3SwapRouter private _uniRouter;
 
     function _initUseSwapper(ServiceRegistry registry) internal onlyInitializing {
-        _uniRouter = ISwapRouter(registry.getServiceFromHash(UNISWAP_ROUTER_CONTRACT));
+        _uniRouter = IV3SwapRouter(registry.getServiceFromHash(UNISWAP_ROUTER_CONTRACT));
         if (address(_uniRouter) == address(0)) revert InvalidUniRouterContract();
     }
 
-    function uniRouter() public view returns (ISwapRouter) {
+    function uniRouter() public view returns (IV3SwapRouter) {
         return _uniRouter;
     }
 
@@ -66,12 +66,11 @@ abstract contract UseSwapper is ISwapHandler, Initializable {
         if (params.mode == ISwapHandler.SwapType.EXACT_INPUT) {
             amountIn = params.amountIn;
             amountOut = _uniRouter.exactInputSingle(
-                ISwapRouter.ExactInputSingleParams({
+                IV3SwapRouter.ExactInputSingleParams({
                     tokenIn: params.underlyingIn,
                     tokenOut: params.underlyingOut,
                     amountIn: amountIn,
                     amountOutMinimum: params.amountOut,
-                    deadline: block.timestamp,
                     fee: fee,
                     recipient: address(this),
                     sqrtPriceLimitX96: 0
@@ -85,11 +84,10 @@ abstract contract UseSwapper is ISwapHandler, Initializable {
         } else if (params.mode == ISwapHandler.SwapType.EXACT_OUTPUT) {
             amountOut = params.amountOut;
             amountIn = _uniRouter.exactOutputSingle(
-                ISwapRouter.ExactOutputSingleParams({
+                IV3SwapRouter.ExactOutputSingleParams({
                     tokenIn: params.underlyingIn,
                     tokenOut: params.underlyingOut,
                     fee: fee,
-                    deadline: block.timestamp,
                     recipient: address(this),
                     amountOut: amountOut,
                     amountInMaximum: params.amountIn,

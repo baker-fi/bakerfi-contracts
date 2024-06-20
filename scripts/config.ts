@@ -6,7 +6,7 @@ export const feeds  = {
 
 export default {    
     "ethereum_devnet": {
-        uniswapRouter: "0xE592427A0AEce92De3Edee1F18E0157C05861564", // Validated 
+        uniswapRouter02: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", // Validated 
         uniswapQuoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e", 
         balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
         weth: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
@@ -26,7 +26,7 @@ export default {
         vaultSharesSymbol: "AAVEv3brETH",
     },
     "base": {
-        uniswapRouter: "0x2626664c2603336E57B271c5C0b26F421741e481", // Validated 
+        uniswapRouter02: "0x2626664c2603336E57B271c5C0b26F421741e481", // Validated 
         uniswapQuoter: "0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a", // Validated 
         balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Validated
         weth: "0x4200000000000000000000000000000000000006",  // Validated
@@ -40,14 +40,14 @@ export default {
         }],
         AAVEEModeCategory: 1,       
         strategy: "base",        
-        swapFeeTier: 500,        
+        swapFeeTier: 100,        
         AAVEPool: "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5", // Validated      
         pyth: "0x8250f4aF4B972684F7b336503E2D6dFeDeB1487a", 
         vaultSharesName: "Base AAVEv3 Bread ETH",
         vaultSharesSymbol: "baseAAVEv3brETH",
     },
     "base_devnet": {
-        uniswapRouter: "0x2626664c2603336E57B271c5C0b26F421741e481", // Validated 
+        uniswapRouter02: "0x2626664c2603336E57B271c5C0b26F421741e481", // Validated 
         uniswapQuoter: "0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a", // Validated 
         balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Validated
         weth: "0x4200000000000000000000000000000000000006",  // Validated
@@ -65,14 +65,14 @@ export default {
             collateral: "wstETH",
             oracle: "wstETH/USD Oracle"
         },
-        swapFeeTier: 500,        
+        swapFeeTier: 100,        
         AAVEPool: "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5", // Validated      
         pyth: "0x8250f4aF4B972684F7b336503E2D6dFeDeB1487a", 
         vaultSharesName: "Base AAVEv3 Bread ETH",
         vaultSharesSymbol: "baseAAVEv3brETH",
     },
     "optimism_devnet": {
-        uniswapRouter: "0xE592427A0AEce92De3Edee1F18E0157C05861564", // Validated 
+        uniswapRouter02: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", // Validated 
         uniswapQuoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e", // Validated 
         balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Validated
         weth: "0x4200000000000000000000000000000000000006",  // Validated
@@ -99,7 +99,7 @@ export default {
         swapFeeTier: 500,       
         registry: "0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e", 
         flashLender: "0x709432fD1621610C92cA6E8455c81Ae88621Bbb6",
-        uniswapRouter: "0xB7d0add4df75aa719bE464e860C8c40bb7FA2122", 
+        uniswapRouter02: "0xB7d0add4df75aa719bE464e860C8c40bb7FA2122", 
         uniswapQuoter: "0x53e12d61AF104185485C79cbeBEe3D1F896d705f", 
         settings: "0x258b944B1e716c01725771148382EB988e4AB0a7",
         weth: "0x5bC13d5ce928Ae6e414A831D173E86fD040deBb9",
@@ -119,7 +119,7 @@ export default {
         vaultSharesSymbol: "localAAVEv3brETH",
     },
     "arbitrum_devnet": {
-        uniswapRouter: "0xE592427A0AEce92De3Edee1F18E0157C05861564", // Validated 
+        uniswapRouter02: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", // Validated 
         uniswapQuoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e", // Validated 
         balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Validated
         weth: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",  // Validated
@@ -145,7 +145,7 @@ export default {
         vaultSharesSymbol: "arbAAAv3ETH",
     },
     "arbitrum": {
-        uniswapRouter: "0xE592427A0AEce92De3Edee1F18E0157C05861564", // Validated 
+        uniswapRouter02: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", // Validated 
         uniswapQuoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e", // Validated 
         balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Validated
         weth: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",  // Validated
