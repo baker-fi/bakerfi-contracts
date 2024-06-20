@@ -10,7 +10,7 @@ export type DeployConfig = {
     wstETH: string | null;    
     flashLender: string;    
     mathLibrary: string;
-    uniswapRouter: string;    
+    uniswapRouter02: string;    
     uniswapQuoter: string;    
     AAVEv3Pool:string;    
     wstETHETHOracle:string;    
@@ -47,7 +47,7 @@ export const deployConfigMap : {[key: string]: DeployConfig} =
         stETH: "0xf93e63A0d1ec46402065b862f08ad0962d5b2C88",
         wstETH: "0x258b944B1e716c01725771148382EB988e4AB0a7",
         flashLender: "0x3db637fB908a3EBD857e4c8f8214fe30277d34eE",
-        uniswapRouter: "0x6a0419f287B1036B97cE06b3eda5372b42787a4c", 
+        uniswapRouter02: "0x6a0419f287B1036B97cE06b3eda5372b42787a4c", 
         uniswapQuoter: "0x501F860caE70FA5058f1D33458F6066fdB62A591",
         AAVEv3Pool: "0x3e2E02FfA86Dc280539121F6648b2180d8351637", 
         wstETHETHOracle: "0x57237193fA6B5fD3d3e8eC5d989dF73846cf7C1f",
@@ -69,7 +69,7 @@ export const deployConfigMap : {[key: string]: DeployConfig} =
         stETH: "0x07C1F45Dc0a620E6716d8A45485B8f0A79E270F8",
         wstETH: "0x5979D7b546E38E414F7E9822514be443A4800529",
         flashLender: "0x2db37f9DcD838B06a40Dc1aB171a8eBB474ef44C",
-        uniswapRouter: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", 
+        uniswapRouter02: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", 
         uniswapQuoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e",
         AAVEv3Pool: "0x794a61358D6845594F94dc1DB02A252b5b4814aD", 
         wstETHETHOracle: "0x63121b44680C502FDeDC725cd7CBcD37E0967d88",
