@@ -14,6 +14,7 @@ import {
 
 import BaseConfig from "./config";
 import ora from "ora";
+import {FeedNameEnumType, PythFeedNameEnum } from "../constants/pyth";
 
 /**
  * Deploy the Basic System for testing
@@ -137,9 +138,9 @@ async function main() {
    * Deploy Oracles
    ********************************************/
   for(const oracle of config.oracles) {
-    spinner.text = `Deploying ${oracle.pair} Oracle`;
+    spinner.text = `Deploying ${oracle.name} Oracle`;
     const chainOracle = await deployOracle(
-      oracle.pair,
+      oracle.name,
       serviceRegistry,
       config.pyth
     );
@@ -204,7 +205,7 @@ async function changeSettings(
   await strategy.transferOwnership(await vault.getAddress());
 
   spinner.text = "Changing Settigns ...";
-  await strategy.setLoanToValue(ethers.parseUnits("800", 6));
+  await strategy.setLoanToValue(ethers.parseUnits("850", 6));
 }
 
 async function deployFlashLendInfra(serviceRegistry, config: any, mathLibrary: any) {
@@ -251,21 +252,24 @@ async function deployStrategy(
  * @param serviceRegistry
  * @returns
  */
-async function deployOracle(pair: string, serviceRegistry, pyth) {
+async function deployOracle(
+  name: FeedNameEnumType,
+  serviceRegistry: any,
+  pyth: string
+) {
   let oracle;
-  switch (pair) {
-    case "cbETH/USD":
+  switch (name) {
+    case PythFeedNameEnum.CBETH_USD:
       oracle = await deployCbETHToUSDOracle(serviceRegistry, pyth);
       break;
-
-    case "wstETH/USD":
+    case PythFeedNameEnum.WSTETH_USD:
       oracle = await deployWSTETHToUSDOracle(serviceRegistry, pyth);
       break;
-    case "ETH/USD":
-        oracle = await deployETHOracle(serviceRegistry, pyth);
-        break;
+    case PythFeedNameEnum.ETH_USD:
+      oracle = await deployETHOracle(serviceRegistry, pyth);
+      break;
     default:
-        throw Error("Unknow Oracle type")
+      throw Error("Unknow Oracle type");
       break;
   }
   return oracle;
