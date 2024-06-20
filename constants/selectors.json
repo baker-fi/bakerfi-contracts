@@ -521,7 +521,7 @@
   "IUniswapV3SwapCallback": {
     "0xbda5fe3a": "uniswapV3SwapCallback"
   },
-  "ISwapRouter": {
+  "IV3SwapRouter": {
     "0x4c0c3b04": "exactInputSingle",
     "0xbda5fe3a": "uniswapV3SwapCallback",
     "0xc135bc9a": "exactInput",
