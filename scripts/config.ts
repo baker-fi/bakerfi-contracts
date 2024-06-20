@@ -40,7 +40,7 @@ export default {
         }],
         AAVEEModeCategory: 1,       
         strategy: "base",        
-        swapFeeTier: 500,        
+        swapFeeTier: 100,        
         AAVEPool: "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5", // Validated      
         pyth: "0x8250f4aF4B972684F7b336503E2D6dFeDeB1487a", 
         vaultSharesName: "Base AAVEv3 Bread ETH",
@@ -65,7 +65,7 @@ export default {
             collateral: "wstETH",
             oracle: "wstETH/USD Oracle"
         },
-        swapFeeTier: 500,        
+        swapFeeTier: 100,        
         AAVEPool: "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5", // Validated      
         pyth: "0x8250f4aF4B972684F7b336503E2D6dFeDeB1487a", 
         vaultSharesName: "Base AAVEv3 Bread ETH",

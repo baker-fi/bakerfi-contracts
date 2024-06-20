@@ -72,7 +72,10 @@ const config: HardhatUserConfig = {
     base: {
       url: process.env.WEB3_RPC_BASE_URL || 
         `https://rpc.ankr.com/base/${process.env.ANKR_API_KEY}`,
-      chainId: 8453,          
+      chainId: 8453,        
+      ...process.env.BAKERFI_PRIVATE_KEY ? { 
+        accounts: [`${process.env.BAKERFI_PRIVATE_KEY}`]
+      }: {},
     },
     ethereum_devnet: {
       url: `${process.env.TENDERLY_DEV_NET_RPC}`,

@@ -439,8 +439,7 @@ export function getDeployFunc() {
       deployFunc = deployOptimism;
       break;
     case "base_devnet":
-      // @ts-expect-error
-      deployFunc = deployBase;
+      deployFunc = deployOptimism;
       break;
     case "arbitrum_devnet":
       deployFunc = deployOptimism;
