@@ -8,10 +8,13 @@ export default {
         weth: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
         wstETH: "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
         stETH: "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",
-        oracle: {
-            type: "stETH",
-            chainLink: "0x86392dc19c0b719886221c78ab11eb8cf5c52812",
-        },
+        oracles: [{
+            name: PythFeedNameEnum.WSTETH_USD,
+            address: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4"
+        },{
+            pair: PythFeedNameEnum.ETH_USD,
+            address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
+        }],
         ethOracle: "0x5f4ec3df9cbd43714fe2740f5e3616155c5b8419",
         AAVEEModeCategory: 1,       
         strategy: "wstETH",        
