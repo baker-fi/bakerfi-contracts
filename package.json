@@ -69,6 +69,8 @@
     "ts-node": "^10.9.1"
   },
   "dependencies": {
+    "@ledgerhq/hw-app-eth": "^6.37.0",
+    "@ledgerhq/hw-transport-node-hid": "^6.29.0",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.10",
     "@openzeppelin/contracts": "^4.9.2",
     "@openzeppelin/contracts-upgradeable": "^4.9.2",
