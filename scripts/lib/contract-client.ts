@@ -1,7 +1,9 @@
+
+import { TransactionReceipt, ethers } from "ethers";
 import { Transaction } from "ethers/transaction";
 import { BigNumberish, parseUnits } from "ethers/utils";
-import { ContractDeployTransaction, TransactionReceipt } from "ethers";
-import { ethers } from "hardhat";
+import ContractTree from "../../src/contract-blob.json"
+
 
 type TxOptions = {
   gasLimit?: null | BigNumberish;
@@ -56,6 +58,14 @@ export interface ContractClient {
  *
  */
 export abstract class BaseContractClient implements ContractClient {
+
+  _provider:  ethers.Provider;
+
+  constructor(provider: ethers.Provider) {
+    this._provider = provider;
+  }
+
+
   abstract getAddress(): string;
 
   abstract init(): Promise<void>;
@@ -67,24 +77,27 @@ export abstract class BaseContractClient implements ContractClient {
     args: any[],
     options?: TxOptions
   ): Promise<TransactionReceipt | null> {
-    const factory = await ethers.getContractFactory(
-      factoryName,
-      options?.factoryOptions ?? {}
+
+    const factory = new ethers.ContractFactory(
+      ContractTree[factoryName].abi,
+      ContractTree[factoryName].bytecode,
+     // options?.factoryOptions ?? {}
     );
     const deployTx = await factory.getDeployTransaction(...args);
     const tx = Transaction.from({
       ...deployTx,
-      nonce: await ethers.provider.getTransactionCount(this.getAddress()),
+      ...options?.value? {value: options.value}: {},
+      nonce: await  this._provider.getTransactionCount(this.getAddress()),
       chainId: options?.chainId ?? 1,
       ...(await this.buildGasOptions(options)),
     });
     tx.gasLimit =
-      options?.gasLimit ?? (await ethers.provider.estimateGas(deployTx)) * 2n;
+      options?.gasLimit ?? (await  this._provider.estimateGas(deployTx)) * 2n;
     const signedTx = await this.sign(tx);
     return await this.broadcastTx(signedTx);
   }
   async broadcastTx(signedTx: Transaction) {
-    const response = await ethers.provider.broadcastTransaction(
+    const response = await  this._provider.broadcastTransaction(
       signedTx.serialized
     );
     const txReceipt = await response.wait();
@@ -92,8 +105,8 @@ export abstract class BaseContractClient implements ContractClient {
   }
 
   private async buildGasOptions(options: TxOptions | undefined) {
-    const feeData = await ethers.provider.getFeeData();
-    const block = await ethers.provider.getBlock("latest");
+    const feeData = await  this._provider.getFeeData();
+    const block = await this._provider.getBlock("latest");
     const gasOptions = {
       gasLimit: block?.gasLimit ?? 300000000n,
       gasPrice: options?.gasPrice ?? feeData.gasPrice,
@@ -111,17 +124,22 @@ export abstract class BaseContractClient implements ContractClient {
     args: any[],
     options?: TxOptions
   ): Promise<TransactionReceipt | null> {
-    const factory = await ethers.getContractFactory(factoryName);
+    const factory = new ethers.ContractFactory(
+      ContractTree[factoryName].abi,
+      ContractTree[factoryName].bytecode,
+     // options?.factoryOptions ?? {}
+    );
     const data = factory.interface.encodeFunctionData(funcName, args);
     const baseTx = Transaction.from({
       data: data,
       to: to,
-      nonce: await ethers.provider.getTransactionCount(this.getAddress()),
+      ...options?.value? {value: options.value}: {},
+      nonce: await this._provider.getTransactionCount(this.getAddress()),
       chainId: options?.chainId ?? 1,
       ...(await this.buildGasOptions(options)),
     });
     baseTx.gasLimit =
-      options?.gasLimit ?? (await ethers.provider.estimateGas(baseTx)) * 2n;
+      options?.gasLimit ?? (await this._provider.estimateGas(baseTx)) * 2n;
     const signedTx = await this.sign(baseTx);
     return await this.broadcastTx(signedTx);
   }

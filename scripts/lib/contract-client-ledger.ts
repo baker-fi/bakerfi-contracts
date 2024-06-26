@@ -2,6 +2,7 @@ import TransportNodeHid from "@ledgerhq/hw-transport-node-hid";
 import Eth, { ledgerService } from "@ledgerhq/hw-app-eth";
 import { Transaction } from "ethers/transaction";
 import { BaseContractClient } from "./contract-client";
+import { ethers } from "ethers";
 
 export class ContractClientLedger extends BaseContractClient {
 
@@ -9,8 +10,8 @@ export class ContractClientLedger extends BaseContractClient {
     _address: string;
     _ledgerApp: any;
   
-    constructor(path: string) {
-        super();
+    constructor(provider: ethers.Provider, path: string) {
+        super(provider);
         this._path = path;  
     }  
   

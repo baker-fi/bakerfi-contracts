@@ -8,8 +8,8 @@ export class ContractClientWallet extends BaseContractClient {
     _wallet: Wallet;
     _address: string;
 
-    constructor(pKey: string) {
-        super();
+    constructor(provider: ethers.Provider, pKey: string) {
+        super(provider);
         this._wallet = new ethers.Wallet(pKey);  
     }  
 

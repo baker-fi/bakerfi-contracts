@@ -11,6 +11,7 @@ import { ContractClientLedger } from "./lib/contract-client-ledger";
 
 const networkName = hre.network.name;
 const chainId = hre.network.config.chainId;
+hre.ethers
 
 /****************************************
  *
@@ -24,9 +25,14 @@ async function main() {
   const result: any[] = [];
   const spinner = ora("Cooking ....").start();
   if (process.env.DEPLOY_WITH_LEDGER === "true") {
-    app = new ContractClientLedger(process.env?.BAKERFI_LEDGER_PATH ?? "");
+    app = new ContractClientLedger(
+      ethers.provider,
+      process.env?.BAKERFI_LEDGER_PATH ?? "");
   } else {
-    app = new ContractClientWallet(signerPKey);
+    app = new ContractClientWallet(
+      ethers.provider,
+      signerPKey
+    );
   }
   await app.init();
 
@@ -305,11 +311,7 @@ async function deployVault(
     },
   });
 
-  const Vault = await ethers.getContractFactory("Vault", {
-    libraries: {
-      MathLibrary: mathLibraryAddress,
-    },
-  });
+  const Vault = await ethers.getContractFactory("Vault");
   const vaultProxyReceipt = await client.deploy(
     "BakerFiProxy",
     [
