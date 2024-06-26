@@ -7,20 +7,27 @@ import { feeds } from "./config";
 import { ContractClientWallet } from "./lib/contract-client-wallet";
 import { STAGING_ACCOUNTS_PKEYS } from "../constants/test-accounts";
 import { ContractClient } from "./lib/contract-client";
+import { ContractClientLedger } from "./lib/contract-client-ledger";
 
 const networkName = hre.network.name;
 const chainId = hre.network.config.chainId;
 
-/**
+/****************************************
+ *
  * Deploy BakerFi Vaults and support Ledger Support
- */
+ *
+ ****************************************/
 async function main() {
-  const ledgerPath = "m/44'/60'/0'/0/0";
+
   const [signerPKey] = STAGING_ACCOUNTS_PKEYS;
-  //const app = new ContractClientWallet(ledgerPath);
-  const app = new ContractClientWallet(signerPKey);
+  let app: ContractClient | null;
   const result: any[] = [];
   const spinner = ora("Cooking ....").start();
+  if (process.env.DEPLOY_WITH_LEDGER === "true") {
+    app = new ContractClientLedger(process.env?.BAKERFI_LEDGER_PATH ?? "");
+  } else {
+    app = new ContractClientWallet(signerPKey);
+  }
   await app.init();
 
   result.push(["Network Name", networkName]);
@@ -241,7 +248,7 @@ async function main() {
     result
   );
   ////////////////////////////////////
-  // 15. Update the Default Settings
+  // 15. Update the Strategy Default Settings
   ////////////////////////////////////
   spinner.text = "Transferring Ownership ...";
   const changeOwnerReceipt = await app.call(
