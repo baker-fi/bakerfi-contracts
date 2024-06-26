@@ -32,7 +32,6 @@ contract BalancerFlashLender is IERC3156FlashLenderUpgradeable, IFlashLoanRecipi
     error NoAllowanceToPayDebt();
 
     using SafeERC20 for IERC20;
-   // using MathLibrary for uint256;
 
     bytes32 public constant CALLBACK_SUCCESS = keccak256("ERC3156FlashBorrower.onFlashLoan");
 
