@@ -23,11 +23,6 @@ export async function deployBase() {
   const BakerFiProxyAdmin = await ethers.getContractFactory(
     "BakerFiProxyAdmin"
   );
-
-  const MathLibrary = await ethers.getContractFactory("MathLibrary");
-  const mathLibrary = await MathLibrary.deploy();
-  await mathLibrary.waitForDeployment();
-
   const proxyAdmin = await BakerFiProxyAdmin.deploy(deployer.address);
   await proxyAdmin.waitForDeployment();
 
@@ -82,7 +77,7 @@ export async function deployBase() {
   );
 
   // 11. Flash Lender Adapter
-  await deployBalancerFL(serviceRegistry, mathLibrary);
+  await deployBalancerFL(serviceRegistry);
   await deployETHOracle(serviceRegistry, config.pyth);
 
   // 12. Deploy the Strategy
@@ -109,7 +104,6 @@ export async function deployBase() {
     "brETH",
     await serviceRegistry.getAddress(),
     await strategyProxyDeploy.getAddress(),
-    mathLibrary,
     proxyAdmin
   );
 
@@ -156,10 +150,6 @@ export async function deployOptimism() {
   );
   const proxyAdmin = await BakerFiProxyAdmin.deploy(deployer.address);
   await proxyAdmin.waitForDeployment();
-
-  const MathLibrary = await ethers.getContractFactory("MathLibrary");
-  const mathLibrary = await MathLibrary.deploy();
-  await mathLibrary.waitForDeployment();
 
   // 1. Deploy Service Registry
   const serviceRegistry = await deployServiceRegistry(deployer.address);
@@ -215,7 +205,7 @@ export async function deployOptimism() {
   );
 
   // 11. Flash Lender Adapter
-  await deployBalancerFL(serviceRegistry, mathLibrary);
+  await deployBalancerFL(serviceRegistry);
 
   await deployETHOracle(serviceRegistry, config.pyth);
 
@@ -244,7 +234,6 @@ export async function deployOptimism() {
     "brETH",
     await serviceRegistry.getAddress(),
     await strategyProxyDeploy.getAddress(),
-    mathLibrary,
     proxyAdmin
   );
 
@@ -285,11 +274,6 @@ export async function deployEthereum() {
   const [deployer, otherAccount] = await ethers.getSigners();
   const networkName = network.name;
   const config = BaseConfig[networkName];
-
-  
-  const MathLibrary = await ethers.getContractFactory("MathLibrary");
-  const mathLibrary = await MathLibrary.deploy();
-  await mathLibrary.waitForDeployment();
 
   const BakerFiProxyAdmin = await ethers.getContractFactory(
     "BakerFiProxyAdmin"
@@ -350,7 +334,7 @@ export async function deployEthereum() {
   );
 
   // 11. Flash Lender Adapter
-  await deployBalancerFL(serviceRegistry, mathLibrary);
+  await deployBalancerFL(serviceRegistry);
 
   await deployETHOracle(serviceRegistry, config.pyth);
 
@@ -376,7 +360,6 @@ export async function deployEthereum() {
     "brETH",
     await serviceRegistry.getAddress(),
     await strategyProxyDeploy.getAddress(),
-    mathLibrary,
     proxyAdmin
   );
 

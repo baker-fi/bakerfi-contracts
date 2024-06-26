@@ -57,14 +57,9 @@ export async function deployVault(
   tokenSymbol: string,
   serviceRegistry: string,
   strategy: string,
-  mathLibrary: any,
   proxyAdmin?: any,
 ) {
-  const Vault = await ethers.getContractFactory("Vault", {
-    libraries: {
-      MathLibrary: await mathLibrary.getAddress(),
-    }
-  });
+  const Vault = await ethers.getContractFactory("Vault");
   const vault = await Vault.deploy();
   await vault.waitForDeployment();
 
@@ -360,14 +355,9 @@ export async function deployUniSwapper(owner: string, serviceRegistry: any) {
   return swapper;
 }
 
-export async function deployBalancerFL(serviceRegistry: any, ml: any) {
+export async function deployBalancerFL(serviceRegistry: any) {
 
-  const FlashLender = await ethers.getContractFactory("BalancerFlashLender", {
-    libraries: {
-      MathLibrary: await ml.getAddress(),
-    }
-
-  });
+  const FlashLender = await ethers.getContractFactory("BalancerFlashLender");
   const fl = await FlashLender.deploy(await serviceRegistry.getAddress());
   await fl.waitForDeployment();
   await serviceRegistry.registerService(

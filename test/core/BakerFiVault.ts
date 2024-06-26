@@ -369,10 +369,6 @@ async function deployFunction() {
   const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
   await proxyAdmin.waitForDeployment();
 
-  const MathLibrary = await ethers.getContractFactory("MathLibrary");
-  const mathLibrary = await MathLibrary.deploy();
-  await mathLibrary.waitForDeployment();
-
   // Deploy Flash Lender
   const flashLender = await deployFlashLender(
     serviceRegistry,
@@ -460,7 +456,6 @@ async function deployFunction() {
     "brETH",
     serviceRegistryAddress,
     await proxyStrategy.getAddress(),
-    mathLibrary,
     proxyAdmin,   
   );
 

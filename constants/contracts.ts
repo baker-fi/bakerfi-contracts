@@ -9,7 +9,6 @@ export type DeployConfig = {
     stETH: string | null;    
     wstETH: string | null;    
     flashLender: string;    
-    mathLibrary: string;
     uniswapRouter02: string;    
     uniswapQuoter: string;    
     AAVEv3Pool:string;    
@@ -42,7 +41,6 @@ export const deployConfigMap : {[key: string]: DeployConfig} =
     "local": {
         proxyAdmin: "0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e",
         serviceRegistry: "0xd7630A747b24b7245ff60e3095aD04684dC1a292",       
-        mathLibrary: "0x5bC13d5ce928Ae6e414A831D173E86fD040deBb9",
         weth: "0x709432fD1621610C92cA6E8455c81Ae88621Bbb6",  
         stETH: "0xf93e63A0d1ec46402065b862f08ad0962d5b2C88",
         wstETH: "0x258b944B1e716c01725771148382EB988e4AB0a7",
@@ -64,7 +62,6 @@ export const deployConfigMap : {[key: string]: DeployConfig} =
     "arbitrum": {
         proxyAdmin: "0xa641256b225e215c559cdC58F8757ad7140A2723",
         serviceRegistry: "0x82405993C4473A4364DF9D0C09E1A81Ecef9CA25",    
-        mathLibrary: "",   
         weth: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",  
         stETH: "0x07C1F45Dc0a620E6716d8A45485B8f0A79E270F8",
         wstETH: "0x5979D7b546E38E414F7E9822514be443A4800529",
@@ -89,7 +86,6 @@ export const deployConfigMap : {[key: string]: DeployConfig} =
     "base": {
         proxyAdmin: "0xa641256b225e215c559cdC58F8757ad7140A2723",
         serviceRegistry: "0x82405993C4473A4364DF9D0C09E1A81Ecef9CA25",    
-        mathLibrary: "",   
         weth: "0x4200000000000000000000000000000000000006",  
         stETH: "0x07C1F45Dc0a620E6716d8A45485B8f0A79E270F8",
         wstETH: "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452",
@@ -110,7 +106,6 @@ export const deployConfigMap : {[key: string]: DeployConfig} =
     "base_devnet": {
         proxyAdmin: "0xa641256b225e215c559cdC58F8757ad7140A2723",
         serviceRegistry: "0x82405993C4473A4364DF9D0C09E1A81Ecef9CA25",    
-        mathLibrary: "",   
         weth: "0x4200000000000000000000000000000000000006",  
         stETH: "0x07C1F45Dc0a620E6716d8A45485B8f0A79E270F8",
         wstETH: "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452",

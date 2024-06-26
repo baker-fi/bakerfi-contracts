@@ -56,18 +56,6 @@ async function main() {
     proxyAdminReceipt?.hash,
   ]);
   ////////////////////////////////////
-  // 2. Math Library
-  ////////////////////////////////////
-  spinner.text = "Deploying Math Library";
-  const mathLibraryReceipt = await app.deploy("MathLibrary", [], {
-    chainId,
-  });
-  result.push([
-    "Math Library",
-    mathLibraryReceipt?.contractAddress,
-    mathLibraryReceipt?.hash,
-  ]);
-  ////////////////////////////////////
   // 3. Service Registry
   ////////////////////////////////////
   spinner.text = "Deploying Registry";
@@ -173,12 +161,7 @@ async function main() {
     "BalancerFlashLender",
     [registryReceipt?.contractAddress ?? ""],
     {
-      chainId,
-      factoryOptions: {
-        libraries: {
-          MathLibrary: mathLibraryReceipt?.contractAddress,
-        },
-      },
+      chainId,    
     }
   );
   await app.send(
@@ -250,7 +233,6 @@ async function main() {
     config,
     registryReceipt?.contractAddress,
     strategyAddress,
-    mathLibraryReceipt?.contractAddress,
     result
   );
   ////////////////////////////////////
@@ -298,17 +280,11 @@ async function deployVault(
   config: any,
   registryAddress: string | null | undefined,
   strategyAddress: string | null | undefined,
-  mathLibraryAddress: string | null | undefined,
   result: any[]
 ) {
   spinner.text = "Deploying Vault";
   const vaultReceipt = await client.deploy("Vault", [], {
-    chainId,
-    factoryOptions: {
-      libraries: {
-        MathLibrary: mathLibraryAddress,
-      },
-    },
+    chainId,   
   });
 
   const Vault = await ethers.getContractFactory("Vault");

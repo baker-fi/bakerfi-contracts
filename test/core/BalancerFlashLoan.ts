@@ -67,9 +67,6 @@ describeif(network.name === "hardhat")("Balancer Flash Loan", function () {
 
 async function deployProdFunction() {
   // ETH Token
-  const MathLibrary = await ethers.getContractFactory("MathLibrary");
-  const mathLibrary = await MathLibrary.deploy();
-  await mathLibrary.waitForDeployment();
   
   const [owner, otherAccount] = await ethers.getSigners();
   const serviceRegistry = await deployServiceRegistry(owner.address);
@@ -94,7 +91,7 @@ async function deployProdFunction() {
     config.weth
   );
 
-  const fl = await deployBalancerFL(serviceRegistry, mathLibrary);
+  const fl = await deployBalancerFL(serviceRegistry);
   const borrower = await deployFlashBorrowerMock(serviceRegistry);
 
   // Add the ETH/CBV
@@ -107,10 +104,6 @@ async function deployFunction() {
   const serviceRegistry = await deployServiceRegistry(owner.address);
   const networkName = network.name;
   const config = BaseConfig[networkName];
-
-  const MathLibrary = await ethers.getContractFactory("MathLibrary");
-  const mathLibrary = await MathLibrary.deploy();
-  await mathLibrary.waitForDeployment();
 
   const WETH_SYMBOL = "WETH";
   const WETH_NAME = "Wrapped ETH";
@@ -138,7 +131,7 @@ async function deployFunction() {
   );
 
   // Balancer Flash Loan Adapter
-  const fl = await deployBalancerFL(serviceRegistry, mathLibrary);
+  const fl = await deployBalancerFL(serviceRegistry);
 
   const borrower = await deployFlashBorrowerMock(serviceRegistry);
   return { owner, otherAccount, weth, borrower, config, fl, balancerVault };
