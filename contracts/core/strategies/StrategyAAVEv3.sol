@@ -57,8 +57,8 @@ contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
             swapFeeTier
         );
         _initUseAAVEv3(registry);
-        aaveV3().setUserEMode(eModeCategory);
-        if (aaveV3().getUserEMode(address(this)) != eModeCategory) revert InvalidAAVEEMode();
+       aaveV3().setUserEMode(eModeCategory);
+       if (aaveV3().getUserEMode(address(this)) != eModeCategory) revert InvalidAAVEEMode();
     }
 
 
