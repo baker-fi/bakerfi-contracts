@@ -37,7 +37,7 @@ async function main() {
       chainId,
     }
   );
-  result.push(["Proxy Admin", proxyAdminReceipt?.contractAddress]);
+  result.push(["Proxy Admin", proxyAdminReceipt?.contractAddress, proxyAdminReceipt?.hash]);
 
   // 2. Math Library
   spinner.text = "Deploying Math Library";
@@ -48,7 +48,7 @@ async function main() {
       chainId,
     }
   );
-  result.push(["Math Library", mathLibraryReceipt?.contractAddress]);
+  result.push(["Math Library", mathLibraryReceipt?.contractAddress, mathLibraryReceipt?.hash]);
   // 3. Service Registry
   spinner.text = "Deploying Registry";
   const registryReceipt = await app.deploy(
@@ -59,10 +59,10 @@ async function main() {
       chainId,
     }
   );
-  result.push(["ServiceRegistry", registryReceipt?.contractAddress]);
+  result.push(["ServiceRegistry", registryReceipt?.contractAddress, registryReceipt?.hash]);
  // 4. Registering WETH Address
  spinner.text = "Registering WETH Address";
- await app.call(   
+ const wethRegReceipt = await app.call(   
     "ServiceRegistry",
     registryReceipt?.contractAddress ?? "",
     "registerService",
@@ -71,7 +71,7 @@ async function main() {
     chainId,
    }
  );
- result.push(["WETH", config.weth]);
+ result.push(["WETH", config.weth, wethRegReceipt?.hash]);
 
  // 5. Deploy Global Settings
   const settingsAddress = await deploySettings(
@@ -84,7 +84,7 @@ async function main() {
  );
 // 6. Registering Uniswap Router 02
  spinner.text = `Registiring Uniswap Router Contract ${config.uniswapRouter02}`;
- await app.call(
+ const routerReceipt = await app.call(
     "ServiceRegistry",
     registryReceipt?.contractAddress ?? "",
     "registerService",
@@ -93,11 +93,11 @@ async function main() {
       chainId,
     }
  );
- result.push(["Uniswap Router", config.uniswapRouter02]);
+ result.push(["Uniswap Router", config.uniswapRouter02, routerReceipt?.hash]);
 //
 // 7. Registering Uniswap Quoter
-spinner.text = `Registiring Uniswap Quoter Contract ${config.uniswapRouter02}`;
-await  app.call(
+ spinner.text = `Registiring Uniswap Quoter Contract ${config.uniswapRouter02}`;
+ const quoterReceipt =await  app.call(
   "ServiceRegistry",
   registryReceipt?.contractAddress ?? "",
   "registerService",
@@ -106,11 +106,11 @@ await  app.call(
     chainId,
   }
 );
-result.push(["Uniswap Quoter", config.uniswapQuoter]);
+result.push(["Uniswap Quoter", config.uniswapQuoter, quoterReceipt?.hash]);
 //
 //  8. AAVE Vault
 spinner.text = `Registiring AAVE v3 Contract`;
-await app.call(
+const aaveReceipt = await app.call(
   "ServiceRegistry",
   registryReceipt?.contractAddress ?? "",
   "registerService",
@@ -119,11 +119,11 @@ await app.call(
     chainId,
   }
 );
-result.push(["AAVE v3 Pool", config.AAVEPool]);
+result.push(["AAVE v3 Pool", config.AAVEPool, aaveReceipt?.hash]);
 //
 // 9. Register Balancer Vault
 spinner.text = `Registiring Balancer Vault`;
-await app.call(
+const balancerReceipt = await app.call(
   "ServiceRegistry",
   registryReceipt?.contractAddress ?? "",
   "registerService",
@@ -135,7 +135,7 @@ await app.call(
     chainId,
   }
 );
-result.push(["Balancer Pool", config.balancerVault]);
+result.push(["Balancer Pool", config.balancerVault, balancerReceipt?.hash]);
 //
 // 10. Flash Lender Adapter
 spinner.text = "Deploying Flash Lender Contract ...";
@@ -164,10 +164,10 @@ await app.call(
   }
 );
 
-result.push(["Flash Lender", flashLenderReceipt?.contractAddress]);
+result.push(["Flash Lender", flashLenderReceipt?.contractAddress, flashLenderReceipt?.hash]);
 // 11. Wrapped stETH
 if (config.wstETH) {
-  await app.call(
+  const wstETHReceipt = await app.call(
     "ServiceRegistry",
     registryReceipt?.contractAddress ?? "",
     "registerService",
@@ -176,7 +176,7 @@ if (config.wstETH) {
       chainId,
     }
   );
-  result.push(["wstETH", config.wstETH]);
+  result.push(["wstETH", config.wstETH, wstETHReceipt?.hash]);
 }
  // 12. Oracles
  await deployOracles(
@@ -216,7 +216,7 @@ const vaultAdress = await deployVault(
 //
 // 15. Update the Default Settings  
 spinner.text = "Transferring Ownership ...";
-await app.call( 
+const changeOwnerReceipt = await app.call( 
   "StrategyAAVEv3",
   strategyAddress ?? "",
   "transferOwnership",
@@ -225,9 +225,10 @@ await app.call(
     chainId,
   }
 );
+result.push(["Strategy Owner", vaultAdress, changeOwnerReceipt?.hash]);
 
 spinner.text = "Changing LTV ...";
-await app.call(
+const ltvChangeReceipt = await app.call(
   "StrategyAAVEv3",
   strategyAddress?? "",
   "setLoanToValue",
@@ -236,9 +237,10 @@ await app.call(
     chainId,
   }
 );
+result.push(["Strategy LTV", ethers.parseUnits("800", 6), ltvChangeReceipt?.hash]);
 
  spinner.succeed("🧑‍🍳 BakerFi Served 🍰 ");
- console.table(result);
+ console.table(result) ;
  process.exit(0);
 }
 
@@ -286,8 +288,8 @@ async function deployVault(
       chainId: chainId,
     }
   );
-  result.push(["Vault", vaultReceipt?.contractAddress]);
-  result.push(["Vault Proxy", vaultProxyReceipt?.contractAddress]);
+  result.push(["Vault", vaultReceipt?.contractAddress, vaultProxyReceipt?.hash]);
+  result.push(["Vault Proxy", vaultProxyReceipt?.contractAddress, vaultProxyReceipt?.hash]);
   return vaultProxyReceipt?.contractAddress;
 }
 
@@ -330,8 +332,8 @@ async function deployStrategy(
       chainId,
     }
   );
-  result.push(["Strategy", strategyReceipt?.contractAddress]);
-  result.push(["Strategy Proxy", strategyProxyReceipt?.contractAddress]);
+  result.push(["Strategy", strategyReceipt?.contractAddress, strategyReceipt?.hash]);
+  result.push(["Strategy Proxy", strategyProxyReceipt?.contractAddress, strategyProxyReceipt?.hash]);
 
   return strategyProxyReceipt?.contractAddress;
 }
@@ -381,7 +383,7 @@ async function deployOracles(
         chainId,
       }
     );
-    result.push([`${oracle.pair} Oracle`, oracleReceipt?.contractAddress]);
+    result.push([`${oracle.pair} Oracle`, oracleReceipt?.contractAddress, oracleReceipt?.hash]);
   }
 }
 
@@ -444,8 +446,8 @@ async function deploySettings(
     }
   );
 
-  result.push(["Settings", settingsReceipt?.contractAddress]);
-  result.push(["Settings Proxy", settingsProxyReceipt?.contractAddress]);
+  result.push(["Settings", settingsReceipt?.contractAddress, settingsReceipt?.hash]);
+  result.push(["Settings Proxy", settingsProxyReceipt?.contractAddress, settingsReceipt?.hash]);
 
   return settingsProxyReceipt?.contractAddress;
 }
