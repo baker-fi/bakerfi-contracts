@@ -44,13 +44,20 @@ export interface ContractClient {
     args: any[],
     options?: TxOptions
   ): Promise<TransactionReceipt | null>;
-  call(
+  send(
     contractName: string,
     address: string,
     funcName: string,
     args: any[],
     options?: TxOptions
   ): Promise<TransactionReceipt | null>;
+  call(
+    contractName: string,
+    address: string,
+    funcName: string,
+    args: any[],
+    options?: TxOptions
+  ): Promise<any>;
   broadcastTx(signedTx: Transaction): Promise<TransactionReceipt | null>;
 }
 
@@ -117,7 +124,7 @@ export abstract class BaseContractClient implements ContractClient {
     return gasOptions;
   }
 
-  public async call(
+  public async send(
     factoryName: string,
     to: string,
     funcName: string,
@@ -127,7 +134,6 @@ export abstract class BaseContractClient implements ContractClient {
     const factory = new ethers.ContractFactory(
       ContractTree[factoryName].abi,
       ContractTree[factoryName].bytecode,
-     // options?.factoryOptions ?? {}
     );
     const data = factory.interface.encodeFunctionData(funcName, args);
     const baseTx = Transaction.from({
@@ -142,5 +148,18 @@ export abstract class BaseContractClient implements ContractClient {
       options?.gasLimit ?? (await this._provider.estimateGas(baseTx)) * 2n;
     const signedTx = await this.sign(baseTx);
     return await this.broadcastTx(signedTx);
+  }
+
+  public async call(
+    factoryName: string,
+    to: string,
+    funcName: string,
+    args: any[]
+  ): Promise<any> {
+    
+    const contract = new ethers.Contract(to, ContractTree[factoryName].abi, this._provider);
+    const functionInt = contract.interface.getFunction(funcName);
+    const ret = await contract[functionInt?.name??""](...args);
+    return ret;
   }
 }

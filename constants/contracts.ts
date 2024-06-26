@@ -106,6 +106,27 @@ export const deployConfigMap : {[key: string]: DeployConfig} =
         settings: "0xb0bbF58c8199F3CA383F0535b6a58A6E5Bbd587B",
         settingsProxy: "0xBd7f910A074D9d35789a47FF0962b5706D7855dF",
         pyth: "0x8250f4aF4B972684F7b336503E2D6dFeDeB1487a",         
+    },
+    "base_devnet": {
+        proxyAdmin: "0xa641256b225e215c559cdC58F8757ad7140A2723",
+        serviceRegistry: "0x82405993C4473A4364DF9D0C09E1A81Ecef9CA25",    
+        mathLibrary: "",   
+        weth: "0x4200000000000000000000000000000000000006",  
+        stETH: "0x07C1F45Dc0a620E6716d8A45485B8f0A79E270F8",
+        wstETH: "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452",
+        flashLender: "0x2db37f9DcD838B06a40Dc1aB171a8eBB474ef44C",
+        uniswapRouter02: "0x2626664c2603336E57B271c5C0b26F421741e481", 
+        uniswapQuoter: "0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a",
+        AAVEv3Pool: "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5", 
+        wstETHUSDOracle: "0x63121b44680C502FDeDC725cd7CBcD37E0967d88",
+        ethUSDOracle: "0xd0fDAfd2cf24fC4D8B57ffC001d3DC10422d3623",
+        strategy: "0x8Fb35FEf7c2fcdfE09b6985f894905b875111a72",
+        strategyProxy: "0x40aB23988835bdA372deA30690CCCC3419580548",
+        vault: "0x3a6f7a481ad94eb03d229b846002561dc2742449",      
+        vaultProxy: "0x5c1b2312FaE6c0d61B6A15A8093842E9fE5b1e44",          
+        settings: "0xb0bbF58c8199F3CA383F0535b6a58A6E5Bbd587B",
+        settingsProxy: "0xBd7f910A074D9d35789a47FF0962b5706D7855dF",
+        pyth: "0x8250f4aF4B972684F7b336503E2D6dFeDeB1487a",         
     }
 }
 

@@ -88,7 +88,7 @@ async function main() {
   // 4. Registering WETH Address
   ////////////////////////////////////
   spinner.text = "Registering WETH Address";
-  const wethRegReceipt = await app.call(
+  const wethRegReceipt = await app.send(
     "ServiceRegistry",
     registryReceipt?.contractAddress ?? "",
     "registerService",
@@ -113,7 +113,7 @@ async function main() {
   // 6. Registering Uniswap Router 02
   ////////////////////////////////////
   spinner.text = `Registiring Uniswap Router Contract ${config.uniswapRouter02}`;
-  const routerReceipt = await app.call(
+  const routerReceipt = await app.send(
     "ServiceRegistry",
     registryReceipt?.contractAddress ?? "",
     "registerService",
@@ -127,7 +127,7 @@ async function main() {
   // 7. Registering Uniswap Quoter
   ////////////////////////////////////
   spinner.text = `Registiring Uniswap Quoter Contract ${config.uniswapRouter02}`;
-  const quoterReceipt = await app.call(
+  const quoterReceipt = await app.send(
     "ServiceRegistry",
     registryReceipt?.contractAddress ?? "",
     "registerService",
@@ -141,7 +141,7 @@ async function main() {
   //  8. AAVE Vault
   ////////////////////////////////////
   spinner.text = `Registiring AAVE v3 Contract`;
-  const aaveReceipt = await app.call(
+  const aaveReceipt = await app.send(
     "ServiceRegistry",
     registryReceipt?.contractAddress ?? "",
     "registerService",
@@ -155,7 +155,7 @@ async function main() {
   // 9. Register Balancer Vault
   ////////////////////////////////////
   spinner.text = `Registiring Balancer Vault`;
-  const balancerReceipt = await app.call(
+  const balancerReceipt = await app.send(
     "ServiceRegistry",
     registryReceipt?.contractAddress ?? "",
     "registerService",
@@ -181,7 +181,7 @@ async function main() {
       },
     }
   );
-  await app.call(
+  await app.send(
     "ServiceRegistry",
     registryReceipt?.contractAddress ?? "",
     "registerService",
@@ -203,7 +203,7 @@ async function main() {
   // 11. Wrapped stETH
   ////////////////////////////////////
   if (config.wstETH) {
-    const wstETHReceipt = await app.call(
+    const wstETHReceipt = await app.send(
       "ServiceRegistry",
       registryReceipt?.contractAddress ?? "",
       "registerService",
@@ -257,7 +257,7 @@ async function main() {
   // 15. Update the Strategy Default Settings
   ////////////////////////////////////
   spinner.text = "Transferring Ownership ...";
-  const changeOwnerReceipt = await app.call(
+  const changeOwnerReceipt = await app.send(
     "StrategyAAVEv3",
     strategyAddress ?? "",
     "transferOwnership",
@@ -269,7 +269,7 @@ async function main() {
   result.push(["Strategy Owner", vaultAdress, changeOwnerReceipt?.hash]);
 
   spinner.text = "Changing LTV ...";
-  const ltvChangeReceipt = await app.call(
+  const ltvChangeReceipt = await app.send(
     "StrategyAAVEv3",
     strategyAddress ?? "",
     "setLoanToValue",
@@ -427,7 +427,7 @@ async function deployOracles(
       }
     );
     spinner.text = `Registering ${oracle.pair} Oracle`;
-    await client.call(
+    await client.send(
       "ServiceRegistry",
       registryAddress,
       "registerService",
@@ -492,7 +492,7 @@ async function deploySettings(
   );
 
   spinner.text = "Registering Settings Address";
-  await client.call(
+  await client.send(
     "ServiceRegistry",
     registryContractAddress ?? "",
     "registerService",
