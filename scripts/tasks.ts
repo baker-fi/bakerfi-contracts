@@ -481,21 +481,26 @@ task("deploy:upgrade:settings", "Upgrade the settings Contract").setAction(
   async ({}, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
+
     const spinner = ora(`Upgrading Settings Contract`).start();
     try {
-      const Settings = await ethers.getContractFactory("Settings");
-      const settings = await Settings.deploy();
-      await settings.waitForDeployment();
-      const proxyAdmin = await ethers.getContractAt(
+      // 1. Deploy a new Instance
+      let app: ContractClient | null = await getClient(ethers);
+      const settingsReceipt = await app.deploy("Settings", [], {
+        chainId: network.config.chainId,
+      });
+
+      await app.send(
         "ProxyAdmin",
-        networkConfig?.proxyAdmin ?? ""
-      );
-      await proxyAdmin.upgrade(
-        networkConfig.settingsProxy,
-        await settings.getAddress()
+        networkConfig?.proxyAdmin ?? "",
+        "upgrade",
+        [networkConfig.settingsProxy, settingsReceipt?.contractAddress],
+        {
+          chainId: network.config.chainId,
+        }
       );
       spinner.succeed(
-        `New Settings Contract is ${await settings.getAddress()}`
+        `New Settings Contract is ${settingsReceipt?.contractAddress}`
       );
     } catch (e) {
       console.log(e);
@@ -510,19 +515,21 @@ task("deploy:upgrade:strategy", "Upgrade the settings Contract").setAction(
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Upgrading strategy Contract`).start();
     try {
-      const StrategyAAVEv3 = await ethers.getContractFactory("StrategyAAVEv3");
-      const strategy = await StrategyAAVEv3.deploy();
-      await strategy.waitForDeployment();
-      const proxyAdmin = await ethers.getContractAt(
+      let app: ContractClient | null = await getClient(ethers);
+      const stratReceipt = await app.deploy("StrategyAAVEv3", [], {
+        chainId: network.config.chainId,
+      });
+      await app.send(
         "ProxyAdmin",
-        networkConfig?.proxyAdmin ?? ""
-      );
-      await proxyAdmin.upgrade(
-        networkConfig.strategyProxy,
-        await strategy.getAddress()
+        networkConfig?.proxyAdmin ?? "",
+        "upgrade",
+        [networkConfig.strategyProxy, stratReceipt?.contractAddress],
+        {
+          chainId: network.config.chainId,
+        }
       );
       spinner.succeed(
-        `New Strategy Contract is ${await strategy.getAddress()}`
+        `New Strategy Contract is ${stratReceipt?.contractAddress}`
       );
     } catch (e) {
       console.log(e);
@@ -537,22 +544,20 @@ task("deploy:upgrade:vault", "Upgrade the settings Contract").setAction(
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Upgrading Vault Contract`).start();
     try {
-      const Vault = await ethers.getContractFactory("Vault", {
-        libraries: {
-          MathLibrary: networkConfig.mathLibrary,
-        },
+      let app: ContractClient | null = await getClient(ethers);
+      const vaultReceipt = await app.deploy("Vault", [], {
+        chainId: network.config.chainId,
       });
-      const vault = await Vault.deploy();
-      await vault.waitForDeployment();
-      const proxyAdmin = await ethers.getContractAt(
+      await app.send(
         "ProxyAdmin",
-        networkConfig?.proxyAdmin ?? ""
+        networkConfig?.proxyAdmin ?? "",
+        "upgrade",
+        [networkConfig.vaultProxy, vaultReceipt?.contractAddress],
+        {
+          chainId: network.config.chainId,
+        }
       );
-      await proxyAdmin.upgrade(
-        networkConfig.vaultProxy,
-        await vault.getAddress()
-      );
-      spinner.succeed(`New Vault Contract is ${await vault.getAddress()}`);
+      spinner.succeed(`New Vault Contract is ${vaultReceipt?.contractAddress}`);
     } catch (e) {
       console.log(e);
       spinner.fail("Failed 💥");
@@ -711,15 +716,4 @@ async function getClient(ethers) {
   }
   await app.init();
   return app;
-}
-
-async function getSignerOrThrow(ethers, address) {
-  const signers = await ethers.getSigners();
-  const [signer] = signers.filter(
-    (signer) => signer.address.toLowerCase() === address.toLowerCase()
-  );
-  if (!signer) {
-    throw Error("Account not found ");
-  }
-  return signer;
 }
