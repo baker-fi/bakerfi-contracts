@@ -1,9 +1,9 @@
 import TransportNodeHid from "@ledgerhq/hw-transport-node-hid";
 import Eth, { ledgerService } from "@ledgerhq/hw-app-eth";
 import { Transaction } from "ethers/transaction";
-import { ContractClient } from "./contract-client";
+import { BaseContractClient } from "./contract-client";
 
-export class ContractClientLedger extends ContractClient {
+export class ContractClientLedger extends BaseContractClient {
 
     _path: string;
     _address: string;

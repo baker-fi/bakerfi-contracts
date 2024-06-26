@@ -310,7 +310,6 @@ async function deployStrategy(
     }
   );
   const Strategy = await ethers.getContractFactory("StrategyAAVEv3");
-  console.log("chainId", chainId);
   spinner.text = "Deploying Strategy Proxy";
   const strategyProxyReceipt = await client.deploy(
     "BakerFiProxy",

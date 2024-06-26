@@ -1,9 +1,9 @@
 import { Wallet } from "ethers/wallet";
-import { ContractClient } from "./contract-client";
+import { BaseContractClient } from "./contract-client";
 import { ethers } from "ethers";
 import { Transaction } from "ethers";
 
-export class ContractClientWallet extends ContractClient {
+export class ContractClientWallet extends BaseContractClient {
 
     _wallet: Wallet;
     _address: string;
