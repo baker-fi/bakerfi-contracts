@@ -1,7 +1,7 @@
 import "dotenv/config";
 import hre from "hardhat";
 import { ethers } from "hardhat";
-import BaseConfig, { NetworkConfig } from "../constants/network-deploy-config";
+import BaseConfig, { NetworkConfig, OracleRegistryNames } from "../constants/network-deploy-config";
 import ora from "ora";
 import { feeds } from "../constants/network-deploy-config";
 import { ContractClientWallet } from "./lib/contract-client-wallet";
@@ -317,7 +317,7 @@ async function deployOracles(
   for (const oracle of config.oracles) {
     spinner.text = `Deploying ${oracle.pair} Oracle`;
     let feedId;
-    let oracleName = "";
+    let oracleName: OracleRegistryNames | null = null;
     switch (oracle.pair) {
       case "cbETH/USD":
         feedId = feeds.CBETHUSDFeedId;
