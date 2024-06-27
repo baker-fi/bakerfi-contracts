@@ -37,16 +37,18 @@ type RegistryNames =
 async function main() {
 
   const [signerPKey] = STAGING_ACCOUNTS_PKEYS;
-  let app: ContractClient | null;
+  let app: ContractClient<typeof ContractTree> | null;
   const result: any[] = [];
   const spinner = ora("Cooking ....").start();
   if (process.env.DEPLOY_WITH_LEDGER === "true") {
     app = new ContractClientLedger(
       ethers.provider,
+      ContractTree,
       process.env?.BAKERFI_LEDGER_PATH ?? "");
   } else {
     app = new ContractClientWallet(
       ethers.provider,
+      ContractTree,
       signerPKey
     );
   }
@@ -304,7 +306,7 @@ async function main() {
 }
 
 async function deployOracles(
-  client: ContractClient,
+  client: ContractClient<typeof ContractTree>,
   chainId: bigint,
   config,
   registryAddress: string,
@@ -377,7 +379,7 @@ main().catch((error) => {
  * @returns
  */
 async function deployProxyContract(
-  client: ContractClient,
+  client: ContractClient<typeof ContractTree>,
   instanceName: ProxyContracts,
   registerName: RegistryNames,
   proxyAdminAddress: string | null | undefined,

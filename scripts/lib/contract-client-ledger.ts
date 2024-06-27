@@ -3,15 +3,16 @@ import Eth, { ledgerService } from "@ledgerhq/hw-app-eth";
 import { Transaction } from "ethers/transaction";
 import { ContractClientBase } from "./contract-client-base";
 import { ethers } from "ethers";
+import { ContractTreeType } from "./contract-client";
 
-export class ContractClientLedger extends ContractClientBase {
+export class ContractClientLedger<ContractTree extends ContractTreeType> extends ContractClientBase<ContractTree> {
 
     _path: string;
     _address: string;
     _ledgerApp: any;
   
-    constructor(provider: ethers.Provider, path: string) {
-        super(provider);
+    constructor(provider: ethers.Provider, contractTree: ContractTree, path: string) {
+        super(provider, contractTree);
         this._path = path;  
     }  
   
