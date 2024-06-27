@@ -10,8 +10,7 @@ import { ContractClient } from "./lib/contract-client";
 import { ContractClientLedger } from "./lib/contract-client-ledger";
 
 const networkName = hre.network.name;
-const chainId = hre.network.config.chainId;
-hre.ethers
+const chainId = BigInt(hre.network.config.chainId ?? 0n);
 
 /****************************************
  *
@@ -273,7 +272,7 @@ async function main() {
 
 async function deployVault(
   client: ContractClient,
-  chainId: number,
+  chainId: bigint,
   spinner: ora.Ora,
   proxyAdminAddress: string | null | undefined,
   owner: string,
@@ -320,7 +319,7 @@ async function deployVault(
 
 async function deployStrategy(
   client: ContractClient,
-  chainId: number | null | undefined,
+  chainId: bigint,
   spinner: ora.Ora,
   proxyAdminAddress: string | null | undefined,
   ownerAddress: string | null | undefined,
@@ -369,7 +368,7 @@ async function deployStrategy(
 
 async function deployOracles(
   client: ContractClient,
-  chainId: number,
+  chainId: bigint,
   config,
   registryAddress: string,
   spinner,

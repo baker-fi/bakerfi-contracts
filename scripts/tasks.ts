@@ -1,4 +1,5 @@
 import ora from "ora";
+import hre from "hardhat";
 import { task } from "hardhat/config";
 import DeployConfig from "../constants/contracts";
 import { pythFeedIds } from "../constants/contracts";
