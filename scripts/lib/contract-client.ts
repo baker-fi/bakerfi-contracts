@@ -22,27 +22,57 @@ export type ContractTreeType = {
 }
 
 export interface ContractClient<ContractTree extends ContractTreeType> {
+  
   getAddress(): string;
+  
   init(): Promise<void>;
+  
   sign(tx: Transaction): Promise<Transaction>;
+  
+  /**
+   * Deploy a Contract
+   * @param contractName 
+   * @param args 
+   * @param options 
+   */
   deploy<ContractName extends keyof ContractTree>(
     contractName: ContractName,
-    args: any[],
+    contractAddress: any[],
     options?: TxOptions
   ): Promise<TransactionReceipt | null>;
+  
+  /**
+   * Send a Tx to change the state 
+   * 
+   * @param contractName 
+   * @param contractAddress 
+   * @param funcName 
+   * @param args 
+   * @param options 
+   */
   send<ContractName extends keyof ContractTree>(
-    contractName: string,
-    address: string,
+    contractName: ContractName,
+    contractAddress: string,
     funcName: string,
     args: any[],
     options?: TxOptions
   ): Promise<TransactionReceipt | null>;
+
+  /**
+   * Call a contract to read the state
+   * @param contractName 
+   * @param contractAddress 
+   * @param funcName 
+   * @param args 
+   * @param options 
+   */
   call<ContractName extends keyof ContractTree>(
-    contractName: string,
-    address: string,
+    contractName: ContractName,
+    contractAddress: string,
     funcName: string,
     args: any[],
     options?: TxOptions
   ): Promise<any>;
+  
   broadcastTx(signedTx: Transaction): Promise<TransactionReceipt | null>;
 }

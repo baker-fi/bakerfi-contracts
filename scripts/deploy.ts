@@ -14,6 +14,7 @@ const networkName = hre.network.name;
 const chainId = BigInt(hre.network.config.chainId ?? 0n);
 
 type ProxyContracts = keyof typeof ContractTree;
+
 type RegistryNames = 
   "FlashLender" | 
   "StrategyAAVEv3" |
