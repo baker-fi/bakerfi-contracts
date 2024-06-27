@@ -2,7 +2,7 @@
 import { TransactionReceipt } from "ethers";
 import { Transaction } from "ethers/transaction";
 
-export type TxOptions = Pick<Transaction,
+export type TxOptions = Pick<Partial<Transaction>,
   | "gasLimit"
   | "gasPrice"
   | "maxPriorityFeePerGas"

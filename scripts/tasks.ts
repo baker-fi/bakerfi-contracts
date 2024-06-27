@@ -487,7 +487,7 @@ task("deploy:upgrade:settings", "Upgrade the settings Contract").setAction(
       // 1. Deploy a new Instance
       let app: ContractClient | null = await getClient(ethers);
       const settingsReceipt = await app.deploy("Settings", [], {
-        chainId: network.config.chainId,
+        chainId: BigInt(network.config.chainId?? 0),
       });
 
       await app.send(
@@ -496,7 +496,7 @@ task("deploy:upgrade:settings", "Upgrade the settings Contract").setAction(
         "upgrade",
         [networkConfig.settingsProxy, settingsReceipt?.contractAddress],
         {
-          chainId: network.config.chainId,
+          chainId: BigInt(network.config.chainId?? 0),
         }
       );
       spinner.succeed(
@@ -517,7 +517,7 @@ task("deploy:upgrade:strategy", "Upgrade the settings Contract").setAction(
     try {
       let app: ContractClient | null = await getClient(ethers);
       const stratReceipt = await app.deploy("StrategyAAVEv3", [], {
-        chainId: network.config.chainId,
+        chainId: BigInt(network.config.chainId?? 0),
       });
       await app.send(
         "ProxyAdmin",
@@ -525,7 +525,7 @@ task("deploy:upgrade:strategy", "Upgrade the settings Contract").setAction(
         "upgrade",
         [networkConfig.strategyProxy, stratReceipt?.contractAddress],
         {
-          chainId: network.config.chainId,
+          chainId: BigInt(network.config.chainId?? 0),
         }
       );
       spinner.succeed(
@@ -546,7 +546,7 @@ task("deploy:upgrade:vault", "Upgrade the settings Contract").setAction(
     try {
       let app: ContractClient | null = await getClient(ethers);
       const vaultReceipt = await app.deploy("Vault", [], {
-        chainId: network.config.chainId,
+        chainId: BigInt(network.config.chainId?? 0),
       });
       await app.send(
         "ProxyAdmin",
@@ -554,7 +554,7 @@ task("deploy:upgrade:vault", "Upgrade the settings Contract").setAction(
         "upgrade",
         [networkConfig.vaultProxy, vaultReceipt?.contractAddress],
         {
-          chainId: network.config.chainId,
+          chainId: BigInt(network.config.chainId?? 0),
         }
       );
       spinner.succeed(`New Vault Contract is ${vaultReceipt?.contractAddress}`);
