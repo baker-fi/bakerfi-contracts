@@ -637,7 +637,7 @@ task("pyth:priceUpdate", "Update Required Prices").setAction(
       const networkName = network.name;
       const networkConfig = DeployConfig[networkName];
       // You can also call this function to get price updates for the on-chain contract directly.
-      const vaas = currentPrices?.map((feed) =>
+      const vaas = currentPrices?.map((feed) =>        
         Buffer.from(feed.vaa, "base64")
       );
       console.log("Updating Prices...");

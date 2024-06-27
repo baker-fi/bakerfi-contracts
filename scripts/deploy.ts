@@ -8,9 +8,26 @@ import { ContractClientWallet } from "./lib/contract-client-wallet";
 import { STAGING_ACCOUNTS_PKEYS } from "../constants/test-accounts";
 import { ContractClient } from "./lib/contract-client";
 import { ContractClientLedger } from "./lib/contract-client-ledger";
+import ContractTree from "../src/contract-blob.json"
 
 const networkName = hre.network.name;
 const chainId = BigInt(hre.network.config.chainId ?? 0n);
+
+type ProxyContracts = keyof typeof ContractTree;
+type RegistryNames = 
+  "FlashLender" | 
+  "StrategyAAVEv3" |
+  "WETH" | 
+  "stETH" | 
+  "wstETH" | 
+  "wstETH/USD Oracle" | 
+  "cbETH/USD Oracle" | 
+  "ETH/USD Oracle" | 
+  "Strategy" |
+  "Pyth" | 
+  "Settings" |
+  "Vault";
+
 
 /****************************************
  *
@@ -88,12 +105,14 @@ async function main() {
   ////////////////////////////////////
   // 5. Deploy Global Settings
   ////////////////////////////////////
-  const settingsAddress = await deploySettings(
+  await deployProxyContract(
     app,
-    spinner,
+    "Settings",
+    "Settings",    
     proxyAdminReceipt?.contractAddress,
     registryReceipt?.contractAddress,
-    app.getAddress(),
+    [app.getAddress()],
+    spinner,
     result
   );
   ////////////////////////////////////
@@ -207,31 +226,45 @@ async function main() {
     spinner,
     result
   );
+
   ////////////////////////////////////
   // 13. Deploy Strategy
   ////////////////////////////////////
-  const strategyAddress = await deployStrategy(
+  const strategyAddress = await deployProxyContract(
     app,
-    chainId,
-    spinner,
+    "StrategyAAVEv3",
+    "StrategyAAVEv3",
     proxyAdminReceipt?.contractAddress,
-    app.getAddress(),
     registryReceipt?.contractAddress,
-    config,
+    [
+        app.getAddress(),
+        app.getAddress(),
+        registryReceipt?.contractAddress,
+        ethers.keccak256(Buffer.from(config.strategy.collateral)),
+        ethers.keccak256(Buffer.from(config.strategy.oracle)),
+        config.swapFeeTier,
+        config.AAVEEModeCategory,      
+    ],
+    spinner,
     result
   );
   ////////////////////////////////////
   // 14. Deploy Vault
   ////////////////////////////////////
-  const vaultAdress = await deployVault(
+  const vaultAdress = await deployProxyContract(
     app,
-    chainId ?? 0,
-    spinner,
-    proxyAdminReceipt?.contractAddress ?? "",
-    app.getAddress(),
-    config,
+    "Vault",
+    "Vault",
+    proxyAdminReceipt?.contractAddress,
     registryReceipt?.contractAddress,
-    strategyAddress,
+    [
+      app.getAddress(),
+      config.vaultSharesName,
+      config.vaultSharesSymbol,
+      registryReceipt?.contractAddress,
+      strategyAddress,
+    ],
+    spinner,
     result
   );
   ////////////////////////////////////
@@ -268,102 +301,6 @@ async function main() {
   spinner.succeed("🧑‍🍳 BakerFi Served 🍰 ");
   console.table(result);
   process.exit(0);
-}
-
-async function deployVault(
-  client: ContractClient,
-  chainId: bigint,
-  spinner: ora.Ora,
-  proxyAdminAddress: string | null | undefined,
-  owner: string,
-  config: any,
-  registryAddress: string | null | undefined,
-  strategyAddress: string | null | undefined,
-  result: any[]
-) {
-  spinner.text = "Deploying Vault";
-  const vaultReceipt = await client.deploy("Vault", [], {
-    chainId,   
-  });
-
-  const Vault = await ethers.getContractFactory("Vault");
-  const vaultProxyReceipt = await client.deploy(
-    "BakerFiProxy",
-    [
-      vaultReceipt?.contractAddress,
-      proxyAdminAddress,
-      Vault.interface.encodeFunctionData("initialize", [
-        owner,
-        config.vaultSharesName,
-        config.vaultSharesSymbol,
-        registryAddress,
-        strategyAddress,
-      ]),
-    ],
-    {
-      chainId: chainId,
-    }
-  );
-  result.push([
-    "Vault",
-    vaultReceipt?.contractAddress,
-    vaultProxyReceipt?.hash,
-  ]);
-  result.push([
-    "Vault Proxy",
-    vaultProxyReceipt?.contractAddress,
-    vaultProxyReceipt?.hash,
-  ]);
-  return vaultProxyReceipt?.contractAddress;
-}
-
-async function deployStrategy(
-  client: ContractClient,
-  chainId: bigint,
-  spinner: ora.Ora,
-  proxyAdminAddress: string | null | undefined,
-  ownerAddress: string | null | undefined,
-  registryAddress: string | null | undefined,
-  config: any,
-  result: any[]
-) {
-  spinner.text = "Deploying Strategy";
-  const strategyReceipt = await client.deploy("StrategyAAVEv3", [], {
-    chainId,
-  });
-  const Strategy = await ethers.getContractFactory("StrategyAAVEv3");
-  spinner.text = "Deploying Strategy Proxy";
-  const strategyProxyReceipt = await client.deploy(
-    "BakerFiProxy",
-    [
-      strategyReceipt?.contractAddress,
-      proxyAdminAddress,
-      Strategy.interface.encodeFunctionData("initialize", [
-        ownerAddress,
-        ownerAddress,
-        registryAddress,
-        ethers.keccak256(Buffer.from(config.strategy.collateral)),
-        ethers.keccak256(Buffer.from(config.strategy.oracle)),
-        config.swapFeeTier,
-        config.AAVEEModeCategory,
-      ]),
-    ],
-    {
-      chainId,
-    }
-  );
-  result.push([
-    "Strategy",
-    strategyReceipt?.contractAddress,
-    strategyReceipt?.hash,
-  ]);
-  result.push([
-    "Strategy Proxy",
-    strategyProxyReceipt?.contractAddress,
-    strategyProxyReceipt?.hash,
-  ]);
-
-  return strategyProxyReceipt?.contractAddress;
 }
 
 async function deployOracles(
@@ -439,57 +376,63 @@ main().catch((error) => {
  * @param result
  * @returns
  */
-async function deploySettings(
+async function deployProxyContract(
   client: ContractClient,
-  spinner: ora.Ora,
+  instanceName: ProxyContracts,
+  registerName: RegistryNames,
   proxyAdminAddress: string | null | undefined,
   registryContractAddress: string | null | undefined,
-  owner: string,
+  args: any[],
+  spinner: ora.Ora,  
   result: any[]
 ) {
-  spinner.text = "Deploying Settings";
-  const settingsReceipt = await client.deploy("Settings", [], {
-    chainId,
-  });
-  const Settings = await ethers.getContractFactory("Settings");
+  spinner.text = `Deploying ${instanceName}`;
+  const instanceReceipt = await client.deploy(
+    instanceName, 
+    [], 
+    // Tx Options
+    {
+      chainId,
+    }
+  );
+  const contractFactory = await ethers.getContractFactory(instanceName);
 
-  spinner.text = "Deploying Settings Proxy";
-  const settingsProxyReceipt = await client.deploy(
+  spinner.text = `Deploying ${instanceName} Proxy`;
+  const proxyReceipt = await client.deploy(
     "BakerFiProxy",
     [
-      settingsReceipt?.contractAddress,
+      instanceReceipt?.contractAddress,
       proxyAdminAddress,
-      Settings.interface.encodeFunctionData("initialize", [owner]),
+      contractFactory.interface.encodeFunctionData("initialize", args),
     ],
     {
       chainId,
     }
   );
 
-  spinner.text = "Registering Settings Address";
+  spinner.text = `Registering ${instanceName} Proxy Address`;
   await client.send(
     "ServiceRegistry",
     registryContractAddress ?? "",
     "registerService",
     [
-      ethers.keccak256(Buffer.from("Settings")),
-      settingsProxyReceipt?.contractAddress,
+      ethers.keccak256(Buffer.from(registerName)),
+      proxyReceipt?.contractAddress,
     ],
     {
       chainId,
     }
   );
-
   result.push([
-    "Settings",
-    settingsReceipt?.contractAddress,
-    settingsReceipt?.hash,
+    instanceName,
+    instanceReceipt?.contractAddress,
+    instanceReceipt?.hash,
   ]);
   result.push([
-    "Settings Proxy",
-    settingsProxyReceipt?.contractAddress,
-    settingsReceipt?.hash,
+    `${instanceName} Proxy`,
+    proxyReceipt?.contractAddress,
+    proxyReceipt?.hash,
   ]);
 
-  return settingsProxyReceipt?.contractAddress;
+  return proxyReceipt?.contractAddress;
 }
