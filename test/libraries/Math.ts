@@ -5,10 +5,10 @@ import { expect } from "chai";
 import { ethers, network } from "hardhat";
 import { describeif } from "../common";
 
-describeif(network.name === "hardhat")("Rebase Library", function () {
+describeif(network.name === "hardhat")("Math Library", function () {
 
     async function deployFunction() {
-        const Math = await ethers.getContractFactory("MathLibrary")
+        const Math = await ethers.getContractFactory("MathLibraryWrapper")
         const math = await Math.deploy();
         await math.waitForDeployment();
         return math;

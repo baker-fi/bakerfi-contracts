@@ -3,7 +3,7 @@ pragma solidity ^0.8.24;
 
 library MathLibrary {
 
-     function mulDivUp(uint256 x, uint256 y, uint256 denominator) external pure returns (uint256) {
+     function mulDivUp(uint256 x, uint256 y, uint256 denominator) internal pure returns (uint256) {
         uint256 product = x*y ;
         if (denominator == 0 || x == 0 || y == 0) {
             return 0;

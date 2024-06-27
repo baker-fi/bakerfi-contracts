@@ -15,7 +15,7 @@ import {ERC20PermitUpgradeable} from "@openzeppelin/contracts-upgradeable/token/
 import {UseSettings} from "./hooks/UseSettings.sol";
 import {ReentrancyGuardUpgradeable} from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import {AddressUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
-import { UseMathLibrary } from "./hooks/UseMathLibrary.sol";
+import {MathLibrary} from "../libraries/MathLibrary.sol";
 
 /**
  * @title BakerFi Vault 🏦🧑‍🍳
@@ -47,13 +47,13 @@ contract Vault is
     ReentrancyGuardUpgradeable,
     ERC20PermitUpgradeable,
     UseSettings,
-    IVault,
-    UseMathLibrary
+    IVault
 {
     using RebaseLibrary for Rebase;
     using SafeERC20Upgradeable for ERC20Upgradeable;
     using AddressUpgradeable for address;
     using AddressUpgradeable for address payable;
+    using MathLibrary for uint256;
 
 
     error InvalidOwner();
@@ -141,7 +141,6 @@ contract Vault is
         whenNotPaused
         returns (int256 balanceChange)
     {
-        
         uint256 maxPriceAge = settings().getRebalancePriceMaxAge();
         uint256 maxPriceConf = settings().getPriceMaxConf();
         uint256 currentPos = _totalAssets(  IOracle.PriceOptions({
@@ -164,8 +163,7 @@ contract Vault is
                      */
                     uint256 feeInEthScaled = uint256(balanceChange) *
                         settings().getPerformanceFee();                    
-                    uint256 sharesToMint = this.mulDivUp(
-                        feeInEthScaled,
+                    uint256 sharesToMint = feeInEthScaled.mulDivUp(
                         totalSupply(), 
                         _totalAssets(
                             IOracle.PriceOptions({
@@ -304,7 +302,7 @@ contract Vault is
         _burn(msg.sender, shares);
         // Withdraw ETh to Receiver and pay withdrawal Fees
         if (settings().getWithdrawalFee() != 0 && settings().getFeeReceiver() != address(0)) {
-            fee = this.mulDivUp(amount, settings().getWithdrawalFee(), PERCENTAGE_PRECISION);
+            fee = amount.mulDivUp(settings().getWithdrawalFee(), PERCENTAGE_PRECISION);
             payable(msg.sender).sendValue(amount - fee);
             payable(settings().getFeeReceiver()).sendValue(fee);
         } else {
