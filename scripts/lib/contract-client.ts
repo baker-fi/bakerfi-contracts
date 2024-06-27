@@ -11,7 +11,6 @@ export type TxOptions = Pick<Partial<Transaction>,
   | "chainId"
 >;
 
-
 export type ContractDefinition = {
     abi: ethers.InterfaceAbi,
     bytecode: ethers.BytesLike ,
