@@ -13,7 +13,7 @@ import {
   deploySettings,
 } from "../../scripts/common";
 
-import BaseConfig from "../../scripts/config";
+import BaseConfig, { NetworkConfig } from "../../constants/network-deploy-config";
 
 export async function deployBase() {
   const [deployer, otherAccount] = await ethers.getSigners();
@@ -143,7 +143,7 @@ export async function deployBase() {
 export async function deployOptimism() {
   const [deployer, otherAccount] = await ethers.getSigners();
   const networkName = network.name;
-  const config = BaseConfig[networkName];
+  const config: NetworkConfig = BaseConfig[networkName];
 
   const BakerFiProxyAdmin = await ethers.getContractFactory(
     "BakerFiProxyAdmin"
@@ -273,7 +273,7 @@ export async function deployOptimism() {
 export async function deployEthereum() {
   const [deployer, otherAccount] = await ethers.getSigners();
   const networkName = network.name;
-  const config = BaseConfig[networkName];
+  const config: NetworkConfig = BaseConfig[networkName];
 
   const BakerFiProxyAdmin = await ethers.getContractFactory(
     "BakerFiProxyAdmin"

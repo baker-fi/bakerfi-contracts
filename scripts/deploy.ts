@@ -1,9 +1,9 @@
 import "dotenv/config";
 import hre from "hardhat";
 import { ethers } from "hardhat";
-import BaseConfig from "./config";
+import BaseConfig, { NetworkConfig } from "../constants/network-deploy-config";
 import ora from "ora";
-import { feeds } from "./config";
+import { feeds } from "../constants/network-deploy-config";
 import { ContractClientWallet } from "./lib/contract-client-wallet";
 import { STAGING_ACCOUNTS_PKEYS } from "../constants/test-accounts";
 import { ContractClient } from "./lib/contract-client";
@@ -57,7 +57,7 @@ async function main() {
 
   result.push(["Network Name", networkName]);
   result.push(["Network Id", chainId]);
-  const config = BaseConfig[networkName];
+  const config: NetworkConfig  = BaseConfig[networkName];
   ////////////////////////////////////
   // 1. Proxy Admin
   ////////////////////////////////////

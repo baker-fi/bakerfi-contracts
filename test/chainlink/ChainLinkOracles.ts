@@ -4,21 +4,20 @@ import { expect } from "chai";
 import { ethers, network } from "hardhat";
 import { describeif } from "../common";
 import { time } from "@nomicfoundation/hardhat-network-helpers";
-import BaseConfig from "../../scripts/config";
+import BaseConfig, { NetworkConfig } from "../../constants/network-deploy-config";
 
 export async function deploy() {
     const [owner] = await ethers.getSigners();
     const networkName = network.name;
-    const config = BaseConfig[networkName];
+    const config: NetworkConfig = BaseConfig[networkName];
     const WstETHToETHOracle = await ethers.getContractFactory("ChainLinkOracle");
-    const wstETHToETH = await WstETHToETHOracle.deploy(config.wstETHToETH, 0, 0);
+    const wstETHToETH = await WstETHToETHOracle.deploy(config?.chainlink?.wstEthToETH??"", 0, 0);
     const EthToUSD = await ethers.getContractFactory("ChainLinkOracle");
-    const ethToUSD = await EthToUSD.deploy(config.wstETHToETH, 0, 0);
+    const ethToUSD = await EthToUSD.deploy(config?.chainlink?.wstEthToETH, 0, 0);
     const CbETHToETH = await ethers.getContractFactory("ChainLinkOracle");
-    const cbETHToETH = await CbETHToETH.deploy(config.cbETHToETH, 0, 0);
+    const cbETHToETH = await CbETHToETH.deploy(config?.chainlink?.cbETHToETH, 0, 0);
     return { owner, wstETHToETH, ethToUSD, cbETHToETH };
 }
-
 
 describeif(
     network.name === "arbitrum_devnet"
@@ -81,6 +80,7 @@ describeif(network.name === "hardhat")
         const block = await ethers.provider.getBlock(0);
         expect(price).to.equal(3500n*(10n**18n));
         expect(await aggregator.decimals()).to.equal(6);
+        // @ts-ignore
         expect(updatedAt).to.greaterThan(block?.timestamp);
     });
 
@@ -91,6 +91,7 @@ describeif(network.name === "hardhat")
         const block = await ethers.provider.getBlock(0);
         expect(price).to.equal(3500n*(10n**18n));
         expect(await aggregator.decimals()).to.equal(6);
+        // @ts-ignore
         expect(updatedAt).to.greaterThan(block?.timestamp);
     });
 
@@ -101,7 +102,8 @@ describeif(network.name === "hardhat")
 
         await expect(
             oracle.getSafeLatestPrice([0,0])                           
-          ).to.be.revertedWithCustomError(oracle, "InvalidPriceFromOracle");
+        // @ts-ignore
+        ).to.be.revertedWithCustomError(oracle, "InvalidPriceFromOracle");
        
     });
 
@@ -111,8 +113,9 @@ describeif(network.name === "hardhat")
         await time.increase(3600);
 
         await expect(
-            oracle.getSafeLatestPrice([120,0])                           
-          ).to.be.revertedWithCustomError(oracle, "PriceOutdated");
+          oracle.getSafeLatestPrice([120, 0])
+          // @ts-ignore
+        ).to.be.revertedWithCustomError(oracle, "PriceOutdated");
        
     });
 
@@ -121,8 +124,9 @@ describeif(network.name === "hardhat")
         const { oracle,  aggregator} = await loadFixture(deployFunction);
         await aggregator.setLatestPrice(10n*(10n**6n));    
         await expect(
-            oracle.getSafeLatestPrice([0,0])                           
-          ).to.be.revertedWithCustomError(oracle, "InvalidPriceFromOracle");       
+          oracle.getSafeLatestPrice([0, 0])
+          // @ts-ignore
+        ).to.be.revertedWithCustomError(oracle, "InvalidPriceFromOracle");       
     });
 
 

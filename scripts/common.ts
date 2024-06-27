@@ -1,6 +1,6 @@
 import "@nomicfoundation/hardhat-ethers";
 import { ethers } from "hardhat";
-import { feeds } from "./config";
+import { feeds } from "../constants/network-deploy-config";
 
 export async function deployFlashLender(
   serviceRegistry,

@@ -16,7 +16,7 @@ import {
   deploySettings,
   deployQuoterV2Mock,
 } from "../../scripts/common";
-import BaseConfig from "../../scripts/config";
+import BaseConfig, { NetworkConfig } from "../../constants/network-deploy-config";
 
 /**
  * Unit Tests for BakerFi Vault with a regular AAVEv3StrategyWstETH
@@ -42,6 +42,7 @@ describeif(network.name === "hardhat")(
       const depositAmount = ethers.parseUnits("10", 18);
       const tx = vault.deposit(owner.address, { value: depositAmount });
       await expect(tx)
+        // @ts-ignore
         .to.emit(vault, "Deposit")
         .withArgs(
           owner.address,
@@ -49,6 +50,7 @@ describeif(network.name === "hardhat")(
           ethers.parseUnits("10", 18),
           9962113816060668112n
         );
+      // @ts-ignore        
       await expect(tx).to.changeEtherBalances(
         [owner.address],
         [-ethers.parseUnits("10", 18)]
@@ -77,12 +79,14 @@ describeif(network.name === "hardhat")(
       });
       const tx = vault.withdraw(ethers.parseUnits("1", 18));
       await expect(tx)
+        // @ts-ignore
         .to.emit(vault, "Withdraw")
         .withArgs(
           owner.address,
           996631271986539459n,
           ethers.parseUnits("1", 18)
         );
+      // @ts-ignore
       await expect(tx).to.changeEtherBalances(
         [owner.address],
         [996631271986539459n]
@@ -127,7 +131,7 @@ describeif(network.name === "hardhat")(
       await vault.deposit(owner.address, {
         value: ethers.parseUnits("10", 18),
       });
-
+       // @ts-ignore
       expect(vault.transfer(1000, otherAccount.address)).to.changeTokenBalances(
         vault,
         [owner.address, otherAccount.address],
@@ -159,6 +163,7 @@ describeif(network.name === "hardhat")(
       expect((await strategy.getPosition([0,0]))[1]).to.equal(35740737736704000000n);
       await settings.setFeeReceiver(otherAccount.address);
       await expect(vault.rebalance())
+         // @ts-ignore
         .to.emit(vault, "Transfer")
         .withArgs(
           "0x0000000000000000000000000000000000000000",
@@ -186,6 +191,7 @@ describeif(network.name === "hardhat")(
       await vault.withdraw(ethers.parseUnits("1", 18));
 
       expect(await provider.getBalance(otherAccount.address)).to.greaterThan(
+        // @ts-ignore
         1000000000877192792268345n
       );
     });
@@ -208,6 +214,7 @@ describeif(network.name === "hardhat")(
       expect((await strategy.getPosition([0,0]))[0]).to.equal(1);
       expect((await strategy.getPosition([0,0]))[1]).to.equal(0);
       expect(balanceAfter - balanceBefore).to.greaterThan(
+        // @ts-ignore
         ethers.parseUnits("9", 18)
       );
       expect((await strategy.getPosition([0,0]))[2]).to.equal(0);
@@ -223,6 +230,7 @@ describeif(network.name === "hardhat")(
 
       const balanceOf = await vault.balanceOf(owner.address);
       await expect(vault.withdraw(balanceOf-100n)).
+        // @ts-ignore
         to.be.revertedWithCustomError(vault, "InvalidShareBalance");;
             
     });
@@ -264,12 +272,14 @@ describeif(network.name === "hardhat")(
       });
       const tx = vault.withdraw(ethers.parseUnits("5", 18));
       await expect(tx)
+        // @ts-ignore
         .to.emit(vault, "Withdraw")
         .withArgs(
           "0xf15CC0ccBdDA041e2508B829541917823222F364",
           5001090809999999998n,
           5000000000000000000n
         );
+      // @ts-ignore
       await expect(tx).to.changeEtherBalances(
         [owner.address],
         [5001090809999999998n]
@@ -296,6 +306,7 @@ describeif(network.name === "hardhat")(
       await strategy.setMaxLoanToValue(800 * 1e6);
 
       await expect(vault.rebalance())
+         // @ts-ignore
         .to.emit(aave3Pool, "Repay")
         .withArgs(
           await weth.getAddress(),
@@ -364,6 +375,7 @@ describeif(network.name === "hardhat")(
         vault.deposit(owner.address, {
           value: depositAmount,
         })
+      // @ts-ignore
       ).to.be.revertedWithCustomError(vault, "NoPermissions");
     });
 
@@ -394,6 +406,7 @@ describeif(network.name === "hardhat")(
         vault.deposit(owner.address, {
           value: 10,
         })
+        // @ts-ignore
       ).to.be.revertedWithCustomError(vault, "InvalidShareBalance");               
     });
     
@@ -431,6 +444,7 @@ describeif(network.name === "hardhat")(
       await strategy.setHarvestPerCall(1000);
 
       await expect(vault.rebalance())
+        // @ts-ignore
         .to.emit(vault, "Transfer")
         .withArgs(
           "0x0000000000000000000000000000000000000000",
@@ -512,7 +526,7 @@ describeif(network.name === "hardhat")(
  */
 async function deployFunction() {
   const networkName = network.name;
-  const config = BaseConfig[networkName];
+  const config: NetworkConfig = BaseConfig[networkName];
   const [owner, otherAccount, anotherAccount] = await ethers.getSigners();
   const STETH_MAX_SUPPLY = ethers.parseUnits("1000010000", 18);
   const STETH_TO_WRAPPER = ethers.parseUnits("10000", 18);

@@ -16,7 +16,7 @@ import {
 } from "../../scripts/common";
 
 import { describeif } from "../common";
-import BaseConfig from "../../scripts/config";
+import BaseConfig, { NetworkConfig } from "../../constants/network-deploy-config";
 
 /**
  * StrategyAAVEv3 Unit Tests
@@ -29,6 +29,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
       await strategy.deploy({
         value: ethers.parseUnits("10", 18),
       })
+    // @ts-ignore
     ).to.changeEtherBalances([owner.address], [ethers.parseUnits("10", 18)]);
     expect(await strategy.getPosition([0,0])).to.deep.equal([
       45702851552764668112n,
@@ -54,6 +55,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
     // Receive ~=5 ETH
     await expect(
       strategy.undeploy(ethers.parseUnits("5", 18))
+    // @ts-ignore
     ).to.changeEtherBalances([owner.address], [4983156389718359984n]);
   });
 
@@ -64,6 +66,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
       strategy.deploy({
         value: 0,
       })
+    // @ts-ignore
     ).to.be.revertedWithCustomError(strategy, "InvalidDeployAmount");
   });
 
@@ -74,6 +77,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
       strategy.connect(otherAccount).deploy({
         value: ethers.parseUnits("10", 18),
       })
+    // @ts-ignore
     ).to.be.revertedWith("Ownable: caller is not the owner");
   });
 
@@ -86,6 +90,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
     await expect(
       // @ts-expect-error
       strategy.connect(otherAccount).undeploy(ethers.parseUnits("5", 18))
+      // @ts-ignore
     ).to.be.revertedWith("Ownable: caller is not the owner");
   });
 
@@ -109,6 +114,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
     await oracle.setLatestPrice(1130 * 1e6 * 0.1);
     await expect(
       strategy.undeploy(ethers.parseUnits("10", 18))
+    // @ts-ignore
     ).to.be.revertedWithCustomError(strategy, "NoCollateralMarginToScale");
   });
 
@@ -124,6 +130,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
         0,
         "0x"
       )
+    // @ts-ignore  
     ).to.be.revertedWithCustomError(strategy, "InvalidFlashLoanSender");
   });
 
@@ -165,6 +172,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
         0,
         "0x"
       )
+    // @ts-ignore
     ).to.be.revertedWithCustomError(pStrategy, "InvalidFlashLoanAsset");
   });
 
@@ -206,6 +214,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
         0,
         "0x"
       )
+    // @ts-ignore
     ).to.be.revertedWithCustomError(pStrategy, "FailedToAuthenticateArgs");
   });
 
@@ -226,6 +235,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
 
     await expect(
       attacker.flashme(await weth.getAddress(), ethers.parseUnits("1", 18))
+    // @ts-ignore
     ).to.be.revertedWithCustomError(strategy, "InvalidFlashLoanSender");
   });
 
@@ -239,6 +249,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
     await settings.setRebalancePriceMaxAge(60);
     // advance time by one hour and mine a new block
     await time.increase(3600);
+    // @ts-ignore
     await expect(strategy.harvest()).to.be.revertedWithCustomError(
       strategy, "PriceOutdated"
     );
@@ -264,7 +275,7 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
  */
 async function deployFunction() {
   const networkName = network.name;
-  const config = BaseConfig[networkName];
+  const config: NetworkConfig = BaseConfig[networkName];
   const [owner, otherAccount] = await ethers.getSigners();
   const CBETH_MAX_SUPPLY = ethers.parseUnits("1000000000", 18);
   const FLASH_LENDER_DEPOSIT = ethers.parseUnits("10000", 18);

@@ -14,12 +14,12 @@ import {
   deployQuoterV2Mock,
 } from "../../scripts/common";
 
-import BaseConfig from "../../scripts/config";
+import BaseConfig, { NetworkConfig } from "../../constants/network-deploy-config";
 
 describeif(network.name === "hardhat")("Strategy Proxy", function () {
   async function deployFunction() {
     const networkName = network.name;
-    const config = BaseConfig[networkName];
+    const config: NetworkConfig = BaseConfig[networkName];
     const [owner, otherAccount] = await ethers.getSigners();
     const CBETH_MAX_SUPPLY = ethers.parseUnits("1000000000", 18);
     const FLASH_LENDER_DEPOSIT = ethers.parseUnits("10000", 18);

@@ -15,7 +15,7 @@ import {
   deployQuoterV2Mock,
   deployAAVEv3StrategyAny,
 } from "../../scripts/common";
-import BaseConfig from "../../scripts/config";
+import BaseConfig, { NetworkConfig } from "../../constants/network-deploy-config";
 import { time } from "@nomicfoundation/hardhat-network-helpers";
 
 /**
@@ -30,11 +30,13 @@ describeif(network.name === "hardhat")("BakerFi Vault For L2s", function () {
     const tx = await vault.deposit(owner.address, {
       value: ethers.parseUnits("10", 18),
     });
+    // @ts-ignore
     await expect(tx).to.changeEtherBalances(
       [owner.address],
       [ethers.parseUnits("-10", 18)]
     );
     await expect(tx)
+       // @ts-ignore
       .to.emit(aave3Pool, "Supply")
       .withArgs(
         await cbETH.getAddress(),
@@ -44,6 +46,7 @@ describeif(network.name === "hardhat")("BakerFi Vault For L2s", function () {
         0
       );
     await expect(tx)
+      // @ts-ignore
       .to.emit(aave3Pool, "Borrow")
       .withArgs(
         await weth.getAddress(),
@@ -64,7 +67,7 @@ describeif(network.name === "hardhat")("BakerFi Vault For L2s", function () {
       await vault.deposit(owner.address, {
         value: ethers.parseUnits("10", 18),
       })
-    )
+    ) // @ts-ignore
       .to.emit(aave3Pool, "Borrow")
       .withArgs(
         await weth.getAddress(),
@@ -86,7 +89,7 @@ describeif(network.name === "hardhat")("BakerFi Vault For L2s", function () {
       vault.deposit(owner.address, {
         value: ethers.parseUnits("10", 18),
       })
-    )
+    ) // @ts-ignore
       .to.emit(strategy, "StrategyAmountUpdate")
       .withArgs(9962113816060668112n);
 
@@ -94,14 +97,14 @@ describeif(network.name === "hardhat")("BakerFi Vault For L2s", function () {
       vault.deposit(owner.address, {
         value: ethers.parseUnits("10", 18),
       })
-    )
+    )  // @ts-ignore
       .to.emit(strategy, "StrategyAmountUpdate")
       .withArgs(19924227632121336224n);
     await expect(
       vault.deposit(owner.address, {
         value: ethers.parseUnits("10", 18),
       })
-    )
+    ) // @ts-ignore
       .to.emit(strategy, "StrategyAmountUpdate")
       .withArgs(29886341448182004336n);
   });
@@ -208,7 +211,7 @@ describeif(network.name === "hardhat")("BakerFi Vault For L2s", function () {
 
     // advance time by one hour and mine a new block
     await time.increase(3600);
-
+     // @ts-ignore
     await expect(tx).to.changeEtherBalances(
       [owner.address],
       [ethers.parseUnits("-10", 18)]
@@ -344,6 +347,7 @@ describeif(network.name === "hardhat")("BakerFi Vault For L2s", function () {
     const { vault, owner, otherAccount } = await loadFixture(deployFunction);
     await vault.transferOwnership(otherAccount.address);
     expect(await vault.pendingOwner()).to.equal(otherAccount.address);
+    // @ts-ignore
     await vault.connect(otherAccount).acceptOwnership();
     expect(await vault.owner()).to.equal(otherAccount.address);
   });
@@ -355,7 +359,7 @@ describeif(network.name === "hardhat")("BakerFi Vault For L2s", function () {
 async function deployFunction() {
   const [owner, otherAccount, anotherAccount] = await ethers.getSigners();
   const networkName = network.name;
-  const config = BaseConfig[networkName];
+  const config: NetworkConfig = BaseConfig[networkName];
   const CBETH_MAX_SUPPLY = ethers.parseUnits("1000000000", 18);
   const FLASH_LENDER_DEPOSIT = ethers.parseUnits("10000", 18);
   const AAVE_DEPOSIT = ethers.parseUnits("10000", 18);

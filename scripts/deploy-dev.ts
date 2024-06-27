@@ -15,7 +15,7 @@ import {
   deployBKR,
 } from "./common";
 
-import BaseConfig from "./config";
+import BaseConfig from "../constants/network-deploy-config";
 import ora from "ora";
 
 /**

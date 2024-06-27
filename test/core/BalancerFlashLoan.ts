@@ -2,7 +2,7 @@ import "@nomicfoundation/hardhat-ethers";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers, network } from "hardhat";
-import BaseConfig from "../../scripts/config";
+import BaseConfig, { NetworkConfig } from "../../constants/network-deploy-config";
 import { describeif } from "../common";
 import {
   deployServiceRegistry,
@@ -52,6 +52,7 @@ describeif(network.name === "hardhat")("Balancer Flash Loan", function () {
     );
     await expect(
       borrower.flashme(await weth.getAddress(), ethers.parseUnits("10000", 18))
+    // @ts-ignore
     ).to.be.revertedWithCustomError(balancerVault, "NoEnoughBalance");
   });
 
@@ -71,7 +72,7 @@ async function deployProdFunction() {
   const [owner, otherAccount] = await ethers.getSigners();
   const serviceRegistry = await deployServiceRegistry(owner.address);
   const networkName = network.name;
-  const config = BaseConfig[networkName];
+  const config: NetworkConfig = BaseConfig[networkName];
 
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from("Balancer Vault")),
@@ -103,7 +104,7 @@ async function deployFunction() {
   const [owner, otherAccount] = await ethers.getSigners();
   const serviceRegistry = await deployServiceRegistry(owner.address);
   const networkName = network.name;
-  const config = BaseConfig[networkName];
+  const config:NetworkConfig = BaseConfig[networkName];
 
   const WETH_SYMBOL = "WETH";
   const WETH_NAME = "Wrapped ETH";

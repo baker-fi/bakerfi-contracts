@@ -31,25 +31,39 @@ describeif(
       value: depositAmount,
     });
     expect(await vault.balanceOf(deployer.address))
+      // @ts-ignore
       .to.greaterThan(ethers.parseUnits("9", 17))
+      // @ts-ignore
       .lessThanOrEqual(ethers.parseUnits("11", 17));
     expect((await strategy.getPosition([0,0]))[0])
+      // @ts-ignore
       .to.greaterThan(ethers.parseUnits("40", 17))
+      // @ts-ignore
       .lessThanOrEqual(ethers.parseUnits("46", 17));
     expect((await strategy.getPosition([0,0]))[1])
+      // @ts-ignore
       .to.greaterThan(ethers.parseUnits("33", 17))
+      // @ts-ignore
       .lessThanOrEqual(ethers.parseUnits("37", 17));
     expect(await vault.totalAssets())
+      // @ts-ignore
       .to.greaterThan(ethers.parseUnits("9", 17))
+      // @ts-ignore
       .lessThanOrEqual(ethers.parseUnits("11", 17));
     expect((await strategy.getPosition([0,0]))[2])
+      // @ts-ignore
       .to.greaterThan(700000000n)
+      // @ts-ignore
       .lessThanOrEqual(810000000n);
     expect(await vault.totalSupply())
+      // @ts-ignore
       .to.greaterThan(ethers.parseUnits("9", 17))
+      // @ts-ignore
       .lessThanOrEqual(ethers.parseUnits("11", 17));
     expect(await vault.tokenPerETH())
+      // @ts-ignore
       .to.greaterThan(ethers.parseUnits("9", 17))
+      // @ts-ignore
       .lessThanOrEqual(ethers.parseUnits("11", 17));
   });
 
@@ -69,29 +83,45 @@ describeif(
     const balanceBefore = await provider.getBalance(deployer.address);
     await vault.withdraw(ethers.parseUnits("5", 18));
     expect(await vault.balanceOf(deployer.address))
+      // @ts-ignore
       .to.greaterThan(ethers.parseUnits("4", 18))
+      // @ts-ignore
       .lessThanOrEqual(ethers.parseUnits("6", 18));
     expect((await strategy.getPosition([0,0]))[0])
+      // @ts-ignore
       .to.greaterThan(ethers.parseUnits("9", 18))
+      // @ts-ignore
       .lessThanOrEqual(ethers.parseUnits("11", 18));
     expect((await strategy.getPosition([0,0]))[1])
+      // @ts-ignore
       .to.greaterThan(ethers.parseUnits("4", 18))
+      // @ts-ignore
       .lessThanOrEqual(ethers.parseUnits("6", 18));
     expect(await vault.totalAssets())
+      // @ts-ignore
       .to.greaterThan(ethers.parseUnits("4", 18))
+      // @ts-ignore
       .lessThanOrEqual(ethers.parseUnits("6", 18));
     expect((await strategy.getPosition([0,0]))[2])
+      // @ts-ignore
       .to.greaterThan(400000000n)
+      // @ts-ignore
       .lessThanOrEqual(600000000n);
     expect(await vault.totalSupply())
+      // @ts-ignore
       .to.greaterThan(ethers.parseUnits("4", 18))
+      // @ts-ignore
       .lessThanOrEqual(ethers.parseUnits("6", 18));
     expect(await vault.tokenPerETH())
+      // @ts-ignore
       .to.greaterThan(ethers.parseUnits("9", 17))
+      // @ts-ignore
       .lessThanOrEqual(ethers.parseUnits("11", 17));
     const balanceAfter = await provider.getBalance(deployer.address);
     expect(balanceAfter - balanceBefore)
+      // @ts-ignore
       .greaterThan(ethers.parseUnits("4", 18))
+      // @ts-ignore
       .lessThanOrEqual(ethers.parseUnits("11", 18));
   });
 
@@ -109,6 +139,7 @@ describeif(
         value: depositAmount,
       })
     )
+      // @ts-ignore
       .to.emit(strategy, "StrategyAmountUpdate")
       .withArgs((value) => {
         return value >= 971432545612539374n;
@@ -118,12 +149,15 @@ describeif(
     await strategy.setMaxLoanToValue(ethers.parseUnits("400", 6));
 
     await expect(vault.rebalance())
+      // @ts-ignore
       .to.emit(strategy, "StrategyAmountUpdate")
       .withArgs((value) => {
         return value >= 902114986650737323n;
       });
     expect((await strategy.getPosition([0,0]))[2])
+      // @ts-ignore
       .to.greaterThan(300000000n)
+      // @ts-ignore
       .lessThanOrEqual(410000000n);
   });
 
@@ -147,7 +181,9 @@ describeif(
     const balanceDiff = balanceAfter - balanceBefore;
 
     expect(balanceDiff)
+      // @ts-ignore
       .to.greaterThan(ethers.parseUnits("4", 17))
+      // @ts-ignore
       .lessThanOrEqual(ethers.parseUnits("6", 17));
   });
 

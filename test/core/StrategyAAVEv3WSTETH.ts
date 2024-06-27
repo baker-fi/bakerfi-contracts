@@ -15,7 +15,7 @@ import {
   deployQuoterV2Mock,
 } from "../../scripts/common";
 import { describeif } from "../common";
-import BaseConfig from "../../scripts/config";
+import BaseConfig, { NetworkConfig } from "../../constants/network-deploy-config";
 
 /**
  *  Strategy Mainnet wstETH/ETH Unit Tests
@@ -36,6 +36,7 @@ describeif(network.name === "hardhat")(
         await strategy.deploy({
           value: ethers.parseUnits("10", 18),
         })
+        // @ts-ignore
       ).to.changeEtherBalances([owner.address], [ethers.parseUnits("10", 18)]);
 
       expect(await strategy.getPosition([0,0])).to.deep.equal([
@@ -59,6 +60,7 @@ describeif(network.name === "hardhat")(
       await aave3Pool.setCollateralPerEth(1154 * 1e6 * 1.1);
 
       expect(strategy.harvest())
+        // @ts-ignore
         .to.emit(strategy, "StrategyProfit")
         .withArgs(4969613303000000000n);
       expect(await strategy.getPosition([0,0])).to.deep.equal([
@@ -90,6 +92,7 @@ describeif(network.name === "hardhat")(
       await oracle.setLatestPrice(ethers.parseUnits("2606", 18));
 
       await expect(strategy.harvest())
+        // @ts-ignore
         .to.emit(strategy, "StrategyLoss")
         .withArgs(927802249567403037n);
 
@@ -119,6 +122,7 @@ describeif(network.name === "hardhat")(
       ]);
 
       await expect(strategy.harvest())
+        // @ts-ignore
         .to.emit(strategy, "StrategyAmountUpdate")
         .withArgs(5391828660784201301n);
 
@@ -141,7 +145,7 @@ describeif(network.name === "hardhat")(
       await aave3Pool.setCollateralPerEth(1154 * 1e6 * 0.5);
 
       await oracle.setLatestPrice(1154 * 1e6 * 0.5);
-
+       // @ts-ignore
       await expect(strategy.harvest()).to.be.revertedWithCustomError(
         strategy, "CollateralLowerThanDebt"
       );
@@ -152,7 +156,7 @@ describeif(network.name === "hardhat")(
 async function deployFunction() {
   const networkName = network.name;
   const chainId = network.config.chainId;
-  const config = BaseConfig[networkName];
+  const config: NetworkConfig = BaseConfig[networkName];
   const [owner, otherAccount] = await ethers.getSigners();
   const STETH_MAX_SUPPLY = ethers.parseUnits("1000000000", 18);
   const DEPOSIT_ST_ETH_SUPPLY = ethers.parseUnits("10000000", 18);
