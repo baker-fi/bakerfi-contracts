@@ -1,8 +1,8 @@
-import "@nomicfoundation/hardhat-ethers";
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { expect } from "chai";
-import { ethers, network } from "hardhat";
-import { time } from "@nomicfoundation/hardhat-network-helpers";
+import '@nomicfoundation/hardhat-ethers';
+import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
+import { expect } from 'chai';
+import { ethers, network } from 'hardhat';
+import { time } from '@nomicfoundation/hardhat-network-helpers';
 import {
   deployServiceRegistry,
   deployCbETH,
@@ -13,243 +13,240 @@ import {
   deploySettings,
   deployAAVEv3StrategyAny,
   deployQuoterV2Mock,
-} from "../../scripts/common";
+} from '../../scripts/common';
 
-import { describeif } from "../common";
-import BaseConfig from "../../scripts/config";
+import { describeif } from '../common';
+import BaseConfig, { NetworkConfig } from '../../constants/network-deploy-config';
 
 /**
  * StrategyAAVEv3 Unit Tests
  */
-describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
-  it("Test Deploy", async function () {
+describeif(network.name === 'hardhat')('Strategy AAVE v3 L2', function () {
+  it('Test Deploy', async function () {
     const { owner, strategy } = await loadFixture(deployFunction);
     // Deploy 10 ETH
     expect(
       await strategy.deploy({
-        value: ethers.parseUnits("10", 18),
-      })
-    ).to.changeEtherBalances([owner.address], [ethers.parseUnits("10", 18)]);
-    expect(await strategy.getPosition([0,0])).to.deep.equal([
+        value: ethers.parseUnits('10', 18),
+      }),
+      // @ts-ignore
+    ).to.changeEtherBalances([owner.address], [ethers.parseUnits('10', 18)]);
+    expect(await strategy.getPosition([0, 0])).to.deep.equal([
       45702851552764668112n,
       35740737736704000000n,
       782024239n,
     ]);
-    expect(await strategy.deployed([0,0])).to.equal(9962113816060668112n);
+    expect(await strategy.deployed([0, 0])).to.equal(9962113816060668112n);
   });
 
-  it("Test Undeploy", async function () {
+  it('Test Undeploy', async function () {
     const { owner, strategy } = await loadFixture(deployFunction);
     const receiver = owner.address;
     // Deploy 10TH ETH
     await strategy.deploy({
-      value: ethers.parseUnits("10", 18),
+      value: ethers.parseUnits('10', 18),
     });
-    expect(await strategy.getPosition([0,0])).to.deep.equal([
+    expect(await strategy.getPosition([0, 0])).to.deep.equal([
       45702851552764668112n,
       35740737736704000000n,
       782024239n,
     ]);
-    expect(await strategy.deployed([0,0])).to.equal(9962113816060668112n);
+    expect(await strategy.deployed([0, 0])).to.equal(9962113816060668112n);
     // Receive ~=5 ETH
     await expect(
-      strategy.undeploy(ethers.parseUnits("5", 18))
+      strategy.undeploy(ethers.parseUnits('5', 18)),
+      // @ts-ignore
     ).to.changeEtherBalances([owner.address], [4983156389718359984n]);
   });
 
-  it("Deploy Fail - Zero Value", async () => {
+  it('Deploy Fail - Zero Value', async () => {
     const { owner, otherAccount, strategy } = await loadFixture(deployFunction);
 
     await expect(
       strategy.deploy({
         value: 0,
-      })
-    ).to.be.revertedWithCustomError(strategy, "InvalidDeployAmount");
+      }),
+      // @ts-ignore
+    ).to.be.revertedWithCustomError(strategy, 'InvalidDeployAmount');
   });
 
-  it("Deploy Fail - No Permissions", async () => {
+  it('Deploy Fail - No Permissions', async () => {
     const { owner, otherAccount, strategy } = await loadFixture(deployFunction);
     await expect(
       // @ts-expect-error
       strategy.connect(otherAccount).deploy({
-        value: ethers.parseUnits("10", 18),
-      })
-    ).to.be.revertedWith("Ownable: caller is not the owner");
+        value: ethers.parseUnits('10', 18),
+      }),
+      // @ts-ignore
+    ).to.be.revertedWith('Ownable: caller is not the owner');
   });
 
-  it("Undeploy Fail - No Permissions", async () => {
+  it('Undeploy Fail - No Permissions', async () => {
     const { owner, otherAccount, strategy } = await loadFixture(deployFunction);
 
     strategy.deploy({
-      value: ethers.parseUnits("10", 18),
+      value: ethers.parseUnits('10', 18),
     });
     await expect(
       // @ts-expect-error
-      strategy.connect(otherAccount).undeploy(ethers.parseUnits("5", 18))
-    ).to.be.revertedWith("Ownable: caller is not the owner");
+      strategy.connect(otherAccount).undeploy(ethers.parseUnits('5', 18)),
+      // @ts-ignore
+    ).to.be.revertedWith('Ownable: caller is not the owner');
   });
 
-  it("Harvest Fail - No Permissions", async () => {
+  it('Harvest Fail - No Permissions', async () => {
     const { owner, otherAccount, strategy } = await loadFixture(deployFunction);
     // @ts-expect-error
     await expect(strategy.connect(otherAccount).harvest()).to.be.revertedWith(
-      "Ownable: caller is not the owner"
+      'Ownable: caller is not the owner',
     );
   });
 
-  it("Undeploy Fail - Uncollateralized", async () => {
-    const { oracle, otherAccount, aave3Pool, strategy } = await loadFixture(
-      deployFunction
-    );
+  it('Undeploy Fail - Uncollateralized', async () => {
+    const { oracle, otherAccount, aave3Pool, strategy } = await loadFixture(deployFunction);
 
     await strategy.deploy({
-      value: ethers.parseUnits("10", 18),
+      value: ethers.parseUnits('10', 18),
     });
     await aave3Pool.setCollateralPerEth(1130 * 1e6 * 0.1);
     await oracle.setLatestPrice(1130 * 1e6 * 0.1);
     await expect(
-      strategy.undeploy(ethers.parseUnits("10", 18))
-    ).to.be.revertedWithCustomError(strategy, "NoCollateralMarginToScale");
+      strategy.undeploy(ethers.parseUnits('10', 18)),
+      // @ts-ignore
+    ).to.be.revertedWithCustomError(strategy, 'NoCollateralMarginToScale');
   });
 
-  it("onFlashLoan - Invalid Flash Loan Sender", async () => {
-    const { oracle, otherAccount, aave3Pool, strategy } = await loadFixture(
-      deployFunction
-    );
+  it('onFlashLoan - Invalid Flash Loan Sender', async () => {
+    const { oracle, otherAccount, aave3Pool, strategy } = await loadFixture(deployFunction);
     await expect(
       strategy.onFlashLoan(
         otherAccount.address,
         otherAccount.address,
-        ethers.parseUnits("10", 18),
+        ethers.parseUnits('10', 18),
         0,
-        "0x"
-      )
-    ).to.be.revertedWithCustomError(strategy, "InvalidFlashLoanSender");
+        '0x',
+      ),
+      // @ts-ignore
+    ).to.be.revertedWithCustomError(strategy, 'InvalidFlashLoanSender');
   });
 
-  it("onFlashLoan - Invalid Flash Loan Asset", async () => {
-    const { owner, serviceRegistry, otherAccount, aave3Pool, config } =
-      await loadFixture(deployFunction);
-    const BakerFiProxyAdmin = await ethers.getContractFactory(
-      "BakerFiProxyAdmin"
+  it('onFlashLoan - Invalid Flash Loan Asset', async () => {
+    const { owner, serviceRegistry, otherAccount, aave3Pool, config } = await loadFixture(
+      deployFunction,
     );
+    const BakerFiProxyAdmin = await ethers.getContractFactory('BakerFiProxyAdmin');
     const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
     await proxyAdmin.waitForDeployment();
-    await serviceRegistry.unregisterService(
-      ethers.keccak256(Buffer.from("FlashLender"))
-    );
+    await serviceRegistry.unregisterService(ethers.keccak256(Buffer.from('FlashLender')));
     await serviceRegistry.registerService(
-      ethers.keccak256(Buffer.from("FlashLender")),
-      owner.address
+      ethers.keccak256(Buffer.from('FlashLender')),
+      owner.address,
     );
     const { proxy: proxyStrategy } = await deployAAVEv3StrategyAny(
       owner.address,
       owner.address,
       await serviceRegistry.getAddress(),
-      "cbETH",
-      "cbETH/ETH Oracle",
+      'cbETH',
+      'cbETH/ETH Oracle',
       config.swapFeeTier,
       config.AAVEEModeCategory,
-      proxyAdmin
+      proxyAdmin,
     );
     const pStrategy = await ethers.getContractAt(
-      "StrategyAAVEv3",
-      await proxyStrategy.getAddress()
+      'StrategyAAVEv3',
+      await proxyStrategy.getAddress(),
     );
 
     await expect(
       pStrategy.onFlashLoan(
         await proxyStrategy.getAddress(),
         otherAccount.address,
-        ethers.parseUnits("10", 18),
+        ethers.parseUnits('10', 18),
         0,
-        "0x"
-      )
-    ).to.be.revertedWithCustomError(pStrategy, "InvalidFlashLoanAsset");
+        '0x',
+      ),
+      // @ts-ignore
+    ).to.be.revertedWithCustomError(pStrategy, 'InvalidFlashLoanAsset');
   });
 
-  it("onFlashLoan - Failed to Validate Flash Loan Args", async () => {
-    const { weth, owner, serviceRegistry, otherAccount, aave3Pool, config } =
-      await loadFixture(deployFunction);
-    const BakerFiProxyAdmin = await ethers.getContractFactory(
-      "BakerFiProxyAdmin"
+  it('onFlashLoan - Failed to Validate Flash Loan Args', async () => {
+    const { weth, owner, serviceRegistry, otherAccount, aave3Pool, config } = await loadFixture(
+      deployFunction,
     );
+    const BakerFiProxyAdmin = await ethers.getContractFactory('BakerFiProxyAdmin');
     const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
     await proxyAdmin.waitForDeployment();
-    await serviceRegistry.unregisterService(
-      ethers.keccak256(Buffer.from("FlashLender"))
-    );
+    await serviceRegistry.unregisterService(ethers.keccak256(Buffer.from('FlashLender')));
     await serviceRegistry.registerService(
-      ethers.keccak256(Buffer.from("FlashLender")),
-      owner.address
+      ethers.keccak256(Buffer.from('FlashLender')),
+      owner.address,
     );
     const { proxy: proxyStrategy } = await deployAAVEv3StrategyAny(
       owner.address,
       owner.address,
       await serviceRegistry.getAddress(),
-      "cbETH",
-      "cbETH/ETH Oracle",
+      'cbETH',
+      'cbETH/ETH Oracle',
       config.swapFeeTier,
       config.AAVEEModeCategory,
-      proxyAdmin
+      proxyAdmin,
     );
     const pStrategy = await ethers.getContractAt(
-      "StrategyAAVEv3",
-      await proxyStrategy.getAddress()
+      'StrategyAAVEv3',
+      await proxyStrategy.getAddress(),
     );
 
     await expect(
       pStrategy.onFlashLoan(
         await proxyStrategy.getAddress(),
         await weth.getAddress(),
-        ethers.parseUnits("10", 18),
+        ethers.parseUnits('10', 18),
         0,
-        "0x"
-      )
-    ).to.be.revertedWithCustomError(pStrategy, "FailedToAuthenticateArgs");
+        '0x',
+      ),
+      // @ts-ignore
+    ).to.be.revertedWithCustomError(pStrategy, 'FailedToAuthenticateArgs');
   });
 
-  it("OnFlashLoan - Attacker", async () => {
-    const { weth, serviceRegistry, strategy } = await loadFixture(
-      deployFunction
-    );
+  it('OnFlashLoan - Attacker', async () => {
+    const { weth, serviceRegistry, strategy } = await loadFixture(deployFunction);
 
-    const BorrowerAttacker = await ethers.getContractFactory(
-      "BorrowerAttacker"
-    );
+    const BorrowerAttacker = await ethers.getContractFactory('BorrowerAttacker');
     const attacker = await BorrowerAttacker.deploy();
     await attacker.initialize(await serviceRegistry.getAddress());
 
     await strategy.deploy({
-      value: ethers.parseUnits("10", 18),
+      value: ethers.parseUnits('10', 18),
     });
 
     await expect(
-      attacker.flashme(await weth.getAddress(), ethers.parseUnits("1", 18))
-    ).to.be.revertedWithCustomError(strategy, "InvalidFlashLoanSender");
+      attacker.flashme(await weth.getAddress(), ethers.parseUnits('1', 18)),
+      // @ts-ignore
+    ).to.be.revertedWithCustomError(strategy, 'InvalidFlashLoanSender');
   });
 
-  it("Rebalance - Fails with outdated prices", async () => {
-    const { weth, serviceRegistry, settings, strategy, oracle, ethOracle } =
-      await loadFixture(deployFunction);
+  it('Rebalance - Fails with outdated prices', async () => {
+    const { weth, serviceRegistry, settings, strategy, oracle, ethOracle } = await loadFixture(
+      deployFunction,
+    );
     // Deposit 10 ETH
     await strategy.deploy({
-      value: ethers.parseUnits("10", 18),
+      value: ethers.parseUnits('10', 18),
     });
     await settings.setRebalancePriceMaxAge(60);
     // advance time by one hour and mine a new block
     await time.increase(3600);
-    await expect(strategy.harvest()).to.be.revertedWithCustomError(
-      strategy, "PriceOutdated"
-    );
+    // @ts-ignore
+    await expect(strategy.harvest()).to.be.revertedWithCustomError(strategy, 'PriceOutdated');
   });
 
-  it("Rebalance - Success when the price is updated", async () => {
-    const { weth, serviceRegistry, settings, strategy, oracle, ethOracle } =
-      await loadFixture(deployFunction);
+  it('Rebalance - Success when the price is updated', async () => {
+    const { weth, serviceRegistry, settings, strategy, oracle, ethOracle } = await loadFixture(
+      deployFunction,
+    );
     // Deposit 10 ETH
     await strategy.deploy({
-      value: ethers.parseUnits("10", 18),
+      value: ethers.parseUnits('10', 18),
     });
     await settings.setRebalancePriceMaxAge(4800);
     // advance time by one hour and mine a new block
@@ -264,80 +261,53 @@ describeif(network.name === "hardhat")("Strategy AAVE v3 L2", function () {
  */
 async function deployFunction() {
   const networkName = network.name;
-  const config = BaseConfig[networkName];
+  const config: NetworkConfig = BaseConfig[networkName];
   const [owner, otherAccount] = await ethers.getSigners();
-  const CBETH_MAX_SUPPLY = ethers.parseUnits("1000000000", 18);
-  const FLASH_LENDER_DEPOSIT = ethers.parseUnits("10000", 18);
-  const AAVE_DEPOSIT = ethers.parseUnits("10000", 18);
+  const CBETH_MAX_SUPPLY = ethers.parseUnits('1000000000', 18);
+  const FLASH_LENDER_DEPOSIT = ethers.parseUnits('10000', 18);
+  const AAVE_DEPOSIT = ethers.parseUnits('10000', 18);
   const serviceRegistry = await deployServiceRegistry(owner.address);
   const serviceRegistryAddress = await serviceRegistry.getAddress();
 
   const weth = await deployWETH(serviceRegistry);
-  const BakerFiProxyAdmin = await ethers.getContractFactory(
-    "BakerFiProxyAdmin"
-  );
+  const BakerFiProxyAdmin = await ethers.getContractFactory('BakerFiProxyAdmin');
   const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
   await proxyAdmin.waitForDeployment();
 
-  const { proxy: settingsProxy } = await deploySettings(
-    owner.address,
-    serviceRegistry,
-    proxyAdmin
-  );
-  const pSettings = await ethers.getContractAt(
-    "Settings",
-    await settingsProxy.getAddress()
-  );
+  const { proxy: settingsProxy } = await deploySettings(owner.address, serviceRegistry, proxyAdmin);
+  const pSettings = await ethers.getContractAt('Settings', await settingsProxy.getAddress());
 
   // 1. Deploy Flash Lender
-  const flashLender = await deployFlashLender(
-    serviceRegistry,
-    weth,
-    FLASH_LENDER_DEPOSIT
-  );
+  const flashLender = await deployFlashLender(serviceRegistry, weth, FLASH_LENDER_DEPOSIT);
   // 2. Deploy cbEBT
   const cbETH = await deployCbETH(serviceRegistry, owner, CBETH_MAX_SUPPLY);
 
   // Deploy cbETH -> ETH Uniswap Router
-  const UniRouter = await ethers.getContractFactory("UniV3RouterMock");
-  const uniRouter = await UniRouter.deploy(
-    await weth.getAddress(),
-    await cbETH.getAddress()
-  );
+  const UniRouter = await ethers.getContractFactory('UniV3RouterMock');
+  const uniRouter = await UniRouter.deploy(await weth.getAddress(), await cbETH.getAddress());
 
   await uniRouter.setPrice(8665 * 1e5);
   // Register Uniswap Router
   await serviceRegistry.registerService(
-    ethers.keccak256(Buffer.from("Uniswap Router")),
-    await uniRouter.getAddress()
+    ethers.keccak256(Buffer.from('Uniswap Router')),
+    await uniRouter.getAddress(),
   );
 
   // Deposit ETH on Uniswap Mock Router
-  await weth.deposit?.call("", { value: ethers.parseUnits("10000", 18) });
-  await weth.transfer(
-    await uniRouter.getAddress(),
-    ethers.parseUnits("10000", 18)
-  );
+  await weth.deposit?.call('', { value: ethers.parseUnits('10000', 18) });
+  await weth.transfer(await uniRouter.getAddress(), ethers.parseUnits('10000', 18));
 
   // Deposit cbETH on Uniswap Mock Router
-  await cbETH.transfer(
-    await uniRouter.getAddress(),
-    ethers.parseUnits("10000", 18)
-  );
+  await cbETH.transfer(await uniRouter.getAddress(), ethers.parseUnits('10000', 18));
 
   // Deploy AAVEv3 Mock Pool
-  const aave3Pool = await deployAaveV3(
-    cbETH,
-    weth,
-    serviceRegistry,
-    AAVE_DEPOSIT
-  );
+  const aave3Pool = await deployAaveV3(cbETH, weth, serviceRegistry, AAVE_DEPOSIT);
 
-  const oracle = await deployOracleMock(serviceRegistry, "cbETH/ETH Oracle");
-  const ethOracle = await deployOracleMock(serviceRegistry, "ETH/USD Oracle");
+  const oracle = await deployOracleMock(serviceRegistry, 'cbETH/ETH Oracle');
+  const ethOracle = await deployOracleMock(serviceRegistry, 'ETH/USD Oracle');
 
-  await oracle.setLatestPrice(ethers.parseUnits("2660", 18));
-  await ethOracle.setLatestPrice(ethers.parseUnits("2305", 18));
+  await oracle.setLatestPrice(ethers.parseUnits('2660', 18));
+  await ethOracle.setLatestPrice(ethers.parseUnits('2305', 18));
 
   await deployQuoterV2Mock(serviceRegistry);
 
@@ -345,20 +315,17 @@ async function deployFunction() {
     owner.address,
     owner.address,
     serviceRegistryAddress,
-    "cbETH",
-    "cbETH/ETH Oracle",
+    'cbETH',
+    'cbETH/ETH Oracle',
     config.swapFeeTier,
     config.AAVEEModeCategory,
-    proxyAdmin
+    proxyAdmin,
   );
-  const pStrategy = await ethers.getContractAt(
-    "StrategyAAVEv3",
-    await proxyStrategy.getAddress()
-  );
+  const pStrategy = await ethers.getContractAt('StrategyAAVEv3', await proxyStrategy.getAddress());
 
   await serviceRegistry.registerService(
-    ethers.keccak256(Buffer.from("Strategy")),
-    await proxyStrategy.getAddress()
+    ethers.keccak256(Buffer.from('Strategy')),
+    await proxyStrategy.getAddress(),
   );
   return {
     cbETH,

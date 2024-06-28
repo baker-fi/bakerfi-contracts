@@ -37,9 +37,8 @@ const config: HardhatUserConfig = {
         auto: true,
         interval: 2000,
       },
-      hardfork: 'london',
+      hardfork: 'shanghai',
       gas: 'auto',
-      initialBaseFeePerGas: 1000000000,
     },
     local: {
       chainId: 1337,
@@ -72,7 +71,10 @@ const config: HardhatUserConfig = {
     base: {
       url: process.env.WEB3_RPC_BASE_URL || 
         `https://rpc.ankr.com/base/${process.env.ANKR_API_KEY}`,
-      chainId: 8453,          
+      chainId: 8453,        
+      ...process.env.BAKERFI_PRIVATE_KEY ? { 
+        accounts: [`${process.env.BAKERFI_PRIVATE_KEY}`]
+      }: {},
     },
     ethereum_devnet: {
       url: `${process.env.TENDERLY_DEV_NET_RPC}`,

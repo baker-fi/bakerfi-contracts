@@ -1,13 +1,32 @@
 {
   "overrides": [
     {
+      "files": "*.ts",
+      "options": {
+        "arrowParens": "always",
+        "endOfLine": "auto",
+        "trailingComma": "all",
+        "tabWidth": 2,
+        "useTabs": false,
+        "printWidth": 100,
+        "singleQuote": true,
+        "bracketSpacing": true,
+        "bracketSameLine": false,
+        "semi": true
+      }
+    },
+    {
       "files": "*.sol",
       "options": {
         "printWidth": 100,
-        "tabWidth": 4,
+        "endOfLine": "auto",
+        "trailingComma": "all",
+        "tabWidth": 2,
         "useTabs": false,
         "singleQuote": false,
-        "bracketSpacing": false
+        "bracketSpacing": true,
+        "bracketSameLine": false,
+        "semi": true
       }
     }
   ]

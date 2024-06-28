@@ -2,5 +2,5 @@
 pragma solidity ^0.8.24;
 
 interface IProtocolFeesCollector {
-    function getFlashLoanFeePercentage() external view returns (uint256);
+  function getFlashLoanFeePercentage() external view returns (uint256);
 }

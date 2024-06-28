@@ -55,7 +55,7 @@ function _initUseSwapper(contract ServiceRegistry registry) internal
 ### uniRouter
 
 ```solidity
-function uniRouter() public view returns (contract ISwapRouter)
+function uniRouter() public view returns (contract IV3SwapRouter)
 ```
 
 ### uniRouterA
