@@ -9,7 +9,7 @@ import { ContractClientLedger } from './lib/contract-client-ledger';
 import { ContractClientWallet } from './lib/contract-client-wallet';
 import { STAGING_ACCOUNTS_PKEYS } from '../constants/test-accounts';
 import ContractTree from '../src/contract-blob.json';
-import {PythFeedNameEnum, feedIds} from "../constants/pyth";
+import { PythFeedNameEnum, feedIds } from '../constants/pyth';
 
 const fs = require('fs');
 const path = require('path');

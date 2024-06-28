@@ -45,7 +45,7 @@ describeif(network.name === 'hardhat')('Pyth Oracle Tests', function () {
     expect(await pythOracle.getPrecision()).to.equal(18);
     const updateData = new AbiCoder().encode(
       ['tuple(bytes32, tuple(int64, uint64, int32, uint),  tuple(int64, uint64, int32, uint))'],
-      [[feedIds[PythFeedNameEnum.WSTETH_USD],  [12, 0, 2, 1706801584], [12, 0, 2, 1706801584]]],
+      [[feedIds[PythFeedNameEnum.WSTETH_USD], [12, 0, 2, 1706801584], [12, 0, 2, 1706801584]]],
     );
 
     await pythMock.updatePriceFeeds([updateData], { value: 10 });
@@ -57,13 +57,7 @@ describeif(network.name === 'hardhat')('Pyth Oracle Tests', function () {
     const { pythOracle } = await loadFixture(deployFunction);
     const updateData = new AbiCoder().encode(
       ['tuple(bytes32, tuple(int64, uint64, int32, uint),  tuple(int64, uint64, int32, uint))'],
-      [
-        [
-          feedIds[PythFeedNameEnum.WSTETH_USD],
-          [1200, 0, 2, 1706801584],
-          [1200, 0, 2, 1706801584],
-        ],
-      ],
+      [[feedIds[PythFeedNameEnum.WSTETH_USD], [1200, 0, 2, 1706801584], [1200, 0, 2, 1706801584]]],
     );
     await pythOracle.getAndUpdatePrice(updateData, {
       value: 10,
@@ -78,7 +72,7 @@ describeif(network.name === 'hardhat')('Pyth Oracle Tests', function () {
       ['tuple(bytes32, tuple(int64, uint64, int32, uint),  tuple(int64, uint64, int32, uint))'],
       [
         [
-          feedIds[PythFeedNameEnum.WSTETH_USD],        
+          feedIds[PythFeedNameEnum.WSTETH_USD],
           [1200, 10, 2, 1706801584],
           [1200, 10, 2, 1706801584],
         ],
@@ -98,7 +92,7 @@ describeif(network.name === 'hardhat')('Pyth Oracle Tests', function () {
       ['tuple(bytes32, tuple(int64, uint64, int32, uint),  tuple(int64, uint64, int32, uint))'],
       [
         [
-          feedIds[PythFeedNameEnum.WSTETH_USD],        
+          feedIds[PythFeedNameEnum.WSTETH_USD],
           [1200, 140, 2, 1706801584],
           [1200, 140, 2, 1706801584],
         ],
@@ -120,7 +114,7 @@ describeif(network.name === 'hardhat')('Pyth Oracle Tests', function () {
       ['tuple(bytes32, tuple(int64, uint64, int32, uint),  tuple(int64, uint64, int32, uint))'],
       [
         [
-          feedIds[PythFeedNameEnum.WSTETH_USD],        
+          feedIds[PythFeedNameEnum.WSTETH_USD],
           [1200, 0, 30, 1706801584],
           [1200, 0, 30, 1706801584],
         ],

@@ -9,8 +9,7 @@ import { ContractClient } from './lib/contract-client';
 import { ContractClientLedger } from './lib/contract-client-ledger';
 import ContractTree from '../src/contract-blob.json';
 import { TransactionReceipt } from 'ethers';
-import { PythFeedNameEnum, feedIds} from '../constants/pyth';
-
+import { PythFeedNameEnum, feedIds } from '../constants/pyth';
 
 const networkName = hre.network.name;
 const chainId = BigInt(hre.network.config.chainId ?? 0n);
