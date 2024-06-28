@@ -37,6 +37,7 @@ export type NetworkConfig = {
     weth: string,
     wstETH: string;
     stETH?: string;
+    delayAfterTxReceiptMs: number;
     oracles: {
         pair: PythOraclePairs,
         address: string,
@@ -66,6 +67,7 @@ export type DeployConfig = {
 
 const Config: DeployConfig = {   
     "base": {
+        delayAfterTxReceiptMs: 20000,
         uniswapRouter02: "0x2626664c2603336E57B271c5C0b26F421741e481", // Validated 
         uniswapQuoter: "0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a", // Validated 
         balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Validated
@@ -93,6 +95,7 @@ const Config: DeployConfig = {
         pyth: "0x8250f4aF4B972684F7b336503E2D6dFeDeB1487a",
     },
     "base_devnet": {
+        delayAfterTxReceiptMs: 0,
         uniswapRouter02: "0x2626664c2603336E57B271c5C0b26F421741e481", // Validated 
         uniswapQuoter: "0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a", // Validated 
         balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Validated
@@ -120,6 +123,7 @@ const Config: DeployConfig = {
         pyth: "0x8250f4aF4B972684F7b336503E2D6dFeDeB1487a",
     },   
     "local": {
+        delayAfterTxReceiptMs: 0,
         AAVEEModeCategory: 0,
         swapFeeTier: 500,
         uniswapRouter02: "0xB7d0add4df75aa719bE464e860C8c40bb7FA2122",
@@ -148,6 +152,7 @@ const Config: DeployConfig = {
         AAVEPool: "0xF8D0e82B1EE3EEc7AEcDAa4E1c94E29fe3Db712E",
     },
     "arbitrum_devnet": {
+        delayAfterTxReceiptMs: 0,
         uniswapRouter02: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", // Validated 
         uniswapQuoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e", // Validated 
         balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Validated
@@ -181,6 +186,7 @@ const Config: DeployConfig = {
         }
     },
     "arbitrum": {
+        delayAfterTxReceiptMs: 20000,
         uniswapRouter02: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", // Validated 
         uniswapQuoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e", // Validated 
         balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Validated
@@ -214,6 +220,7 @@ const Config: DeployConfig = {
         }
     },
     hardhat: {
+        delayAfterTxReceiptMs: 0,
         uniswapRouter02: "",
         uniswapQuoter: "",
         balancerVault: "",
