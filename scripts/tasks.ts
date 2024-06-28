@@ -2,13 +2,11 @@ import ora from 'ora';
 import hre from 'hardhat';
 import { task } from 'hardhat/config';
 import DeployConfig from '../constants/contracts';
-import { pythFeedIds } from '../constants/contracts';
+import NetworkDeployConfig from '../constants/network-deploy-config';
 import { PriceServiceConnection } from '@pythnetwork/price-service-client';
-import { ContractClient } from './lib/contract-client';
 import { ContractClientLedger } from './lib/contract-client-ledger';
 import { ContractClientWallet } from './lib/contract-client-wallet';
 import { STAGING_ACCOUNTS_PKEYS } from '../constants/test-accounts';
-import ContractTree from '../src/contract-blob.json';
 import { PythFeedNameEnum, feedIds } from '../constants/pyth';
 
 const fs = require('fs');
@@ -58,8 +56,8 @@ task('vault:deposit', 'Deposit ETH on the vault')
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Depositing ${account} ${amount}`).start();
     try {
-      let app: ContractClient<typeof ContractTree> | null = await getClient(ethers);
-      await app.send('Vault', networkConfig.vaultProxy ?? '', 'deposit', [account], {
+      let app = await getClient(ethers);
+      await app?.send('Vault', networkConfig.vaultProxy ?? '', 'deposit', [account], {
         value: ethers.parseUnits(amount, 18),
       });
       spinner.succeed(`Deposited ${account} ${amount} ETH 🧑‍🍳`);
@@ -77,8 +75,8 @@ task('vault:withdraw', 'Burn brETH shares and receive ETH')
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Withdrawing ${account} ${amount}`).start();
     try {
-      let app: ContractClient<typeof ContractTree> | null = await getClient(ethers);
-      await app.send('Vault', networkConfig.vaultProxy ?? '', 'deposit', [
+      let app = await getClient(ethers);
+      await app?.send('Vault', networkConfig.vaultProxy ?? '', 'deposit', [
         ethers.parseUnits(amount, 18),
       ]);
       spinner.succeed(`Withdrawed ${account} ${amount} ETH 🧑‍🍳`);
@@ -94,8 +92,8 @@ task('vault:rebalance', 'Burn brETH shares and receive ETH').setAction(
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Rebalancing Vault ${account} `).start();
     try {
-      let app: ContractClient<typeof ContractTree> | null = await getClient(ethers);
-      await app.send('Vault', networkConfig.vaultProxy ?? '', 'rebalance', []);
+      let app = await getClient(ethers);
+      await app?.send('Vault', networkConfig.vaultProxy ?? '', 'rebalance', []);
       spinner.succeed(`🧑‍🍳 Vault Rebalanced 🍰`);
     } catch (e) {
       console.log(e);
@@ -111,8 +109,8 @@ task('vault:balance', "Prints an account's share balance")
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Geeting ${account} balance`).start();
     try {
-      let app: ContractClient<typeof ContractTree> | null = await getClient(ethers);
-      const balance = await app.call('Vault', networkConfig.vaultProxy ?? '', 'balanceOf', [
+      let app = await getClient(ethers);
+      const balance = await app?.call('Vault', networkConfig.vaultProxy ?? '', 'balanceOf', [
         account,
       ]);
       spinner.succeed(`🧑‍🍳 Account Balance ${account} = ${ethers.formatEther(balance)} brETH`);
@@ -128,8 +126,8 @@ task('vault:assets', "Prints an account's share balance").setAction(
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Geeting Vault Assets`).start();
     try {
-      let app: ContractClient<typeof ContractTree> | null = await getClient(ethers);
-      const balance = await app.call('Vault', networkConfig.vaultProxy ?? '', 'totalAssets', []);
+      let app = await getClient(ethers);
+      const balance = await app?.call('Vault', networkConfig.vaultProxy ?? '', 'totalAssets', []);
       spinner.succeed(`🧑‍🍳 Vault Total Assets ${ethers.formatEther(balance)} ETH`);
     } catch (e) {
       console.log(e);
@@ -143,8 +141,8 @@ task('vault:tokenPerETH', 'Prints an tokenPerETH').setAction(async ({}, { ethers
   const networkConfig = DeployConfig[networkName];
   const spinner = ora(`Geeting Vault Assets`).start();
   try {
-    let app: ContractClient<typeof ContractTree> | null = await getClient(ethers);
-    const balance = await app.call('Vault', networkConfig.vaultProxy ?? '', 'tokenPerETH', []);
+    let app = await getClient(ethers);
+    const balance = await app?.call('Vault', networkConfig.vaultProxy ?? '', 'tokenPerETH', []);
     spinner.succeed(`🧑‍🍳 Vault tokenPerETH ${ethers.formatEther(balance)}`);
   } catch (e) {
     console.log(e);
@@ -159,8 +157,8 @@ task('strategy:setLoanToValue', 'Set Target Loan To value')
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Settting Target LTV ${value}`).start();
     try {
-      let app: ContractClient<typeof ContractTree> | null = await getClient(ethers);
-      await app.send('StrategyAAVEv3', networkConfig.strategyProxy ?? '', 'setLoanToValue', [
+      let app = await getClient(ethers);
+      await app?.send('StrategyAAVEv3', networkConfig.strategyProxy ?? '', 'setLoanToValue', [
         value,
       ]);
       spinner.succeed(`🧑‍🍳 Target LTV Changed to ${value} ✅ `);
@@ -176,8 +174,8 @@ task('strategy:getLoanToValue', 'Set Target Loan To value').setAction(
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Getting Target LTV `).start();
     try {
-      let app: ContractClient<typeof ContractTree> | null = await getClient(ethers);
-      const value = await app.call(
+      let app = await getClient(ethers);
+      const value = await app?.call(
         'StrategyAAVEv3',
         networkConfig.strategyProxy ?? '',
         'getLoanToValue',
@@ -198,8 +196,8 @@ task('strategy:setMaxLoanToValue', 'Set Max Target Loan To value')
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Settting Max Target LTV ${value}`).start();
     try {
-      let app: ContractClient<typeof ContractTree> | null = await getClient(ethers);
-      await app.send('StrategyAAVEv3', networkConfig.strategyProxy ?? '', 'setMaxLoanToValue', [
+      let app = await getClient(ethers);
+      await app?.send('StrategyAAVEv3', networkConfig.strategyProxy ?? '', 'setMaxLoanToValue', [
         value,
       ]);
       spinner.succeed(`🧑‍🍳 Max LTV Changed to  ${value} ✅ `);
@@ -215,8 +213,8 @@ task('strategy:getMaxLoanToValue', 'Get Max Target Loan To value').setAction(
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Getting Max Target LTV`).start();
     try {
-      let app: ContractClient<typeof ContractTree> | null = await getClient(ethers);
-      const value = await app.call(
+      let app = await getClient(ethers);
+      const value = await app?.call(
         'StrategyAAVEv3',
         networkConfig.strategyProxy ?? '',
         'getMaxLoanToValue',
@@ -237,8 +235,8 @@ task('settings:setWithdrawalFee', 'Set Withdrawal Fee')
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Settting Withdrawal Fee to ${value}`).start();
     try {
-      let app: ContractClient<typeof ContractTree> | null = await getClient(ethers);
-      await app.send('Settings', networkConfig.settingsProxy ?? '', 'setWithdrawalFee', [value]);
+      let app = await getClient(ethers);
+      await app?.send('Settings', networkConfig.settingsProxy ?? '', 'setWithdrawalFee', [value]);
       spinner.succeed(`🧑‍🍳 Withdrawal Fee Changed to ${value} ✅ `);
     } catch (e) {
       console.log(e);
@@ -252,8 +250,8 @@ task('settings:getWithdrawalFee', 'get Withdrawal Fee').setAction(
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Getting Withdrawal Fee`).start();
     try {
-      let app: ContractClient<typeof ContractTree> | null = await getClient(ethers);
-      const value = await app.call(
+      let app = await getClient(ethers);
+      const value = await app?.call(
         'Settings',
         networkConfig.settingsProxy ?? '',
         'getWithdrawalFee',
@@ -274,8 +272,8 @@ task('settings:setPerformanceFee', 'Set Performance Fee')
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Settting Performance Fee to ${value}`).start();
     try {
-      let app: ContractClient<typeof ContractTree> | null = await getClient(ethers);
-      await app.send('Settings', networkConfig.settingsProxy ?? '', 'setPerformanceFee', [value]);
+      let app = await getClient(ethers);
+      await app?.send('Settings', networkConfig.settingsProxy ?? '', 'setPerformanceFee', [value]);
       spinner.succeed(`🧑‍🍳 Performance Fee Changed to ${value} ✅ `);
     } catch (e) {
       console.log(e);
@@ -289,8 +287,8 @@ task('settings:getPerformanceFee', 'Get Performance Fee').setAction(
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Gettting Performance Fee`).start();
     try {
-      let app: ContractClient<typeof ContractTree> | null = await getClient(ethers);
-      const value = await app.call(
+      let app = await getClient(ethers);
+      const value = await app?.call(
         'Settings',
         networkConfig.settingsProxy ?? '',
         'getPerformanceFee',
@@ -311,8 +309,8 @@ task('settings:setFeeReceiver', 'Set Fee Receiver Accoutn')
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Settting Fee Revceiver to ${account}`).start();
     try {
-      let app: ContractClient<typeof ContractTree> | null = await getClient(ethers);
-      await app.send('Settings', networkConfig.settingsProxy ?? '', 'setFeeReceiver', [account]);
+      let app = await getClient(ethers);
+      await app?.send('Settings', networkConfig.settingsProxy ?? '', 'setFeeReceiver', [account]);
       spinner.succeed(`🧑‍🍳 Fee Receiver Account Changed to ${account} ✅ `);
     } catch (e) {
       console.log(e);
@@ -326,8 +324,8 @@ task('strategy:getNrLoops', 'Get Recursive Number of Loops').setAction(
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Gettting Nr Loop ${networkConfig.settings}`).start();
     try {
-      let app: ContractClient<typeof ContractTree> | null = await getClient(ethers);
-      const value = await app.call(
+      let app = await getClient(ethers);
+      const value = await app?.call(
         'StrategyAAVEv3',
         networkConfig.strategyProxy ?? '',
         'getNrLoops',
@@ -348,8 +346,8 @@ task('strategy:setNrLoops', 'Set number of Loopps')
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Settting Nr Of Loops to ${value}`).start();
     try {
-      let app: ContractClient<typeof ContractTree> | null = await getClient(ethers);
-      await app.send('StrategyAAVEv3', networkConfig.strategyProxy ?? '', 'setNrLoops', [value]);
+      let app = await getClient(ethers);
+      await app?.send('StrategyAAVEv3', networkConfig.strategyProxy ?? '', 'setNrLoops', [value]);
       spinner.succeed(`🧑‍🍳 Nr of Loops Changed to ${value} ✅ `);
     } catch (e) {
       console.log(e);
@@ -363,8 +361,8 @@ task('settings:getFeeReceiver', 'Get Fee Receiver Account').setAction(
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Gettting Fee Revceiver`).start();
     try {
-      let app: ContractClient<typeof ContractTree> | null = await getClient(ethers);
-      const value = await app.call(
+      let app = await getClient(ethers);
+      const value = await app?.call(
         'Settings',
         networkConfig.settingsProxy ?? '',
         'getFeeReceiver',
@@ -386,8 +384,8 @@ task('settings:enableAccount', 'Enable an account on the whitelist')
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Setting ${account} has ${enabled}`).start();
     try {
-      let app: ContractClient<typeof ContractTree> | null = await getClient(ethers);
-      await app.send('Settings', networkConfig.settingsProxy ?? '', 'enableAccount', [
+      let app = await getClient(ethers);
+      await app?.send('Settings', networkConfig.settingsProxy ?? '', 'enableAccount', [
         account,
         enabled == 'true',
       ]);
@@ -405,8 +403,8 @@ task('settings:isAccountEnabled', 'Enable an account on the whitelist')
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Checking Whitelist for ${account}`).start();
     try {
-      let app: ContractClient<typeof ContractTree> | null = await getClient(ethers);
-      const res = await app.call(
+      let app = await getClient(ethers);
+      const res = await app?.call(
         'Settings',
         networkConfig.settingsProxy ?? '',
         'isAccountEnabled',
@@ -426,12 +424,12 @@ task('deploy:upgrade:settings', 'Upgrade the settings Contract').setAction(
     const spinner = ora(`Upgrading Settings Contract`).start();
     try {
       // 1. Deploy a new Instance
-      let app: ContractClient<typeof ContractTree> | null = await getClient(ethers);
-      const settingsReceipt = await app.deploy('Settings', [], {
+      let app = await getClient(ethers);
+      const settingsReceipt = await app?.deploy('Settings', [], {
         chainId: BigInt(network.config.chainId ?? 0),
       });
 
-      await app.send(
+      await app?.send(
         'BakerFiProxyAdmin',
         networkConfig?.proxyAdmin ?? '',
         'upgrade',
@@ -454,11 +452,11 @@ task('deploy:upgrade:strategy', 'Upgrade the settings Contract').setAction(
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Upgrading strategy Contract`).start();
     try {
-      let app: ContractClient<typeof ContractTree> | null = await getClient(ethers);
-      const stratReceipt = await app.deploy('StrategyAAVEv3', [], {
+      let app = await getClient(ethers);
+      const stratReceipt = await app?.deploy('StrategyAAVEv3', [], {
         chainId: BigInt(network.config.chainId ?? 0),
       });
-      await app.send(
+      await app?.send(
         'BakerFiProxyAdmin',
         networkConfig?.proxyAdmin ?? '',
         'upgrade',
@@ -481,11 +479,11 @@ task('deploy:upgrade:vault', 'Upgrade the settings Contract').setAction(
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Upgrading Vault Contract`).start();
     try {
-      let app: ContractClient<typeof ContractTree> | null = await getClient(ethers);
-      const vaultReceipt = await app.deploy('Vault', [], {
+      let app = await getClient(ethers);
+      const vaultReceipt = await app?.deploy('Vault', [], {
         chainId: BigInt(network.config.chainId ?? 0),
       });
-      await app.send(
+      await app?.send(
         'BakerFiProxyAdmin',
         networkConfig?.proxyAdmin ?? '',
         'upgrade',
@@ -509,8 +507,8 @@ task('settings:setMaxDeposit', 'Set Max Deposit')
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Settting Max Deposit in ETH ${value}`).start();
     try {
-      let app: ContractClient<typeof ContractTree> | null = await getClient(ethers);
-      await app.send('Settings', networkConfig.settingsProxy ?? '', 'setMaxDepositInETH', [value]);
+      let app = await getClient(ethers);
+      await app?.send('Settings', networkConfig.settingsProxy ?? '', 'setMaxDepositInETH', [value]);
       spinner.succeed(`🧑‍🍳 Max Deposit In ETH is ${value} ✅ `);
     } catch (e) {
       console.log(e);
@@ -524,8 +522,8 @@ task('settings:getMaxDeposit', 'Get Fee Receiver Account').setAction(
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Gettting Max Deposit in ETH`).start();
     try {
-      let app: ContractClient<typeof ContractTree> | null = await getClient(ethers);
-      const value = await app.call(
+      let app = await getClient(ethers);
+      const value = await app?.call(
         'Settings',
         networkConfig.settingsProxy ?? '',
         'getMaxDepositInETH',
@@ -544,7 +542,7 @@ task('pyth:priceUpdate', 'Update Required Prices').setAction(async ({}, { ethers
   const networkConfig = DeployConfig[networkName];
   const spinner = ora(`Pyth Price Updates`).start();
   try {
-    let app: ContractClient<typeof ContractTree> | null = await getClient(ethers);
+    let app = await getClient(ethers);
     const connection = new PriceServiceConnection('https://hermes.pyth.network', {
       priceFeedRequestConfig: {
         // Provide this option to retrieve signed price updates for on-chain contracts.
@@ -564,14 +562,15 @@ task('pyth:priceUpdate', 'Update Required Prices').setAction(async ({}, { ethers
     const currentPrices = await connection.getLatestPriceFeeds(priceIds);
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
+    const networkDeployConfig = NetworkDeployConfig[networkName]
     // You can also call this function to get price updates for the on-chain contract directly.
     const vaas = currentPrices?.map((feed) =>
       // @ts-ignore: Unreachable code error
       Buffer.from(feed.vaa, 'base64'),
     );
     console.log('Updating Prices...');
-    const fee = await app.call('IPyth', networkConfig.pyth ?? '', 'getUpdateFee', [vaas]);
-    await app.send('IPyth', networkConfig.pyth ?? '', 'updatePriceFeeds', [vaas], { value: fee });
+    const fee = await app?.call('IPyth', networkDeployConfig.pyth ?? '', 'getUpdateFee', [vaas]);
+    await app?.send('IPyth', networkDeployConfig.pyth ?? '', 'updatePriceFeeds', [vaas], { value: fee });
     spinner.succeed(`🧑‍🍳 Pyth Price Updates`);
   } catch (e) {
     console.log(`${e.reason} - ${e.code}`);
@@ -580,12 +579,12 @@ task('pyth:priceUpdate', 'Update Required Prices').setAction(async ({}, { ethers
 });
 
 task('settings:getPriceMaxAge', 'Get Max Price Age').setAction(async ({}, { ethers, network }) => {
-  let app: ContractClient<typeof ContractTree> | null = await getClient(ethers);
+  let app = await getClient(ethers);
   const networkName = network.name;
   const networkConfig = DeployConfig[networkName];
   const spinner = ora(`Gettting Nr Loop ${networkConfig.settings}`).start();
   try {
-    const value = await app.call(
+    const value = await app?.call(
       'Settings',
       networkConfig.settingsProxy ?? '',
       'getPriceMaxAge',
@@ -604,9 +603,11 @@ task('settings:setPriceMaxAge', 'Set number of Loopps')
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Settting Nr Of Loops to ${value}`).start();
+    
+    
     try {
-      let app: ContractClient<typeof ContractTree> | null = await getClient(ethers);
-      await app.send('Settings', networkConfig.settingsProxy ?? '', 'setPriceMaxAge', [value]);
+      let app = await getClient(ethers);
+      await app?.send('Settings', networkConfig.settingsProxy ?? '', 'setPriceMaxAge', [value]);
       spinner.succeed(`🧑‍🍳 Price Max Age Changed to ${value} ✅ `);
     } catch (e) {
       console.log(e);
@@ -616,16 +617,17 @@ task('settings:setPriceMaxAge', 'Set number of Loopps')
 
 async function getClient(ethers) {
   const [signerPKey] = STAGING_ACCOUNTS_PKEYS;
-  let app: ContractClient<typeof ContractTree> | null;
+  let app;
+  const contractTree = await import("../src/contract-blob.json");  
   if (process.env.DEPLOY_WITH_LEDGER === 'true') {
     app = new ContractClientLedger(
       ethers.provider,
-      ContractTree,
+      contractTree.default,
       process.env?.BAKERFI_LEDGER_PATH ?? '',
     );
   } else {
-    app = new ContractClientWallet(ethers.provider, ContractTree, signerPKey);
+    app = new ContractClientWallet(ethers.provider, contractTree.default, signerPKey);
   }
-  await app.init();
+  await app?.init();
   return app;
 }
