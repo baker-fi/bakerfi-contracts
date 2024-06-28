@@ -3,13 +3,14 @@ import hre from 'hardhat';
 import { ethers } from 'hardhat';
 import BaseConfig, { NetworkConfig, OracleRegistryNames } from '../constants/network-deploy-config';
 import ora from 'ora';
-import { feeds } from '../constants/network-deploy-config';
 import { ContractClientWallet } from './lib/contract-client-wallet';
 import { STAGING_ACCOUNTS_PKEYS } from '../constants/test-accounts';
 import { ContractClient } from './lib/contract-client';
 import { ContractClientLedger } from './lib/contract-client-ledger';
 import ContractTree from '../src/contract-blob.json';
 import { TransactionReceipt } from 'ethers';
+import { PythFeedNameEnum, feedIds} from '../constants/pyth';
+
 
 const networkName = hre.network.name;
 const chainId = BigInt(hre.network.config.chainId ?? 0n);
@@ -145,15 +146,15 @@ async function deployOracles(
     let oracleName: OracleRegistryNames | null = null;
     switch (oracle.pair) {
       case 'cbETH/USD':
-        feedId = feeds.CBETHUSDFeedId;
+        feedId = feedIds[PythFeedNameEnum.CBETH_USD];
         oracleName = 'cbETH/USD Oracle';
         break;
       case 'wstETH/USD':
-        feedId = feeds.WSETHUSDFeedId;
+        feedId = feedIds[PythFeedNameEnum.WSTETH_USD];
         oracleName = 'wstETH/USD Oracle';
         break;
       case 'ETH/USD':
-        feedId = feeds.ETHUSDFeedId;
+        feedId = feedIds[PythFeedNameEnum.ETH_USD];
         oracleName = 'ETH/USD Oracle';
         break;
       default:
@@ -412,26 +413,6 @@ async function registerName(
     },
   );
   result.push([name, config.uniswapRouter02, routerReceipt?.hash]);
-}
-
-async function registerWETH(
-  app: ContractClient<typeof ContractTree>,
-  config: NetworkConfig,
-  registryReceipt: TransactionReceipt | null,
-  spinner: ora.Ora,
-  result: any[],
-) {
-  spinner.text = 'Registering WETH Address';
-  const wethRegReceipt = await app.send(
-    'ServiceRegistry',
-    registryReceipt?.contractAddress ?? '',
-    'registerService',
-    [ethers.keccak256(Buffer.from('WETH')), config.weth],
-    {
-      chainId,
-    },
-  );
-  result.push(['WETH', config.weth, wethRegReceipt?.hash]);
 }
 
 async function deployProxyAdmin(

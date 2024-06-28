@@ -9,6 +9,7 @@ import { ContractClientLedger } from './lib/contract-client-ledger';
 import { ContractClientWallet } from './lib/contract-client-wallet';
 import { STAGING_ACCOUNTS_PKEYS } from '../constants/test-accounts';
 import ContractTree from '../src/contract-blob.json';
+import {PythFeedNameEnum, feedIds} from "../constants/pyth";
 
 const fs = require('fs');
 const path = require('path');
@@ -554,8 +555,9 @@ task('pyth:priceUpdate', 'Update Required Prices').setAction(async ({}, { ethers
     const priceIds = [
       // You can find the ids of prices at https://pyth.network/developers/price-feed-ids
       //  pythFeedIds.CBETH_USD_FEED_ID, // BTC/USD price id
-      pythFeedIds.ETH_USD_FEED_ID,
-      pythFeedIds.WSETH_USD_FEED_ID, // ETH/USD price id
+      feedIds[PythFeedNameEnum.CBETH_USD], // BTC/USD price id
+      feedIds[PythFeedNameEnum.ETH_USD],
+      feedIds[PythFeedNameEnum.WSTETH_USD], // ETH/USD price id
     ];
     // Get the latest values of the price feeds as json objects.
     // If you set `binary: true` above, then this method also returns signed price updates for the on-chain Pyth contract.

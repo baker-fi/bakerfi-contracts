@@ -179,7 +179,6 @@ export async function deployOptimism() {
   await deployBalancerFL(serviceRegistry);
 
   await deployETHOracle(serviceRegistry, config.pyth);
-
   // 12. Deploy the Strategy
   const { proxy: strategyProxyDeploy } = await deployAAVEv3StrategyAny(
     deployer.address,

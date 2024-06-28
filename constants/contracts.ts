@@ -21,13 +21,7 @@ export type BakerDeployConfig = {
     ethUSDOracleFeedId?: string;
 }
 
-export const pythFeedIds = {
-    ETH_USD_FEED_ID: "0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace",
-    CBETH_USD_FEED_ID: "0x15ecddd26d49e1a8f1de9376ebebc03916ede873447c1255d2d5891b92ce5717",
-    WSETH_USD_FEED_ID: "0x6df640f3b8963d8f8358f791f352b8364513f6ab1cca5ed3f1f7b5448980e784"
-};
-
-export const deployConfigMap : {[key in Networks]?: BakerDeployConfig} = 
+export const deployConfigMap : {[key: string]: BakerDeployConfig} = 
 {
     "local": {
         proxyAdmin: "0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e",

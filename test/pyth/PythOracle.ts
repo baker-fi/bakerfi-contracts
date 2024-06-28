@@ -4,8 +4,7 @@ import { ethers, network } from 'hardhat';
 import { describeif } from '../common';
 
 import { AbiCoder } from 'ethers';
-
-const WETH_USD_FEED_ID = '0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace';
+import { PythFeedNameEnum, feedIds } from '../../constants/pyth';
 
 describeif(network.name === 'hardhat')('Pyth Oracle Tests', function () {
   async function deployFunction() {
@@ -14,7 +13,10 @@ describeif(network.name === 'hardhat')('Pyth Oracle Tests', function () {
     await pythMock.waitForDeployment();
 
     const PythOracle = await ethers.getContractFactory('PythOracle');
-    const pythOracle = await PythOracle.deploy(WETH_USD_FEED_ID, await pythMock.getAddress());
+    const pythOracle = await PythOracle.deploy(
+      feedIds[PythFeedNameEnum.WSTETH_USD],
+      await pythMock.getAddress(),
+    );
     await pythOracle.waitForDeployment();
     return { pythMock, pythOracle };
   }
@@ -25,7 +27,13 @@ describeif(network.name === 'hardhat')('Pyth Oracle Tests', function () {
 
     const updateData = new AbiCoder().encode(
       ['tuple(bytes32, tuple(int64, uint64, int32, uint),  tuple(int64, uint64, int32, uint))'],
-      [[WETH_USD_FEED_ID, [120000, 0, -2, 1706801584], [120000, 0, -2, 1706801584]]],
+      [
+        [
+          feedIds[PythFeedNameEnum.WSTETH_USD],
+          [120000, 0, -2, 1706801584],
+          [120000, 0, -2, 1706801584],
+        ],
+      ],
     );
     await pythMock.updatePriceFeeds([updateData], { value: 10 });
     const [price] = await pythOracle.getLatestPrice();
@@ -37,7 +45,7 @@ describeif(network.name === 'hardhat')('Pyth Oracle Tests', function () {
     expect(await pythOracle.getPrecision()).to.equal(18);
     const updateData = new AbiCoder().encode(
       ['tuple(bytes32, tuple(int64, uint64, int32, uint),  tuple(int64, uint64, int32, uint))'],
-      [[WETH_USD_FEED_ID, [12, 0, 2, 1706801584], [12, 0, 2, 1706801584]]],
+      [[feedIds[PythFeedNameEnum.WSTETH_USD],  [12, 0, 2, 1706801584], [12, 0, 2, 1706801584]]],
     );
 
     await pythMock.updatePriceFeeds([updateData], { value: 10 });
@@ -49,7 +57,13 @@ describeif(network.name === 'hardhat')('Pyth Oracle Tests', function () {
     const { pythOracle } = await loadFixture(deployFunction);
     const updateData = new AbiCoder().encode(
       ['tuple(bytes32, tuple(int64, uint64, int32, uint),  tuple(int64, uint64, int32, uint))'],
-      [[WETH_USD_FEED_ID, [1200, 0, 2, 1706801584], [1200, 0, 2, 1706801584]]],
+      [
+        [
+          feedIds[PythFeedNameEnum.WSTETH_USD],
+          [1200, 0, 2, 1706801584],
+          [1200, 0, 2, 1706801584],
+        ],
+      ],
     );
     await pythOracle.getAndUpdatePrice(updateData, {
       value: 10,
@@ -62,7 +76,13 @@ describeif(network.name === 'hardhat')('Pyth Oracle Tests', function () {
     const { pythOracle } = await loadFixture(deployFunction);
     const updateData = new AbiCoder().encode(
       ['tuple(bytes32, tuple(int64, uint64, int32, uint),  tuple(int64, uint64, int32, uint))'],
-      [[WETH_USD_FEED_ID, [1200, 10, 2, 1706801584], [1200, 10, 2, 1706801584]]],
+      [
+        [
+          feedIds[PythFeedNameEnum.WSTETH_USD],        
+          [1200, 10, 2, 1706801584],
+          [1200, 10, 2, 1706801584],
+        ],
+      ],
     );
     await pythOracle.getAndUpdatePrice(updateData, {
       value: 10,
@@ -76,7 +96,13 @@ describeif(network.name === 'hardhat')('Pyth Oracle Tests', function () {
     const { pythOracle } = await loadFixture(deployFunction);
     const updateData = new AbiCoder().encode(
       ['tuple(bytes32, tuple(int64, uint64, int32, uint),  tuple(int64, uint64, int32, uint))'],
-      [[WETH_USD_FEED_ID, [1200, 140, 2, 1706801584], [1200, 140, 2, 1706801584]]],
+      [
+        [
+          feedIds[PythFeedNameEnum.WSTETH_USD],        
+          [1200, 140, 2, 1706801584],
+          [1200, 140, 2, 1706801584],
+        ],
+      ],
     );
     await pythOracle.getAndUpdatePrice(updateData, {
       value: 10,
@@ -92,7 +118,13 @@ describeif(network.name === 'hardhat')('Pyth Oracle Tests', function () {
     const { pythMock, pythOracle } = await loadFixture(deployFunction);
     const updateData = new AbiCoder().encode(
       ['tuple(bytes32, tuple(int64, uint64, int32, uint),  tuple(int64, uint64, int32, uint))'],
-      [[WETH_USD_FEED_ID, [1200, 0, 30, 1706801584], [1200, 0, 30, 1706801584]]],
+      [
+        [
+          feedIds[PythFeedNameEnum.WSTETH_USD],        
+          [1200, 0, 30, 1706801584],
+          [1200, 0, 30, 1706801584],
+        ],
+      ],
     );
     await pythMock.updatePriceFeeds([updateData], { value: 10 });
     await expect(

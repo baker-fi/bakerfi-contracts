@@ -1,3 +1,5 @@
+import { PythFeedNameEnum } from "./pyth";
+
 export const feeds  = {
     ETHUSDFeedId: "0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace",
     CBETHUSDFeedId: "0x15ecddd26d49e1a8f1de9376ebebc03916ede873447c1255d2d5891b92ce5717",
@@ -65,10 +67,10 @@ const Config: DeployConfig = {
         wstETH: "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
         stETH: "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",
         oracles: [{
-            pair: "wstETH/USD",
+            pair: PythFeedNameEnum.WSTETH_USD,
             address: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4"
         }, {
-            pair: "ETH/USD",
+            pair: PythFeedNameEnum.ETH_USD,
             address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
         }],
         AAVEEModeCategory: 1,
@@ -90,10 +92,10 @@ const Config: DeployConfig = {
         weth: "0x4200000000000000000000000000000000000006", // Validated
         wstETH: "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452", // Validated
         oracles: [{
-            pair: "wstETH/USD",
+            pair: PythFeedNameEnum.WSTETH_USD,
             address: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4"
         }, {
-            pair: "ETH/USD",
+            pair: PythFeedNameEnum.ETH_USD,
             address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
         }],
         AAVEEModeCategory: 1,
@@ -115,10 +117,10 @@ const Config: DeployConfig = {
         weth: "0x4200000000000000000000000000000000000006", // Validated
         wstETH: "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452", // Validated
         oracles: [{
-            pair: "wstETH/USD",
+            pair: PythFeedNameEnum.WSTETH_USD,
             address: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4"
         }, {
-            pair: "ETH/USD",
+            pair: PythFeedNameEnum.ETH_USD,
             address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
         }],
         AAVEEModeCategory: 1,
@@ -140,10 +142,10 @@ const Config: DeployConfig = {
         weth: "0x4200000000000000000000000000000000000006", // Validated
         wstETH: "0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb", // Validated
         oracles: [{
-            pair: "wstETH/USD",
+            pair: PythFeedNameEnum.WSTETH_USD,
             address: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4"
         }, {
-            pair: "ETH/USD",
+            pair: PythFeedNameEnum.ETH_USD,
             address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
         }],
         strategy: {
@@ -168,10 +170,10 @@ const Config: DeployConfig = {
         pyth: "0xff1a0f4744e8582df1ae09d5611b887b6a12925c",
         stETH: "0x07C1F45Dc0a620E6716d8A45485B8f0A79E270F8",
         oracles: [{
-            pair: "wstETH/USD",
+            pair:PythFeedNameEnum.WSTETH_USD,
             address: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4"
         }, {
-            pair: "ETH/USD",
+            pair: PythFeedNameEnum.ETH_USD,
             address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
         }],
         balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Validated       
@@ -191,7 +193,7 @@ const Config: DeployConfig = {
         weth: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1", // Validated
         wstETH: "0x5979D7b546E38E414F7E9822514be443A4800529", // Validated
         oracles: [{
-            pair: "wstETH/USD",
+            pair:PythFeedNameEnum.WSTETH_USD,
             address: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4"
         }, {
             pair: "ETH/USD",
@@ -222,10 +224,10 @@ const Config: DeployConfig = {
         weth: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1", // Validated
         wstETH: "0x5979D7b546E38E414F7E9822514be443A4800529", // Validated
         oracles: [{
-            pair: "wstETH/USD",
+            pair: PythFeedNameEnum.WSTETH_USD,
             address: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4"
         }, {
-            pair: "ETH/USD",
+            pair: PythFeedNameEnum.ETH_USD,
             address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
         }],
         strategy: {
