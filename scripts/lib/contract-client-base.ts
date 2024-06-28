@@ -1,6 +1,5 @@
 import { ethers, Transaction, TransactionReceipt } from 'ethers';
 import { ContractClient, ContractTreeType, TxOptions } from './contract-client';
-const delay = ms => new Promise(res => setTimeout(res, ms));
 
 export abstract class ContractClientBase<ContractTree extends ContractTreeType>
   implements ContractClient<ContractTree>
@@ -43,10 +42,7 @@ export abstract class ContractClientBase<ContractTree extends ContractTreeType>
   }
   async broadcastTx(signedTx: Transaction,options?: TxOptions) {
     const response = await this._provider.broadcastTransaction(signedTx.serialized);
-    const txReceipt = await response.wait();   
-    if(options && options.delayAfterTxReceiptMs && options?.delayAfterTxReceiptMs > 0 ) {
-      await delay(options?.delayAfterTxReceiptMs);
-    }
+    const txReceipt = await response.wait(options?.minTxConfirmations ?? 0);    
     return txReceipt;
   }
 

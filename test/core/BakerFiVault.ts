@@ -162,7 +162,6 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
       vault.deposit(owner.address, {
         value: ethers.parseUnits('10', 18),
       }),
-      // @ts-expect-error
     ).to.be.revertedWithCustomError(strategy, 'PriceOutdated');
   });
 
@@ -183,7 +182,6 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
       vault.deposit(owner.address, {
         value: ethers.parseUnits('10', 18),
       }),
-      // @ts-expect-error
     ).to.be.revertedWithCustomError(strategy, 'PriceOutdated');
   });
 
@@ -285,7 +283,6 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
     await vault.pause();
     await expect(
       vault.withdraw(1),
-      // @ts-expect-error
     ).to.be.revertedWith('Pausable: paused');
   });
 
@@ -296,7 +293,6 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
       vault.deposit(owner.address, {
         value: ethers.parseUnits('10', 18),
       }),
-      // @ts-expect-error
     ).to.be.revertedWith('Pausable: paused');
   });
 
@@ -305,7 +301,6 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
     await vault.pause();
     await expect(
       vault.rebalance(),
-      // @ts-expect-error
     ).to.be.revertedWith('Pausable: paused');
   });
 
@@ -319,7 +314,6 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
     };
     await expect(
       owner.sendTransaction(tx),
-      // @ts-expect-error
     ).to.be.revertedWithCustomError(vault, 'ETHTransferNotAllowed');
   });
 

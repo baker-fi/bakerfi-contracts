@@ -104,7 +104,6 @@ describeif(network.name === 'hardhat')('Pyth Oracle Tests', function () {
     // 10% Max Confidence
     await expect(
       pythOracle.getSafeLatestPrice([0, 1 * 10 ** 8]),
-      // @ts-expect-error
     ).to.be.revertedWithCustomError(pythOracle, 'InvalidPriceAnswer');
   });
 
@@ -123,7 +122,6 @@ describeif(network.name === 'hardhat')('Pyth Oracle Tests', function () {
     await pythMock.updatePriceFeeds([updateData], { value: 10 });
     await expect(
       pythOracle.getSafeLatestPrice([0, 1 * 10 ** 8]),
-      // @ts-expect-error
     ).to.be.revertedWithCustomError(pythOracle, 'InvalidPriceAnswer');
   });
 });
