@@ -2,12 +2,12 @@
 pragma solidity ^0.8.24;
 pragma experimental ABIEncoderV2;
 
-import {ServiceRegistry, UNISWAP_ROUTER_CONTRACT} from "../ServiceRegistry.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {ISwapHandler} from "../../interfaces/core/ISwapHandler.sol";
-import {ISwapRouter} from "../../interfaces/uniswap/v3/ISwapRouter.sol";
-import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import { ServiceRegistry, UNISWAP_ROUTER_CONTRACT } from "../ServiceRegistry.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { ISwapHandler } from "../../interfaces/core/ISwapHandler.sol";
+import { IV3SwapRouter } from "../../interfaces/uniswap/v3/IV3SwapRouter.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**
  * @title UseSwapper
@@ -24,79 +24,77 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
  * @author Chef Kal-El <chef.kal-el@bakerfi.xyz>
  */
 abstract contract UseSwapper is ISwapHandler, Initializable {
-    using SafeERC20 for IERC20;
+  using SafeERC20 for IERC20;
 
-    error InvalidUniRouterContract();
-    error InvalidInputToken();
-    error InvalidOutputToken();
-    error InvalidFeeTier();
+  error InvalidUniRouterContract();
+  error InvalidInputToken();
+  error InvalidOutputToken();
+  error InvalidFeeTier();
 
-    event Swap(
-        address indexed assetIn,
-        address assetOut,
-        uint256 assetInAmount,
-        uint256 assetOutAmount
-    );
-    error SwapFailed();
+  event Swap(
+    address indexed assetIn,
+    address assetOut,
+    uint256 assetInAmount,
+    uint256 assetOutAmount
+  );
+  error SwapFailed();
 
-    ISwapRouter private _uniRouter;
+  IV3SwapRouter private _uniRouter;
 
-    function _initUseSwapper(ServiceRegistry registry) internal onlyInitializing {
-        _uniRouter = ISwapRouter(registry.getServiceFromHash(UNISWAP_ROUTER_CONTRACT));
-        if (address(_uniRouter) == address(0)) revert InvalidUniRouterContract();
+  function _initUseSwapper(ServiceRegistry registry) internal onlyInitializing {
+    _uniRouter = IV3SwapRouter(registry.getServiceFromHash(UNISWAP_ROUTER_CONTRACT));
+    if (address(_uniRouter) == address(0)) revert InvalidUniRouterContract();
+  }
+
+  function uniRouter() public view returns (IV3SwapRouter) {
+    return _uniRouter;
+  }
+
+  function uniRouterA() public view returns (address) {
+    return address(_uniRouter);
+  }
+
+  function _swap(
+    ISwapHandler.SwapParams memory params
+  ) internal override returns (uint256 amountIn, uint256 amountOut) {
+    if (params.underlyingIn == address(0)) revert InvalidInputToken();
+    if (params.underlyingOut == address(0)) revert InvalidOutputToken();
+    uint24 fee = params.feeTier;
+    if (fee == 0) revert InvalidFeeTier();
+
+    // Exact Input
+    if (params.mode == ISwapHandler.SwapType.EXACT_INPUT) {
+      amountIn = params.amountIn;
+      amountOut = _uniRouter.exactInputSingle(
+        IV3SwapRouter.ExactInputSingleParams({
+          tokenIn: params.underlyingIn,
+          tokenOut: params.underlyingOut,
+          amountIn: amountIn,
+          amountOutMinimum: params.amountOut,
+          fee: fee,
+          recipient: address(this),
+          sqrtPriceLimitX96: 0
+        })
+      );
+      if (amountOut == 0) {
+        revert SwapFailed();
+      }
+      emit Swap(params.underlyingIn, params.underlyingOut, amountIn, amountOut);
+      // Exact Output
+    } else if (params.mode == ISwapHandler.SwapType.EXACT_OUTPUT) {
+      amountOut = params.amountOut;
+      amountIn = _uniRouter.exactOutputSingle(
+        IV3SwapRouter.ExactOutputSingleParams({
+          tokenIn: params.underlyingIn,
+          tokenOut: params.underlyingOut,
+          fee: fee,
+          recipient: address(this),
+          amountOut: amountOut,
+          amountInMaximum: params.amountIn,
+          sqrtPriceLimitX96: 0
+        })
+      );
+      emit Swap(params.underlyingIn, params.underlyingOut, amountIn, amountOut);
     }
-
-    function uniRouter() public view returns (ISwapRouter) {
-        return _uniRouter;
-    }
-
-    function uniRouterA() public view returns (address) {
-        return address(_uniRouter);
-    }
-
-    function _swap(
-        ISwapHandler.SwapParams memory params
-    ) internal override returns (uint256 amountIn, uint256 amountOut) {
-        if (params.underlyingIn == address(0)) revert InvalidInputToken();
-        if (params.underlyingOut == address(0)) revert InvalidOutputToken();
-        uint24 fee = params.feeTier;
-        if (fee == 0) revert InvalidFeeTier();
-
-        // Exact Input
-        if (params.mode == ISwapHandler.SwapType.EXACT_INPUT) {
-            amountIn = params.amountIn;
-            amountOut = _uniRouter.exactInputSingle(
-                ISwapRouter.ExactInputSingleParams({
-                    tokenIn: params.underlyingIn,
-                    tokenOut: params.underlyingOut,
-                    amountIn: amountIn,
-                    amountOutMinimum: params.amountOut,
-                    deadline: block.timestamp,
-                    fee: fee,
-                    recipient: address(this),
-                    sqrtPriceLimitX96: 0
-                })
-            );
-            if (amountOut == 0) {
-                revert SwapFailed();
-            }
-            emit Swap(params.underlyingIn, params.underlyingOut, amountIn, amountOut);
-            // Exact Output
-        } else if (params.mode == ISwapHandler.SwapType.EXACT_OUTPUT) {
-            amountOut = params.amountOut;
-            amountIn = _uniRouter.exactOutputSingle(
-                ISwapRouter.ExactOutputSingleParams({
-                    tokenIn: params.underlyingIn,
-                    tokenOut: params.underlyingOut,
-                    fee: fee,
-                    deadline: block.timestamp,
-                    recipient: address(this),
-                    amountOut: amountOut,
-                    amountInMaximum: params.amountIn,
-                    sqrtPriceLimitX96: 0
-                })
-            );
-            emit Swap(params.underlyingIn, params.underlyingOut, amountIn, amountOut);
-        }
-    }
+  }
 }

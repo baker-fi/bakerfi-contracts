@@ -1,6 +1,6 @@
 {
   "name": "@baker-fi/sdk",
-  "version": "v1.0.0-alpha.9",
+  "version": "v1.0.0-beta.1",
   "description": "",
   "main": "dist/src/index.js",
   "module": "dist/src/index.js",
@@ -13,6 +13,7 @@
   "scripts": {
     "compile:clean": "rm -rf cache/* && rm -rf artifacts/*  && rm -rf dist/*",
     "compile": "npx hardhat compile",
+    "postcompile": "npx hardhat compile:artifactTree",
     "build": "npm run compile && npx tsc && npx tsc-alias",
     "test": "npx hardhat test",
     "solhint:check": "npx solhint  'contracts/**/*.sol'",
@@ -22,7 +23,7 @@
     "test:coverage": "REPORT_GAS=true npx hardhat coverage",
     "contract:size": "npx hardhat size-contracts",
     "lint": "npx hardhat check",
-    "prettier": "npx prettier --config .prettierrc.json --write 'contracts/**/*.sol'",
+    "prettier": "npx prettier --config .prettierrc.json --write 'contracts/**/*.sol' 'scripts/**/*.ts' 'test/**/*.ts'",
     "start": "NODE_ENV=production node dist/index.js",
     "export:flat": "npx hardhat export-flat",
     "export:selectors": "npx hardhat selectors",
@@ -69,6 +70,8 @@
     "ts-node": "^10.9.1"
   },
   "dependencies": {
+    "@ledgerhq/hw-app-eth": "^6.37.0",
+    "@ledgerhq/hw-transport-node-hid": "^6.29.0",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.10",
     "@openzeppelin/contracts": "^4.9.2",
     "@openzeppelin/contracts-upgradeable": "^4.9.2",
