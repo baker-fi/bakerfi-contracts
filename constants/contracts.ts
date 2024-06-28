@@ -55,7 +55,7 @@ export const deployConfigMap : {[key: string]: BakerDeployConfig} =
     "base": {
         proxyAdmin: "0x796Eb52Bd29D28D6950673F3Fe41aD2025D3d327",
         serviceRegistry: "0x3E2fe09C271B5dbB35C71a13357E5fD924469a68",    
-        flashLender: "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+        flashLender: "0xdbDA5026367237Def645C17108586BAE80d3173B",
         wstETHUSDOracle: "0x2B72E0dDB2a5F2d94065A53de912896Fd27f084A",
         ethUSDOracle: "0xddC3b00b6185484B54c00C154E6bB70c4942E910",
         strategy: "0x190fA3735104BdE4B06f7aa555FA60Df67732AaB",
@@ -71,7 +71,7 @@ export const deployConfigMap : {[key: string]: BakerDeployConfig} =
     "base_devnet": {
         proxyAdmin: "0x796Eb52Bd29D28D6950673F3Fe41aD2025D3d327",
         serviceRegistry: "0x3E2fe09C271B5dbB35C71a13357E5fD924469a68",    
-        flashLender: "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+        flashLender: "0xdbDA5026367237Def645C17108586BAE80d3173B",
         wstETHUSDOracle: "0x2B72E0dDB2a5F2d94065A53de912896Fd27f084A",
         ethUSDOracle: "0xddC3b00b6185484B54c00C154E6bB70c4942E910",
         strategy: "0x190fA3735104BdE4B06f7aa555FA60Df67732AaB",
