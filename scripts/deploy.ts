@@ -37,7 +37,7 @@ type RegistryNames =
  ****************************************/
 async function main() {
   const [signerPKey] = STAGING_ACCOUNTS_PKEYS;
-  let app: ContractClient<typeof ContractTree> | null;
+  let app;
   const result: any[] = [];
   const spinner = ora('Cooking ....').start();
   if (process.env.DEPLOY_WITH_LEDGER === 'true') {
