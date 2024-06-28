@@ -1,6 +1,5 @@
 import hre from 'hardhat';
 import '@nomicfoundation/hardhat-ethers';
-import BaseConfig from './config';
 import { program } from 'commander';
 
 async function main() {
@@ -32,7 +31,7 @@ async function contracts(registerAddress: any) {
     'stETH',
     'wstETH',
     'cbETH',
-    'AAVE_V3',
+    'AAVEv3',
     'stETH/ETH Oracle',
     'cbETH/ETH Oracle',
     'Uniswap Router',

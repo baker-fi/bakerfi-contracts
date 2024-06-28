@@ -47,7 +47,7 @@ export async function deployBase() {
   await swapper.addFeeTier(config.weth, config.cbETH, 500);
 
   // 7. Register AAVE V3 Service
-  await serviceRegistry.registerService(ethers.keccak256(Buffer.from('AAVE_V3')), config.AAVEPool);
+  await serviceRegistry.registerService(ethers.keccak256(Buffer.from('AAVEv3')), config.AAVEPool);
 
   // 8. Register CbETH
   await serviceRegistry.registerService(ethers.keccak256(Buffer.from('cbETH')), config.cbETH);
@@ -157,7 +157,7 @@ export async function deployOptimism() {
   );
 
   // 7. Register AAVE V3 Service
-  await serviceRegistry.registerService(ethers.keccak256(Buffer.from('AAVE_V3')), config.AAVEPool);
+  await serviceRegistry.registerService(ethers.keccak256(Buffer.from('AAVEv3')), config.AAVEPool);
 
   // 8. Register wstETH
   await serviceRegistry.registerService(ethers.keccak256(Buffer.from('wstETH')), config.wstETH);
@@ -264,7 +264,7 @@ export async function deployEthereum() {
   );
 
   // Register AAVE V3 Service on Service Register
-  await serviceRegistry.registerService(ethers.keccak256(Buffer.from('AAVE_V3')), config.AAVEPool);
+  await serviceRegistry.registerService(ethers.keccak256(Buffer.from('AAVEv3')), config.AAVEPool);
 
   // Register wstETH Lido Smart Contract
   await serviceRegistry.registerService(ethers.keccak256(Buffer.from('wstETH')), config.wstETH);

@@ -1,7 +1,11 @@
 import 'dotenv/config';
 import hre from 'hardhat';
 import { ethers } from 'hardhat';
-import BaseConfig, { NetworkConfig, OracleRegistryNames } from '../constants/network-deploy-config';
+import BaseConfig, {
+  NetworkConfig,
+  OracleRegistryNames,
+  VaultNamesEnum,
+} from '../constants/network-deploy-config';
 import ora from 'ora';
 import { ContractClientWallet } from './lib/contract-client-wallet';
 import { STAGING_ACCOUNTS_PKEYS } from '../constants/test-accounts';
@@ -16,20 +20,29 @@ const chainId = BigInt(hre.network.config.chainId ?? 0n);
 
 type ProxyContracts = keyof typeof ContractTree;
 
-type RegistryNames =
-  | 'FlashLender'
-  | 'StrategyAAVEv3'
-  | 'WETH'
-  | 'stETH'
-  | 'wstETH'
-  | 'wstETH/USD Oracle'
-  | 'cbETH/USD Oracle'
-  | 'ETH/USD Oracle'
-  | 'Strategy'
-  | 'Pyth'
-  | 'Settings'
-  | 'Vault';
+export const RegistryNames = [
+  'FlashLender',
+  'Settings',
+  'Pyth',
+  'DeploymentRegistry',
+  'Uniswap Router',
+  'Uniswap Quoter',
+  'WETH',
+  'stETH',
+  'wstETH',
+  'AAVEv3',
+  'Balancer Vault',
+  'wstETH',
+  'wstETH/USD Oracle',
+  'cbETH/USD Oracle',
+  'ETH/USD Oracle',
+  'BakerFiProxyAdmin',
+  'Pyth',
+  `${VaultNamesEnum.AAVE_V3_WSTETH_ETH} Strategy`,
+  `${VaultNamesEnum.AAVE_V3_WSTETH_ETH} Vault`,
+];
 
+type RegistryName = (typeof RegistryNames)[number];
 /****************************************
  *
  * Deploy BakerFi Vaults and support Ledger Support
@@ -52,28 +65,27 @@ async function main() {
   await app.init();
   result.push(['Network Name', networkName]);
   result.push(['Network Id', chainId]);
+  result.push(['Owner', app.getAddress()]);
   const config: NetworkConfig = BaseConfig[networkName];
 
-  //////////////////////////////////////////
   // Deploy Settings, ProxyAdmin, Registry,....
-  //////////////////////////////////////////
   const { registryReceipt, proxyAdminReceipt } = await deployInfra(app, config, spinner, result);
 
-  ////////////////////////////////////
   // Deploy Strategy
-  ////////////////////////////////////
+  const strategyConfig = config.vaults[VaultNamesEnum.AAVE_V3_WSTETH_ETH];
   const strategyAddress = await deployProxyContract(
     app,
+    config,
     'StrategyAAVEv3',
-    'StrategyAAVEv3',
+    `${VaultNamesEnum.AAVE_V3_WSTETH_ETH} Strategy`,
     proxyAdminReceipt?.contractAddress,
     registryReceipt?.contractAddress,
     [
       app.getAddress(),
       app.getAddress(),
       registryReceipt?.contractAddress,
-      ethers.keccak256(Buffer.from(config.strategy.collateral)),
-      ethers.keccak256(Buffer.from(config.strategy.oracle)),
+      ethers.keccak256(Buffer.from(strategyConfig.collateral)),
+      ethers.keccak256(Buffer.from(strategyConfig.oracle)),
       config.swapFeeTier,
       config.AAVEEModeCategory,
     ],
@@ -85,14 +97,15 @@ async function main() {
   ////////////////////////////////////
   const vaultAdress = await deployProxyContract(
     app,
+    config,
     'Vault',
-    'Vault',
+    `${VaultNamesEnum.AAVE_V3_WSTETH_ETH} Vault`,
     proxyAdminReceipt?.contractAddress,
     registryReceipt?.contractAddress,
     [
       app.getAddress(),
-      config.vaultSharesName,
-      config.vaultSharesSymbol,
+      strategyConfig.sharesName,
+      strategyConfig.sharesSymbol,
       registryReceipt?.contractAddress,
       strategyAddress,
     ],
@@ -110,6 +123,7 @@ async function main() {
     [vaultAdress],
     {
       chainId,
+      delayAfterTxReceiptMs: config.delayAfterTxReceiptMs,
     },
   );
   result.push(['Strategy Owner', vaultAdress, changeOwnerReceipt?.hash]);
@@ -122,12 +136,28 @@ async function main() {
     [ethers.parseUnits('800', 6)],
     {
       chainId,
+      delayAfterTxReceiptMs: config.delayAfterTxReceiptMs,
     },
   );
   result.push(['Strategy LTV', ethers.parseUnits('800', 6), ltvChangeReceipt?.hash]);
-
   spinner.succeed('🧑‍🍳 BakerFi Served 🍰 ');
   console.table(result);
+  console.log('Deployment Registry:');
+  const registerDump: any[] = [];
+  for (const registerName of RegistryNames) {
+    const address = await app.call(
+      'ServiceRegistry',
+      registryReceipt?.contractAddress ?? '',
+      'getService',
+      [registerName],
+      {
+        chainId,
+        delayAfterTxReceiptMs: config.delayAfterTxReceiptMs,
+      },
+    );
+    registerDump.push([registerName, address]);
+  }
+  console.table(registerDump);
   process.exit(0);
 }
 
@@ -161,6 +191,7 @@ async function deployOracles(
     }
     const oracleReceipt = await client.deploy('PythOracle', [feedId, config.pyth], {
       chainId,
+      delayAfterTxReceiptMs: config.delayAfterTxReceiptMs,
     });
     spinner.text = `Registering ${oracle.pair} Oracle`;
     await client.send(
@@ -170,6 +201,7 @@ async function deployOracles(
       [ethers.keccak256(Buffer.from(oracleName)), oracleReceipt?.contractAddress],
       {
         chainId,
+        delayAfterTxReceiptMs: config.delayAfterTxReceiptMs,
       },
     );
     result.push([`${oracle.pair} Oracle`, oracleReceipt?.contractAddress, oracleReceipt?.hash]);
@@ -195,8 +227,9 @@ main().catch((error) => {
  */
 async function deployProxyContract(
   client: ContractClient<typeof ContractTree>,
+  config: NetworkConfig,
   instanceName: ProxyContracts,
-  registerName: RegistryNames,
+  registerName: RegistryName,
   proxyAdminAddress: string | null | undefined,
   registryContractAddress: string | null | undefined,
   args: any[],
@@ -210,10 +243,10 @@ async function deployProxyContract(
     // Tx Options
     {
       chainId,
+      delayAfterTxReceiptMs: config.delayAfterTxReceiptMs,
     },
   );
   const contractFactory = await ethers.getContractFactory(instanceName);
-
   spinner.text = `Deploying ${instanceName} Proxy`;
   const proxyReceipt = await client.deploy(
     'BakerFiProxy',
@@ -224,6 +257,7 @@ async function deployProxyContract(
     ],
     {
       chainId,
+      delayAfterTxReceiptMs: config.delayAfterTxReceiptMs,
     },
   );
 
@@ -235,6 +269,7 @@ async function deployProxyContract(
     [ethers.keccak256(Buffer.from(registerName)), proxyReceipt?.contractAddress],
     {
       chainId,
+      delayAfterTxReceiptMs: config.delayAfterTxReceiptMs,
     },
   );
   result.push([instanceName, instanceReceipt?.contractAddress, instanceReceipt?.hash]);
@@ -253,23 +288,16 @@ async function deployInfra(
 ): Promise<{
   [key in receiptKeyNames]: TransactionReceipt | null;
 }> {
-  ////////////////////////////////////
   // Service Registry
-  ////////////////////////////////////
-  const registryReceipt = await deployRegistry(app, spinner, result);
-  ////////////////////////////////////
+  const registryReceipt = await deployRegistry(app,config, spinner, result);
   // Proxy Admin
-  ////////////////////////////////////
-  const proxyAdminReceipt = await deployProxyAdmin(app, registryReceipt, spinner, result);
-  ////////////////////////////////////
+  const proxyAdminReceipt = await deployProxyAdmin(app, config, registryReceipt, spinner, result);
   // Registering WETH Address
-  ////////////////////////////////////
   await registerName(app, config, registryReceipt, 'WETH', config.weth, spinner, result);
-  ////////////////////////////////////
   // Deploy Global Settings
-  ////////////////////////////////////
   await deployProxyContract(
     app,
+    config,
     'Settings',
     'Settings',
     proxyAdminReceipt?.contractAddress,
@@ -278,9 +306,7 @@ async function deployInfra(
     spinner,
     result,
   );
-  ////////////////////////////////////
   // Registering Uniswap Router 02
-  ////////////////////////////////////
   await registerName(
     app,
     config,
@@ -290,47 +316,22 @@ async function deployInfra(
     spinner,
     result,
   );
-  ////////////////////////////////////
   // Registering Uniswap Quoter
-  ////////////////////////////////////
-  await registerName(
-    app,
-    config,
-    registryReceipt,
-    'Uniswap Quoter',
-    config.uniswapQuoter,
-    spinner,
-    result,
-  );
-  ////////////////////////////////////
-  //  8. AAVE Vault
-  ////////////////////////////////////
-  await registerName(app, config, registryReceipt, 'AAVE_V3', config.AAVEPool, spinner, result);
-  ////////////////////////////////////
-  // 9. Register Balancer Vault
-  ////////////////////////////////////
-  await registerName(
-    app,
-    config,
-    registryReceipt,
-    'Balancer Vault',
-    config.balancerVault,
-    spinner,
-    result,
-  );
-  ////////////////////////////////////
-  // 10. Flash Lender Adapter
-  ////////////////////////////////////
-  await deployFlashLender(app, registryReceipt, spinner, result);
-  ////////////////////////////////////
-  // 11. Wrapped stETH
-  ////////////////////////////////////
+  await registerName(app, config, registryReceipt, 'Uniswap Quoter', config.uniswapQuoter, spinner, result);
+  // Registering Uniswap Quoter
+  await registerName(app, config, registryReceipt, 'Pyth', config.pyth, spinner, result);
+  // AAVE Vault
+  await registerName(app, config, registryReceipt, 'AAVEv3', config.AAVEPool, spinner, result);
+  // Register Balancer Vault
+  await registerName(app, config, registryReceipt, 'Balancer Vault', config.balancerVault, spinner, result);
+  // Flash Lender Adapter
+  await deployFlashLender(app, config, registryReceipt, spinner, result);
+
+  // Wrapped stETH
   if (config.wstETH) {
     await registerName(app, config, registryReceipt, 'wstETH', config.wstETH, spinner, result);
   }
-  ////////////////////////////////////
-  // 12. Oracles
-  ////////////////////////////////////
+  // Deploy Oracles
   await deployOracles(
     app,
     chainId ?? 0,
@@ -347,6 +348,7 @@ async function deployInfra(
 
 async function deployFlashLender(
   app: ContractClient<typeof ContractTree>,
+  config: NetworkConfig,
   registryReceipt: TransactionReceipt | null,
   spinner: ora.Ora,
   result: any[],
@@ -357,6 +359,7 @@ async function deployFlashLender(
     [registryReceipt?.contractAddress ?? ''],
     {
       chainId,
+      delayAfterTxReceiptMs: config.delayAfterTxReceiptMs,
     },
   );
   await app.send(
@@ -366,30 +369,11 @@ async function deployFlashLender(
     [ethers.keccak256(Buffer.from('FlashLender')), flashLenderReceipt?.contractAddress],
     {
       chainId,
+      delayAfterTxReceiptMs: config.delayAfterTxReceiptMs,
     },
   );
 
   result.push(['Flash Lender', flashLenderReceipt?.contractAddress, flashLenderReceipt?.hash]);
-}
-
-async function registerUniswapQuoter(
-  app: ContractClient<typeof ContractTree>,
-  config: NetworkConfig,
-  registryReceipt: TransactionReceipt | null,
-  spinner: ora.Ora,
-  result: any[],
-) {
-  spinner.text = `Registiring Uniswap Quoter Contract ${config.uniswapRouter02}`;
-  const quoterReceipt = await app.send(
-    'ServiceRegistry',
-    registryReceipt?.contractAddress ?? '',
-    'registerService',
-    [ethers.keccak256(Buffer.from('Uniswap Quoter')), config.uniswapQuoter],
-    {
-      chainId,
-    },
-  );
-  result.push(['Uniswap Quoter', config.uniswapQuoter, quoterReceipt?.hash]);
 }
 
 async function registerName(
@@ -409,13 +393,15 @@ async function registerName(
     [ethers.keccak256(Buffer.from(name)), address],
     {
       chainId,
+      delayAfterTxReceiptMs: config.delayAfterTxReceiptMs,
     },
   );
-  result.push([name, config.uniswapRouter02, routerReceipt?.hash]);
+  result.push([name, address, routerReceipt?.hash]);
 }
 
 async function deployProxyAdmin(
   app: ContractClient<typeof ContractTree>,
+  config: NetworkConfig,
   registryReceipt: TransactionReceipt | null,
   spinner: ora.Ora,
   result: any[],
@@ -423,8 +409,10 @@ async function deployProxyAdmin(
   spinner.text = 'Deploying ProxyAdmin Contract ...';
   const proxyAdminReceipt = await app.deploy('BakerFiProxyAdmin', [app.getAddress()], {
     chainId,
+    delayAfterTxReceiptMs: config.delayAfterTxReceiptMs,
   });
   result.push(['Proxy Admin', proxyAdminReceipt?.contractAddress, proxyAdminReceipt?.hash]);
+
   await app.send(
     'ServiceRegistry',
     registryReceipt?.contractAddress ?? '',
@@ -432,6 +420,7 @@ async function deployProxyAdmin(
     [ethers.keccak256(Buffer.from('BakerFiProxyAdmin')), proxyAdminReceipt?.contractAddress],
     {
       chainId,
+      delayAfterTxReceiptMs: config.delayAfterTxReceiptMs,
     },
   );
   return proxyAdminReceipt;
@@ -439,6 +428,7 @@ async function deployProxyAdmin(
 
 async function deployRegistry(
   app: ContractClient<typeof ContractTree>,
+  config: NetworkConfig,
   spinner: ora.Ora,
   result: any[],
 ) {
@@ -449,17 +439,17 @@ async function deployRegistry(
     [app.getAddress()],
     {
       chainId,
+      delayAfterTxReceiptMs: config.delayAfterTxReceiptMs,
     },
   );
-  result.push(['ServiceRegistry', registryReceipt?.contractAddress, registryReceipt?.hash]);
-  await app.send(
-    'ServiceRegistry',
+  await registerName(
+    app,
+    config,
+    registryReceipt,
+    'DeploymentRegistry',
     registryReceipt?.contractAddress ?? '',
-    'registerService',
-    [ethers.keccak256(Buffer.from('Registry')), registryReceipt?.contractAddress],
-    {
-      chainId,
-    },
+    spinner,
+    result,
   );
   return registryReceipt;
 }

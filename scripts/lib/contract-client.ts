@@ -4,7 +4,9 @@ import { Transaction } from 'ethers/transaction';
 export type TxOptions = Pick<
   Partial<Transaction>,
   'gasLimit' | 'gasPrice' | 'maxPriorityFeePerGas' | 'maxFeePerGas' | 'value' | 'chainId'
->;
+> & {
+  delayAfterTxReceiptMs?: number,
+};
 
 export type ContractDefinition = {
   abi: ethers.InterfaceAbi;
