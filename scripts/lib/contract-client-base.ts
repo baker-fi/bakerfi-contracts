@@ -1,5 +1,6 @@
 import { ethers, Transaction, TransactionReceipt } from 'ethers';
 import { ContractClient, ContractTreeType, TxOptions } from './contract-client';
+const delay = ms => new Promise(res => setTimeout(res, ms));
 
 export abstract class ContractClientBase<ContractTree extends ContractTreeType>
   implements ContractClient<ContractTree>
@@ -40,9 +41,12 @@ export abstract class ContractClientBase<ContractTree extends ContractTreeType>
     const signedTx = await this.sign(tx);
     return await this.broadcastTx(signedTx);
   }
-  async broadcastTx(signedTx: Transaction) {
+  async broadcastTx(signedTx: Transaction,options?: TxOptions) {
     const response = await this._provider.broadcastTransaction(signedTx.serialized);
-    const txReceipt = await response.wait();
+    const txReceipt = await response.wait();   
+    if(options && options.delayAfterTxReceiptMs && options?.delayAfterTxReceiptMs > 0 ) {
+      await delay(options?.delayAfterTxReceiptMs);
+    }
     return txReceipt;
   }
 
@@ -84,7 +88,7 @@ export abstract class ContractClientBase<ContractTree extends ContractTreeType>
     });
     baseTx.gasLimit = options?.gasLimit ?? (estimatedGas*2n);
     const signedTx = await this.sign(baseTx);
-    return await this.broadcastTx(signedTx);
+    return await this.broadcastTx(signedTx, options);
   }
 
   public async call<ContractName extends keyof ContractTree>(
