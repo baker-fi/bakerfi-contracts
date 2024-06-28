@@ -4,7 +4,6 @@ pragma solidity ^0.8.24;
 import {IChainlinkAggregator} from "../interfaces/chainlink/IChainlinkAggregator.sol";
 
 contract ChainLinkAggregatorMock is IChainlinkAggregator {
-
     uint256 internal _exchangeRate;
     uint256 internal _lastUpdate;
 
@@ -12,14 +11,14 @@ contract ChainLinkAggregatorMock is IChainlinkAggregator {
 
     constructor() {
         _lastUpdate = block.timestamp;
-         _exchangeRate = 3500 * (10**_DECIMALS);
+        _exchangeRate = 3500 * (10 ** _DECIMALS);
     }
 
     function setLatestPrice(uint256 exchangeRate) external {
         _exchangeRate = exchangeRate;
         _lastUpdate = block.timestamp;
     }
-    
+
     function decimals() external pure override returns (uint8) {
         return _DECIMALS;
     }
@@ -56,6 +55,6 @@ contract ChainLinkAggregatorMock is IChainlinkAggregator {
             uint80 answeredInRound
         )
     {
-        return (0,int256(_exchangeRate), _lastUpdate, _lastUpdate, 0 );
+        return (0, int256(_exchangeRate), _lastUpdate, _lastUpdate, 0);
     }
 }

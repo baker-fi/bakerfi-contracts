@@ -10,11 +10,10 @@ import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.s
  * @notice
  */
 contract BakerFiProxyAdmin is ProxyAdmin {
-    
     error InvalidOwner();
-    
+
     constructor(address initialOwner) ProxyAdmin() {
-        if(initialOwner == address(0)) revert InvalidOwner();
+        if (initialOwner == address(0)) revert InvalidOwner();
         _transferOwnership(initialOwner);
     }
 }

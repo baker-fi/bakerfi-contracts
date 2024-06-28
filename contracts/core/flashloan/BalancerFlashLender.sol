@@ -6,7 +6,7 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 import {IERC3156FlashLenderUpgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashLenderUpgradeable.sol";
 import {IFlashLoanRecipient} from "../../interfaces/balancer/IFlashLoan.sol";
 import {IVault} from "../../interfaces/balancer/IVault.sol";
-import { MathLibrary } from "../../libraries/MathLibrary.sol";
+import {MathLibrary} from "../../libraries/MathLibrary.sol";
 import {ServiceRegistry, BALANCER_VAULT_CONTRACT} from "../../core/ServiceRegistry.sol";
 import {IERC3156FlashBorrowerUpgradeable} from "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashBorrowerUpgradeable.sol";
 
@@ -133,6 +133,4 @@ contract BalancerFlashLender is IERC3156FlashLenderUpgradeable, IFlashLoanRecipi
         // Return the loan + fee to the vault
         IERC20(asset).safeTransferFrom(address(borrower), address(_balancerVault), amount + fee);
     }
-
-   
 }

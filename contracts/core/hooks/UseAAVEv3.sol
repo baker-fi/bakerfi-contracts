@@ -24,7 +24,6 @@ abstract contract UseAAVEv3 is Initializable {
 
     error InvalidAAVEv3Contract();
 
-
     /**
      * @dev Initializes the UseAAVEv3 contract.
      * @param registry The address of the ServiceRegistry contract for accessing AAVE v3.
@@ -32,7 +31,6 @@ abstract contract UseAAVEv3 is Initializable {
     function _initUseAAVEv3(ServiceRegistry registry) internal onlyInitializing {
         _aavev3 = IPoolV3(registry.getServiceFromHash(AAVE_V3_CONTRACT));
         if (address(_aavev3) == address(0)) revert InvalidAAVEv3Contract();
-       
     }
 
     /**
@@ -50,5 +48,4 @@ abstract contract UseAAVEv3 is Initializable {
     function aaveV3A() public view returns (address) {
         return address(_aavev3);
     }
-
 }

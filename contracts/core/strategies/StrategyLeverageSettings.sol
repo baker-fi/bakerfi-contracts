@@ -5,7 +5,6 @@ import {GovernableOwnable} from "../GovernableOwnable.sol";
 import {PERCENTAGE_PRECISION, MAX_LOOPS} from "../Constants.sol";
 
 contract StrategyLeverageSettings is GovernableOwnable {
-    
     error InvalidMaxLoanToValue();
     error InvalidPercentage();
     error InvalidValue();
@@ -29,7 +28,6 @@ contract StrategyLeverageSettings is GovernableOwnable {
      */
     event LoanToValueChanged(uint256 indexed value);
 
-
     /**
      * @dev Emitted when the number of loops for a specific process is changed.
      *
@@ -38,7 +36,6 @@ contract StrategyLeverageSettings is GovernableOwnable {
      * @param value The new number of loops.
      */
     event NrLoopsChanged(uint256 indexed value);
-
 
     event MaxSlippageChanged(uint256 indexed value);
 
@@ -73,7 +70,7 @@ contract StrategyLeverageSettings is GovernableOwnable {
         _loanToValue = 800 * 1e6; // 80%
         _maxLoanToValue = 850 * 1e6; // 85%
         _nrLoops = 10;
-        _maxSlippage= 0;// 1% ;
+        _maxSlippage = 0; // 1% ;
     }
 
     /**
@@ -138,7 +135,7 @@ contract StrategyLeverageSettings is GovernableOwnable {
         return _loanToValue;
     }
 
-        /**
+    /**
      * @dev Retrieves the number of loops for our Recursive Staking Strategy
      *
      * This function is externally callable and returns the number of loops configured.
@@ -177,5 +174,4 @@ contract StrategyLeverageSettings is GovernableOwnable {
         _maxSlippage = slippage;
         emit MaxSlippageChanged(slippage);
     }
-
 }

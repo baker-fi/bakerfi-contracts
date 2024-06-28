@@ -22,13 +22,15 @@ contract StrategyMock is IStrategy {
     }
 
     function undeploy(uint256 amount) external override returns (uint256 actualAmount) {
-        if(address(this).balance < amount) revert NoBalance();
+        if (address(this).balance < amount) revert NoBalance();
         payable(msg.sender).sendValue(amount);
         emit StrategyAmountUpdate(address(this).balance - amount);
         return amount;
     }
 
-    function deployed(IOracle.PriceOptions memory) external view override returns (uint256 actualAmount) {
+    function deployed(
+        IOracle.PriceOptions memory
+    ) external view override returns (uint256 actualAmount) {
         uint256 col = address(this).balance;
         uint256 deb = (col * _debRatio) / 100;
         actualAmount = col >= deb ? col - deb : 0;

@@ -4,14 +4,7 @@ import {StrategyLeverageSettings} from "../core/strategies/StrategyLeverageSetti
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 contract StrategyLeverageSettingsMock is Initializable, StrategyLeverageSettings {
-
- function initialize(
-        address initialOwner,
-        address initialGovernor      
-    ) public initializer {
-        _initLeverageSettings(
-            initialOwner,
-            initialGovernor         
-        );
+    function initialize(address initialOwner, address initialGovernor) public initializer {
+        _initLeverageSettings(initialOwner, initialGovernor);
     }
 }

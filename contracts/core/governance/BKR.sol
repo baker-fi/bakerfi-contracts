@@ -24,9 +24,7 @@ contract BKR is ERC20, Ownable, ERC20Permit, ERC20Votes {
     string private constant _SYMBOL = "BKR";
     uint256 private constant _MAXSUPPLY = 500_000_000 * 1e18; // 500M
 
-    constructor(
-        address initialOwner
-    ) ERC20(_NAME, _SYMBOL) ERC20Permit(_NAME) ERC20Votes() {
+    constructor(address initialOwner) ERC20(_NAME, _SYMBOL) ERC20Permit(_NAME) ERC20Votes() {
         _mint(initialOwner, _MAXSUPPLY);
         transferOwnership(initialOwner);
     }

@@ -27,7 +27,7 @@ contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
     using SafeERC20 for IERC20;
     using AddressUpgradeable for address;
     using AddressUpgradeable for address payable;
-    
+
     error FailedToApproveAllowanceForAAVE();
     error InvalidAAVEEMode();
     error FailedToRepayDebt();
@@ -47,7 +47,7 @@ contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
         bytes32 oracle,
         uint24 swapFeeTier,
         uint8 eModeCategory
-    ) public initializer {        
+    ) public initializer {
         _initializeStrategyBase(
             initialOwner,
             initialGovernor,
@@ -61,29 +61,31 @@ contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
         if (aaveV3().getUserEMode(address(this)) != eModeCategory) revert InvalidAAVEEMode();
     }
 
-
     /**
      * Get the Current Position on AAVE v3 Money Market
-     * 
+     *
      * @return collateralBalance  The Collateral Balance Amount
      * @return debtBalance  -  The Debt Token Balance Amount
-     */   
-    function _getMMPosition() internal virtual override view returns ( uint256 collateralBalance, uint256 debtBalance ) {
+     */
+    function _getMMPosition()
+        internal
+        view
+        virtual
+        override
+        returns (uint256 collateralBalance, uint256 debtBalance)
+    {
         DataTypes.ReserveData memory wethReserve = (aaveV3().getReserveData(wETHA()));
         DataTypes.ReserveData memory colleteralReserve = (aaveV3().getReserveData(ierc20A()));
         debtBalance = IERC20(wethReserve.variableDebtTokenAddress).balanceOf(address(this));
-        collateralBalance = IERC20(colleteralReserve.aTokenAddress).balanceOf(
-            address(this)
-        );
+        collateralBalance = IERC20(colleteralReserve.aTokenAddress).balanceOf(address(this));
     }
     /**
      * Deposit an asset on the AAVEv3 Pool
-     * 
-     * @param assetIn the asset to deposit 
+     *
+     * @param assetIn the asset to deposit
      * @param amountIn the amount to deposit
      */
-    function _supply( address assetIn,
-        uint256 amountIn) internal override virtual  {
+    function _supply(address assetIn, uint256 amountIn) internal virtual override {
         if (!IERC20(assetIn).approve(aaveV3A(), amountIn)) revert FailedToApproveAllowanceForAAVE();
         aaveV3().supply(assetIn, amountIn, address(this), 0);
     }
@@ -100,7 +102,7 @@ contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
         uint256 amountIn,
         address assetOut,
         uint256 borrowOut
-    ) internal override virtual{
+    ) internal virtual override {
         _supply(assetIn, amountIn);
         aaveV3().setUserUseReserveAsCollateral(assetIn, true);
         aaveV3().borrow(assetOut, borrowOut, 2, 0, address(this));
@@ -111,19 +113,18 @@ contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
      * @param assetIn The address of the borrowed asset to repay.
      * @param amount The amount of the borrowed asset to repay.
      */
-    function _repay(address assetIn, uint256 amount) internal override virtual {
+    function _repay(address assetIn, uint256 amount) internal virtual override {
         if (!IERC20(assetIn).approve(aaveV3A(), amount)) revert FailedToApproveAllowanceForAAVE();
         if (aaveV3().repay(assetIn, amount, 2, address(this)) != amount) revert FailedToRepayDebt();
     }
 
     /**
-     * Withdraw an asset from the AAVE pool 
+     * Withdraw an asset from the AAVE pool
      * @param assetOut The address of the asset to withdraw.
      * @param amount  The amount of the asset to withdraw.
      * @param to The assets receiver account
      */
-    function _withdraw(address assetOut, uint256 amount,  address to) internal override virtual{
-        if (aaveV3().withdraw(assetOut, amount, to) != amount)
-            revert InvalidWithdrawAmount();
+    function _withdraw(address assetOut, uint256 amount, address to) internal virtual override {
+        if (aaveV3().withdraw(assetOut, amount, to) != amount) revert InvalidWithdrawAmount();
     }
 }

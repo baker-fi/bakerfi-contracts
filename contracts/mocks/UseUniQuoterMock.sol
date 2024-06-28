@@ -3,14 +3,8 @@ pragma solidity ^0.8.24;
 import {UseUniQuoter} from "../core/hooks/UseUniQuoter.sol";
 import {ServiceRegistry} from "../core/ServiceRegistry.sol";
 
-
 contract UseUniQuoterMock is UseUniQuoter {
-
- function initialize(
-        ServiceRegistry registry
-    ) public initializer {
-        _initUseUniQuoter(
-           registry
-        );
+    function initialize(ServiceRegistry registry) public initializer {
+        _initUseUniQuoter(registry);
     }
 }

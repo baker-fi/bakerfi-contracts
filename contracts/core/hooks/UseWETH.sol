@@ -23,7 +23,7 @@ abstract contract UseWETH is Initializable {
 
     error InvalidWETHContract();
     error FailedAllowance();
-    
+
     /**
      * @dev Initializes the UseWETH contract.
      * @param registry The address of the ServiceRegistry contract for accessing WETH.
@@ -54,7 +54,7 @@ abstract contract UseWETH is Initializable {
      * @param wETHAmount The amount of WETH to unwrap.
      */
     function _unwrapWETH(uint256 wETHAmount) internal {
-        if(!IERC20(address(_wETH)).approve(address(_wETH), wETHAmount)) revert FailedAllowance();
+        if (!IERC20(address(_wETH)).approve(address(_wETH), wETHAmount)) revert FailedAllowance();
         wETH().withdraw(wETHAmount);
     }
 }

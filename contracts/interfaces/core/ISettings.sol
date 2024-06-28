@@ -11,7 +11,6 @@ pragma solidity ^0.8.24;
  *
  */
 interface ISettings {
-
     /**
      * @dev Emitted when the withdrawal fee is changed.
      *
@@ -116,14 +115,14 @@ interface ISettings {
      * @return enabled A boolean indicating whether the account is enabled (true) or not (false) in the whitelist.
      */
     function isAccountEnabled(address account) external view returns (bool);
-    
+
     /**
      * @notice Retrieves the maximum deposit allowed in ETH.
      * @return The maximum deposit value in ETH.
      */
     function getMaxDepositInETH() external view returns (uint256);
 
-     /**
+    /**
      * @notice Sets the maximum deposit allowed in ETH.
      * @param value The maximum deposit value to be set in ETH.
      */
@@ -134,19 +133,19 @@ interface ISettings {
      * @param value The maximum age in seconds.
      */
     function setRebalancePriceMaxAge(uint256 value) external;
-    
+
     /**
      * @notice Retrieves the maximum age of the price data used for rebalancing.
      * @return The maximum age in seconds.
      */
     function getRebalancePriceMaxAge() external view returns (uint256);
 
-     /**
+    /**
      * @notice Sets the maximum age of the price data.
      * @param value The maximum age in seconds.
      */
     function setPriceMaxAge(uint256 value) external;
-    
+
     /**
      * @notice Retrieves the maximum age of the price data.
      * @return The maximum age in seconds.
@@ -164,6 +163,4 @@ interface ISettings {
      * @return The maximum confidence level.
      */
     function getPriceMaxConf() external view returns (uint256);
-
 }
-

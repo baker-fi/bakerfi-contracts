@@ -8,7 +8,6 @@ import {IChainlinkAggregator} from "../interfaces/chainlink/IChainlinkAggregator
  * Chainlink General Oracle using chainlink data feeds
  */
 contract ChainLinkOracle is IOracle {
-    
     IChainlinkAggregator private immutable _priceFeed;
     uint8 private immutable _extPriceDecimals;
     uint8 private constant _PRICE_DECIMALS = 18;
@@ -58,10 +57,11 @@ contract ChainLinkOracle is IOracle {
     }
 
     function getSafeLatestPrice(
-       PriceOptions memory priceOptions
+        PriceOptions memory priceOptions
     ) public view override returns (IOracle.Price memory price) {
         price = getLatestPrice();
-        if (priceOptions.maxAge != 0 && (block.timestamp - price.lastUpdate) > priceOptions.maxAge) revert PriceOutdated();
+        if (priceOptions.maxAge != 0 && (block.timestamp - price.lastUpdate) > priceOptions.maxAge)
+            revert PriceOutdated();
         if (_minPrice > 0 && price.price < _minPrice) revert InvalidPriceFromOracle();
         if (_maxPrice > 0 && price.price > _maxPrice) revert InvalidPriceFromOracle();
     }

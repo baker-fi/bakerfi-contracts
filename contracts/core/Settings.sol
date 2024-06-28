@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {Ownable2StepUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
-import {PERCENTAGE_PRECISION } from "./Constants.sol";
+import {PERCENTAGE_PRECISION} from "./Constants.sol";
 import {ISettings} from "../interfaces/core/ISettings.sol";
 import {EnumerableSet} from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 /**
@@ -234,7 +234,7 @@ contract Settings is Ownable2StepUpgradeable, ISettings {
     function getMaxDepositInETH() external view returns (uint256) {
         return _maxDepositInETH;
     }
-    
+
     /**
      * @notice Sets the maximum deposit allowed in ETH.
      * @param value The maximum deposit value to be set in ETH.
@@ -260,7 +260,7 @@ contract Settings is Ownable2StepUpgradeable, ISettings {
     function getRebalancePriceMaxAge() external view returns (uint256) {
         return _priceRebalanceMaxAge;
     }
-    
+
     /**
      * @notice Sets the maximum age of the price data.
      * @param value The maximum age in seconds.
@@ -287,7 +287,7 @@ contract Settings is Ownable2StepUpgradeable, ISettings {
         _priceMaxConf = value;
         emit PriceMaxConfChange(value);
     }
-    
+
     /**
      * @notice Retrieves the maximum confidence level for the price data.
      * @return The maximum confidence level.

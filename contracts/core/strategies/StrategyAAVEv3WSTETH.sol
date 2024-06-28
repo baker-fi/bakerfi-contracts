@@ -84,7 +84,6 @@ contract StrategyAAVEv3WstETH is Initializable, StrategyAAVEv3, UseWstETH, UseSt
      * @return uint256 The converted amount in WETH.
      */
     function _convertToWETH(uint256 amount) internal virtual override returns (uint256) {
-        
         uint256 amountOutMinimum = 0;
         if (getMaxSlippage() > 0) {
             (, amountOutMinimum) = getExactInputMinimumOutput(
@@ -96,17 +95,16 @@ contract StrategyAAVEv3WstETH is Initializable, StrategyAAVEv3, UseWstETH, UseSt
             );
         }
         // Convert from wstETH -> weth directly
-        (,uint256 amountOut ) =
-            _swap(
-                ISwapHandler.SwapParams(
-                    wstETHA(), // Asset In
-                    wETHA(), // Asset Out
-                    ISwapHandler.SwapType.EXACT_INPUT, // Swap Mode
-                    amount, // Amount In
-                    amountOutMinimum, // Amount Out
-                    _swapFeeTier, // Fee Pair Tier
-                    bytes("") // User Payload
-                )
+        (, uint256 amountOut) = _swap(
+            ISwapHandler.SwapParams(
+                wstETHA(), // Asset In
+                wETHA(), // Asset Out
+                ISwapHandler.SwapType.EXACT_INPUT, // Swap Mode
+                amount, // Amount In
+                amountOutMinimum, // Amount Out
+                _swapFeeTier, // Fee Pair Tier
+                bytes("") // User Payload
+            )
         );
         return amountOut;
     }
