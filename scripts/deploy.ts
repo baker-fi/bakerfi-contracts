@@ -67,6 +67,7 @@ async function main() {
   await app.init();
   result.push(['Network Name', networkName]);
   result.push(['Network Id', chainId]);
+  result.push(['Owner', app.getAddress()]);
   const config: NetworkConfig = BaseConfig[networkName];
 
   // Deploy Settings, ProxyAdmin, Registry,....
@@ -441,15 +442,6 @@ async function deployRegistry(
       chainId,
     },
   );
-  result.push(['ServiceRegistry', registryReceipt?.contractAddress, registryReceipt?.hash]);
-  await app.send(
-    'ServiceRegistry',
-    registryReceipt?.contractAddress ?? '',
-    'registerService',
-    [ethers.keccak256(Buffer.from('DeploymentRegistry')), registryReceipt?.contractAddress],
-    {
-      chainId,
-    },
-  );
+  await registerName(app, registryReceipt, 'DeploymentRegistry', registryReceipt?.contractAddress??"", spinner, result);
   return registryReceipt;
 }
