@@ -28,14 +28,15 @@ export abstract class ContractClientBase<ContractTree extends ContractTreeType>
       this._contractsTree[factoryName].bytecode,
     );
     const deployTx = await factory.getDeployTransaction(...args);
+    const estimatedGas = await this._provider.estimateGas(deployTx);
     const tx = Transaction.from({
       ...deployTx,
       ...(options?.value ? { value: options.value } : {}),
       nonce: await this._provider.getTransactionCount(this.getAddress()),
-      chainId: options?.chainId ?? 1,
+      chainId: options?.chainId ?? 1,      
       ...(await this.buildGasOptions(options)),
-    });
-    tx.gasLimit = options?.gasLimit ?? (await this._provider.estimateGas(deployTx)) * 2n;
+      gasLimit: options?.gasLimit ??(estimatedGas * 2n),
+    });    
     const signedTx = await this.sign(tx);
     return await this.broadcastTx(signedTx);
   }
@@ -77,7 +78,11 @@ export abstract class ContractClientBase<ContractTree extends ContractTreeType>
       chainId: options?.chainId ?? 1,
       ...(await this.buildGasOptions(options)),
     });
-    baseTx.gasLimit = options?.gasLimit ?? (await this._provider.estimateGas(baseTx)) * 2n;
+    const estimatedGas = await this._provider.estimateGas({
+      ...baseTx,
+      from: this.getAddress(),
+    });
+    baseTx.gasLimit = options?.gasLimit ?? (estimatedGas*2n);
     const signedTx = await this.sign(baseTx);
     return await this.broadcastTx(signedTx);
   }
