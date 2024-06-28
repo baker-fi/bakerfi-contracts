@@ -25,9 +25,10 @@ export type OracleRegistryNames =
 
 export type StrategyType = "base" | "wstETH";
 
-export type DeployConfig = {
-    [key in Networks]: NetworkConfig;
+export enum VaultNamesEnum {
+    AAVE_V3_WSTETH_ETH = "AAVEv3 wstETH/ETH",
 };
+export type VaultNames = keyof VaultNamesEnum;
 
 export type NetworkConfig = {
     uniswapRouter02: string,
@@ -41,16 +42,17 @@ export type NetworkConfig = {
         address: string,
     }[],
     AAVEEModeCategory: number,
-    strategy: {
-        type:  StrategyType;
-        collateral: string,
-        oracle: OracleRegistryNames,
-    },
+    vaults:{
+        [key: string] :{
+            sharesName: string,
+            sharesSymbol: string,
+            type:  StrategyType;
+            collateral: string,
+            oracle: OracleRegistryNames,
+    }},
     swapFeeTier: number,        
     AAVEPool: string, // Validated      
     pyth: string, 
-    vaultSharesName: string,
-    vaultSharesSymbol: string,
     chainlink?: {
         wstEthToETH: string,
         ethToUSD: string,
@@ -58,33 +60,11 @@ export type NetworkConfig = {
     },
 };
 
-const Config: DeployConfig = {
-    "ethereum_devnet": {
-        uniswapRouter02: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", // Validated 
-        uniswapQuoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e",
-        balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
-        weth: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
-        wstETH: "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
-        stETH: "0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84",
-        oracles: [{
-            pair: PythFeedNameEnum.WSTETH_USD,
-            address: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4"
-        }, {
-            pair: PythFeedNameEnum.ETH_USD,
-            address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
-        }],
-        AAVEEModeCategory: 1,
-        strategy: {
-            type: "base",
-            collateral: "wstETH",
-            oracle: "wstETH/USD Oracle"
-        },
-        swapFeeTier: 100,
-        AAVEPool: "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2", // Validated      
-        pyth: "0x4305FB66699C3B2702D4d05CF36551390A4c69C6",
-        vaultSharesName: "AAVEv3 Bread ETH",
-        vaultSharesSymbol: "AAVEv3brETH",
-    },
+export type DeployConfig = {
+    [key in Networks]?: NetworkConfig;
+};
+
+const Config: DeployConfig = {   
     "base": {
         uniswapRouter02: "0x2626664c2603336E57B271c5C0b26F421741e481", // Validated 
         uniswapQuoter: "0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a", // Validated 
@@ -99,16 +79,18 @@ const Config: DeployConfig = {
             address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
         }],
         AAVEEModeCategory: 1,
-        strategy: {
-            type: "base",
-            collateral: "wstETH",
-            oracle: "wstETH/USD Oracle"
+        vaults: {
+            [VaultNamesEnum.AAVE_V3_WSTETH_ETH]: { 
+                sharesName: "AAVEv3 Bread ETH",
+                sharesSymbol: "AAVEv3brETH",
+                type: "base",
+                collateral: "wstETH",
+                oracle: "wstETH/USD Oracle"
+            }
         },
         swapFeeTier: 100,
         AAVEPool: "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5", // Validated      
         pyth: "0x8250f4aF4B972684F7b336503E2D6dFeDeB1487a",
-        vaultSharesName: "Base AAVEv3 Bread ETH",
-        vaultSharesSymbol: "baseAAVEv3brETH",
     },
     "base_devnet": {
         uniswapRouter02: "0x2626664c2603336E57B271c5C0b26F421741e481", // Validated 
@@ -124,42 +106,19 @@ const Config: DeployConfig = {
             address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
         }],
         AAVEEModeCategory: 1,
-        strategy: {
-            type: "base",
-            collateral: "wstETH",
-            oracle: "wstETH/USD Oracle"
+        vaults: {
+            [VaultNamesEnum.AAVE_V3_WSTETH_ETH]: { 
+                sharesName: "AAVEv3 Bread ETH",
+                sharesSymbol: "AAVEv3brETH",
+                type: "base",
+                collateral: "wstETH",
+                oracle: "wstETH/USD Oracle"
+            }
         },
         swapFeeTier: 100,
         AAVEPool: "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5", // Validated      
         pyth: "0x8250f4aF4B972684F7b336503E2D6dFeDeB1487a",
-        vaultSharesName: "Base AAVEv3 Bread ETH",
-        vaultSharesSymbol: "baseAAVEv3brETH",
-    },
-    "optimism_devnet": {
-        uniswapRouter02: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", // Validated 
-        uniswapQuoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e", // Validated 
-        balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Validated
-        weth: "0x4200000000000000000000000000000000000006", // Validated
-        wstETH: "0x1F32b1c2345538c0c6f582fCB022739c4A194Ebb", // Validated
-        oracles: [{
-            pair: PythFeedNameEnum.WSTETH_USD,
-            address: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4"
-        }, {
-            pair: PythFeedNameEnum.ETH_USD,
-            address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
-        }],
-        strategy: {
-            type: "base",
-            collateral: "wstETH",
-            oracle: "wstETH/USD Oracle"
-        },
-        AAVEEModeCategory: 2,
-        swapFeeTier: 100,
-        AAVEPool: "0x794a61358d6845594f94dc1db02a252b5b4814ad", // Validated   
-        pyth: "0xff1a0f4744e8582DF1aE09D5611b887B6a12925C",
-        vaultSharesName: "Optimism AAVEv3 Bread ETH",
-        vaultSharesSymbol: "optAAVEv3brETH",
-    },
+    },   
     "local": {
         AAVEEModeCategory: 0,
         swapFeeTier: 500,
@@ -176,15 +135,17 @@ const Config: DeployConfig = {
             pair: PythFeedNameEnum.ETH_USD,
             address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
         }],
+        vaults: {
+            [VaultNamesEnum.AAVE_V3_WSTETH_ETH]: { 
+                sharesName: "AAVEv3 Bread ETH",
+                sharesSymbol: "AAVEv3brETH",
+                type: "base",
+                collateral: "wstETH",
+                oracle: "wstETH/USD Oracle"
+            }
+        },
         balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Validated       
         AAVEPool: "0xF8D0e82B1EE3EEc7AEcDAa4E1c94E29fe3Db712E",
-        vaultSharesName: "Local AAVEv3 Bread ETH",
-        vaultSharesSymbol: "localAAVEv3brETH",
-        strategy: {
-            type: "base",
-            collateral: "wstETH",
-            oracle: "wstETH/USD Oracle"
-        },
     },
     "arbitrum_devnet": {
         uniswapRouter02: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", // Validated 
@@ -199,17 +160,19 @@ const Config: DeployConfig = {
             pair: "ETH/USD",
             address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
         }],
-        strategy: {
-            type: "base",
-            collateral: "wstETH",
-            oracle: "wstETH/USD Oracle"
+        vaults: {
+            [VaultNamesEnum.AAVE_V3_WSTETH_ETH]: { 
+                sharesName: "AAVEv3 Bread ETH",
+                sharesSymbol: "AAVEv3brETH",
+                type: "base",
+                collateral: "wstETH",
+                oracle: "wstETH/USD Oracle"
+            }
         },
         AAVEEModeCategory: 2,
         swapFeeTier: 100,
         AAVEPool: "0x794a61358D6845594F94dc1DB02A252b5b4814aD", // Validated   
         pyth: "0xff1a0f4744e8582df1ae09d5611b887b6a12925c",
-        vaultSharesName: "Arbitrum AAVEv3 Bread ETH",
-        vaultSharesSymbol: "arbAAAv3ETH",
         // TODO: Update these addresses
         chainlink: {
             wstEthToETH: "",
@@ -230,17 +193,19 @@ const Config: DeployConfig = {
             pair: PythFeedNameEnum.ETH_USD,
             address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
         }],
-        strategy: {
-            type: "base",
-            collateral: "wstETH",
-            oracle: "wstETH/USD Oracle"
+        vaults: {
+            [VaultNamesEnum.AAVE_V3_WSTETH_ETH]: { 
+                sharesName: "AAVEv3 Bread ETH",
+                sharesSymbol: "AAVEv3brETH",
+                type: "base",
+                collateral: "wstETH",
+                oracle: "wstETH/USD Oracle"
+            }
         },
         AAVEEModeCategory: 2,
         swapFeeTier: 100,
         AAVEPool: "0x794a61358D6845594F94dc1DB02A252b5b4814aD", // Validated   
         pyth: "0xff1a0f4744e8582df1ae09d5611b887b6a12925c",
-        vaultSharesName: "Arbitrum AAVEv3 Bread ETH",
-        vaultSharesSymbol: "arbAAAv3ETH",
          // TODO: Update these addresses
          chainlink: {
             wstEthToETH: "",
@@ -257,16 +222,18 @@ const Config: DeployConfig = {
         stETH: undefined,
         oracles: [],
         AAVEEModeCategory: 2,
-        strategy: {
-            type: "base",
-            collateral: "",
-            oracle: "wstETH/USD Oracle"
-        },
         swapFeeTier: 100,
+        vaults: {
+            [VaultNamesEnum.AAVE_V3_WSTETH_ETH]: { 
+                sharesName: "AAVEv3 Bread ETH",
+                sharesSymbol: "AAVEv3brETH",
+                type: "base",
+                collateral: "wstETH",
+                oracle: "wstETH/USD Oracle"
+            }
+        },        
         AAVEPool: "",
         pyth: "",
-        vaultSharesName: "",
-        vaultSharesSymbol: ""
     }
 }
 

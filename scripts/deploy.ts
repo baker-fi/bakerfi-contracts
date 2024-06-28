@@ -1,7 +1,11 @@
 import 'dotenv/config';
 import hre from 'hardhat';
 import { ethers } from 'hardhat';
-import BaseConfig, { NetworkConfig, OracleRegistryNames } from '../constants/network-deploy-config';
+import BaseConfig, {
+  NetworkConfig,
+  OracleRegistryNames,
+  VaultNamesEnum,
+} from '../constants/network-deploy-config';
 import ora from 'ora';
 import { ContractClientWallet } from './lib/contract-client-wallet';
 import { STAGING_ACCOUNTS_PKEYS } from '../constants/test-accounts';
@@ -16,19 +20,30 @@ const chainId = BigInt(hre.network.config.chainId ?? 0n);
 
 type ProxyContracts = keyof typeof ContractTree;
 
-type RegistryNames =
-  | 'FlashLender'
-  | 'StrategyAAVEv3'
-  | 'WETH'
-  | 'stETH'
-  | 'wstETH'
-  | 'wstETH/USD Oracle'
-  | 'cbETH/USD Oracle'
-  | 'ETH/USD Oracle'
-  | 'Strategy'
-  | 'Pyth'
-  | 'Settings'
-  | 'Vault';
+export const RegistryNames = [
+    'FlashLender'
+  , "Settings"
+  , "Pyth"
+  , "DeploymentRegistry"
+  , "Uniswap Router"
+  , "Uniswap Quoter"  
+  , 'WETH'
+  , 'stETH'
+  , 'wstETH'
+  , 'AAVEv3'
+  , "Balancer Vault"
+  , 'wstETH'
+  , 'wstETH/USD Oracle'
+  , 'cbETH/USD Oracle'
+  , 'ETH/USD Oracle'
+  , "BakerFiProxyAdmin"
+  , 'Pyth'
+  , `${VaultNamesEnum.AAVE_V3_WSTETH_ETH} Strategy`
+  , `${VaultNamesEnum.AAVE_V3_WSTETH_ETH} Vault`];
+
+
+type RegistryName = typeof RegistryNames[number]; 
+
 
 /****************************************
  *
@@ -54,26 +69,23 @@ async function main() {
   result.push(['Network Id', chainId]);
   const config: NetworkConfig = BaseConfig[networkName];
 
-  //////////////////////////////////////////
   // Deploy Settings, ProxyAdmin, Registry,....
-  //////////////////////////////////////////
   const { registryReceipt, proxyAdminReceipt } = await deployInfra(app, config, spinner, result);
 
-  ////////////////////////////////////
   // Deploy Strategy
-  ////////////////////////////////////
+  const strategyConfig = config.vaults[VaultNamesEnum.AAVE_V3_WSTETH_ETH];
   const strategyAddress = await deployProxyContract(
     app,
     'StrategyAAVEv3',
-    'StrategyAAVEv3',
+    `${VaultNamesEnum.AAVE_V3_WSTETH_ETH} Strategy`,
     proxyAdminReceipt?.contractAddress,
     registryReceipt?.contractAddress,
     [
       app.getAddress(),
       app.getAddress(),
       registryReceipt?.contractAddress,
-      ethers.keccak256(Buffer.from(config.strategy.collateral)),
-      ethers.keccak256(Buffer.from(config.strategy.oracle)),
+      ethers.keccak256(Buffer.from(strategyConfig.collateral)),
+      ethers.keccak256(Buffer.from(strategyConfig.oracle)),
       config.swapFeeTier,
       config.AAVEEModeCategory,
     ],
@@ -86,13 +98,13 @@ async function main() {
   const vaultAdress = await deployProxyContract(
     app,
     'Vault',
-    'Vault',
+    `${VaultNamesEnum.AAVE_V3_WSTETH_ETH} Vault`,
     proxyAdminReceipt?.contractAddress,
     registryReceipt?.contractAddress,
     [
       app.getAddress(),
-      config.vaultSharesName,
-      config.vaultSharesSymbol,
+      strategyConfig.sharesName,
+      strategyConfig.sharesSymbol,
       registryReceipt?.contractAddress,
       strategyAddress,
     ],
@@ -125,9 +137,23 @@ async function main() {
     },
   );
   result.push(['Strategy LTV', ethers.parseUnits('800', 6), ltvChangeReceipt?.hash]);
-
   spinner.succeed('🧑‍🍳 BakerFi Served 🍰 ');
   console.table(result);
+  console.log("Deployment Registry:");
+  const registerDump: any[] = [];
+  for (const registerName of RegistryNames) {
+    const address = await app.call(
+      'ServiceRegistry',
+      registryReceipt?.contractAddress ?? '',
+      'getService',
+      [registerName],
+      {
+        chainId,
+      },
+    );
+    registerDump.push([registerName, address]);  
+  }
+  console.table(registerDump);
   process.exit(0);
 }
 
@@ -196,7 +222,7 @@ main().catch((error) => {
 async function deployProxyContract(
   client: ContractClient<typeof ContractTree>,
   instanceName: ProxyContracts,
-  registerName: RegistryNames,
+  registerName: RegistryName,
   proxyAdminAddress: string | null | undefined,
   registryContractAddress: string | null | undefined,
   args: any[],
@@ -253,21 +279,13 @@ async function deployInfra(
 ): Promise<{
   [key in receiptKeyNames]: TransactionReceipt | null;
 }> {
-  ////////////////////////////////////
   // Service Registry
-  ////////////////////////////////////
   const registryReceipt = await deployRegistry(app, spinner, result);
-  ////////////////////////////////////
   // Proxy Admin
-  ////////////////////////////////////
   const proxyAdminReceipt = await deployProxyAdmin(app, registryReceipt, spinner, result);
-  ////////////////////////////////////
   // Registering WETH Address
-  ////////////////////////////////////
-  await registerName(app, config, registryReceipt, 'WETH', config.weth, spinner, result);
-  ////////////////////////////////////
+  await registerName(app, registryReceipt, 'WETH', config.weth, spinner, result);
   // Deploy Global Settings
-  ////////////////////////////////////
   await deployProxyContract(
     app,
     'Settings',
@@ -278,59 +296,52 @@ async function deployInfra(
     spinner,
     result,
   );
-  ////////////////////////////////////
   // Registering Uniswap Router 02
-  ////////////////////////////////////
   await registerName(
     app,
-    config,
     registryReceipt,
     'Uniswap Router',
     config.uniswapRouter02,
     spinner,
     result,
   );
-  ////////////////////////////////////
   // Registering Uniswap Quoter
-  ////////////////////////////////////
   await registerName(
     app,
-    config,
     registryReceipt,
     'Uniswap Quoter',
     config.uniswapQuoter,
     spinner,
     result,
   );
-  ////////////////////////////////////
-  //  8. AAVE Vault
-  ////////////////////////////////////
-  await registerName(app, config, registryReceipt, 'AAVE_V3', config.AAVEPool, spinner, result);
-  ////////////////////////////////////
-  // 9. Register Balancer Vault
-  ////////////////////////////////////
+   // Registering Uniswap Quoter
+   await registerName(
+    app,
+    registryReceipt,
+    'Pyth',
+    config.pyth,
+    spinner,
+    result,
+  );
+  // AAVE Vault
+  await registerName(app, registryReceipt, 'AAVEv3', config.AAVEPool, spinner, result);
+  // Register Balancer Vault
   await registerName(
     app,
-    config,
     registryReceipt,
     'Balancer Vault',
     config.balancerVault,
     spinner,
     result,
   );
-  ////////////////////////////////////
-  // 10. Flash Lender Adapter
-  ////////////////////////////////////
+  // Flash Lender Adapter
   await deployFlashLender(app, registryReceipt, spinner, result);
-  ////////////////////////////////////
-  // 11. Wrapped stETH
-  ////////////////////////////////////
+  
+  // Wrapped stETH
   if (config.wstETH) {
-    await registerName(app, config, registryReceipt, 'wstETH', config.wstETH, spinner, result);
+    await registerName(app, registryReceipt, 'wstETH', config.wstETH, spinner, result);
   }
-  ////////////////////////////////////
-  // 12. Oracles
-  ////////////////////////////////////
+  // Deploy Oracles
   await deployOracles(
     app,
     chainId ?? 0,
@@ -372,29 +383,8 @@ async function deployFlashLender(
   result.push(['Flash Lender', flashLenderReceipt?.contractAddress, flashLenderReceipt?.hash]);
 }
 
-async function registerUniswapQuoter(
-  app: ContractClient<typeof ContractTree>,
-  config: NetworkConfig,
-  registryReceipt: TransactionReceipt | null,
-  spinner: ora.Ora,
-  result: any[],
-) {
-  spinner.text = `Registiring Uniswap Quoter Contract ${config.uniswapRouter02}`;
-  const quoterReceipt = await app.send(
-    'ServiceRegistry',
-    registryReceipt?.contractAddress ?? '',
-    'registerService',
-    [ethers.keccak256(Buffer.from('Uniswap Quoter')), config.uniswapQuoter],
-    {
-      chainId,
-    },
-  );
-  result.push(['Uniswap Quoter', config.uniswapQuoter, quoterReceipt?.hash]);
-}
-
 async function registerName(
   app: ContractClient<typeof ContractTree>,
-  config: NetworkConfig,
   registryReceipt: TransactionReceipt | null,
   name: string,
   address: string,
@@ -411,7 +401,7 @@ async function registerName(
       chainId,
     },
   );
-  result.push([name, config.uniswapRouter02, routerReceipt?.hash]);
+  result.push([name, address, routerReceipt?.hash]);
 }
 
 async function deployProxyAdmin(
@@ -456,7 +446,7 @@ async function deployRegistry(
     'ServiceRegistry',
     registryReceipt?.contractAddress ?? '',
     'registerService',
-    [ethers.keccak256(Buffer.from('Registry')), registryReceipt?.contractAddress],
+    [ethers.keccak256(Buffer.from('DeploymentRegistry')), registryReceipt?.contractAddress],
     {
       chainId,
     },
