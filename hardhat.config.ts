@@ -37,9 +37,8 @@ const config: HardhatUserConfig = {
         auto: true,
         interval: 2000,
       },
-      hardfork: 'london',
+      hardfork: 'shanghai',
       gas: 'auto',
-      initialBaseFeePerGas: 1000000000,
     },
     local: {
       chainId: 1337,
