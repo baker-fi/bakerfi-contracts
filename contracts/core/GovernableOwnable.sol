@@ -3,59 +3,59 @@ pragma solidity ^0.8.24;
 
 import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-
 /**
  * @title An Upgradable GovernableOwnable Contract
  *
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
- * 
- * @dev A Contract that could have an independent owner and governor 
- *  
+ *
+ * @dev A Contract that could have an independent owner and governor
+ *
  * This is quite usesufull when you dont need to have more than 2 roles on a contract
- * 
+ *
  */
 contract GovernableOwnable is OwnableUpgradeable {
-    
-    address private _governor;
-    
-    error CallerNotTheGovernor();
-    error InvalidGovernorAddress();
+  address private _governor;
 
-    event GovernshipTransferred(address indexed previousGovernor, address indexed newGovernor);
+  error CallerNotTheGovernor();
+  error InvalidGovernorAddress();
 
-    function _initializeGovernableOwnable(address initialOwner, address initialGovernor) internal initializer {
-        _transferOwnership(initialOwner);
-        _transferGovernorship(initialGovernor); 
-    }
+  event GovernshipTransferred(address indexed previousGovernor, address indexed newGovernor);
 
-    /**
-     * Modifier that checks if the caller is governor 
-     */
-    modifier onlyGovernor() {
-        if(msg.sender != governor()) revert CallerNotTheGovernor();
-        _;
-    }
+  function _initializeGovernableOwnable(
+    address initialOwner,
+    address initialGovernor
+  ) internal initializer {
+    _transferOwnership(initialOwner);
+    _transferGovernorship(initialGovernor);
+  }
 
-    /**
-     * Gets the Governor of the contrat 
-     */
-    function governor() public view virtual returns (address) {
-        return _governor;
-    }
+  /**
+   * Modifier that checks if the caller is governor
+   */
+  modifier onlyGovernor() {
+    if (msg.sender != governor()) revert CallerNotTheGovernor();
+    _;
+  }
 
-    /**
-     * Changes the contract Governor 
-     * @param _newGovernor the new Governor addres
-     */
-    function transferGovernorship(address _newGovernor) public virtual onlyGovernor {
-        if(_newGovernor == address(0)) revert InvalidGovernorAddress();
-        _transferGovernorship(_newGovernor);
-    }
+  /**
+   * Gets the Governor of the contrat
+   */
+  function governor() public view virtual returns (address) {
+    return _governor;
+  }
 
-    function _transferGovernorship(address newGovernor) internal virtual {
-        emit GovernshipTransferred(_governor, newGovernor);
-        _governor = newGovernor;
-    }
+  /**
+   * Changes the contract Governor
+   * @param _newGovernor the new Governor addres
+   */
+  function transferGovernorship(address _newGovernor) public virtual onlyGovernor {
+    if (_newGovernor == address(0)) revert InvalidGovernorAddress();
+    _transferGovernorship(_newGovernor);
+  }
 
+  function _transferGovernorship(address newGovernor) internal virtual {
+    emit GovernshipTransferred(_governor, newGovernor);
+    _governor = newGovernor;
+  }
 }

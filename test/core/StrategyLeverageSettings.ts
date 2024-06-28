@@ -1,20 +1,20 @@
-import "@nomicfoundation/hardhat-ethers";
-import { describeif } from "../common";
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { expect } from "chai";
-import { ethers, network } from "hardhat";
+import '@nomicfoundation/hardhat-ethers';
+import { describeif } from '../common';
+import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
+import { expect } from 'chai';
+import { ethers, network } from 'hardhat';
 
 /**
  * StrategyLeverageSettings Contract Unit Tests
  */
-describeif(network.name === "hardhat")("StrategyLeverageSettings", function () {
-  it("StrategyLeverageSettings Defaults", async function () {
+describeif(network.name === 'hardhat')('StrategyLeverageSettings', function () {
+  it('StrategyLeverageSettings Defaults', async function () {
     const { settings, owner, otherAccount } = await loadFixture(deployFunction);
     expect(await settings.owner()).to.equal(owner.address);
     expect(await settings.governor()).to.equal(otherAccount.address);
   });
 
-  it("Transfer Governship", async function () {
+  it('Transfer Governship', async function () {
     const { settings, owner, otherAccount } = await loadFixture(deployFunction);
     expect(await settings.governor()).to.equal(otherAccount.address);
 
@@ -22,80 +22,76 @@ describeif(network.name === "hardhat")("StrategyLeverageSettings", function () {
     expect(await settings.governor()).to.equal(owner.address);
   });
 
-  it("Fail Transfer Governship - Not Governor", async function () {
+  it('Fail Transfer Governship - Not Governor', async function () {
     const { settings, owner, otherAccount } = await loadFixture(deployFunction);
     await expect(
       // @ts-expect-error
-      settings.connect(owner).transferGovernorship(owner.address)
+      settings.connect(owner).transferGovernorship(owner.address),
       // @ts-expect-error
-    ).to.be.revertedWithCustomError(settings, "CallerNotTheGovernor");
+    ).to.be.revertedWithCustomError(settings, 'CallerNotTheGovernor');
   });
 
-  it("Fail Transfer Governship - Invalid Address", async function () {
+  it('Fail Transfer Governship - Invalid Address', async function () {
     const { settings, owner, otherAccount } = await loadFixture(deployFunction);
     await expect(
       settings
         .connect(otherAccount)
-        .transferGovernorship("0x0000000000000000000000000000000000000000")
+        .transferGovernorship('0x0000000000000000000000000000000000000000'),
       // @ts-expect-error
-    ).to.be.revertedWithCustomError(settings, "InvalidGovernorAddress");
+    ).to.be.revertedWithCustomError(settings, 'InvalidGovernorAddress');
   });
 
-  it("Change Loan to Value ✅", async function () {
+  it('Change Loan to Value ✅', async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
     // @ts-expect-error
     await settings.connect(otherAccount).setLoanToValue(700 * 1e6);
     // @ts-expect-error
-    expect(await settings.connect(otherAccount).getLoanToValue()).to.equal(
-      700 * 1e6
-    );
+    expect(await settings.connect(otherAccount).getLoanToValue()).to.equal(700 * 1e6);
   });
 
-  it("Invalid Loan to Value ❌", async function () {
+  it('Invalid Loan to Value ❌', async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
     await expect(
       // @ts-expect-error
-      settings.connect(otherAccount).setLoanToValue(1100 * 1e6)
+      settings.connect(otherAccount).setLoanToValue(1100 * 1e6),
       // @ts-expect-error
-    ).to.be.revertedWithCustomError(settings, "InvalidValue");
+    ).to.be.revertedWithCustomError(settings, 'InvalidValue');
   });
 
-  it("Change Max Loan to Value ✅", async function () {
+  it('Change Max Loan to Value ✅', async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
     // @ts-expect-error
     await settings.connect(otherAccount).setMaxLoanToValue(820 * 1e6);
     // @ts-expect-error
-    expect(await settings.connect(otherAccount).getMaxLoanToValue()).to.equal(
-      820 * 1e6
-    );
+    expect(await settings.connect(otherAccount).getMaxLoanToValue()).to.equal(820 * 1e6);
   });
 
-  it("Invalid Max Loan to Value ❌", async function () {
+  it('Invalid Max Loan to Value ❌', async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
     await expect(
       // @ts-expect-error
-      settings.connect(otherAccount).setMaxLoanToValue(400 * 1e6)
+      settings.connect(otherAccount).setMaxLoanToValue(400 * 1e6),
       // @ts-expect-error
-    ).to.be.revertedWithCustomError(settings, "InvalidMaxLoanToValue");
+    ).to.be.revertedWithCustomError(settings, 'InvalidMaxLoanToValue');
   });
 
-  it("Invalid Max Loan to Value ❌", async function () {
+  it('Invalid Max Loan to Value ❌', async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
     await expect(
       // @ts-expect-error
-      settings.connect(otherAccount).setMaxLoanToValue(1100 * 1e6)
+      settings.connect(otherAccount).setMaxLoanToValue(1100 * 1e6),
       // @ts-expect-error
-    ).to.be.revertedWithCustomError(settings, "InvalidPercentage");
+    ).to.be.revertedWithCustomError(settings, 'InvalidPercentage');
   });
 
-  it("Change Max Loan To value ✅", async function () {
+  it('Change Max Loan To value ✅', async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
     // @ts-expect-error
     await settings.connect(otherAccount).setMaxLoanToValue(850 * 1e6);
     expect(await settings.getMaxLoanToValue()).to.equal(850 * 1e6);
   });
 
-  it("Change Nr Loops ✅", async function () {
+  it('Change Nr Loops ✅', async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
     // @ts-expect-error
     await settings.connect(otherAccount).setNrLoops(5);
@@ -104,47 +100,42 @@ describeif(network.name === "hardhat")("StrategyLeverageSettings", function () {
     expect(await settings.connect(otherAccount).getNrLoops()).to.equal(5);
   });
 
-  it("Invalid Nr Loops ❌", async function () {
+  it('Invalid Nr Loops ❌', async function () {
     const { settings, owner, otherAccount } = await loadFixture(deployFunction);
     await expect(
       // @ts-expect-error
-      settings.connect(otherAccount).setNrLoops(30)
+      settings.connect(otherAccount).setNrLoops(30),
       // @ts-expect-error
-    ).to.be.revertedWithCustomError(settings, "InvalidLoopCount");
+    ).to.be.revertedWithCustomError(settings, 'InvalidLoopCount');
   });
 
-
-  it("Change Max Slippage ✅", async function () {
+  it('Change Max Slippage ✅', async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
     // @ts-expect-error
-    await settings.connect(otherAccount).setMaxSlippage(1* 1e7);
+    await settings.connect(otherAccount).setMaxSlippage(1 * 1e7);
     // @ts-expect-error
-    expect(await settings.connect(otherAccount).getMaxSlippage()).to.equal(
-      1* 1e7
-    );
+    expect(await settings.connect(otherAccount).getMaxSlippage()).to.equal(1 * 1e7);
   });
 
-  it("Change Max Slippage ❌ - Invalid Value", async function () {
+  it('Change Max Slippage ❌ - Invalid Value', async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
     // @ts-expect-error
     await expect(
       // @ts-expect-error
-      settings.connect(otherAccount).setMaxSlippage(2*1e9)
+      settings.connect(otherAccount).setMaxSlippage(2 * 1e9),
       // @ts-expect-error
-    ).to.be.revertedWithCustomError(settings, "InvalidPercentage");
+    ).to.be.revertedWithCustomError(settings, 'InvalidPercentage');
   });
 
-  it("Change Max Slippage ❌ - No Permissions", async function () {
+  it('Change Max Slippage ❌ - No Permissions', async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
     // @ts-expect-error
     await expect(
       // @ts-expect-error
-      settings.setMaxSlippage(1*1e8)
+      settings.setMaxSlippage(1 * 1e8),
       // @ts-expect-error
-    ).to.be.revertedWithCustomError(settings, "CallerNotTheGovernor");
-    
+    ).to.be.revertedWithCustomError(settings, 'CallerNotTheGovernor');
   });
-
 });
 
 /**
@@ -154,30 +145,26 @@ describeif(network.name === "hardhat")("StrategyLeverageSettings", function () {
 async function deployFunction() {
   const [owner, otherAccount] = await ethers.getSigners();
 
-  const BakerFiProxyAdmin = await ethers.getContractFactory(
-    "BakerFiProxyAdmin"
-  );
+  const BakerFiProxyAdmin = await ethers.getContractFactory('BakerFiProxyAdmin');
   const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
   await proxyAdmin.waitForDeployment();
 
-  const StrategyLeverageSettings = await ethers.getContractFactory(
-    "StrategyLeverageSettingsMock"
-  );
+  const StrategyLeverageSettings = await ethers.getContractFactory('StrategyLeverageSettingsMock');
   const strategyLeverageSettings = await StrategyLeverageSettings.deploy();
 
-  const BakerFiProxy = await ethers.getContractFactory("BakerFiProxy");
+  const BakerFiProxy = await ethers.getContractFactory('BakerFiProxy');
   const proxy = await BakerFiProxy.deploy(
     await strategyLeverageSettings.getAddress(),
     await proxyAdmin.getAddress(),
-    StrategyLeverageSettings.interface.encodeFunctionData("initialize", [
+    StrategyLeverageSettings.interface.encodeFunctionData('initialize', [
       owner.address,
       otherAccount.address,
-    ])
+    ]),
   );
 
   const pStrategyLeverageSettings = await ethers.getContractAt(
-    "StrategyLeverageSettings",
-    await proxy.getAddress()
+    'StrategyLeverageSettings',
+    await proxy.getAddress(),
   );
 
   return { owner, otherAccount, settings: pStrategyLeverageSettings };

@@ -2,32 +2,32 @@
 pragma solidity ^0.8.0;
 
 contract PythStructs {
-    // A price with a degree of uncertainty, represented as a price +- a confidence interval.
-    //
-    // The confidence interval roughly corresponds to the standard error of a normal distribution.
-    // Both the price and confidence are stored in a fixed-point numeric representation,
-    // `x * (10^expo)`, where `expo` is the exponent.
-    //https://docs.pyth.network/documentation/pythnet-price-feeds/best-practices for how
-    // Please refer to the documentation at
-    // to how this price safely.
-    struct Price {
-        // Price
-        int64 price;
-        // Confidence interval around the price
-        uint64 conf;
-        // Price exponent
-        int32 expo;
-        // Unix timestamp describing when the price was published
-        uint publishTime;
-    }
+  // A price with a degree of uncertainty, represented as a price +- a confidence interval.
+  //
+  // The confidence interval roughly corresponds to the standard error of a normal distribution.
+  // Both the price and confidence are stored in a fixed-point numeric representation,
+  // `x * (10^expo)`, where `expo` is the exponent.
+  //https://docs.pyth.network/documentation/pythnet-price-feeds/best-practices for how
+  // Please refer to the documentation at
+  // to how this price safely.
+  struct Price {
+    // Price
+    int64 price;
+    // Confidence interval around the price
+    uint64 conf;
+    // Price exponent
+    int32 expo;
+    // Unix timestamp describing when the price was published
+    uint publishTime;
+  }
 
-    // PriceFeed represents a current aggregate price from pyth publisher feeds.
-    struct PriceFeed {
-        // The price ID.
-        bytes32 id;
-        // Latest available price
-        Price price;
-        // Latest available exponentially-weighted moving average price
-        Price emaPrice;
-    }
+  // PriceFeed represents a current aggregate price from pyth publisher feeds.
+  struct PriceFeed {
+    // The price ID.
+    bytes32 id;
+    // Latest available price
+    Price price;
+    // Latest available exponentially-weighted moving average price
+    Price emaPrice;
+  }
 }
