@@ -123,7 +123,7 @@ async function main() {
     [vaultAdress],
     {
       chainId,
-      delayAfterTxReceiptMs: config.delayAfterTxReceiptMs,
+      minTxConfirmations: config.minTxConfirmations,
     },
   );
   result.push(['Strategy Owner', vaultAdress, changeOwnerReceipt?.hash]);
@@ -136,7 +136,7 @@ async function main() {
     [ethers.parseUnits('800', 6)],
     {
       chainId,
-      delayAfterTxReceiptMs: config.delayAfterTxReceiptMs,
+      minTxConfirmations: config.minTxConfirmations,
     },
   );
   result.push(['Strategy LTV', ethers.parseUnits('800', 6), ltvChangeReceipt?.hash]);
@@ -152,7 +152,7 @@ async function main() {
       [registerName],
       {
         chainId,
-        delayAfterTxReceiptMs: config.delayAfterTxReceiptMs,
+        minTxConfirmations: config.minTxConfirmations,
       },
     );
     registerDump.push([registerName, address]);
@@ -191,7 +191,7 @@ async function deployOracles(
     }
     const oracleReceipt = await client.deploy('PythOracle', [feedId, config.pyth], {
       chainId,
-      delayAfterTxReceiptMs: config.delayAfterTxReceiptMs,
+      minTxConfirmations: config.minTxConfirmations,
     });
     spinner.text = `Registering ${oracle.pair} Oracle`;
     await client.send(
@@ -201,7 +201,7 @@ async function deployOracles(
       [ethers.keccak256(Buffer.from(oracleName)), oracleReceipt?.contractAddress],
       {
         chainId,
-        delayAfterTxReceiptMs: config.delayAfterTxReceiptMs,
+        minTxConfirmations: config.minTxConfirmations,
       },
     );
     result.push([`${oracle.pair} Oracle`, oracleReceipt?.contractAddress, oracleReceipt?.hash]);
@@ -243,7 +243,7 @@ async function deployProxyContract(
     // Tx Options
     {
       chainId,
-      delayAfterTxReceiptMs: config.delayAfterTxReceiptMs,
+      minTxConfirmations: config.minTxConfirmations,
     },
   );
   const contractFactory = await ethers.getContractFactory(instanceName);
@@ -257,7 +257,7 @@ async function deployProxyContract(
     ],
     {
       chainId,
-      delayAfterTxReceiptMs: config.delayAfterTxReceiptMs,
+      minTxConfirmations: config.minTxConfirmations,
     },
   );
 
@@ -269,7 +269,7 @@ async function deployProxyContract(
     [ethers.keccak256(Buffer.from(registerName)), proxyReceipt?.contractAddress],
     {
       chainId,
-      delayAfterTxReceiptMs: config.delayAfterTxReceiptMs,
+      minTxConfirmations: config.minTxConfirmations,
     },
   );
   result.push([instanceName, instanceReceipt?.contractAddress, instanceReceipt?.hash]);
@@ -359,7 +359,7 @@ async function deployFlashLender(
     [registryReceipt?.contractAddress ?? ''],
     {
       chainId,
-      delayAfterTxReceiptMs: config.delayAfterTxReceiptMs,
+      minTxConfirmations: config.minTxConfirmations,
     },
   );
   await app.send(
@@ -369,7 +369,7 @@ async function deployFlashLender(
     [ethers.keccak256(Buffer.from('FlashLender')), flashLenderReceipt?.contractAddress],
     {
       chainId,
-      delayAfterTxReceiptMs: config.delayAfterTxReceiptMs,
+      minTxConfirmations: config.minTxConfirmations,
     },
   );
 
@@ -393,7 +393,7 @@ async function registerName(
     [ethers.keccak256(Buffer.from(name)), address],
     {
       chainId,
-      delayAfterTxReceiptMs: config.delayAfterTxReceiptMs,
+      minTxConfirmations: config.minTxConfirmations,
     },
   );
   result.push([name, address, routerReceipt?.hash]);
@@ -409,7 +409,7 @@ async function deployProxyAdmin(
   spinner.text = 'Deploying ProxyAdmin Contract ...';
   const proxyAdminReceipt = await app.deploy('BakerFiProxyAdmin', [app.getAddress()], {
     chainId,
-    delayAfterTxReceiptMs: config.delayAfterTxReceiptMs,
+    minTxConfirmations: config.minTxConfirmations,
   });
   result.push(['Proxy Admin', proxyAdminReceipt?.contractAddress, proxyAdminReceipt?.hash]);
 
@@ -420,7 +420,7 @@ async function deployProxyAdmin(
     [ethers.keccak256(Buffer.from('BakerFiProxyAdmin')), proxyAdminReceipt?.contractAddress],
     {
       chainId,
-      delayAfterTxReceiptMs: config.delayAfterTxReceiptMs,
+      minTxConfirmations: config.minTxConfirmations,
     },
   );
   return proxyAdminReceipt;
@@ -439,7 +439,7 @@ async function deployRegistry(
     [app.getAddress()],
     {
       chainId,
-      delayAfterTxReceiptMs: config.delayAfterTxReceiptMs,
+      minTxConfirmations: config.minTxConfirmations,
     },
   );
   await registerName(
