@@ -21,29 +21,28 @@ const chainId = BigInt(hre.network.config.chainId ?? 0n);
 type ProxyContracts = keyof typeof ContractTree;
 
 export const RegistryNames = [
-    'FlashLender'
-  , "Settings"
-  , "Pyth"
-  , "DeploymentRegistry"
-  , "Uniswap Router"
-  , "Uniswap Quoter"  
-  , 'WETH'
-  , 'stETH'
-  , 'wstETH'
-  , 'AAVEv3'
-  , "Balancer Vault"
-  , 'wstETH'
-  , 'wstETH/USD Oracle'
-  , 'cbETH/USD Oracle'
-  , 'ETH/USD Oracle'
-  , "BakerFiProxyAdmin"
-  , 'Pyth'
-  , `${VaultNamesEnum.AAVE_V3_WSTETH_ETH} Strategy`
-  , `${VaultNamesEnum.AAVE_V3_WSTETH_ETH} Vault`];
+  'FlashLender',
+  'Settings',
+  'Pyth',
+  'DeploymentRegistry',
+  'Uniswap Router',
+  'Uniswap Quoter',
+  'WETH',
+  'stETH',
+  'wstETH',
+  'AAVEv3',
+  'Balancer Vault',
+  'wstETH',
+  'wstETH/USD Oracle',
+  'cbETH/USD Oracle',
+  'ETH/USD Oracle',
+  'BakerFiProxyAdmin',
+  'Pyth',
+  `${VaultNamesEnum.AAVE_V3_WSTETH_ETH} Strategy`,
+  `${VaultNamesEnum.AAVE_V3_WSTETH_ETH} Vault`,
+];
 
-
-type RegistryName = typeof RegistryNames[number]; 
-
+type RegistryName = (typeof RegistryNames)[number];
 
 /****************************************
  *
@@ -140,7 +139,7 @@ async function main() {
   result.push(['Strategy LTV', ethers.parseUnits('800', 6), ltvChangeReceipt?.hash]);
   spinner.succeed('🧑‍🍳 BakerFi Served 🍰 ');
   console.table(result);
-  console.log("Deployment Registry:");
+  console.log('Deployment Registry:');
   const registerDump: any[] = [];
   for (const registerName of RegistryNames) {
     const address = await app.call(
@@ -152,7 +151,7 @@ async function main() {
         chainId,
       },
     );
-    registerDump.push([registerName, address]);  
+    registerDump.push([registerName, address]);
   }
   console.table(registerDump);
   process.exit(0);
@@ -307,37 +306,16 @@ async function deployInfra(
     result,
   );
   // Registering Uniswap Quoter
-  await registerName(
-    app,
-    registryReceipt,
-    'Uniswap Quoter',
-    config.uniswapQuoter,
-    spinner,
-    result,
-  );
-   // Registering Uniswap Quoter
-   await registerName(
-    app,
-    registryReceipt,
-    'Pyth',
-    config.pyth,
-    spinner,
-    result,
-  );
+  await registerName(app, registryReceipt, 'Uniswap Quoter', config.uniswapQuoter, spinner, result);
+  // Registering Uniswap Quoter
+  await registerName(app, registryReceipt, 'Pyth', config.pyth, spinner, result);
   // AAVE Vault
   await registerName(app, registryReceipt, 'AAVEv3', config.AAVEPool, spinner, result);
   // Register Balancer Vault
-  await registerName(
-    app,
-    registryReceipt,
-    'Balancer Vault',
-    config.balancerVault,
-    spinner,
-    result,
-  );
+  await registerName(app, registryReceipt, 'Balancer Vault', config.balancerVault, spinner, result);
   // Flash Lender Adapter
   await deployFlashLender(app, registryReceipt, spinner, result);
-  
+
   // Wrapped stETH
   if (config.wstETH) {
     await registerName(app, registryReceipt, 'wstETH', config.wstETH, spinner, result);
@@ -442,6 +420,13 @@ async function deployRegistry(
       chainId,
     },
   );
-  await registerName(app, registryReceipt, 'DeploymentRegistry', registryReceipt?.contractAddress??"", spinner, result);
+  await registerName(
+    app,
+    registryReceipt,
+    'DeploymentRegistry',
+    registryReceipt?.contractAddress ?? '',
+    spinner,
+    result,
+  );
   return registryReceipt;
 }
