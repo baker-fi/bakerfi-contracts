@@ -32,7 +32,7 @@ async function contracts(registerAddress: any) {
     'stETH',
     'wstETH',
     'cbETH',
-    'AAVE_V3',
+    'AAVEv3',
     'stETH/ETH Oracle',
     'cbETH/ETH Oracle',
     'Uniswap Router',

@@ -196,7 +196,7 @@ export async function deployAaveV3(stETH, weth, serviceRegistry, amount) {
   await aaveV3PoolMock.waitForDeployment();
   const aaveV3PoolAddress = await aaveV3PoolMock.getAddress();
   await serviceRegistry.registerService(
-    ethers.keccak256(Buffer.from('AAVE_V3')),
+    ethers.keccak256(Buffer.from('AAVEv3')),
     aaveV3PoolAddress,
   );
   await weth.deposit?.call('', { value: amount });
