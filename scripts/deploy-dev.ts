@@ -15,7 +15,7 @@ import {
   deployBKR,
 } from './common';
 
-import BaseConfig from '../constants/network-deploy-config';
+import BaseConfig, { NetworkConfig, VaultNamesEnum } from '../constants/network-deploy-config';
 import ora from 'ora';
 
 /**
@@ -25,7 +25,7 @@ async function main() {
   const networkName = network.name;
   const chainId = network.config.chainId;
 
-  const config = BaseConfig[networkName];
+  const config: NetworkConfig = BaseConfig[networkName];
   console.log('  🧑‍🍳 BakerFi Cooking .... ');
   const result: any[] = [];
   const spinner = ora('Cooking ....').start();
@@ -177,8 +177,8 @@ async function main() {
   // 10. Deploy the Proxiec Vault attached to Leverage Lib
   const { vault, proxy: vaultProxy } = await deployVault(
     owner.address,
-    config.vaultSharesName,
-    config.vaultSharesSymbol,
+    config.vaults[VaultNamesEnum.AAVE_V3_WSTETH_ETH].sharesName,
+    config.vaults[VaultNamesEnum.AAVE_V3_WSTETH_ETH].sharesSymbol,
     await serviceRegistry.getAddress(),
     await strategyProxy.getAddress(),
     proxyAdmin,
