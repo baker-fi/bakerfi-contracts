@@ -79,7 +79,7 @@ export abstract class ContractClientBase<ContractTree extends ContractTreeType>
       ...(await this.buildGasOptions(options)),
     });
     const estimatedGas = await this._provider.estimateGas({
-      ...baseTx,
+      ...baseTx.toJSON(),
       from: this.getAddress(),
     });
     baseTx.gasLimit = options?.gasLimit ?? (estimatedGas*2n);
