@@ -186,6 +186,10 @@ export class StrategyAAVEv3
     return this.callTx(this.contract.methods.uniQuoterA());
   }
 
+  async deployAssets(value: number) { 
+    return this.sendTx(this.contract.methods.deploy(), value);
+  }
+
   async uniRouter() {
     return this.callTx(this.contract.methods.uniRouter());
   }

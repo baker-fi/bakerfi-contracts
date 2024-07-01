@@ -53,8 +53,8 @@ export class Vault extends Model<VaultMethods> implements Deployable {
     return this.sendTx(this.contract.methods.decreaseAllowance(spender, subtractedValue));
   }
 
-  async deposit(receiver: string) { 
-    return this.sendTx(this.contract.methods.deposit(receiver));
+  async deposit(receiver: string, value: number) { 
+    return this.sendTx(this.contract.methods.deposit(receiver), value);
   }
 
   async eip712Domain() { 

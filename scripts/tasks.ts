@@ -169,9 +169,15 @@ task('strategy:setLoanToValue', 'Set Target Loan To value')
     const spinner = ora(`Settting Target LTV ${value}`).start();
     try {
       let app = await getClient(ethers);
-      await app?.send('StrategyAAVEv3', networkConfig.strategyProxy ?? '', 'setLoanToValue', [
-        value,
-      ]);
+      await app?.send(
+        'StrategyAAVEv3',
+        networkConfig.strategyProxy ?? '',
+        'setLoanToValue',
+        [value],
+        {
+          chainId: network.config.chainId,
+        },
+      );
       spinner.succeed(`🧑‍🍳 Target LTV Changed to ${value} ✅ `);
     } catch (e) {
       console.log(e);

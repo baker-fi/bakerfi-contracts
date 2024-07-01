@@ -61,8 +61,8 @@ export class Pyth extends Model<IPythMethods> implements Deployable {
     return this.sendTx(this.contract.methods.parsePriceFeedUpdatesUnique(updateData, priceIds, minPublishTime, maxPublishTime));
   }
 
-  async updatePriceFeeds(updateData: string[]) { 
-    return this.sendTx(this.contract.methods.updatePriceFeeds(updateData));
+  async updatePriceFeeds(updateData: string[], fee: number) { 
+    return this.sendTx(this.contract.methods.updatePriceFeeds(updateData), fee);
   }
 
   async updatePriceFeedsIfNecessary(updateData: string[], priceIds: string[], publishTimes: number[]) { 
