@@ -51,7 +51,6 @@ export abstract class ContractClientBase<ContractTree extends ContractTreeType>
     const block = await this._provider.getBlock('latest');
     const gasOptions = {
       gasLimit: block?.gasLimit ?? 300000000n,
-      gasPrice: options?.gasPrice ?? feeData.gasPrice,
       maxFeePerGas: options?.maxFeePerGas ?? feeData?.maxFeePerGas ?? 0,
       maxPriorityFeePerGas: options?.maxPriorityFeePerGas ?? feeData.maxPriorityFeePerGas,
     };
