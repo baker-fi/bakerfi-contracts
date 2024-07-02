@@ -680,6 +680,27 @@ task('settings:setPriceMaxAge', 'Set number of Loopps')
     }
   });
 
+
+  task('settings:setRebalancePriceMaxAge', 'Set number of Loopps')
+  .addParam('value', 'loop coount')
+  .setAction(async ({ value }, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Settting Rebalance Max Age ${value}`).start();
+    
+    
+    try {
+      let app = await getClient(ethers);
+      await app?.send('Settings', networkConfig.settingsProxy ?? '', 'setPriceMaxAge', [value], {
+        chainId: network.config.chainId,
+      });
+      spinner.succeed(`🧑‍🍳 Rebalance Max Age ${value} ✅ `);
+    } catch (e) {
+      console.log(e);
+      spinner.fail('Failed 💥');
+    }
+  });
+
 async function getClient(ethers) {
   const [signerPKey] = STAGING_ACCOUNTS_PKEYS;
   let app;

@@ -1,6 +1,6 @@
 {
   "name": "@baker-fi/sdk",
-  "version": "v1.0.0-beta.3",
+  "version": "v1.0.0-beta.4",
   "description": "",
   "main": "dist/src/index.js",
   "module": "dist/src/index.js",
@@ -11,7 +11,7 @@
     "README.md"
   ],
   "scripts": {
-    "compile:clean": "rm -rf cache/* && rm -rf artifacts/*  && rm -rf dist/*",
+    "clean": "rm -rf cache/* && rm -rf artifacts/*  && rm -rf dist/*",
     "compile": "npx hardhat compile",
     "postcompile": "npx hardhat compile:artifactTree",
     "build": "npm run compile && npx tsc && npx tsc-alias",
@@ -43,6 +43,8 @@
   "author": "Chef Kenji <chef.kenji@bakerfi.xyz>",
   "license": "ISC",
   "devDependencies": {
+    "@ledgerhq/hw-app-eth": "^6.37.0",
+    "@ledgerhq/hw-transport-node-hid": "^6.29.0",
     "@aave/core-v3": "^1.18.0",
     "@nomicfoundation/hardhat-toolbox": "^3.0.0",
     "@nomiclabs/hardhat-etherscan": "^3.1.7",
@@ -70,8 +72,6 @@
     "ts-node": "^10.9.1"
   },
   "dependencies": {
-    "@ledgerhq/hw-app-eth": "^6.37.0",
-    "@ledgerhq/hw-transport-node-hid": "^6.29.0",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.10",
     "@openzeppelin/contracts": "^4.9.2",
     "@openzeppelin/contracts-upgradeable": "^4.9.2",
