@@ -77,11 +77,15 @@ task('vault:withdraw', 'Burn brETH shares and receive ETH')
     const spinner = ora(`Withdrawing ${account} ${amount}`).start();
     try {
       let app = await getClient(ethers);
-      await app?.send('Vault', networkConfig.vaultProxy ?? '', 'deposit', [
-        ethers.parseUnits(amount, 18),
-      ], {
-        chainId: network.config.chainId,
-      });
+      await app?.send(
+        'Vault',
+        networkConfig.vaultProxy ?? '',
+        'deposit',
+        [ethers.parseUnits(amount, 18)],
+        {
+          chainId: network.config.chainId,
+        },
+      );
       spinner.succeed(`Withdrawed ${account} ${amount} ETH 🧑‍🍳`);
     } catch (e) {
       console.log(e);
@@ -107,6 +111,31 @@ task('vault:rebalance', 'Burn brETH shares and receive ETH').setAction(
   },
 );
 
+task('settings:getRebalancePriceMaxAge', 'Get Fee Rebalance Max Age').setAction(
+  async ({}, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Getttin Rebalance Price MaxAge`).start();
+    try {
+      let app = await getClient(ethers);
+      const value = await app?.call(
+        'Settings',
+        networkConfig.settingsProxy ?? '',
+        'getRebalancePriceMaxAge',
+        [],
+        {
+          chainId: network.config.chainId,
+        },
+      );
+      spinner.succeed(`🧑‍🍳 Rebalance Max Age = ${value} `);
+    } catch (e) {
+      console.log(e);
+      spinner.fail('Failed 💥');
+    }
+  },
+);
+
+
 task('vault:balance', "Prints an account's share balance")
   .addParam('account', "The account's address")
   .setAction(async ({ account }, { ethers, network }) => {
@@ -115,11 +144,15 @@ task('vault:balance', "Prints an account's share balance")
     const spinner = ora(`Geeting ${account} balance`).start();
     try {
       let app = await getClient(ethers);
-      const balance = await app?.call('Vault', networkConfig.vaultProxy ?? '', 'balanceOf', [
-        account,
-      ], {
-        chainId: network.config.chainId,
-      });
+      const balance = await app?.call(
+        'Vault',
+        networkConfig.vaultProxy ?? '',
+        'balanceOf',
+        [account],
+        {
+          chainId: network.config.chainId,
+        },
+      );
       spinner.succeed(`🧑‍🍳 Account Balance ${account} = ${ethers.formatEther(balance)} brETH`);
     } catch (e) {
       console.log(e);
@@ -199,7 +232,7 @@ task('strategy:getLoanToValue', 'Set Target Loan To value').setAction(
         [],
         {
           chainId: network.config.chainId,
-        }
+        },
       );
       spinner.succeed(`🧑‍🍳 LTV = ${value} `);
     } catch (e) {
@@ -217,11 +250,15 @@ task('strategy:setMaxLoanToValue', 'Set Max Target Loan To value')
     const spinner = ora(`Settting Max Target LTV ${value}`).start();
     try {
       let app = await getClient(ethers);
-      await app?.send('StrategyAAVEv3', networkConfig.strategyProxy ?? '', 'setMaxLoanToValue', [
-        value,
-      ], {
-        chainId: network.config.chainId,
-      });
+      await app?.send(
+        'StrategyAAVEv3',
+        networkConfig.strategyProxy ?? '',
+        'setMaxLoanToValue',
+        [value],
+        {
+          chainId: network.config.chainId,
+        },
+      );
       spinner.succeed(`🧑‍🍳 Max LTV Changed to  ${value} ✅ `);
     } catch (e) {
       console.log(e);
@@ -243,9 +280,9 @@ task('strategy:getMaxLoanToValue', 'Get Max Target Loan To value').setAction(
         [],
         {
           chainId: network.config.chainId,
-        }
+        },
       );
-      spinner.succeed(`🧑‍🍳 Max LTV ${value} `);
+      spinner.succeed(`🧑‍🍳 Max LTV = ${value} `);
     } catch (e) {
       console.log(e);
       spinner.fail('Failed 💥');
@@ -285,7 +322,7 @@ task('settings:getWithdrawalFee', 'get Withdrawal Fee').setAction(
         [],
         {
           chainId: network.config.chainId,
-        }
+        },
       );
       spinner.succeed(`🧑‍🍳 Withdrawal Fee = ${value}`);
     } catch (e) {
@@ -327,7 +364,7 @@ task('settings:getPerformanceFee', 'Get Performance Fee').setAction(
         [],
         {
           chainId: network.config.chainId,
-        }
+        },
       );
       spinner.succeed(`🧑‍🍳 Performance Fee = ${value} `);
     } catch (e) {
@@ -338,7 +375,7 @@ task('settings:getPerformanceFee', 'Get Performance Fee').setAction(
 );
 
 task('settings:setFeeReceiver', 'Set Fee Receiver Accoutn')
-  .addParam('account', 'The new max LTV')
+  .addParam('account', 'The feee receiver account')
   .setAction(async ({ account }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
@@ -369,9 +406,9 @@ task('strategy:getNrLoops', 'Get Recursive Number of Loops').setAction(
         [],
         {
           chainId: network.config.chainId,
-        }
+        },
       );
-      spinner.succeed(`🧑‍🍳 Nr of Loops ${value} `);
+      spinner.succeed(`🧑‍🍳 Nr of Loops = ${value} `);
     } catch (e) {
       console.log(e);
       spinner.fail('Failed 💥');
@@ -387,10 +424,10 @@ task('strategy:setNrLoops', 'Set number of Loopps')
     const spinner = ora(`Settting Nr Of Loops to ${value}`).start();
     try {
       let app = await getClient(ethers);
-      await app?.send('StrategyAAVEv3', networkConfig.strategyProxy ?? '', 'setNrLoops', [value]), {
+      await app?.send('StrategyAAVEv3', networkConfig.strategyProxy ?? '', 'setNrLoops', [value], {
         chainId: network.config.chainId,
-      };
-      spinner.succeed(`🧑‍🍳 Nr of Loops Changed to ${value} ✅ `);
+      }),
+        spinner.succeed(`🧑‍🍳 Nr of Loops Changed to ${value} ✅ `);
     } catch (e) {
       console.log(e);
       spinner.fail('Failed 💥');
@@ -411,7 +448,7 @@ task('settings:getFeeReceiver', 'Get Fee Receiver Account').setAction(
         [],
         {
           chainId: network.config.chainId,
-        }
+        },
       );
       spinner.succeed(`🧑‍🍳 Fee Receiver Account ${value} `);
     } catch (e) {
@@ -430,12 +467,15 @@ task('settings:enableAccount', 'Enable an account on the whitelist')
     const spinner = ora(`Setting ${account} has ${enabled}`).start();
     try {
       let app = await getClient(ethers);
-      await app?.send('Settings', networkConfig.settingsProxy ?? '', 'enableAccount', [
-        account,
-        enabled == 'true',
-      ], {
-        chainId: network.config.chainId,
-      });
+      await app?.send(
+        'Settings',
+        networkConfig.settingsProxy ?? '',
+        'enableAccount',
+        [account, enabled == 'true'],
+        {
+          chainId: network.config.chainId,
+        },
+      );
       spinner.succeed(`🧑‍🍳 Account ${account} now is enabled=${enabled} ✅ `);
     } catch (e) {
       console.log(e);
@@ -458,7 +498,7 @@ task('settings:isAccountEnabled', 'Enable an account on the whitelist')
         [account],
         {
           chainId: network.config.chainId,
-        }
+        },
       );
       spinner.succeed(`🧑‍🍳 Account ${account} is enabled? ${res} `);
     } catch (e) {
@@ -558,9 +598,15 @@ task('settings:setMaxDeposit', 'Set Max Deposit')
     const spinner = ora(`Settting Max Deposit in ETH ${value}`).start();
     try {
       let app = await getClient(ethers);
-      await app?.send('Settings', networkConfig.settingsProxy ?? '', 'setMaxDepositInETH', [value], {
-        chainId: network.config.chainId,
-      });
+      await app?.send(
+        'Settings',
+        networkConfig.settingsProxy ?? '',
+        'setMaxDepositInETH',
+        [value],
+        {
+          chainId: network.config.chainId,
+        },
+      );
       spinner.succeed(`🧑‍🍳 Max Deposit In ETH is ${value} ✅ `);
     } catch (e) {
       console.log(e);
@@ -568,7 +614,7 @@ task('settings:setMaxDeposit', 'Set Max Deposit')
     }
   });
 
-task('settings:getMaxDeposit', 'Get Fee Receiver Account').setAction(
+task('settings:getMaxDeposit', 'Get Max Deposit in ETH').setAction(
   async ({}, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
@@ -582,9 +628,9 @@ task('settings:getMaxDeposit', 'Get Fee Receiver Account').setAction(
         [],
         {
           chainId: network.config.chainId,
-        }
+        },
       );
-      spinner.succeed(`🧑‍🍳 Max Deposit in ETH ${value} `);
+      spinner.succeed(`🧑‍🍳 Max Deposit in ETH = ${value} `);
     } catch (e) {
       console.log(e);
       spinner.fail('Failed 💥');
@@ -617,7 +663,7 @@ task('pyth:priceUpdate', 'Update Required Prices').setAction(async ({}, { ethers
     const currentPrices = await connection.getLatestPriceFeeds(priceIds);
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
-    const networkDeployConfig = NetworkDeployConfig[networkName]
+    const networkDeployConfig = NetworkDeployConfig[networkName];
     // You can also call this function to get price updates for the on-chain contract directly.
     const vaas = currentPrices?.map((feed) =>
       // @ts-ignore: Unreachable code error
@@ -627,8 +673,8 @@ task('pyth:priceUpdate', 'Update Required Prices').setAction(async ({}, { ethers
     const fee = await app?.call('IPyth', networkDeployConfig.pyth ?? '', 'getUpdateFee', [vaas], {
       chainId: network.config.chainId,
     });
-    await app?.send('IPyth', networkDeployConfig.pyth ?? '', 'updatePriceFeeds', [vaas], { 
-      value: fee ,
+    await app?.send('IPyth', networkDeployConfig.pyth ?? '', 'updatePriceFeeds', [vaas], {
+      value: fee,
       chainId: network.config.chainId,
     });
     spinner.succeed(`🧑‍🍳 Pyth Price Updates`);
@@ -651,23 +697,22 @@ task('settings:getPriceMaxAge', 'Get Max Price Age').setAction(async ({}, { ethe
       [],
       {
         chainId: network.config.chainId,
-      }
+      },
     );
-    spinner.succeed(`🧑‍🍳 Price Max Age ${value} `);
+    spinner.succeed(`🧑‍🍳 Price Max Age = ${value} `);
   } catch (e) {
     console.log(e);
     spinner.fail('Failed 💥');
   }
 });
 
-task('settings:setPriceMaxAge', 'Set number of Loopps')
-  .addParam('value', 'loop coount')
+task('settings:setPriceMaxAge', 'Set the price max age')
+  .addParam('value', 'max Age')
   .setAction(async ({ value }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Settting Nr Of Loops to ${value}`).start();
-    
-    
+
     try {
       let app = await getClient(ethers);
       await app?.send('Settings', networkConfig.settingsProxy ?? '', 'setPriceMaxAge', [value], {
@@ -680,18 +725,16 @@ task('settings:setPriceMaxAge', 'Set number of Loopps')
     }
   });
 
-
-  task('settings:setRebalancePriceMaxAge', 'Set number of Loopps')
+task('settings:setRebalancePriceMaxAge', 'Set number of Loopps')
   .addParam('value', 'loop coount')
   .setAction(async ({ value }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Settting Rebalance Max Age ${value}`).start();
-    
-    
+
     try {
       let app = await getClient(ethers);
-      await app?.send('Settings', networkConfig.settingsProxy ?? '', 'setPriceMaxAge', [value], {
+      await app?.send('Settings', networkConfig.settingsProxy ?? '', 'setRebalancePriceMaxAge', [value], {
         chainId: network.config.chainId,
       });
       spinner.succeed(`🧑‍🍳 Rebalance Max Age ${value} ✅ `);
@@ -701,39 +744,55 @@ task('settings:setPriceMaxAge', 'Set number of Loopps')
     }
   });
 
-  task('strategy:getPosition', 'Set number of Loopps')
-  .setAction(async ({ value }, { ethers, network }) => {
+task('strategy:getPosition', 'Set number of Loopps').setAction(
+  async ({ value }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Settting Rebalance Max Age ${value}`).start();
-    
-    
+
     try {
       let app = await getClient(ethers);
-      const [totalCollateralInEth,totalDebtInEth, loanToValue] = await app?.call(
+      const [totalCollateralInEth, totalDebtInEth, loanToValue] = await app?.call(
         'StrategyAAVEv3',
         networkConfig.strategyProxy ?? '',
         'getPosition',
-        [
-          [0,0]
-        ],
+        [[0, 0]],
         {
           chainId: network.config.chainId,
-        }
+        },
       );
-      spinner.succeed(`🧑‍🍳 Strategy Position ${totalCollateralInEth},${totalDebtInEth}, ${loanToValue} `);
+      spinner.succeed(
+        `🧑‍🍳 Strategy Position ${totalCollateralInEth},${totalDebtInEth}, ${loanToValue} `,
+      );
     } catch (e) {
       console.log(e);
       spinner.fail('Failed 💥');
     }
-  });
+  },
+);
 
-  
+
+task('bakerfi:resume', 'Generate an artifact tree')
+.setAction(async ({  }, { run }) => {
+  console.log("🧑‍🍳 BakerFi Settings resume ....");
+ 
+  await run('vault:assets');
+  await run('strategy:getLoanToValue');
+  await run('strategy:getMaxLoanToValue');
+  await run('settings:getWithdrawalFee');
+  await run('settings:getPerformanceFee');
+  await run('settings:getPriceMaxAge');    
+  await run('settings:getRebalancePriceMaxAge');
+  await run('strategy:getNrLoops');
+  await run('settings:getFeeReceiver');
+  await run('settings:getMaxDeposit');
+  console.log("Served ...");
+});
 
 async function getClient(ethers) {
   const [signerPKey] = STAGING_ACCOUNTS_PKEYS;
   let app;
-  const contractTree = await import("../src/contract-blob.json");  
+  const contractTree = await import('../src/contract-blob.json');
   if (process.env.DEPLOY_WITH_LEDGER === 'true') {
     app = new ContractClientLedger(
       ethers.provider,
