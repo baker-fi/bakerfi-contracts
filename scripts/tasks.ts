@@ -701,6 +701,35 @@ task('settings:setPriceMaxAge', 'Set number of Loopps')
     }
   });
 
+  task('strategy:getPosition', 'Set number of Loopps')
+  .setAction(async ({ value }, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Settting Rebalance Max Age ${value}`).start();
+    
+    
+    try {
+      let app = await getClient(ethers);
+      const [totalCollateralInEth,totalDebtInEth, loanToValue] = await app?.call(
+        'StrategyAAVEv3',
+        networkConfig.strategyProxy ?? '',
+        'getPosition',
+        [
+          [0,0]
+        ],
+        {
+          chainId: network.config.chainId,
+        }
+      );
+      spinner.succeed(`🧑‍🍳 Strategy Position ${totalCollateralInEth},${totalDebtInEth}, ${loanToValue} `);
+    } catch (e) {
+      console.log(e);
+      spinner.fail('Failed 💥');
+    }
+  });
+
+  
+
 async function getClient(ethers) {
   const [signerPKey] = STAGING_ACCOUNTS_PKEYS;
   let app;
