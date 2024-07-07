@@ -48,17 +48,6 @@ describeif(network.name === 'hardhat')('Math Library', function () {
     ).to.equal(1000n);
   });
 
-  it('Small Fee - Denominator 0', async function () {
-    const math = await loadFixture(deployFunction);
-    expect(
-      await math.mulDivUp(
-        100000,
-        1n * 10n ** 5n, // 0.01%
-        0,
-      ),
-    ).to.equal(0n);
-  });
-
   it('10% on 100', async function () {
     const math = await loadFixture(deployFunction);
     expect(
@@ -89,5 +78,16 @@ describeif(network.name === 'hardhat')('Math Library', function () {
         1000n,
       ),
     ).to.equal(0n);
+  });
+
+  it('Revert when division by 0 ', async function () {
+    const math = await loadFixture(deployFunction);
+    await expect(
+      math.mulDivUp(
+        10n,
+        2n, // 0.01%
+        0n,
+      ),
+    ).to.be.revertedWithCustomError(math, 'InvalidDivDenominator');
   });
 });

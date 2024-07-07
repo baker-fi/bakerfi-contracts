@@ -33,16 +33,16 @@ export abstract class ContractClientBase<ContractTree extends ContractTreeType>
       ...deployTx,
       ...(options?.value ? { value: options.value } : {}),
       nonce: await this._provider.getTransactionCount(this.getAddress()),
-      chainId: options?.chainId ?? 1,      
+      chainId: options?.chainId ?? 1,
       ...(await this.buildGasOptions(options)),
-      gasLimit: options?.gasLimit ??(estimatedGas * 2n),
-    });    
+      gasLimit: options?.gasLimit ?? estimatedGas * 2n,
+    });
     const signedTx = await this.sign(tx);
     return await this.broadcastTx(signedTx);
   }
-  async broadcastTx(signedTx: Transaction,options?: TxOptions) {
+  async broadcastTx(signedTx: Transaction, options?: TxOptions) {
     const response = await this._provider.broadcastTransaction(signedTx.serialized);
-    const txReceipt = await response.wait(options?.minTxConfirmations ?? 0);    
+    const txReceipt = await response.wait(options?.minTxConfirmations ?? 0);
     return txReceipt;
   }
 
@@ -81,7 +81,7 @@ export abstract class ContractClientBase<ContractTree extends ContractTreeType>
       ...baseTx.toJSON(),
       from: this.getAddress(),
     });
-    baseTx.gasLimit = options?.gasLimit ?? (estimatedGas*2n);
+    baseTx.gasLimit = options?.gasLimit ?? estimatedGas * 2n;
     const signedTx = await this.sign(baseTx);
     return await this.broadcastTx(signedTx, options);
   }
