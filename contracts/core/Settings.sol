@@ -262,7 +262,11 @@ contract Settings is Ownable2StepUpgradeable, ISettings {
   }
 
   /**
+   * Sets the max age for price retrievals 
    * @notice Sets the maximum age of the price data.
+   * 
+   * @dev Setting the maxAge to 0 is quite dangerous and the protocol could be working 
+   * with stale prices
    * @param value The maximum age in seconds.
    */
   function setPriceMaxAge(uint256 value) external onlyOwner {
@@ -283,7 +287,7 @@ contract Settings is Ownable2StepUpgradeable, ISettings {
    * @param value The maximum confidence level.
    */
   function setPriceMaxConf(uint256 value) external onlyOwner {
-    if (value >= PERCENTAGE_PRECISION) revert InvalidPercentage();
+    if (value > PERCENTAGE_PRECISION) revert InvalidPercentage();
     _priceMaxConf = value;
     emit PriceMaxConfChange(value);
   }
@@ -296,5 +300,5 @@ contract Settings is Ownable2StepUpgradeable, ISettings {
     return _priceMaxConf;
   }
 
-  uint256[42] private __gap;
+  uint256[39] private __gap;
 }

@@ -82,7 +82,7 @@ describeif(network.name === 'hardhat')('Pyth Oracle Tests', function () {
       value: 10,
     });
     // 10% Max Confidence
-    const [price] = await pythOracle.getSafeLatestPrice([0, 1 * 10 ** 8]);
+    const [price] = await pythOracle.getSafeLatestPrice([180, 1 * 10 ** 8]);
     expect(price).to.equal(ethers.parseUnits('120000', 18));
   });
 
@@ -103,7 +103,7 @@ describeif(network.name === 'hardhat')('Pyth Oracle Tests', function () {
     });
     // 10% Max Confidence
     await expect(
-      pythOracle.getSafeLatestPrice([0, 1 * 10 ** 8]),
+      pythOracle.getSafeLatestPrice([180, 1 * 10 ** 8]),
     ).to.be.revertedWithCustomError(pythOracle, 'InvalidPriceAnswer');
   });
 
@@ -121,7 +121,15 @@ describeif(network.name === 'hardhat')('Pyth Oracle Tests', function () {
     );
     await pythMock.updatePriceFeeds([updateData], { value: 10 });
     await expect(
-      pythOracle.getSafeLatestPrice([0, 1 * 10 ** 8]),
+      pythOracle.getSafeLatestPrice([180, 1 * 10 ** 8]),
     ).to.be.revertedWithCustomError(pythOracle, 'InvalidPriceAnswer');
+  });
+
+
+  it('Pyth Oracle Tests - Revert when calling getSafeLatestPrice with max age =0 ', async function () {
+    const { pythOracle } = await loadFixture(deployFunction);
+    await expect(
+      pythOracle.getSafeLatestPrice([0, 1 * 10 ** 8]),
+    ).to.be.revertedWithCustomError(pythOracle, 'InvalidPriceOption');
   });
 });

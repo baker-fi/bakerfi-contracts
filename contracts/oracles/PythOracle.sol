@@ -10,6 +10,7 @@ contract PythOracle is IOracle {
   error InvalidPriceUpdate();
   error InvalidPriceAnswer();
   error NoEnoughFee();
+  error InvalidPriceOption();
 
   IPyth private immutable _pyth;
   bytes32 private immutable _priceID;
@@ -88,6 +89,8 @@ contract PythOracle is IOracle {
 
   /**
    * Get the Latest Price
+   * 
+   * @dev This function might return a stale price our a price with lower confidence
    */
   function getLatestPrice() public view override returns (IOracle.Price memory) {
     return _getPriceInternal(PriceOptions({ maxAge: 0, maxConf: 0 }));
@@ -99,6 +102,7 @@ contract PythOracle is IOracle {
   function getSafeLatestPrice(
     PriceOptions memory priceOptions
   ) public view override returns (IOracle.Price memory price) {
+    if(priceOptions.maxAge == 0) revert InvalidPriceOption();
     price = _getPriceInternal(priceOptions);
   }
 }
