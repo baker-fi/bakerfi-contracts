@@ -777,6 +777,96 @@ task('strategy:getPosition', 'Set number of Loopps').setAction(
   },
 );
 
+task('settings:setPriceMaxConfidence', 'Set Price Max Confidencce')
+  .addParam('value', 'The new Max confidence')
+  .setAction(async ({ value }, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Settting Price Max Confidence to ${value}`).start();
+    try {
+      let app = await getClient(ethers);
+      await app?.send('Settings', networkConfig.settingsProxy ?? '', 'setPriceMaxConf', [value], {
+        chainId: network.config.chainId,
+      });
+      spinner.succeed(`🧑‍🍳 Price Max Confidence Changed to ${value} ✅ `);
+    } catch (e) {
+      console.log(e);
+      spinner.fail('Failed 💥');
+    }
+  });
+
+task('settings:getPriceMaxConfidence', 'Get Price Max Confidence').setAction(
+  async ({}, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Gettting Price Max Confidence`).start();
+    try {
+      let app = await getClient(ethers);
+      const value = await app?.call(
+        'Settings',
+        networkConfig.settingsProxy ?? '',
+        'getPriceMaxConf',
+        [],
+        {
+          chainId: network.config.chainId,
+        },
+      );
+      spinner.succeed(`🧑‍🍳 Price Maximum Confidence = ${value} `);
+    } catch (e) {
+      console.log(e);
+      spinner.fail('Failed 💥');
+    }
+  },
+);
+
+task('strategy:setMaxSlippage', 'Set Strategy Max Slippage')
+  .addParam('value', 'The new strategy max slippage')
+  .setAction(async ({ value }, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Settting Strategy Max Slipage to ${value}`).start();
+    try {
+      let app = await getClient(ethers);
+      await app?.send(
+        'StrategyAAVEv3',
+        networkConfig.strategyProxy ?? '',
+        'setMaxSlippage',
+        [value],
+        {
+          chainId: network.config.chainId,
+        },
+      );
+      spinner.succeed(`🧑‍🍳 Strategy Max Slippage Changed to ${value} ✅ `);
+    } catch (e) {
+      console.log(e);
+      spinner.fail('Failed 💥');
+    }
+  });
+
+task('strategy:getMaxSlippage', 'Gets the Strategy Max Slippage').setAction(
+  async ({}, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Gettting Strategy Max Slippage`).start();
+    try {
+      let app = await getClient(ethers);
+      const value = await app?.call(
+        'StrategyAAVEv3',
+        networkConfig.strategyProxy ?? '',
+        'getMaxSlippage',
+        [],
+        {
+          chainId: network.config.chainId,
+        },
+      );
+      spinner.succeed(`🧑‍🍳 Getting the Max Slippage = ${value} `);
+    } catch (e) {
+      console.log(e);
+      spinner.fail('Failed 💥');
+    }
+  },
+);
+
 task('bakerfi:resume', 'Generate an artifact tree').setAction(async ({}, { run }) => {
   console.log('🧑‍🍳 BakerFi Settings resume ....');
 
@@ -790,7 +880,8 @@ task('bakerfi:resume', 'Generate an artifact tree').setAction(async ({}, { run }
   await run('strategy:getNrLoops');
   await run('settings:getFeeReceiver');
   await run('settings:getMaxDeposit');
-  console.log('Served ...');
+  await run('settings:getPriceMaxConfidence');
+  await run('strategy:getMaxSlippage');
 });
 async function getClient(ethers) {
   const [signerPKey] = STAGING_ACCOUNTS_PKEYS;

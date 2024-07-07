@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.24;
 
 import { IPyth } from "../interfaces/pyth/IPyth.sol";
@@ -6,10 +6,23 @@ import { PythStructs } from "../interfaces/pyth/PythStructs.sol";
 import { IOracle } from "../interfaces/core/IOracle.sol";
 import { PERCENTAGE_PRECISION } from "../core/Constants.sol";
 
+/**
+ * Oracle that uses Pyth feeds to provide up to date prices 
+ * for further use on the protocol 
+ 
+ * @title Generic Pyth Oracle Service
+ *
+ * @author Chef Kenji <chef.kenji@bakerfi.xyz>
+ * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
+ *
+ * @notice This contract provide safe and unsafe price retrieval functions 
+ * 
+ */
 contract PythOracle is IOracle {
   error InvalidPriceUpdate();
   error InvalidPriceAnswer();
   error NoEnoughFee();
+  error InvalidPriceOption();
 
   IPyth private immutable _pyth;
   bytes32 private immutable _priceID;
@@ -87,18 +100,24 @@ contract PythOracle is IOracle {
   }
 
   /**
-   * Get the Latest Price
+   * Get the Latest Price.
+   *
+   * @dev This function might return a stale price or a price with lower confidence.
+   * Warning: This oracle is unsafe to use on price sensitive operations.
    */
   function getLatestPrice() public view override returns (IOracle.Price memory) {
     return _getPriceInternal(PriceOptions({ maxAge: 0, maxConf: 0 }));
   }
 
   /**
-   * Get the Latest Price
+   * Get the Latest Price from the Pyth Feed
+   * @dev This function checks the maxAge of the price and the price confidence specified
+   * on the input parameters.
    */
   function getSafeLatestPrice(
     PriceOptions memory priceOptions
   ) public view override returns (IOracle.Price memory price) {
+    if (priceOptions.maxAge == 0) revert InvalidPriceOption();
     price = _getPriceInternal(priceOptions);
   }
 }
