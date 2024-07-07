@@ -102,9 +102,10 @@ describeif(network.name === 'hardhat')('Pyth Oracle Tests', function () {
       value: 10,
     });
     // 10% Max Confidence
-    await expect(
-      pythOracle.getSafeLatestPrice([180, 1 * 10 ** 8]),
-    ).to.be.revertedWithCustomError(pythOracle, 'InvalidPriceAnswer');
+    await expect(pythOracle.getSafeLatestPrice([180, 1 * 10 ** 8])).to.be.revertedWithCustomError(
+      pythOracle,
+      'InvalidPriceAnswer',
+    );
   });
 
   it('Pyth Oracle Tests - Max Exponent', async function () {
@@ -120,16 +121,17 @@ describeif(network.name === 'hardhat')('Pyth Oracle Tests', function () {
       ],
     );
     await pythMock.updatePriceFeeds([updateData], { value: 10 });
-    await expect(
-      pythOracle.getSafeLatestPrice([180, 1 * 10 ** 8]),
-    ).to.be.revertedWithCustomError(pythOracle, 'InvalidPriceAnswer');
+    await expect(pythOracle.getSafeLatestPrice([180, 1 * 10 ** 8])).to.be.revertedWithCustomError(
+      pythOracle,
+      'InvalidPriceAnswer',
+    );
   });
-
 
   it('Pyth Oracle Tests - Revert when calling getSafeLatestPrice with max age =0 ', async function () {
     const { pythOracle } = await loadFixture(deployFunction);
-    await expect(
-      pythOracle.getSafeLatestPrice([0, 1 * 10 ** 8]),
-    ).to.be.revertedWithCustomError(pythOracle, 'InvalidPriceOption');
+    await expect(pythOracle.getSafeLatestPrice([0, 1 * 10 ** 8])).to.be.revertedWithCustomError(
+      pythOracle,
+      'InvalidPriceOption',
+    );
   });
 });

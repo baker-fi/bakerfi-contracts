@@ -69,20 +69,20 @@ contract Settings is Ownable2StepUpgradeable, ISettings {
    * @dev Max Allowed ETH Deposit per Wallet
    */
   uint256 private _maxDepositInETH;
-  
+
   /**
    * @dev Max Age for sensitive price operations
    */
   uint256 private _priceRebalanceMaxAge;
 
   /**
-   * @dev Maximum price age allowed for protocol state change 
+   * @dev Maximum price age allowed for protocol state change
    * operations.
    */
   uint256 private _priceMaxAge;
 
-  /** 
-   * @dev Maximum Price Confidence in percentage allowed 
+  /**
+   * @dev Maximum Price Confidence in percentage allowed
    * for the oracle prices. The zero percentage is unsafe and avoids
    * the max Confidence check on Pyth Prices.
    */
@@ -272,10 +272,10 @@ contract Settings is Ownable2StepUpgradeable, ISettings {
   }
 
   /**
-   * Sets the max age for price retrievals 
+   * Sets the max age for price retrievals
    * @notice Sets the maximum age of the price data.
-   * 
-   * @dev Setting the maxAge to 0 is quite dangerous and the protocol could be working 
+   *
+   * @dev Setting the maxAge to 0 is quite dangerous and the protocol could be working
    * with stale prices
    * @param value The maximum age in seconds.
    */

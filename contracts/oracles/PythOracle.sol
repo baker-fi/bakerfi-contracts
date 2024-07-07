@@ -101,7 +101,7 @@ contract PythOracle is IOracle {
 
   /**
    * Get the Latest Price.
-   * 
+   *
    * @dev This function might return a stale price or a price with lower confidence.
    * Warning: This oracle is unsafe to use on price sensitive operations.
    */
@@ -111,13 +111,13 @@ contract PythOracle is IOracle {
 
   /**
    * Get the Latest Price from the Pyth Feed
-   * @dev This function checks the maxAge of the price and the price confidence specified 
+   * @dev This function checks the maxAge of the price and the price confidence specified
    * on the input parameters.
    */
   function getSafeLatestPrice(
     PriceOptions memory priceOptions
   ) public view override returns (IOracle.Price memory price) {
-    if(priceOptions.maxAge == 0) revert InvalidPriceOption();
+    if (priceOptions.maxAge == 0) revert InvalidPriceOption();
     price = _getPriceInternal(priceOptions);
   }
 }

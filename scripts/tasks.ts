@@ -135,7 +135,6 @@ task('settings:getRebalancePriceMaxAge', 'Get Fee Rebalance Max Age').setAction(
   },
 );
 
-
 task('vault:balance', "Prints an account's share balance")
   .addParam('account', "The account's address")
   .setAction(async ({ account }, { ethers, network }) => {
@@ -734,9 +733,15 @@ task('settings:setRebalancePriceMaxAge', 'Set number of Loopps')
 
     try {
       let app = await getClient(ethers);
-      await app?.send('Settings', networkConfig.settingsProxy ?? '', 'setRebalancePriceMaxAge', [value], {
-        chainId: network.config.chainId,
-      });
+      await app?.send(
+        'Settings',
+        networkConfig.settingsProxy ?? '',
+        'setRebalancePriceMaxAge',
+        [value],
+        {
+          chainId: network.config.chainId,
+        },
+      );
       spinner.succeed(`🧑‍🍳 Rebalance Max Age ${value} ✅ `);
     } catch (e) {
       console.log(e);
@@ -813,7 +818,6 @@ task('settings:getPriceMaxConfidence', 'Get Price Max Confidence').setAction(
   },
 );
 
-
 task('strategy:setMaxSlippage', 'Set Strategy Max Slippage')
   .addParam('value', 'The new strategy max slippage')
   .setAction(async ({ value }, { ethers, network }) => {
@@ -862,24 +866,21 @@ task('strategy:getMaxSlippage', 'Gets the Strategy Max Slippage').setAction(
   },
 );
 
+task('bakerfi:resume', 'Generate an artifact tree').setAction(async ({}, { run }) => {
+  console.log('🧑‍🍳 BakerFi Settings resume ....');
 
-task('bakerfi:resume', 'Generate an artifact tree')
-.setAction(async ({  }, { run }) => {
-  console.log("🧑‍🍳 BakerFi Settings resume ....");
- 
   await run('vault:assets');
   await run('strategy:getLoanToValue');
   await run('strategy:getMaxLoanToValue');
   await run('settings:getWithdrawalFee');
   await run('settings:getPerformanceFee');
-  await run('settings:getPriceMaxAge');    
+  await run('settings:getPriceMaxAge');
   await run('settings:getRebalancePriceMaxAge');
   await run('strategy:getNrLoops');
   await run('settings:getFeeReceiver');
   await run('settings:getMaxDeposit');
   await run('settings:getPriceMaxConfidence');
   await run('strategy:getMaxSlippage');
-
 });
 
 async function getClient(ethers) {
