@@ -69,13 +69,23 @@ contract Settings is Ownable2StepUpgradeable, ISettings {
    * @dev Max Allowed ETH Deposit per Wallet
    */
   uint256 private _maxDepositInETH;
+  
   /**
    * @dev Max Age for sensitive price operations
    */
   uint256 private _priceRebalanceMaxAge;
 
+  /**
+   * @dev Maximum price age allowed for protocol state change 
+   * operations.
+   */
   uint256 private _priceMaxAge;
 
+  /** 
+   * @dev Maximum Price Confidence in percentage allowed 
+   * for the oracle prices. The zero percentage is unsafe and avoids
+   * the max Confidence check on Pyth Prices.
+   */
   uint256 private _priceMaxConf;
 
   /// @custom:oz-upgrades-unsafe-allow constructor
