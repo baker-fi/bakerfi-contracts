@@ -254,7 +254,6 @@ abstract contract StrategyLeverage is
     if (
       !flashLender().flashLoan(IERC3156FlashBorrowerUpgradeable(this), wETHA(), loanAmount, data)
     ) {
-      _flashLoanArgsHash = 0;
       revert FailedToRunFlashLoan();
     }
     _flashLoanArgsHash = 0;
@@ -349,7 +348,6 @@ abstract contract StrategyLeverage is
     if (
       !flashLender().flashLoan(IERC3156FlashBorrowerUpgradeable(this), wETHA(), deltaDebt, data)
     ) {
-      _flashLoanArgsHash = 0;
       revert FailedToRunFlashLoan();
     }
     _flashLoanArgsHash = 0;
@@ -527,7 +525,6 @@ abstract contract StrategyLeverage is
         data
       )
     ) {
-      _flashLoanArgsHash = 0;
       revert FailedToRunFlashLoan();
     }
     _flashLoanArgsHash = 0;
