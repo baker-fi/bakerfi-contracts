@@ -60,6 +60,9 @@ contract StrategyLeverageSettings is GovernableOwnable {
    */
   uint8 private _nrLoops;
 
+  /**
+   * @dev 
+   */
   uint256 private _maxSlippage;
 
   function _initLeverageSettings(
@@ -70,7 +73,7 @@ contract StrategyLeverageSettings is GovernableOwnable {
     _loanToValue = 800 * 1e6; // 80%
     _maxLoanToValue = 850 * 1e6; // 85%
     _nrLoops = 10;
-    _maxSlippage = 0; // 1% ;
+    _maxSlippage = 0; // By Default there is no slippage protection
   }
 
   /**
@@ -170,7 +173,6 @@ contract StrategyLeverageSettings is GovernableOwnable {
 
   function setMaxSlippage(uint256 slippage) external onlyGovernor {
     if (slippage > PERCENTAGE_PRECISION) revert InvalidPercentage();
-    if (slippage == 0) revert InvalidValue();
     _maxSlippage = slippage;
     emit MaxSlippageChanged(slippage);
   }
