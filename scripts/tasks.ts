@@ -8,6 +8,7 @@ import { ContractClientLedger } from './lib/contract-client-ledger';
 import { ContractClientWallet } from './lib/contract-client-wallet';
 import { STAGING_ACCOUNTS_PKEYS } from '../constants/test-accounts';
 import { PythFeedNameEnum, feedIds } from '../constants/pyth';
+import { JsonRpcApiProvider, JsonRpcProvider, Wallet } from 'ethers';
 
 const fs = require('fs');
 const path = require('path');
@@ -788,7 +789,6 @@ task('bakerfi:resume', 'Generate an artifact tree')
   await run('settings:getMaxDeposit');
   console.log("Served ...");
 });
-
 async function getClient(ethers) {
   const [signerPKey] = STAGING_ACCOUNTS_PKEYS;
   let app;
@@ -805,3 +805,38 @@ async function getClient(ethers) {
   await app?.init();
   return app;
 }
+
+
+task('bakerfi:loop', 'Test deposit and with loop')
+  .addParam('amount', 'The ETH deposited amount')
+  .addParam('loops', 'The ETH deposited amount')
+  .setAction(async ({ loops, amount }, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    try {
+      const loopsNumber = parseInt(loops);
+      for (let i = 0; i < loopsNumber; i++) {
+        const value = ethers.parseUnits(amount, 18);
+        const vault = await ethers.getContractAt('Vault', networkConfig.vaultProxy ?? '');
+        const jsonRpcProvider = new JsonRpcProvider(
+          `https://rpc.ankr.com/base/${process.env.ANKR_API_KEY}`,
+        );
+        const wallet = new Wallet(process.env.TEST_LOOP_KEY ?? '', jsonRpcProvider);
+        const depositTx = await vault.connect(wallet).deposit(wallet.address, {
+          value,
+        });
+        console.log('Transaction waiting', depositTx.hash);
+        await jsonRpcProvider.waitForTransaction(depositTx.hash, 3);
+        const balance = await vault.balanceOf(wallet.address);
+        console.log(`Withdrawing ${balance}`);
+        const withdrawTx = await vault.connect(wallet).withdraw(balance);
+        await jsonRpcProvider.waitForTransaction(withdrawTx.hash, 3);
+        console.log(`Withdrawed ${withdrawTx.hash}`);
+      }
+    } catch (e) {
+      console.log(e);
+      console.log(e.stack);
+      process.exit(0);
+    }
+  });
+0;

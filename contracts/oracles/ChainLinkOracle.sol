@@ -62,7 +62,7 @@ contract ChainLinkOracle is IOracle {
     price = getLatestPrice();
     if (priceOptions.maxAge != 0 && (block.timestamp - price.lastUpdate) > priceOptions.maxAge)
       revert PriceOutdated();
-    if (_minPrice > 0 && price.price < _minPrice) revert InvalidPriceFromOracle();
-    if (_maxPrice > 0 && price.price > _maxPrice) revert InvalidPriceFromOracle();
+    if (_minPrice >= 0 && price.price <= _minPrice) revert InvalidPriceFromOracle();
+    if (_maxPrice >= 0 && price.price >= _maxPrice) revert InvalidPriceFromOracle();
   }
 }
