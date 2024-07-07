@@ -281,9 +281,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
     const { vault, owner } = await loadFixture(deployFunction);
 
     await vault.pause();
-    await expect(
-      vault.withdraw(1),
-    ).to.be.revertedWith('Pausable: paused');
+    await expect(vault.withdraw(1)).to.be.revertedWith('Pausable: paused');
   });
 
   it('Deposit Fails when vault is paused', async () => {
@@ -299,9 +297,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
   it('Rebalance Fails when vault is paused', async () => {
     const { vault, owner } = await loadFixture(deployFunction);
     await vault.pause();
-    await expect(
-      vault.rebalance(),
-    ).to.be.revertedWith('Pausable: paused');
+    await expect(vault.rebalance()).to.be.revertedWith('Pausable: paused');
   });
 
   it('Transfer ETH to contract should fail', async () => {
@@ -312,9 +308,10 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
       // Convert currency unit from ether to wei
       value: ethers.parseUnits('10', 18),
     };
-    await expect(
-      owner.sendTransaction(tx),
-    ).to.be.revertedWithCustomError(vault, 'ETHTransferNotAllowed');
+    await expect(owner.sendTransaction(tx)).to.be.revertedWithCustomError(
+      vault,
+      'ETHTransferNotAllowed',
+    );
   });
 
   it('Transfer Ownership in 2 Steps', async function () {

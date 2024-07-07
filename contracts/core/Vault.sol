@@ -16,7 +16,6 @@ import { UseSettings } from "./hooks/UseSettings.sol";
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import { AddressUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import { MathLibrary } from "../libraries/MathLibrary.sol";
-
 /**
  * @title BakerFi Vault 🏦🧑‍🍳
  *
@@ -122,6 +121,7 @@ contract Vault is
     _initUseSettings(registry);
     _strategy = strategy;
   }
+
   /**
    * @dev Function to rebalance the strategy, prevent a liquidation and pay fees
    * to protocol by minting shares to the fee receiver

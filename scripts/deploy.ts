@@ -289,7 +289,7 @@ async function deployInfra(
   [key in receiptKeyNames]: TransactionReceipt | null;
 }> {
   // Service Registry
-  const registryReceipt = await deployRegistry(app,config, spinner, result);
+  const registryReceipt = await deployRegistry(app, config, spinner, result);
   // Proxy Admin
   const proxyAdminReceipt = await deployProxyAdmin(app, config, registryReceipt, spinner, result);
   // Registering WETH Address
@@ -317,13 +317,29 @@ async function deployInfra(
     result,
   );
   // Registering Uniswap Quoter
-  await registerName(app, config, registryReceipt, 'Uniswap Quoter', config.uniswapQuoter, spinner, result);
+  await registerName(
+    app,
+    config,
+    registryReceipt,
+    'Uniswap Quoter',
+    config.uniswapQuoter,
+    spinner,
+    result,
+  );
   // Registering Uniswap Quoter
   await registerName(app, config, registryReceipt, 'Pyth', config.pyth, spinner, result);
   // AAVE Vault
   await registerName(app, config, registryReceipt, 'AAVEv3', config.AAVEPool, spinner, result);
   // Register Balancer Vault
-  await registerName(app, config, registryReceipt, 'Balancer Vault', config.balancerVault, spinner, result);
+  await registerName(
+    app,
+    config,
+    registryReceipt,
+    'Balancer Vault',
+    config.balancerVault,
+    spinner,
+    result,
+  );
   // Flash Lender Adapter
   await deployFlashLender(app, config, registryReceipt, spinner, result);
 

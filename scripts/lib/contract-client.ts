@@ -5,7 +5,7 @@ export type TxOptions = Pick<
   Partial<Transaction>,
   'gasLimit' | 'gasPrice' | 'maxPriorityFeePerGas' | 'maxFeePerGas' | 'value' | 'chainId'
 > & {
-  minTxConfirmations?: number,
+  minTxConfirmations?: number;
 };
 
 export type ContractDefinition = {
