@@ -559,15 +559,11 @@ abstract contract StrategyLeverage is
    */
   function _payDebt(uint256 debtAmount, uint256 fee) internal {
     _repay(wETHA(), debtAmount);
-    // Get a Quote to know how much collateral i require to pay debt , includes also
-    // the max Slippage
-    (, uint256 amountInMax) = getExactOutputMaxInput(
-      ierc20A(),
-      wETHA(),
-      debtAmount + fee,
-      _swapFeeTier,
-      getMaxSlippage()
-    );
+    
+    // Convert ETH to WST using the current prices and 
+    // calculate the maximum amount in using the max Slippage
+    uint256 wsthETHAmount = _fromWETH(debtAmount);
+    uint256 amountInMax = (wsthETHAmount * (PERCENTAGE_PRECISION + getMaxSlippage())) / PERCENTAGE_PRECISION;
 
     _withdraw(ierc20A(), amountInMax, address(this));
 
@@ -600,14 +596,10 @@ abstract contract StrategyLeverage is
    */
   function _convertFromWETH(uint256 amount) internal virtual returns (uint256) {
     uint256 amountOutMinimum = 0;
+    
     if (getMaxSlippage() > 0) {
-      (, amountOutMinimum) = getExactInputMinimumOutput(
-        wETHA(), // Asset In
-        ierc20A(), // Asset Out
-        amount,
-        _swapFeeTier,
-        getMaxSlippage()
-      );
+        uint256 wsthETHAmount = _fromWETH(amount);
+        amountOutMinimum = (wsthETHAmount * (PERCENTAGE_PRECISION - getMaxSlippage())) / PERCENTAGE_PRECISION;
     }
     // 1. Swap WETH -> cbETH/wstETH/rETH
     (, uint256 amountOut) = _swap(
@@ -634,14 +626,9 @@ abstract contract StrategyLeverage is
    */
   function _convertToWETH(uint256 amount) internal virtual returns (uint256) {
     uint256 amountOutMinimum = 0;
-    if (getMaxSlippage() > 0) {
-      (, amountOutMinimum) = getExactInputMinimumOutput(
-        ierc20A(), // Asset In
-        wETHA(), // Asset Out
-        amount,
-        _swapFeeTier,
-        getMaxSlippage()
-      );
+    if (getMaxSlippage() > 0) {     
+      uint256 ethAmount = _toWETH(amount);
+      amountOutMinimum = (ethAmount * (PERCENTAGE_PRECISION - getMaxSlippage())) / PERCENTAGE_PRECISION;
     }
     // 1.Swap cbETH -> WETH/wstETH/rETH
     (, uint256 amountOut) = _swap(
