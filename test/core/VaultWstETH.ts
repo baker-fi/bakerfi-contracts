@@ -249,13 +249,15 @@ describeif(network.name === 'hardhat')('BakerFi Vault Main Net wstETH/ETH', func
       deployFunction,
     );
     const depositAmount = ethers.parseUnits('10', 18);
-
     await vault.deposit(owner.address, {
       value: depositAmount,
     });
 
+    await strategy.setMaxSlippage(5 * 1e7);
+
     await oracle.setLatestPrice(ethers.parseUnits('2394', 18));
     await strategy.setMaxLoanToValue(800 * 1e6);
+
 
     await expect(vault.rebalance())
       // @ts-ignore
@@ -272,7 +274,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault Main Net wstETH/ETH', func
         await wstETH.getAddress(),
         await strategy.getAddress(),
         await strategy.getAddress(),
-        14187596516660761994n,
+        14328833434505431584n,
       );
 
     expect(await vault.totalAssets()).to.equal(6797024248165885759n);

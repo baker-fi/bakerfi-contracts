@@ -559,11 +559,12 @@ abstract contract StrategyLeverage is
    */
   function _payDebt(uint256 debtAmount, uint256 fee) internal {
     _repay(wETHA(), debtAmount);
-    
-    // Convert ETH to WST using the current prices and 
+
+    // Convert ETH to WST using the current prices and
     // calculate the maximum amount in using the max Slippage
     uint256 wsthETHAmount = _fromWETH(debtAmount);
-    uint256 amountInMax = (wsthETHAmount * (PERCENTAGE_PRECISION + getMaxSlippage())) / PERCENTAGE_PRECISION;
+    uint256 amountInMax = (wsthETHAmount * (PERCENTAGE_PRECISION + getMaxSlippage())) /
+      PERCENTAGE_PRECISION;
 
     _withdraw(ierc20A(), amountInMax, address(this));
 
@@ -596,10 +597,12 @@ abstract contract StrategyLeverage is
    */
   function _convertFromWETH(uint256 amount) internal virtual returns (uint256) {
     uint256 amountOutMinimum = 0;
-    
+
     if (getMaxSlippage() > 0) {
-        uint256 wsthETHAmount = _fromWETH(amount);
-        amountOutMinimum = (wsthETHAmount * (PERCENTAGE_PRECISION - getMaxSlippage())) / PERCENTAGE_PRECISION;
+      uint256 wsthETHAmount = _fromWETH(amount);
+      amountOutMinimum =
+        (wsthETHAmount * (PERCENTAGE_PRECISION - getMaxSlippage())) /
+        PERCENTAGE_PRECISION;
     }
     // 1. Swap WETH -> cbETH/wstETH/rETH
     (, uint256 amountOut) = _swap(
@@ -626,9 +629,11 @@ abstract contract StrategyLeverage is
    */
   function _convertToWETH(uint256 amount) internal virtual returns (uint256) {
     uint256 amountOutMinimum = 0;
-    if (getMaxSlippage() > 0) {     
+    if (getMaxSlippage() > 0) {
       uint256 ethAmount = _toWETH(amount);
-      amountOutMinimum = (ethAmount * (PERCENTAGE_PRECISION - getMaxSlippage())) / PERCENTAGE_PRECISION;
+      amountOutMinimum =
+        (ethAmount * (PERCENTAGE_PRECISION - getMaxSlippage())) /
+        PERCENTAGE_PRECISION;
     }
     // 1.Swap cbETH -> WETH/wstETH/rETH
     (, uint256 amountOut) = _swap(
@@ -654,24 +659,12 @@ abstract contract StrategyLeverage is
    * @return amountOut The equivalent amount in WETH.
    */
   function _toWETH(uint256 amountIn) internal view returns (uint256 amountOut) {
-    amountOut =
-      (amountIn *
-        _collateralOracle
-          .getSafeLatestPrice(
-            IOracle.PriceOptions({
-              maxAge: settings().getPriceMaxAge(),
-              maxConf: settings().getPriceMaxConf()
-            })
-          )
-          .price) /
-      _ethUSDOracle
-        .getSafeLatestPrice(
-          IOracle.PriceOptions({
-            maxAge: settings().getPriceMaxAge(),
-            maxConf: settings().getPriceMaxConf()
-          })
-        )
-        .price;
+    IOracle.PriceOptions memory priceOptions = IOracle.PriceOptions({
+      maxAge: settings().getPriceMaxAge(),
+      maxConf: settings().getPriceMaxConf()
+    });
+    amountOut = (amountIn * _collateralOracle.getSafeLatestPrice(priceOptions).price) /
+                  _ethUSDOracle.getSafeLatestPrice(priceOptions).price;
   }
 
   /**
@@ -683,24 +676,12 @@ abstract contract StrategyLeverage is
    * @return amountOut The equivalent amount in the underlying collateral.
    */
   function _fromWETH(uint256 amountIn) internal view returns (uint256 amountOut) {
-    amountOut =
-      (amountIn *
-        _ethUSDOracle
-          .getSafeLatestPrice(
-            IOracle.PriceOptions({
-              maxAge: settings().getPriceMaxAge(),
-              maxConf: settings().getPriceMaxConf()
-            })
-          )
-          .price) /
-      _collateralOracle
-        .getSafeLatestPrice(
-          IOracle.PriceOptions({
-            maxAge: settings().getPriceMaxAge(),
-            maxConf: settings().getPriceMaxConf()
-          })
-        )
-        .price;
+    IOracle.PriceOptions memory priceOptions = IOracle.PriceOptions({
+      maxAge: settings().getPriceMaxAge(),
+      maxConf: settings().getPriceMaxConf()
+    });
+    amountOut = (amountIn * _ethUSDOracle.getSafeLatestPrice(priceOptions).price) /
+                  _collateralOracle.getSafeLatestPrice(priceOptions).price;
   }
 
   /**
