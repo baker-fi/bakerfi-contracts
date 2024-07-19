@@ -123,7 +123,7 @@ describeif(
   });
 
   it('Liquidation Protection - Adjust Debt', async function () {
-    const { vault, strategy, settings, aave3Pool, weth, deployer, wstETH } = await loadFixture(
+    const { vault, strategy, deployer } = await loadFixture(
       getDeployFunc(),
     );
 
