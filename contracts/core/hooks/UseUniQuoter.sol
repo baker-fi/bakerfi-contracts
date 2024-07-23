@@ -18,11 +18,11 @@ abstract contract UseUniQuoter is Initializable {
     if (address(_quoter) == address(0)) revert InvalidUniQuoterContract();
   }
 
-  function uniQuoter() public view returns (IQuoterV2) {
+  function uniQuoter() internal view returns (IQuoterV2) {
     return _quoter;
   }
 
-  function uniQuoterA() public view returns (address) {
+  function uniQuoterA() internal view returns (address) {
     return address(_quoter);
   }
 
