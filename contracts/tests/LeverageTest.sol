@@ -3,13 +3,12 @@ pragma solidity ^0.8.24;
 import { UseLeverage } from "../core/hooks/UseLeverage.sol";
 
 contract LeverageTest is UseLeverage {
-
- function calculateLeverageRatio(
+  function calculateLeverageRatio(
     uint256 baseValue,
     uint256 loanToValue,
     uint8 nrLoops
   ) public pure returns (uint256) {
-    return _calculateLeverageRatio(baseValue,loanToValue, nrLoops); 
+    return _calculateLeverageRatio(baseValue, loanToValue, nrLoops);
   }
 
   /**
@@ -25,7 +24,7 @@ contract LeverageTest is UseLeverage {
     uint256 totalCollateralBaseInEth,
     uint256 totalDebtBaseInEth
   ) public pure returns (uint256 deltaCollateralInETH, uint256 deltaDebtInETH) {
-    return _calcDeltaPosition(percentageToBurn,totalCollateralBaseInEth, totalDebtBaseInEth); 
+    return _calcDeltaPosition(percentageToBurn, totalCollateralBaseInEth, totalDebtBaseInEth);
   }
 
   /**
