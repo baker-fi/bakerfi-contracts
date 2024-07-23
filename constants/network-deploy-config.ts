@@ -31,6 +31,7 @@ export enum VaultNamesEnum {
 export type VaultNames = keyof VaultNamesEnum;
 
 export type NetworkConfig = {
+    owner: string,
     uniswapRouter02: string,
     uniswapQuoter: string,
     balancerVault: string,
@@ -68,6 +69,7 @@ export type DeployConfig = {
 const Config: DeployConfig = {   
     "base": {
         minTxConfirmations: 6,
+        owner: "0xdD1945499B695F21f5472f10B67Aa8Dafb1b1c7c",
         uniswapRouter02: "0x2626664c2603336E57B271c5C0b26F421741e481", // Validated 
         uniswapQuoter: "0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a", // Validated 
         balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Validated
@@ -96,6 +98,7 @@ const Config: DeployConfig = {
     },
     "base_devnet": {
         minTxConfirmations: 0,
+        owner: "0xdD1945499B695F21f5472f10B67Aa8Dafb1b1c7c",
         uniswapRouter02: "0x2626664c2603336E57B271c5C0b26F421741e481", // Validated 
         uniswapQuoter: "0x3d4e44Eb1374240CE5F1B871ab261CD16335B76a", // Validated 
         balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Validated
@@ -124,6 +127,7 @@ const Config: DeployConfig = {
     },   
     "local": {
         minTxConfirmations: 0,
+        owner: "0xf15CC0ccBdDA041e2508B829541917823222F364",
         AAVEEModeCategory: 0,
         swapFeeTier: 500,
         uniswapRouter02: "0xB7d0add4df75aa719bE464e860C8c40bb7FA2122",
@@ -153,6 +157,7 @@ const Config: DeployConfig = {
     },
     "arbitrum_devnet": {
         minTxConfirmations: 0,
+        owner: "",
         uniswapRouter02: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", // Validated 
         uniswapQuoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e", // Validated 
         balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Validated
@@ -187,6 +192,7 @@ const Config: DeployConfig = {
     },
     "arbitrum": {
         minTxConfirmations: 6,
+        owner: "",
         uniswapRouter02: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", // Validated 
         uniswapQuoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e", // Validated 
         balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Validated
@@ -221,6 +227,7 @@ const Config: DeployConfig = {
     },
     hardhat: {
         minTxConfirmations: 0,
+        owner: "0xf15CC0ccBdDA041e2508B829541917823222F364",
         uniswapRouter02: "",
         uniswapQuoter: "",
         balancerVault: "",

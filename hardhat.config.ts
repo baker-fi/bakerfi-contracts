@@ -172,10 +172,10 @@ const config: HardhatUserConfig = {
     collapseNewlines: true
   },
   etherscan: {
-    // Your API key for Etherscan
-    // Obtain one at https://etherscan.io/
-    apiKey: process.env.ETHERSCAN_API_KEY,
-  },  
+    apiKey: {
+      base: process.env.BASESCAN_API_KEY,
+    },
+  }  
 };
 
 export default config;
