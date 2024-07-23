@@ -663,8 +663,9 @@ abstract contract StrategyLeverage is
       maxAge: settings().getPriceMaxAge(),
       maxConf: settings().getPriceMaxConf()
     });
-    amountOut = (amountIn * _collateralOracle.getSafeLatestPrice(priceOptions).price) /
-                  _ethUSDOracle.getSafeLatestPrice(priceOptions).price;
+    amountOut =
+      (amountIn * _collateralOracle.getSafeLatestPrice(priceOptions).price) /
+      _ethUSDOracle.getSafeLatestPrice(priceOptions).price;
   }
 
   /**
@@ -680,8 +681,9 @@ abstract contract StrategyLeverage is
       maxAge: settings().getPriceMaxAge(),
       maxConf: settings().getPriceMaxConf()
     });
-    amountOut = (amountIn * _ethUSDOracle.getSafeLatestPrice(priceOptions).price) /
-                  _collateralOracle.getSafeLatestPrice(priceOptions).price;
+    amountOut =
+      (amountIn * _ethUSDOracle.getSafeLatestPrice(priceOptions).price) /
+      _collateralOracle.getSafeLatestPrice(priceOptions).price;
   }
 
   /**

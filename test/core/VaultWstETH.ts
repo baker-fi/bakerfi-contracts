@@ -258,7 +258,6 @@ describeif(network.name === 'hardhat')('BakerFi Vault Main Net wstETH/ETH', func
     await oracle.setLatestPrice(ethers.parseUnits('2394', 18));
     await strategy.setMaxLoanToValue(800 * 1e6);
 
-
     await expect(vault.rebalance())
       // @ts-ignore
       .to.emit(aave3Pool, 'Repay')

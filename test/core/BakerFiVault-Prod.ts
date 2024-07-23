@@ -123,9 +123,7 @@ describeif(
   });
 
   it('Liquidation Protection - Adjust Debt', async function () {
-    const { vault, strategy, deployer } = await loadFixture(
-      getDeployFunc(),
-    );
+    const { vault, strategy, deployer } = await loadFixture(getDeployFunc());
 
     await strategy.setLoanToValue(ethers.parseUnits('500', 6));
     await strategy.setMaxLoanToValue(ethers.parseUnits('510', 6));
