@@ -78,6 +78,8 @@ describeif(
 
     const provider = ethers.provider;
     const balanceBefore = await provider.getBalance(deployer.address);
+
+    await vault.aprove( vault.getAddress(), ethers.parseUnits('5', 18));    
     await vault.redeemNative(ethers.parseUnits('5', 18));
     expect(await vault.balanceOf(deployer.address))
       // @ts-ignore
@@ -169,7 +171,8 @@ describeif(
       value: ethers.parseUnits('10', 18),
     });
     const balanceBefore = await ethers.provider.getBalance(feeReceiver);
-
+    
+    await vault.aprove( vault.getAddress(), ethers.parseUnits('5', 18));    
     await vault.redeemNative(ethers.parseUnits('5', 18));
 
     const provider = ethers.provider;
@@ -191,6 +194,7 @@ describeif(
     });
     const balanceOf = await vault.balanceOf(deployer.address);
     const withrawing = balanceOf;
+    await vault.aprove( vault.getAddress(), withrawing);    
     await vault.redeemNative(withrawing);
     expect(await vault.balanceOf(deployer.address)).to.equal(0n);
     expect(await vault.totalSupply()).to.equal(0n);

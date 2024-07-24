@@ -189,7 +189,7 @@ contract Vault is
    * Emits no events and allows the contract to accept Ether.
    */
   receive() external payable {
-    if (msg.sender != address(_strategy)) revert ETHTransferNotAllowed(msg.sender);
+    if (msg.sender != wETHA()) revert ETHTransferNotAllowed(msg.sender);
   }
 
   function maxMint(address) external view override returns (uint256 maxShares) {
@@ -287,23 +287,15 @@ contract Vault is
     shares = this.convertToShares(assets);
   }
 
-  function withdrawNative(uint256 assets) external override returns (uint256 shares) {
+  function withdrawNative(uint256 assets) external nonReentrant whenNotPaused onlyWhiteListed override returns (uint256 shares) {
     if (_strategy.asset() != wETHA()) revert InvalidDepositAsset();
     shares = this.convertToShares(assets);
-    uint256 assetsToSend = _redeemInternal(shares, address(this), msg.sender, true);
-    // Unwrap wETH
-    _unwrapWETH(assetsToSend);
-    // Withdraw ETh to Receiver
-    payable(msg.sender).sendValue(assetsToSend);
+    _redeemInternal(shares, address(this), msg.sender, true);
   }
 
-  function redeemNative(uint256 shares) external override returns (uint256 assets) {
+  function redeemNative(uint256 shares) external nonReentrant whenNotPaused onlyWhiteListed override returns (uint256 assets) {
     if (_strategy.asset() != wETHA()) revert InvalidDepositAsset();
-    assets = _redeemInternal(shares, address(this), msg.sender, true);
-    // Unwrap wETH
-    _unwrapWETH(assets);
-    // Withdraw ETh to Receiver
-    payable(msg.sender).sendValue(assets);
+    assets = _redeemInternal(shares, msg.sender, msg.sender, true);
   }
 
   /**
@@ -318,7 +310,7 @@ contract Vault is
     uint256 assets,
     address receiver,
     address holder
-  ) external override returns (uint256 shares) {
+  ) external override nonReentrant whenNotPaused onlyWhiteListed returns (uint256 shares) {
     shares = this.convertToShares(assets);
     this.redeem(shares, receiver, holder);
   }
@@ -381,11 +373,11 @@ contract Vault is
 
     // If the msg.sender is not the owner transfer the shares to msg.sender to burn
     if (msg.sender != holder) {
-      if (ERC20Upgradeable(_strategy.asset()).allowance(holder, msg.sender) < shares) {
+      if (ERC20Upgradeable(address(this)).allowance(holder, msg.sender) < shares) {
         revert NotEnoughBalanceToWithdraw();
       }
 
-      ERC20Upgradeable(_strategy.asset()).transferFrom(holder, msg.sender, shares);
+      ERC20Upgradeable(address(this)).transferFrom(holder, msg.sender, shares);
     }
     /**
      *   withdrawAmount -------------- totalAssets()
@@ -416,7 +408,6 @@ contract Vault is
     // Withdraw Asset to Receiver and pay withdrawal Fees
     if (settings().getWithdrawalFee() != 0 && settings().getFeeReceiver() != address(0)) {
       fee = amount.mulDivUp(settings().getWithdrawalFee(), PERCENTAGE_PRECISION);
-
       if (shouldReddeemETH) {
         // Unwrap wETH
         _unwrapWETH(amount);
@@ -424,15 +415,15 @@ contract Vault is
         payable(receiver).sendValue(amount - fee);
         payable(settings().getFeeReceiver()).sendValue(fee);
       } else {
-        transfer(receiver, amount - fee);
-        transfer(settings().getFeeReceiver(), fee);
+        IERC20Upgradeable(_strategy.asset()).transfer(receiver, amount - fee);
+        IERC20Upgradeable(_strategy.asset()).transfer(settings().getFeeReceiver(), fee);
       }
     } else {
       if (shouldReddeemETH) {
         _unwrapWETH(amount);
         payable(receiver).sendValue(amount);
       } else {
-        transfer(receiver, amount);
+        IERC20Upgradeable(_strategy.asset()).transfer(receiver, amount);
       }
     }
     emit Withdraw(msg.sender, receiver, holder, amount - fee, shares);

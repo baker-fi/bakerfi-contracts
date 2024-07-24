@@ -21,8 +21,7 @@ import BaseConfig, { NetworkConfig } from '../../constants/network-deploy-config
 /**
  * StrategyAAVEv3 Unit Tests
  */
-//describeif(network.name === 'hardhat')
-describe.only
+describeif(network.name === 'hardhat')
 ('Strategy AAVE v3 L2', function () {
   it('Test Deploy', async function () {
     const { owner, weth, strategy } = await loadFixture(deployFunction);
