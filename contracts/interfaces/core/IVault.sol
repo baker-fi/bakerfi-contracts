@@ -8,6 +8,9 @@ import { IERC4626Upgradeable } from "@openzeppelin/contracts-upgradeable/interfa
 /**
  * @title BakerFi IVault 🏦🧑‍🍳
  * 
+ * This vault class follows the ERC4626 standard and allows the support native 
+ * currencies like ETHEREUM.
+ * 
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
  * 
@@ -34,7 +37,7 @@ interface IVault is
    * 
    * @param shares Receiver of the minted shares after deposit 
    */
-  function reddeemNative(uint256 shares) external returns (uint256 assets);
+  function withdrawNative(uint256 shares) external returns (uint256 assets);
   
   /**
    * @dev The Vault Ration between the token price and the shares 

@@ -239,17 +239,17 @@ abstract contract StrategyLeverage is
    * - The received Ether amount must not be zero.
    * - The AAVEv3 strategy must be properly configured and initialized.
    */
-  function deploy() external payable onlyOwner nonReentrant returns (uint256 deployedAmount) {
-    if (msg.value == 0) revert InvalidDeployAmount();
+  function deploy(uint256 amount) external onlyOwner nonReentrant returns (uint256 deployedAmount) {
+    if (amount == 0) revert InvalidDeployAmount();
     // 1. Wrap Ethereum
-    address(wETHA()).functionCallWithValue(abi.encodeWithSignature("deposit()"), msg.value);
+    address(wETHA()).functionCallWithValue(abi.encodeWithSignature("deposit()"), amount);
     // 2. Initiate a WETH Flash Loan
-    uint256 leverage = calculateLeverageRatio(msg.value, getLoanToValue(), getNrLoops());
-    uint256 loanAmount = leverage - msg.value;
+    uint256 leverage = calculateLeverageRatio(amount, getLoanToValue(), getNrLoops());
+    uint256 loanAmount = leverage -amount;
     uint256 fee = flashLender().flashFee(wETHA(), loanAmount);
 
     if (!wETH().approve(flashLenderA(), loanAmount + fee)) revert FailedToApproveAllowance();
-    bytes memory data = abi.encode(msg.value, msg.sender, FlashLoanAction.SUPPLY_BOORROW);
+    bytes memory data = abi.encode(amount, msg.sender, FlashLoanAction.SUPPLY_BOORROW);
     _flashLoanArgsHash = keccak256(abi.encodePacked(address(this), wETHA(), loanAmount, data));
     if (
       !flashLender().flashLoan(IERC3156FlashBorrowerUpgradeable(this), wETHA(), loanAmount, data)
@@ -488,7 +488,7 @@ abstract contract StrategyLeverage is
    */
   function _undeploy(
     uint256 amount,
-    address payable receiver
+    address receiver
   ) private returns (uint256 undeployedAmount) {
     (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition(
       IOracle.PriceOptions({
@@ -743,11 +743,11 @@ abstract contract StrategyLeverage is
     uint256 wETHAmount = _convertToWETH(withdrawAmount);
     // Calculate how much ETH i am able to withdraw
     uint256 ethToWithdraw = wETHAmount - repayAmount - fee;
-    // Unwrap wETH
-    _unwrapWETH(ethToWithdraw);
-    // Withdraw ETh to Receiver
-    payable(receiver).sendValue(ethToWithdraw);
+     
+    wETH().transfer(receiver, ethToWithdraw);
+
     emit StrategyUndeploy(msg.sender, ethToWithdraw);
+
     _pendingAmount = ethToWithdraw;
   }
 
@@ -792,6 +792,10 @@ abstract contract StrategyLeverage is
    */
   function renounceOwnership() public virtual override {
     revert InvalidOwner();
+  }
+
+  function asset() public view override returns (address) {
+    return wETHA();
   }
 
   uint256[44] private __gap;

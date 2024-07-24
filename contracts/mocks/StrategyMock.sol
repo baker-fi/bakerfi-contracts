@@ -12,16 +12,16 @@ contract StrategyMock is IStrategy {
 
   error NoBalance();
 
-  function deploy() external payable override returns (uint256 amountAdded) {
-    emit StrategyAmountUpdate(msg.value);
-    return msg.value;
+  function deploy(uint256 amount) external returns (uint256 amountAdded) {
+    emit StrategyAmountUpdate(amount);
+    return amount;
   }
 
-  function harvest() external view override returns (int256 balanceChange) {
+  function harvest() external view  returns (int256 balanceChange) {
     return _havestPerCall;
   }
 
-  function undeploy(uint256 amount) external override returns (uint256 actualAmount) {
+  function undeploy(uint256 amount) external returns (uint256 actualAmount) {
     if (address(this).balance < amount) revert NoBalance();
     payable(msg.sender).sendValue(amount);
     emit StrategyAmountUpdate(address(this).balance - amount);
@@ -51,4 +51,7 @@ contract StrategyMock is IStrategy {
   function setHarvestPerCall(int256 havestPerCall) public {
     _havestPerCall = havestPerCall;
   }
+
+
+  function asset() external view  returns (address) {}
 }

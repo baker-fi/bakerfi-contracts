@@ -27,12 +27,13 @@ contract VaultFuzzing {
   }
 
   function do_deposit() public payable {
-    _vault.deposit{ value: msg.value }(address(this));
+    _vault.deposit(10000,address(this));
   }
 
   /** Withdraw Everything */
   function do_withdraw() public {
-    _vault.withdraw(_vault.balanceOf(address(this)));
+    _vault.withdraw(
+      _vault.balanceOf(address(this)), address(this), address(this));
   }
 
   function echidna_totalSupplyEqualZeroAndTotalAssetsNotZero() public view returns (bool) {
