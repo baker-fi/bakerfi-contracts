@@ -32,7 +32,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault Main Net wstETH/ETH', func
     expect((await strategy.getPosition([0, 0]))[0]).to.equal(0);
     expect((await strategy.getPosition([0, 0]))[1]).to.equal(0);
     expect((await strategy.getPosition([0, 0]))[2]).to.equal(0);
-    expect(await vault.tokenPerETH()).to.equal(ethers.parseUnits('1', 18));
+    expect(await vault.tokenPerAsset()).to.equal(ethers.parseUnits('1', 18));
   });
 
   it('Deposit 10TH', async function () {
@@ -54,7 +54,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault Main Net wstETH/ETH', func
     expect(await vault.totalAssets()).to.equal(9962113816060668112n);
     expect((await strategy.getPosition([0, 0]))[2]).to.equal(782024239);
     expect(await vault.totalSupply()).to.equal(9962113816060668112n);
-    expect(await vault.tokenPerETH()).to.equal(1000000000000000000n);
+    expect(await vault.tokenPerAsset()).to.equal(1000000000000000000n);
   });
 
   it('Withdraw - 1 brETH', async function () {
@@ -78,7 +78,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault Main Net wstETH/ETH', func
     expect(await vault.totalAssets()).to.equal(8962113822646125797n);
     expect((await strategy.getPosition([0, 0]))[2]).to.equal(782024239n);
     expect(await vault.totalSupply()).to.equal(8962113816060668112n);
-    expect(await vault.tokenPerETH()).to.equal(999999999265189238n);
+    expect(await vault.tokenPerAsset()).to.equal(999999999265189238n);
   });
 
   it('Deposit - 0 ETH', async function () {
@@ -188,7 +188,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault Main Net wstETH/ETH', func
       ethers.parseUnits('9', 18),
     );
     expect((await strategy.getPosition([0, 0]))[2]).to.equal(0);
-    expect(await vault.tokenPerETH()).to.equal(ethers.parseUnits('1', 18));
+    expect(await vault.tokenPerAsset()).to.equal(ethers.parseUnits('1', 18));
   });
 
   it('Withdraw - a withdraw that reaches the minimum shares should fail', async function () {
@@ -219,7 +219,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault Main Net wstETH/ETH', func
     expect(await vault.totalAssets()).to.equal(9997818848764668112n);
     expect((await strategy.getPosition([0, 0]))[2]).to.equal(781242996n);
     expect(await vault.totalSupply()).to.equal(9997818848764668112n);
-    expect(await vault.tokenPerETH()).to.equal(1000000000000000000n);
+    expect(await vault.tokenPerAsset()).to.equal(1000000000000000000n);
   });
 
   it('Withdraw with No Flash Loan Fees', async () => {

@@ -140,9 +140,9 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
     );
   });
 
-  it('tokenPerETH - No Balance', async function () {
+  it('tokenPerAsset - No Balance', async function () {
     const { owner, vault, strategy } = await loadFixture(deployFunction);
-    expect(await vault.tokenPerETH()).to.equal(ethers.parseUnits('1', 18));
+    expect(await vault.tokenPerAsset()).to.equal(ethers.parseUnits('1', 18));
   });
 
   it('Deposit Fails when the prices are outdated', async () => {
@@ -231,7 +231,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
     expect(await vault.convertToAssets(ethers.parseUnits('1', 18))).to.equal(1000000000000000000n);
   });
 
-  it('tokenPerETH should return with outdated prices', async () => {
+  it('tokenPerAsset should return with outdated prices', async () => {
     const { settings, vault, owner } = await loadFixture(deployFunction);
 
     // Price Max Age 10 Hours
@@ -244,7 +244,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
     // advance time by one hour and mine a new block
     await time.increase(3600);
 
-    expect(await vault.tokenPerETH()).to.equal(1000000000000000000n);
+    expect(await vault.tokenPerAsset()).to.equal(1000000000000000000n);
   });
 
   it('totalAssets should return with outdated prices', async () => {

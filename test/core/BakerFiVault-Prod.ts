@@ -59,7 +59,7 @@ describeif(
       .to.greaterThan(ethers.parseUnits('9', 17))
       // @ts-ignore
       .lessThanOrEqual(ethers.parseUnits('11', 17));
-    expect(await vault.tokenPerETH())
+    expect(await vault.tokenPerAsset())
       // @ts-ignore
       .to.greaterThan(ethers.parseUnits('9', 17))
       // @ts-ignore
@@ -109,7 +109,7 @@ describeif(
       .to.greaterThan(ethers.parseUnits('4', 18))
       // @ts-ignore
       .lessThanOrEqual(ethers.parseUnits('6', 18));
-    expect(await vault.tokenPerETH())
+    expect(await vault.tokenPerAsset())
       // @ts-ignore
       .to.greaterThan(ethers.parseUnits('9', 17))
       // @ts-ignore
@@ -197,6 +197,6 @@ describeif(
     expect((await strategy.getPosition([0, 0]))[0]).to.equal(1n);
     expect((await strategy.getPosition([0, 0]))[1]).to.equal(0n);
     expect((await strategy.getPosition([0, 0]))[2]).to.equal(0n);
-    expect(await vault.tokenPerETH()).to.equal(ethers.parseUnits('1', 18));
+    expect(await vault.tokenPerAsset()).to.equal(ethers.parseUnits('1', 18));
   });
 });
