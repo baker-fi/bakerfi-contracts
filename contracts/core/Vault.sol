@@ -5,6 +5,7 @@ import { Ownable2StepUpgradeable } from "@openzeppelin/contracts-upgradeable/acc
 import { PausableUpgradeable } from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import { ERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import { Rebase, RebaseLibrary } from "../libraries/RebaseLibrary.sol";
+import { IERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import { ServiceRegistry } from "../core/ServiceRegistry.sol";
 import { IVault } from "../interfaces/core/IVault.sol";
 import { IOracle } from "../interfaces/core/IOracle.sol";
@@ -53,6 +54,7 @@ contract Vault is
 {
   using RebaseLibrary for Rebase;
   using SafeERC20Upgradeable for ERC20Upgradeable;
+  using SafeERC20Upgradeable for IERC20Upgradeable;
   using AddressUpgradeable for address;
   using AddressUpgradeable for address payable;
   using MathLibrary for uint256;
@@ -129,6 +131,7 @@ contract Vault is
     _transferOwnership(initialOwner);
     _initUseSettings(registry);
     _strategy = strategy;
+
   }
 
   /**
@@ -262,6 +265,7 @@ contract Vault is
       if (afterDeposit > maxDepositInEth) revert MaxDepositReached();
     }
 
+    IERC20Upgradeable(wETHA()).safeApprove(address(_strategy), assets);
     uint256 deployedAmount = _strategy.deploy(assets);
 
     shares = total.toBase(deployedAmount, false);
