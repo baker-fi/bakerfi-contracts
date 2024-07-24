@@ -1040,6 +1040,7 @@ task('bakerfi:loop', 'Test deposit and with loop')
           `https://rpc.ankr.com/base/${process.env.ANKR_API_KEY}`,
         );
         const wallet = new Wallet(process.env.TEST_LOOP_KEY ?? '', jsonRpcProvider);
+        // @ts-ignore
         const depositTx = await vault.connect(wallet).deposit(wallet.address, {
           value,
         });
@@ -1047,6 +1048,7 @@ task('bakerfi:loop', 'Test deposit and with loop')
         await jsonRpcProvider.waitForTransaction(depositTx.hash, 3);
         const balance = await vault.balanceOf(wallet.address);
         console.log(`Withdrawing ${balance}`);
+        // @ts-ignore
         const withdrawTx = await vault.connect(wallet).withdraw(balance);
         await jsonRpcProvider.waitForTransaction(withdrawTx.hash, 3);
         console.log(`Withdrawed ${withdrawTx.hash}`);
