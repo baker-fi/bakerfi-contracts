@@ -26,7 +26,7 @@ describeif(
     const { vault, deployer, strategy } = await loadFixture(getDeployFunc());
 
     const depositAmount = ethers.parseUnits('1', 18);
-    await vault.deposit(deployer.address, {
+    await vault.depositNative(deployer.address, {
       value: depositAmount,
     });
     expect(await vault.balanceOf(deployer.address))
@@ -72,13 +72,13 @@ describeif(
 
     await strategy.setLoanToValue(ethers.parseUnits('500', 6));
 
-    await vault.deposit(deployer.address, {
+    await vault.depositNative(deployer.address, {
       value: depositAmount,
     });
 
     const provider = ethers.provider;
     const balanceBefore = await provider.getBalance(deployer.address);
-    await vault.withdraw(ethers.parseUnits('5', 18));
+    await vault.redeemNative(ethers.parseUnits('5', 18));
     expect(await vault.balanceOf(deployer.address))
       // @ts-ignore
       .to.greaterThan(ethers.parseUnits('4', 18))
@@ -123,9 +123,7 @@ describeif(
   });
 
   it('Liquidation Protection - Adjust Debt', async function () {
-    const { vault, strategy, deployer } = await loadFixture(
-      getDeployFunc(),
-    );
+    const { vault, strategy, deployer } = await loadFixture(getDeployFunc());
 
     await strategy.setLoanToValue(ethers.parseUnits('500', 6));
     await strategy.setMaxLoanToValue(ethers.parseUnits('510', 6));
@@ -133,7 +131,7 @@ describeif(
     const depositAmount = ethers.parseUnits('1', 18);
 
     await expect(
-      vault.deposit(deployer.address, {
+      vault.depositNative(deployer.address, {
         value: depositAmount,
       }),
     )
@@ -167,12 +165,12 @@ describeif(
     // Fees are 10%
     await settings.setWithdrawalFee(ethers.parseUnits('100', 6));
 
-    await vault.deposit(deployer.address, {
+    await vault.depositNative(deployer.address, {
       value: ethers.parseUnits('10', 18),
     });
     const balanceBefore = await ethers.provider.getBalance(feeReceiver);
 
-    await vault.withdraw(ethers.parseUnits('5', 18));
+    await vault.redeemNative(ethers.parseUnits('5', 18));
 
     const provider = ethers.provider;
     const balanceAfter = await provider.getBalance(feeReceiver);
@@ -188,12 +186,12 @@ describeif(
   it('Deposit and Withdraw all the shares from a user', async function () {
     const { deployer, vault, strategy } = await loadFixture(getDeployFunc());
 
-    await vault.deposit(deployer.address, {
+    await vault.depositNative(deployer.address, {
       value: ethers.parseUnits('10', 18),
     });
     const balanceOf = await vault.balanceOf(deployer.address);
     const withrawing = balanceOf;
-    await vault.withdraw(withrawing);
+    await vault.redeemNative(withrawing);
     expect(await vault.balanceOf(deployer.address)).to.equal(0n);
     expect(await vault.totalSupply()).to.equal(0n);
     expect((await strategy.getPosition([0, 0]))[0]).to.equal(1n);

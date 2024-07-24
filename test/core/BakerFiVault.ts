@@ -28,7 +28,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
       deployFunction,
     );
     await flashLender.setFlashLoanFee(0);
-    const tx = await vault.deposit(owner.address, {
+    const tx = await vault.depositNative(owner.address, {
       value: ethers.parseUnits('10', 18),
     });
     // @ts-ignore
@@ -63,7 +63,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
     );
     await flashLender.setFlashLoanFee(10e6); // 1%
     await expect(
-      await vault.deposit(owner.address, {
+      await vault.depositNative(owner.address, {
         value: ethers.parseUnits('10', 18),
       }),
     ) // @ts-ignore
@@ -83,7 +83,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
     const { owner, vault, uniRouter, strategy } = await loadFixture(deployFunction);
 
     await expect(
-      vault.deposit(owner.address, {
+      vault.depositNative(owner.address, {
         value: ethers.parseUnits('10', 18),
       }),
     ) // @ts-ignore
@@ -91,14 +91,14 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
       .withArgs(9962113816060668112n);
 
     await expect(
-      vault.deposit(owner.address, {
+      vault.depositNative(owner.address, {
         value: ethers.parseUnits('10', 18),
       }),
     ) // @ts-ignore
       .to.emit(strategy, 'StrategyAmountUpdate')
       .withArgs(19924227632121336224n);
     await expect(
-      vault.deposit(owner.address, {
+      vault.depositNative(owner.address, {
         value: ethers.parseUnits('10', 18),
       }),
     ) // @ts-ignore
@@ -109,7 +109,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
   it('convertToShares - 1ETH', async function () {
     const { owner, vault, strategy } = await loadFixture(deployFunction);
 
-    await vault.deposit(owner.address, {
+    await vault.depositNative(owner.address, {
       value: ethers.parseUnits('10', 18),
     });
 
@@ -119,7 +119,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
   it('convertToAssets - 1e18 brETH', async function () {
     const { owner, vault, strategy } = await loadFixture(deployFunction);
 
-    await vault.deposit(owner.address, {
+    await vault.depositNative(owner.address, {
       value: ethers.parseUnits('10', 18),
     });
     expect(await vault.convertToAssets(ethers.parseUnits('1', 18))).to.equal(1000000000000000000n);
@@ -151,7 +151,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
     // Price Max Age 6 Min
     await settings.setPriceMaxAge(360);
 
-    await vault.deposit(owner.address, {
+    await vault.depositNative(owner.address, {
       value: ethers.parseUnits('10', 18),
     });
 
@@ -159,7 +159,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
     await time.increase(3600);
 
     await expect(
-      vault.deposit(owner.address, {
+      vault.depositNative(owner.address, {
         value: ethers.parseUnits('10', 18),
       }),
     ).to.be.revertedWithCustomError(strategy, 'PriceOutdated');
@@ -171,7 +171,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
     // Price Max Age 6 Min
     await settings.setPriceMaxAge(360);
 
-    await vault.deposit(owner.address, {
+    await vault.depositNative(owner.address, {
       value: ethers.parseUnits('10', 18),
     });
 
@@ -179,7 +179,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
     await time.increase(3600);
 
     await expect(
-      vault.deposit(owner.address, {
+      vault.depositNative(owner.address, {
         value: ethers.parseUnits('10', 18),
       }),
     ).to.be.revertedWithCustomError(strategy, 'PriceOutdated');
@@ -190,7 +190,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
 
     // Price Max Age 10 Hours
     await settings.setPriceMaxAge(360);
-    const tx = await vault.deposit(owner.address, {
+    const tx = await vault.depositNative(owner.address, {
       value: ethers.parseUnits('10', 18),
     });
 
@@ -205,7 +205,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
 
     await settings.setPriceMaxAge(360);
 
-    await vault.deposit(owner.address, {
+    await vault.depositNative(owner.address, {
       value: ethers.parseUnits('10', 18),
     });
 
@@ -221,7 +221,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
     // Price Max Age 10 Hours
     await settings.setPriceMaxAge(360);
 
-    await vault.deposit(owner.address, {
+    await vault.depositNative(owner.address, {
       value: ethers.parseUnits('10', 18),
     });
 
@@ -237,7 +237,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
     // Price Max Age 10 Hours
     await settings.setPriceMaxAge(360);
 
-    await vault.deposit(owner.address, {
+    await vault.depositNative(owner.address, {
       value: ethers.parseUnits('10', 18),
     });
 
@@ -253,7 +253,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
     // Price Max Age 10 Hours
     await settings.setPriceMaxAge(360);
 
-    await vault.deposit(owner.address, {
+    await vault.depositNative(owner.address, {
       value: ethers.parseUnits('10', 18),
     });
 
@@ -271,7 +271,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
     await vault.unpause();
     expect(await vault.paused()).to.equal(false);
 
-    await vault.deposit(owner.address, {
+    await vault.depositNative(owner.address, {
       value: ethers.parseUnits('10', 18),
     });
     expect(await vault.totalAssets()).to.greaterThan(0);
@@ -281,14 +281,14 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
     const { vault, owner } = await loadFixture(deployFunction);
 
     await vault.pause();
-    await expect(vault.withdraw(1)).to.be.revertedWith('Pausable: paused');
+    await expect(vault.redeemNative(1)).to.be.revertedWith('Pausable: paused');
   });
 
   it('Deposit Fails when vault is paused', async () => {
     const { vault, owner } = await loadFixture(deployFunction);
     await vault.pause();
     await expect(
-      vault.deposit(owner.address, {
+      vault.depositNative(owner.address, {
         value: ethers.parseUnits('10', 18),
       }),
     ).to.be.revertedWith('Pausable: paused');

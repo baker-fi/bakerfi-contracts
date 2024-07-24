@@ -7,42 +7,47 @@ import { IERC4626Upgradeable } from "@openzeppelin/contracts-upgradeable/interfa
 
 /**
  * @title BakerFi IVault 🏦🧑‍🍳
- * 
- * This vault class follows the ERC4626 standard and allows the support native 
+ *
+ * This vault class follows the ERC4626 standard and allows the support native
  * currencies like ETHEREUM.
- * 
+ *
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
- * 
+ *
  * */
-interface IVault is 
-  IERC20Upgradeable,
-  IERC20MetadataUpgradeable, 
-  IERC4626Upgradeable 
-{
- 
+interface IVault is IERC20Upgradeable, IERC20MetadataUpgradeable, IERC4626Upgradeable {
   /**
-   * Deposits ETH or the native currency on the strategy 
-   * 
+   * Deposits ETH or the native currency on the strategy
+   *
    * The strategy should support ETH as the deployed asset
-   * 
-   * @param receiver Receiver of the minted shares after deposit 
+   *
+   * @param receiver Receiver of the minted shares after deposit
    */
   function depositNative(address receiver) external payable returns (uint256 shares);
 
   /**
-   * @dev Reedemns ETH or the native currency from the strategy 
-   * 
+   * @dev Reedemns ETH or the native currency from the strategy
+   *
    * The strategy should support ETH as the deployed asset
-   * 
-   * @param shares Receiver of the minted shares after deposit 
+   *
+   * @param assets Receiver of the minted shares after deposit
    */
-  function withdrawNative(uint256 shares) external returns (uint256 assets);
-  
+  function withdrawNative(uint256 assets) external returns (uint256 shares);
+
   /**
-   * @dev The Vault Ration between the token price and the shares 
+   * @dev Reedemns ETH or the native currency from the strategy
+   *
+   * The strategy should support ETH as the deployed asset
+   *
+   * @param shares Receiver of the minted shares after deposit
+   */
+
+  function redeemNative(uint256 shares) external returns (uint256 assets);
+
+  /**
+   * @dev The Vault Ration between the token price and the shares
    * price. It could be used as price oracle for external entities
-   * 
+   *
    */
   function tokenPerAsset() external view returns (uint256 rate);
 
@@ -54,5 +59,4 @@ interface IVault is
    *
    */
   function rebalance() external returns (int256 balanceChange);
-
 }

@@ -245,7 +245,7 @@ abstract contract StrategyLeverage is
     address(wETHA()).functionCallWithValue(abi.encodeWithSignature("deposit()"), amount);
     // 2. Initiate a WETH Flash Loan
     uint256 leverage = calculateLeverageRatio(amount, getLoanToValue(), getNrLoops());
-    uint256 loanAmount = leverage -amount;
+    uint256 loanAmount = leverage - amount;
     uint256 fee = flashLender().flashFee(wETHA(), loanAmount);
 
     if (!wETH().approve(flashLenderA(), loanAmount + fee)) revert FailedToApproveAllowance();
@@ -486,10 +486,7 @@ abstract contract StrategyLeverage is
    * Requirements:
    * - The contract must have a collateral margin greater than the debt to initiate undeployment.
    */
-  function _undeploy(
-    uint256 amount,
-    address receiver
-  ) private returns (uint256 undeployedAmount) {
+  function _undeploy(uint256 amount, address receiver) private returns (uint256 undeployedAmount) {
     (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition(
       IOracle.PriceOptions({
         maxAge: settings().getPriceMaxAge(),
@@ -663,8 +660,9 @@ abstract contract StrategyLeverage is
       maxAge: settings().getPriceMaxAge(),
       maxConf: settings().getPriceMaxConf()
     });
-    amountOut = (amountIn * _collateralOracle.getSafeLatestPrice(priceOptions).price) /
-                  _ethUSDOracle.getSafeLatestPrice(priceOptions).price;
+    amountOut =
+      (amountIn * _collateralOracle.getSafeLatestPrice(priceOptions).price) /
+      _ethUSDOracle.getSafeLatestPrice(priceOptions).price;
   }
 
   /**
@@ -680,8 +678,9 @@ abstract contract StrategyLeverage is
       maxAge: settings().getPriceMaxAge(),
       maxConf: settings().getPriceMaxConf()
     });
-    amountOut = (amountIn * _ethUSDOracle.getSafeLatestPrice(priceOptions).price) /
-                  _collateralOracle.getSafeLatestPrice(priceOptions).price;
+    amountOut =
+      (amountIn * _ethUSDOracle.getSafeLatestPrice(priceOptions).price) /
+      _collateralOracle.getSafeLatestPrice(priceOptions).price;
   }
 
   /**
@@ -743,7 +742,7 @@ abstract contract StrategyLeverage is
     uint256 wETHAmount = _convertToWETH(withdrawAmount);
     // Calculate how much ETH i am able to withdraw
     uint256 ethToWithdraw = wETHAmount - repayAmount - fee;
-     
+
     wETH().transfer(receiver, ethToWithdraw);
 
     emit StrategyUndeploy(msg.sender, ethToWithdraw);

@@ -202,7 +202,7 @@ contract Vault is
     _depositInternal(assets, receiver);
   }
 
-  function maxDeposit(address ) external view override returns (uint256 maxAssets) {
+  function maxDeposit(address) external view override returns (uint256 maxAssets) {
     return type(uint256).max;
   }
 
@@ -291,6 +291,15 @@ contract Vault is
     _unwrapWETH(assetsToSend);
     // Withdraw ETh to Receiver
     payable(msg.sender).sendValue(assetsToSend);
+  }
+
+  function redeemNative(uint256 shares) external override returns (uint256 assets) {
+    if (_strategy.asset() != wETHA()) revert InvalidDepositAsset();
+    assets = _redeemInternal(shares, address(this), msg.sender, true);
+    // Unwrap wETH
+    _unwrapWETH(assets);
+    // Withdraw ETh to Receiver
+    payable(msg.sender).sendValue(assets);
   }
 
   /**
@@ -539,5 +548,4 @@ contract Vault is
    *
    */
   uint256[48] private __gap;
-
 }

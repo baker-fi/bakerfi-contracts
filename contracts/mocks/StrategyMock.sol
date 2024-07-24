@@ -17,7 +17,7 @@ contract StrategyMock is IStrategy {
     return amount;
   }
 
-  function harvest() external view  returns (int256 balanceChange) {
+  function harvest() external view returns (int256 balanceChange) {
     return _havestPerCall;
   }
 
@@ -52,6 +52,5 @@ contract StrategyMock is IStrategy {
     _havestPerCall = havestPerCall;
   }
 
-
-  function asset() external view  returns (address) {}
+  function asset() external view returns (address) {}
 }
