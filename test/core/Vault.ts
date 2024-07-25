@@ -323,7 +323,59 @@ describeif(network.name === 'hardhat')
     await vault.connect(otherAccount).acceptOwnership();
     expect(await vault.owner()).to.equal(otherAccount.address);
   });
+
+  it.only('Deposit Success', async function () {
+    const { vault, weth, owner, otherAccount } = await loadFixture(deployFunction);
+    const amount = ethers.parseUnits('10', 18);
+    
+    // Convert Native ETH to WETH
+    await weth.deposit?.call('', { value: amount });
+    await weth.approve(await vault.getAddress(), amount);
+
+    expect(await weth.balanceOf(owner.address)).to.equal(amount);
+
+    const sharesMinted = 9962113816060668112n;
+    await expect(vault.deposit(amount, owner.address))
+      .to.emit(vault, 'Deposit')
+      .withArgs(owner.address, owner.address, amount, sharesMinted);
+    
+    expect(await weth.balanceOf(owner.address)).to.equal(0n);
+    expect(await vault.balanceOf(owner.address)).to.equal(sharesMinted);
+    expect(await vault.totalSupply()).to.equal(sharesMinted);
+  });
+
+  it('Deposit Failed - No Allowance');
+
+  it('MaxDeposit');
+
+  it('PreviewDeposit Sucesss');
+
+  it('MaxMint');
+
+  it('PreviewMint');
+
+  it('Mint');
+
+  it('Mint Failed - No Allowance', );
+
+  it('MaxWithdraw');
+
+  it('PreviewWithdraw');
+
+  it('Withdraw Success');
+
+  it('Withdraw Failed - No Allowance');
+
+  it("MaxRedeem");
+
+  it("PreviewRedeem");
+
+  it("Redeem Sucess");
+
+  it("Redeem Failed - No Allowance");
+
 });
+
 
 /**
  * Deploy Test Function

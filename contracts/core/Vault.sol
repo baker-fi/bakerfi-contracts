@@ -216,6 +216,7 @@ contract Vault is
   function depositNative(
     address receiver
   ) external payable nonReentrant whenNotPaused onlyWhiteListed returns (uint256 shares) {
+    if ( msg.value == 0) revert InvalidDepositAmount();
     if (_strategy.asset() != wETHA()) revert InvalidDepositAsset();
     //  Wrap ETH
     address(wETHA()).functionCallWithValue(abi.encodeWithSignature("deposit()"), msg.value);
@@ -226,6 +227,8 @@ contract Vault is
     uint256 assets,
     address receiver
   ) external override nonReentrant whenNotPaused onlyWhiteListed returns (uint256 shares) {
+    if (assets == 0) revert InvalidDepositAmount();
+    IERC20Upgradeable(wETHA()).safeTransferFrom(msg.sender, address(this), assets);
     return _depositInternal(assets, receiver);
   }
 
@@ -241,7 +244,7 @@ contract Vault is
    * @return shares The number of shares minted for the specified receiver.
    */
   function _depositInternal(uint256 assets, address receiver) private returns (uint256 shares) {
-    if (assets == 0) revert InvalidDepositAmount();
+
     if (receiver == address(0)) revert InvalidShareHolder();
 
     uint256 maxPriceAge = settings().getPriceMaxAge();
