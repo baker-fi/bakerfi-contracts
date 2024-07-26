@@ -6,7 +6,7 @@ import { PausableUpgradeable } from "@openzeppelin/contracts-upgradeable/securit
 import { ERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import { Rebase, RebaseLibrary } from "../libraries/RebaseLibrary.sol";
 import { IERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import { ServiceRegistry } from "../core/ServiceRegistry.sol";
+import { ServiceRegistry, WETH_CONTRACT } from "../core/ServiceRegistry.sol";
 import { IVault } from "../interfaces/core/IVault.sol";
 import { IOracle } from "../interfaces/core/IOracle.sol";
 import { IStrategy } from "../interfaces/core/IStrategy.sol";
@@ -17,7 +17,7 @@ import { UseSettings } from "./hooks/UseSettings.sol";
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import { AddressUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import { MathLibrary } from "../libraries/MathLibrary.sol";
-import { UseWETH } from "./hooks/UseWETH.sol";
+import { IWETH } from "../interfaces/tokens/IWETH.sol";
 
 /**
  * @title BakerFi Vault 🏦🧑‍🍳
@@ -49,8 +49,7 @@ contract Vault is
   ReentrancyGuardUpgradeable,
   ERC20PermitUpgradeable,
   UseSettings,
-  IVault,
-  UseWETH
+  IVault
 {
   using RebaseLibrary for Rebase;
   using SafeERC20Upgradeable for ERC20Upgradeable;
@@ -67,6 +66,7 @@ contract Vault is
   error InvalidWithdrawAmount();
   error NoAssetsToWithdraw();
   error NoPermissions();
+  error FailedAllowance();
   error InvalidShareBalance();
   error ETHTransferNotAllowed(address sender);
   error InvalidDepositAsset();
@@ -83,6 +83,8 @@ contract Vault is
    * which defines the strategy for managing assets within the current contract.
    */
   IStrategy private _strategy;
+
+  IWETH private _wETH;
 
   /**
    * @dev Modifier to restrict access to addresses that are whitelisted.
@@ -126,11 +128,15 @@ contract Vault is
   ) public initializer {
     __ERC20Permit_init(tokenName);
     __ERC20_init(tokenName, tokenSymbol);
-    _initUseWETH(registry);
+    _wETH = IWETH(registry.getServiceFromHash(WETH_CONTRACT));
     if (initialOwner == address(0)) revert InvalidOwner();
     _transferOwnership(initialOwner);
     _initUseSettings(registry);
     _strategy = strategy;
+  }
+
+  function initializeV2( ServiceRegistry registry) public initializer {
+    _wETH = IWETH(registry.getServiceFromHash(WETH_CONTRACT));
   }
 
   /**
@@ -188,7 +194,7 @@ contract Vault is
    * Emits no events and allows the contract to accept Ether.
    */
   receive() external payable {
-    if (msg.sender != wETHA()) revert ETHTransferNotAllowed(msg.sender);
+    if (msg.sender != address(_wETH)) revert ETHTransferNotAllowed(msg.sender);
   }
 
   function maxMint(address) external view override returns (uint256 maxShares) {
@@ -202,7 +208,7 @@ contract Vault is
   function mint(uint256 shares, address receiver) external override returns (uint256 assets) {
     if (shares == 0) revert InvalidDepositAmount();
     assets = this.convertToAssets(shares);
-    IERC20Upgradeable(wETHA()).safeTransferFrom(msg.sender, address(this), assets);
+    IERC20Upgradeable(address(_wETH)).safeTransferFrom(msg.sender, address(this), assets);
     _depositInternal(assets, receiver);
   }
 
@@ -218,9 +224,9 @@ contract Vault is
     address receiver
   ) external payable nonReentrant whenNotPaused onlyWhiteListed returns (uint256 shares) {
     if (msg.value == 0) revert InvalidDepositAmount();
-    if (_strategy.asset() != wETHA()) revert InvalidDepositAsset();
+    if (_strategy.asset() != address(_wETH)) revert InvalidDepositAsset();
     //  Wrap ETH
-    address(wETHA()).functionCallWithValue(abi.encodeWithSignature("deposit()"), msg.value);
+    address(_wETH).functionCallWithValue(abi.encodeWithSignature("deposit()"), msg.value);
     return _depositInternal(msg.value, receiver);
   }
 
@@ -229,7 +235,7 @@ contract Vault is
     address receiver
   ) external override nonReentrant whenNotPaused onlyWhiteListed returns (uint256 shares) {
     if (assets == 0) revert InvalidDepositAmount();
-    IERC20Upgradeable(wETHA()).safeTransferFrom(msg.sender, address(this), assets);
+    IERC20Upgradeable(address(_wETH)).safeTransferFrom(msg.sender, address(this), assets);
     return _depositInternal(assets, receiver);
   }
 
@@ -268,7 +274,7 @@ contract Vault is
       if (afterDeposit > maxDepositInEth) revert MaxDepositReached();
     }
 
-    IERC20Upgradeable(wETHA()).safeApprove(address(_strategy), assets);
+    IERC20Upgradeable(address(_wETH)).safeApprove(address(_strategy), assets);
     uint256 deployedAmount = _strategy.deploy(assets);
 
     shares = total.toBase(deployedAmount, false);
@@ -293,7 +299,7 @@ contract Vault is
   function withdrawNative(
     uint256 assets
   ) external override nonReentrant whenNotPaused onlyWhiteListed returns (uint256 shares) {
-    if (_strategy.asset() != wETHA()) revert InvalidDepositAsset();
+    if (_strategy.asset() != address(_wETH)) revert InvalidDepositAsset();
     shares = this.convertToShares(assets);
     _redeemInternal(shares, address(this), msg.sender, true);
   }
@@ -301,7 +307,7 @@ contract Vault is
   function redeemNative(
     uint256 shares
   ) external override nonReentrant whenNotPaused onlyWhiteListed returns (uint256 assets) {
-    if (_strategy.asset() != wETHA()) revert InvalidDepositAsset();
+    if (_strategy.asset() != address(_wETH)) revert InvalidDepositAsset();
     assets = _redeemInternal(shares, msg.sender, msg.sender, true);
   }
 
@@ -433,6 +439,10 @@ contract Vault is
     }
     emit Withdraw(msg.sender, receiver, holder, amount - fee, shares);
     retAmount = amount - fee;
+  }
+  function _unwrapWETH(uint256 wETHAmount) internal {
+    if (!IERC20Upgradeable(address(_wETH)).approve(address(_wETH), wETHAmount)) revert FailedAllowance();
+    _wETH.withdraw(wETHAmount);
   }
 
   /**
