@@ -3,8 +3,6 @@ import { task } from 'hardhat/config';
 import DeployConfig from '../../constants/contracts';
 import { getClient } from './common';
 
-
-
 task('settings:getFeeReceiver', 'Get Fee Receiver Account').setAction(
   async ({}, { ethers, network }) => {
     const networkName = network.name;

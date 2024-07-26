@@ -1,4 +1,3 @@
-
 import { task } from 'hardhat/config';
 
 const fs = require('fs');
@@ -27,7 +26,7 @@ task('build:artifactTree', 'Generate an artifact tree').setAction(
       }
     }
     // Output the result to a JSON file
-    const outputPath = path.join(__dirname, '..', 'src', 'contract-blob.json');
+    const outputPath = path.join(__dirname, '..', '..', 'src', 'contract-blob.json');
     fs.writeFileSync(outputPath, JSON.stringify(output, null, 2), 'utf8');
     console.log(`Contracts info exported to ${outputPath}`);
   },

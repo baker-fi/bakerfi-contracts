@@ -135,7 +135,7 @@ contract Vault is
     _strategy = strategy;
   }
 
-  function initializeV2( ServiceRegistry registry) public initializer {
+  function initializeV2(ServiceRegistry registry) public initializer {
     _wETH = IWETH(registry.getServiceFromHash(WETH_CONTRACT));
   }
 
@@ -441,7 +441,8 @@ contract Vault is
     retAmount = amount - fee;
   }
   function _unwrapWETH(uint256 wETHAmount) internal {
-    if (!IERC20Upgradeable(address(_wETH)).approve(address(_wETH), wETHAmount)) revert FailedAllowance();
+    if (!IERC20Upgradeable(address(_wETH)).approve(address(_wETH), wETHAmount))
+      revert FailedAllowance();
     _wETH.withdraw(wETHAmount);
   }
 

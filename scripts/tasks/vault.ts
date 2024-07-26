@@ -45,21 +45,29 @@ task('vault:assets', "Prints an account's share balance").setAction(
   },
 );
 
-task('vault:tokenPerAsset', 'Prints an tokenPerAsset').setAction(async ({}, { ethers, network }) => {
-  const networkName = network.name;
-  const networkConfig = DeployConfig[networkName];
-  const spinner = ora(`Geeting Vault Assets`).start();
-  try {
-    let app = await getClient(ethers);
-    const balance = await app?.call('Vault', networkConfig.vaultProxy ?? '', 'tokenPerAsset', [], {
-      chainId: network.config.chainId,
-    });
-    spinner.succeed(`🧑‍🍳 Vault tokenPerAsset ${ethers.formatEther(balance)}`);
-  } catch (e) {
-    console.log(e);
-    spinner.fail('Failed 💥');
-  }
-});
+task('vault:tokenPerAsset', 'Prints an tokenPerAsset').setAction(
+  async ({}, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Geeting Vault Assets`).start();
+    try {
+      let app = await getClient(ethers);
+      const balance = await app?.call(
+        'Vault',
+        networkConfig.vaultProxy ?? '',
+        'tokenPerAsset',
+        [],
+        {
+          chainId: network.config.chainId,
+        },
+      );
+      spinner.succeed(`🧑‍🍳 Vault tokenPerAsset ${ethers.formatEther(balance)}`);
+    } catch (e) {
+      console.log(e);
+      spinner.fail('Failed 💥');
+    }
+  },
+);
 
 task('vault:rebalance', 'Burn brETH shares and receive ETH').setAction(
   async ({ account }, { ethers, network }) => {
