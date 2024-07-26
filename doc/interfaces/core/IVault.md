@@ -139,10 +139,10 @@ _Converts the specified number of shares to ETH._
 | ---- | ---- | ----------- |
 | assets | uint256 | The calculated amount of assets. |
 
-### tokenPerETH
+### tokenPerAsset
 
 ```solidity
-function tokenPerETH() external view virtual returns (uint256 rate)
+function tokenPerAsset() external view virtual returns (uint256 rate)
 ```
 
 _Retrieves the token-to-ETH exchange rate._

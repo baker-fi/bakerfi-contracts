@@ -505,7 +505,7 @@ contract Vault is
    * and the total assets under management by the strategy.
    *
    *   brETHSupply  ------   DeployedETH
-   *   tokenPerETH  ------   1 ETH
+   *   tokenPerAsset  ------   1 ETH
    *
    *   x = SupplybrETH * 1ETH / Deployed ETH
    *

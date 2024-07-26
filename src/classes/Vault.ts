@@ -105,8 +105,8 @@ export class Vault extends Model<VaultMethods> implements Deployable {
     return this.callTx(this.contract.methods.symbol());
   }
 
-  async tokenPerETH() { 
-    return this.callTx(this.contract.methods.tokenPerETH());
+  async tokenPerAsset() { 
+    return this.callTx(this.contract.methods.tokenPerAsset());
   }
 
   async totalAssets() { 

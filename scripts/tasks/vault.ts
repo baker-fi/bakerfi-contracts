@@ -45,7 +45,7 @@ task('vault:assets', "Prints an account's share balance").setAction(
   },
 );
 
-task('vault:tokenPerETH', 'Prints an tokenPerETH').setAction(async ({}, { ethers, network }) => {
+task('vault:tokenPerAsset', 'Prints an tokenPerAsset').setAction(async ({}, { ethers, network }) => {
   const networkName = network.name;
   const networkConfig = DeployConfig[networkName];
   const spinner = ora(`Geeting Vault Assets`).start();
@@ -54,7 +54,7 @@ task('vault:tokenPerETH', 'Prints an tokenPerETH').setAction(async ({}, { ethers
     const balance = await app?.call('Vault', networkConfig.vaultProxy ?? '', 'tokenPerAsset', [], {
       chainId: network.config.chainId,
     });
-    spinner.succeed(`🧑‍🍳 Vault tokenPerETH ${ethers.formatEther(balance)}`);
+    spinner.succeed(`🧑‍🍳 Vault tokenPerAsset ${ethers.formatEther(balance)}`);
   } catch (e) {
     console.log(e);
     spinner.fail('Failed 💥');

@@ -68,7 +68,7 @@ export interface VaultMethods {
 
   symbol(): ContractCallMethod<string>;
 
-  tokenPerETH(): ContractCallMethod<number>;
+  tokenPerAsset(): ContractCallMethod<number>;
 
   totalAssets(): ContractCallMethod<{ amount: number }>;
 
