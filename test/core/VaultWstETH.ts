@@ -23,8 +23,7 @@ import BaseConfig, { NetworkConfig } from '../../constants/network-deploy-config
  * This strategy uses Lido Contracts for asset wrapping and conversion
  */
 
-describeif(network.name === 'hardhat')
-('BakerFi Vault Main Net wstETH/ETH', function () {
+describeif(network.name === 'hardhat')('BakerFi Vault Main Net wstETH/ETH', function () {
   it('Vault Initilization', async function () {
     const { owner, vault, strategy } = await loadFixture(deployFunction);
     expect(await vault.symbol()).to.equal('brETH');
@@ -67,17 +66,17 @@ describeif(network.name === 'hardhat')
       value: depositAmount,
     });
 
-    await vault.approve( vault.getAddress(), ethers.parseUnits('1', 18));    
+    await vault.approve(vault.getAddress(), ethers.parseUnits('1', 18));
     const tx = vault.redeemNative(ethers.parseUnits('1', 18));
     await expect(tx)
       // @ts-ignore
       .to.emit(vault, 'Withdraw')
       .withArgs(
-        owner.address, 
-        owner.address, 
         owner.address,
-        996631271986539459n, 
-        ethers.parseUnits('1', 18),        
+        owner.address,
+        owner.address,
+        996631271986539459n,
+        ethers.parseUnits('1', 18),
       );
     // @ts-ignore
     await expect(tx).to.changeEtherBalances([owner.address], [996631271986539459n]);
@@ -108,7 +107,7 @@ describeif(network.name === 'hardhat')
       value: ethers.parseUnits('10', 18),
     });
 
-    await vault.approve( vault.getAddress(), ethers.parseUnits('20', 18));    
+    await vault.approve(vault.getAddress(), ethers.parseUnits('20', 18));
     await expect(
       vault.redeemNative(ethers.parseUnits('20', 18)),
       // @ts-expect-error
@@ -168,8 +167,8 @@ describeif(network.name === 'hardhat')
     await vault.depositNative(owner.address, {
       value: depositAmount,
     });
-    
-    await vault.approve( vault.getAddress(), ethers.parseUnits('1', 18));   
+
+    await vault.approve(vault.getAddress(), ethers.parseUnits('1', 18));
     await vault.redeemNative(ethers.parseUnits('1', 18));
 
     expect(await provider.getBalance(otherAccount.address)).to.greaterThan(
@@ -187,7 +186,7 @@ describeif(network.name === 'hardhat')
     const provider = ethers.provider;
     const balanceOf = await vault.balanceOf(owner.address);
     const balanceBefore = await provider.getBalance(owner.address);
-    await vault.approve( vault.getAddress(), balanceOf);   
+    await vault.approve(vault.getAddress(), balanceOf);
     await vault.redeemNative(balanceOf);
     const balanceAfter = await provider.getBalance(owner.address);
 
@@ -593,5 +592,5 @@ async function deployWithMockStrategyFunction() {
   await proxy.waitForDeployment();
   await strategy.waitForDeployment();
   const pVault = await ethers.getContractAt('Vault', await proxy.getAddress());
-  return { owner,weth, otherAccount, settings: pSettings, vault: pVault, strategy };
+  return { owner, weth, otherAccount, settings: pSettings, vault: pVault, strategy };
 }

@@ -1,4 +1,5 @@
 import '@nomicfoundation/hardhat-ethers';
+import { anyUint } from '@nomicfoundation/hardhat-chai-matchers/withArgs';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import { expect } from 'chai';
 import { ethers, network } from 'hardhat';
@@ -22,8 +23,7 @@ import { time } from '@nomicfoundation/hardhat-network-helpers';
  * Unit Tests for BakerFi Vault with a regular AAVEv3Strategy
  */
 
-describeif(network.name === 'hardhat')
-('BakerFi Vault For L2s', function () {
+describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
   it('Deposit with no Flash Loan Fees', async function () {
     const { owner, vault, weth, aave3Pool, strategy, cbETH, flashLender } = await loadFixture(
       deployFunction,
@@ -163,6 +163,7 @@ describeif(network.name === 'hardhat')
       vault.depositNative(owner.address, {
         value: ethers.parseUnits('10', 18),
       }),
+      // @ts-ignore
     ).to.be.revertedWithCustomError(strategy, 'PriceOutdated');
   });
 
@@ -183,6 +184,7 @@ describeif(network.name === 'hardhat')
       vault.depositNative(owner.address, {
         value: ethers.parseUnits('10', 18),
       }),
+      // @ts-ignore
     ).to.be.revertedWithCustomError(strategy, 'PriceOutdated');
   });
 
@@ -282,6 +284,7 @@ describeif(network.name === 'hardhat')
     const { vault, owner } = await loadFixture(deployFunction);
 
     await vault.pause();
+    // @ts-ignore
     await expect(vault.redeemNative(1)).to.be.revertedWith('Pausable: paused');
   });
 
@@ -292,12 +295,14 @@ describeif(network.name === 'hardhat')
       vault.depositNative(owner.address, {
         value: ethers.parseUnits('10', 18),
       }),
+      // @ts-ignore
     ).to.be.revertedWith('Pausable: paused');
   });
 
   it('Rebalance Fails when vault is paused', async () => {
     const { vault, owner } = await loadFixture(deployFunction);
     await vault.pause();
+    // @ts-ignore
     await expect(vault.rebalance()).to.be.revertedWith('Pausable: paused');
   });
 
@@ -309,6 +314,7 @@ describeif(network.name === 'hardhat')
       // Convert currency unit from ether to wei
       value: ethers.parseUnits('10', 18),
     };
+    // @ts-ignore
     await expect(owner.sendTransaction(tx)).to.be.revertedWithCustomError(
       vault,
       'ETHTransferNotAllowed',
@@ -324,10 +330,10 @@ describeif(network.name === 'hardhat')
     expect(await vault.owner()).to.equal(otherAccount.address);
   });
 
-  it.only('Deposit Success', async function () {
+  it('Deposit Success', async function () {
     const { vault, weth, owner, otherAccount } = await loadFixture(deployFunction);
     const amount = ethers.parseUnits('10', 18);
-    
+
     // Convert Native ETH to WETH
     await weth.deposit?.call('', { value: amount });
     await weth.approve(await vault.getAddress(), amount);
@@ -336,46 +342,402 @@ describeif(network.name === 'hardhat')
 
     const sharesMinted = 9962113816060668112n;
     await expect(vault.deposit(amount, owner.address))
+      // @ts-ignore
       .to.emit(vault, 'Deposit')
       .withArgs(owner.address, owner.address, amount, sharesMinted);
-    
+
     expect(await weth.balanceOf(owner.address)).to.equal(0n);
     expect(await vault.balanceOf(owner.address)).to.equal(sharesMinted);
     expect(await vault.totalSupply()).to.equal(sharesMinted);
   });
 
-  it('Deposit Failed - No Allowance');
+  it('Deposit Failed - No Allowance', async function () {
+    const { vault, weth, owner } = await loadFixture(deployFunction);
+    const amount = ethers.parseUnits('10', 18);
 
-  it('MaxDeposit');
+    // Convert Native ETH to WETH
+    await weth.deposit?.call('', { value: amount });
+    expect(await weth.balanceOf(owner.address)).to.equal(amount);
 
-  it('PreviewDeposit Sucesss');
+    await expect(vault.deposit(amount, owner.address))
+      .to.be // @ts-ignore
+      .revertedWith('SafeERC20: low-level call failed');
 
-  it('MaxMint');
+    expect(await weth.balanceOf(owner.address)).to.equal(amount);
+  });
 
-  it('PreviewMint');
+  it('Deposit Failed - Zero Deposit', async function () {
+    const { vault, weth, owner } = await loadFixture(deployFunction);
+    const amount = ethers.parseUnits('10', 18);
 
-  it('Mint');
+    // Convert Native ETH to WETH
+    await weth.deposit?.call('', { value: amount });
+    expect(await weth.balanceOf(owner.address)).to.equal(amount);
 
-  it('Mint Failed - No Allowance', );
+    // @ts-ignore
+    await expect(vault.deposit(0, owner.address)).to.be.revertedWithCustomError(
+      vault,
+      'InvalidDepositAmount',
+    );
+  });
 
-  it('MaxWithdraw');
+  it('Deposit Failed - Zero Receiver', async function () {
+    const { vault, weth, owner } = await loadFixture(deployFunction);
+    const amount = ethers.parseUnits('10', 18);
 
-  it('PreviewWithdraw');
+    // Convert Native ETH to WETH
+    await weth.deposit?.call('', { value: amount });
+    await weth.approve(await vault.getAddress(), amount);
+    expect(await weth.balanceOf(owner.address)).to.equal(amount);
 
-  it('Withdraw Success');
+    await expect(
+      vault.deposit(amount, '0x0000000000000000000000000000000000000000'),
+      // @ts-ignore
+    ).to.be.revertedWithCustomError(vault, 'InvalidReceiver');
+  });
 
-  it('Withdraw Failed - No Allowance');
+  it('MaxDeposit', async function () {
+    const { vault, weth, owner } = await loadFixture(deployFunction);
+    expect(await vault.maxDeposit(owner.address)).to.equal(ethers.MaxUint256);
+  });
 
-  it("MaxRedeem");
+  it('PreviewDeposit - First Deposit', async function () {
+    const { vault } = await loadFixture(deployFunction);
+    const amount = ethers.parseUnits('10', 18);
+    expect(await vault.previewDeposit(amount)).to.equal(amount);
+  });
 
-  it("PreviewRedeem");
+  it('PreviewDeposit - Second Deposit', async function () {
+    const { vault, weth, owner } = await loadFixture(deployFunction);
+    const firstAmount = ethers.parseUnits('10', 18);
+    const secondAmount = ethers.parseUnits('5', 18);
 
-  it("Redeem Sucess");
+    // Convert Native ETH to WETH
+    await weth.deposit?.call('', { value: firstAmount });
+    await weth.approve(await vault.getAddress(), firstAmount);
+    await vault.deposit(firstAmount, owner.address);
 
-  it("Redeem Failed - No Allowance");
+    expect(await vault.previewDeposit(secondAmount)).to.equal(secondAmount);
+  });
 
+  it('MaxMint', async function () {
+    const { vault, owner } = await loadFixture(deployFunction);
+    expect(await vault.maxMint(owner.address)).to.equal(ethers.MaxUint256);
+  });
+
+  it('PreviewMint', async function () {
+    const { vault } = await loadFixture(deployFunction);
+    const amount = ethers.parseUnits('10', 18);
+    expect(await vault.previewMint(amount)).to.equal(amount);
+  });
+
+  it('Mint Success', async function () {
+    const { vault, weth, owner, otherAccount } = await loadFixture(deployFunction);
+    const amount = ethers.parseUnits('10', 18);
+
+    // Convert Native ETH to WETH
+    await weth.deposit?.call('', { value: amount });
+    await weth.approve(await vault.getAddress(), amount);
+
+    expect(await weth.balanceOf(owner.address)).to.equal(amount);
+
+    const sharesMinted = 9962113816060668112n;
+    await expect(vault.mint(amount, owner.address))
+      // @ts-ignore
+      .to.emit(vault, 'Deposit')
+      .withArgs(owner.address, owner.address, amount, sharesMinted);
+
+    expect(await weth.balanceOf(owner.address)).to.equal(0n);
+    expect(await vault.balanceOf(owner.address)).to.equal(sharesMinted);
+    expect(await vault.totalSupply()).to.equal(sharesMinted);
+  });
+
+  it('Mint Failed - No Allowance', async function () {
+    const { vault, weth, owner } = await loadFixture(deployFunction);
+    const amount = ethers.parseUnits('10', 18);
+
+    // Convert Native ETH to WETH
+    await weth.deposit?.call('', { value: amount });
+    expect(await weth.balanceOf(owner.address)).to.equal(amount);
+
+    await expect(vault.mint(amount, owner.address))
+      .to.be // @ts-ignore
+      .revertedWith('SafeERC20: low-level call failed');
+
+    expect(await weth.balanceOf(owner.address)).to.equal(amount);
+  });
+
+  it('Mint Failed - Zero Shares', async function () {
+    const { vault, weth, owner } = await loadFixture(deployFunction);
+    const amount = ethers.parseUnits('10', 18);
+
+    // Convert Native ETH to WETH
+    await weth.deposit?.call('', { value: amount });
+    expect(await weth.balanceOf(owner.address)).to.equal(amount);
+
+    // @ts-ignore
+    await expect(vault.mint(0, owner.address)).to.be.revertedWithCustomError(
+      vault,
+      'InvalidDepositAmount',
+    );
+  });
+
+  it('Mint Failed - No Receiver', async function () {
+    const { vault, weth, owner } = await loadFixture(deployFunction);
+    const amount = ethers.parseUnits('10', 18);
+
+    // Convert Native ETH to WETH
+    await weth.deposit?.call('', { value: amount });
+    await weth.approve(await vault.getAddress(), amount);
+    expect(await weth.balanceOf(owner.address)).to.equal(amount);
+
+    await expect(
+      vault.mint(amount, '0x0000000000000000000000000000000000000000'),
+      // @ts-ignore
+    ).to.be.revertedWithCustomError(vault, 'InvalidReceiver');
+  });
+
+  it('MaxWithdraw - Empty Vault', async function () {
+    const { vault, weth, owner } = await loadFixture(deployFunction);
+    expect(await vault.maxWithdraw(owner.address)).to.equal(0n);
+  });
+
+  it('MaxWithdraw - Some shares', async function () {
+    const { vault, weth, owner } = await loadFixture(deployFunction);
+    const firstAmount = ethers.parseUnits('10', 18);
+
+    // Convert Native ETH to WETH
+    await weth.deposit?.call('', { value: firstAmount });
+    await weth.approve(await vault.getAddress(), firstAmount);
+    await vault.deposit(firstAmount, owner.address);
+    const sharesBalance = await vault.balanceOf(owner.address);
+    expect(await vault.maxWithdraw(owner.address)).to.equal(sharesBalance);
+  });
+
+  it('PreviewWithdraw', async function () {
+    const { vault, weth, owner } = await loadFixture(deployFunction);
+    const firstAmount = ethers.parseUnits('10', 18);
+    const withdrawAmount = ethers.parseUnits('1', 18);
+
+    // Convert Native ETH to WETH
+    await weth.deposit?.call('', { value: firstAmount });
+
+    await weth.approve(await vault.getAddress(), firstAmount);
+    await vault.deposit(firstAmount, owner.address);
+    expect(await vault.previewWithdraw(withdrawAmount)).to.equal(withdrawAmount);
+  });
+
+  it('Withdraw Success', async function () {
+    const { vault, weth, owner } = await loadFixture(deployFunction);
+
+    const depositAmount = ethers.parseUnits('10', 18);
+    const withdrawAmount = ethers.parseUnits('5', 18);
+
+    await weth.deposit?.call('', { value: depositAmount });
+    await weth.approve(await vault.getAddress(), depositAmount);
+    await vault.deposit(depositAmount, owner.address);
+
+    expect(await vault.balanceOf(owner.address)).to.equal(9962113816060668112n);
+
+    await expect(vault.withdraw(withdrawAmount, owner.address, owner.address))
+      // @ts-ignore
+      .to.emit(vault, 'Withdraw')
+      .withArgs(owner.address, owner.address, owner.address, 4983156389718359984n, withdrawAmount)
+      .emit(vault, 'Transfer')
+      .withArgs(owner.address, '0x0000000000000000000000000000000000000000', 5000000000000000000n);
+
+    expect(await vault.balanceOf(owner.address)).to.equal(4962113816060668112n);
+  });
+
+  it('Withdraw Success - In Name of', async function () {
+    const { vault, weth, owner, otherAccount } = await loadFixture(deployFunction);
+
+    const depositAmount = ethers.parseUnits('10', 18);
+    const withdrawAmount = ethers.parseUnits('5', 18);
+
+    await weth.deposit?.call('', { value: depositAmount });
+    await weth.approve(await vault.getAddress(), depositAmount);
+    await vault.deposit(depositAmount, owner.address);
+
+    expect(await vault.balanceOf(owner.address)).to.equal(9962113816060668112n);
+
+    await vault.approve(otherAccount.address, withdrawAmount);
+
+    await expect(
+      vault.connect(otherAccount).withdraw(withdrawAmount, otherAccount.address, owner.address),
+    )
+      // @ts-ignore
+      .to.emit(vault, 'Withdraw')
+      .withArgs(
+        otherAccount.address,
+        otherAccount.address,
+        owner.address,
+        4983156389718359984n,
+        withdrawAmount,
+      )
+      .emit(vault, 'Transfer')
+      .withArgs(owner.address, otherAccount.address, 5000000000000000000n)
+      .emit(vault, 'Transfer')
+      .withArgs(
+        otherAccount.address,
+        '0x0000000000000000000000000000000000000000',
+        5000000000000000000n,
+      );
+
+    expect(await vault.balanceOf(owner.address)).to.equal(4962113816060668112n);
+  });
+
+  it('Withdraw Failed - Withdraw in name of holder', async function () {
+    const { vault, weth, owner, otherAccount } = await loadFixture(deployFunction);
+    const depositAmount = ethers.parseUnits('10', 18);
+    const withdrawAmount = ethers.parseUnits('5', 18);
+
+    await weth.deposit?.call('', { value: depositAmount });
+    await weth.approve(await vault.getAddress(), depositAmount);
+    await vault.deposit(depositAmount, owner.address);
+
+    await expect(
+      vault.connect(otherAccount).withdraw(withdrawAmount, otherAccount.address, owner.address),
+    )
+      .to.be // @ts-ignore
+      .revertedWithCustomError(vault, 'NoAllowance');
+  });
+
+  it('Withdraw Failed - No Balance', async function () {
+    const { vault, weth, owner, otherAccount } = await loadFixture(deployFunction);
+    const depositAmount = ethers.parseUnits('10', 18);
+    const withdrawAmount = ethers.parseUnits('500', 18);
+
+    await weth.deposit?.call('', { value: depositAmount });
+    await weth.approve(await vault.getAddress(), depositAmount);
+    await vault.deposit(depositAmount, owner.address);
+
+    await expect(vault.withdraw(withdrawAmount, owner.address, owner.address))
+      .to.be // @ts-ignore
+      .revertedWithCustomError(vault, 'NotEnoughBalanceToWithdraw');
+  });
+
+  it('Withdraw Failed - No Balance In Name of', async function () {
+    const { vault, weth, owner, otherAccount } = await loadFixture(deployFunction);
+    const depositAmount = ethers.parseUnits('10', 18);
+    const withdrawAmount = ethers.parseUnits('50', 18);
+
+    await weth.deposit?.call('', { value: depositAmount });
+    await weth.approve(await vault.getAddress(), depositAmount);
+    await vault.deposit(depositAmount, owner.address);
+
+    await expect(
+      vault.connect(otherAccount).withdraw(withdrawAmount, otherAccount.address, owner.address),
+    )
+      .to.be // @ts-ignore
+      .revertedWithCustomError(vault, 'NotEnoughBalanceToWithdraw');
+  });
+
+  it('MaxRedeem', async function () {
+    const { vault, weth, owner } = await loadFixture(deployFunction);
+
+    const depositAmount = ethers.parseUnits('10', 18);
+
+    await weth.deposit?.call('', { value: depositAmount });
+    await weth.approve(await vault.getAddress(), depositAmount);
+    await vault.deposit(depositAmount, owner.address);
+
+    expect(await vault.maxRedeem(owner.address)).to.equal(9962113816060668112n);
+  });
+
+  it('PreviewRedeem', async function () {
+    const { vault, weth, owner } = await loadFixture(deployFunction);
+
+    const depositAmount = ethers.parseUnits('10', 18);
+
+    await weth.deposit?.call('', { value: depositAmount });
+    await weth.approve(await vault.getAddress(), depositAmount);
+    await vault.deposit(depositAmount, owner.address);
+
+    expect(await vault.previewRedeem(ethers.parseUnits('5', 18))).to.equal(
+      ethers.parseUnits('5', 18),
+    );
+  });
+
+  it('Redeem Sucess', async function () {
+    const { vault, weth, owner } = await loadFixture(deployFunction);
+
+    const depositAmount = ethers.parseUnits('10', 18);
+
+    await weth.deposit?.call('', { value: depositAmount });
+    await weth.approve(await vault.getAddress(), depositAmount);
+    await vault.deposit(depositAmount, owner.address);
+
+    const balanceOf = vault.balanceOf(owner.address);
+
+    await expect(vault.redeem(balanceOf, owner.address, owner.address))
+      // @ts-ignore
+      .to.emit(vault, 'Withdraw')
+      .withArgs(
+        owner.address,
+        owner.address,
+        owner.address,
+        9928554229559295998n,
+        9962113816060668112n,
+      )
+      .emit(vault, 'Transfer')
+      .withArgs(owner.address, '0x0000000000000000000000000000000000000000', balanceOf);
+  });
+
+  it('Redeem Sucess - In Name of ', async function () {
+    const { vault, weth, owner, otherAccount } = await loadFixture(deployFunction);
+
+    const depositAmount = ethers.parseUnits('10', 18);
+    const withdrawAmount = ethers.parseUnits('5', 18);
+
+    await weth.deposit?.call('', { value: depositAmount });
+    await weth.approve(await vault.getAddress(), depositAmount);
+    await vault.deposit(depositAmount, owner.address);
+
+    expect(await vault.balanceOf(owner.address)).to.equal(9962113816060668112n);
+
+    await vault.approve(otherAccount.address, withdrawAmount);
+
+    await expect(
+      vault.connect(otherAccount).redeem(withdrawAmount, otherAccount.address, owner.address),
+    )
+      // @ts-ignore
+      .to.emit(vault, 'Withdraw')
+      .withArgs(
+        otherAccount.address,
+        otherAccount.address,
+        owner.address,
+        4983156389718359984n,
+        withdrawAmount,
+      )
+      .emit(vault, 'Transfer')
+      .withArgs(owner.address, otherAccount.address, 5000000000000000000n)
+      .emit(vault, 'Transfer')
+      .withArgs(
+        otherAccount.address,
+        '0x0000000000000000000000000000000000000000',
+        5000000000000000000n,
+      );
+
+    expect(await vault.balanceOf(owner.address)).to.equal(4962113816060668112n);
+  });
+
+  it('Redeem Failed - In Name of ', async function () {
+    const { vault, weth, owner, otherAccount } = await loadFixture(deployFunction);
+    const depositAmount = ethers.parseUnits('10', 18);
+    const withdrawAmount = ethers.parseUnits('5', 18);
+
+    await weth.deposit?.call('', { value: depositAmount });
+    await weth.approve(await vault.getAddress(), depositAmount);
+    await vault.deposit(depositAmount, owner.address);
+
+    await expect(
+      vault.connect(otherAccount).redeem(withdrawAmount, otherAccount.address, owner.address),
+    )
+      .to.be // @ts-ignore
+      .revertedWithCustomError(vault, 'NoAllowance');
+  });
 });
-
 
 /**
  * Deploy Test Function

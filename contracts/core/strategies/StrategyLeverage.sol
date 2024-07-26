@@ -242,7 +242,7 @@ abstract contract StrategyLeverage is
   function deploy(uint256 amount) external onlyOwner nonReentrant returns (uint256 deployedAmount) {
     if (amount == 0) revert InvalidDeployAmount();
     // 1. Transfer Assets from the Vault
-    IERC20Upgradeable(wETHA()).safeTransferFrom(msg.sender, address(this), amount); 
+    IERC20Upgradeable(wETHA()).safeTransferFrom(msg.sender, address(this), amount);
 
     // 2. Initiate a WETH Flash Loan
     uint256 leverage = calculateLeverageRatio(amount, getLoanToValue(), getNrLoops());

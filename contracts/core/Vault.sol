@@ -69,9 +69,9 @@ contract Vault is
   error NoPermissions();
   error InvalidShareBalance();
   error ETHTransferNotAllowed(address sender);
-  error InvalidShareHolder();
   error InvalidDepositAsset();
   error InvalidReceiver();
+  error NoAllowance();
 
   uint256 private constant _MINIMUM_SHARE_BALANCE = 1000;
   uint256 private constant _ONE = 1e18;
@@ -131,7 +131,6 @@ contract Vault is
     _transferOwnership(initialOwner);
     _initUseSettings(registry);
     _strategy = strategy;
-
   }
 
   /**
@@ -201,7 +200,9 @@ contract Vault is
   }
 
   function mint(uint256 shares, address receiver) external override returns (uint256 assets) {
+    if (shares == 0) revert InvalidDepositAmount();
     assets = this.convertToAssets(shares);
+    IERC20Upgradeable(wETHA()).safeTransferFrom(msg.sender, address(this), assets);
     _depositInternal(assets, receiver);
   }
 
@@ -216,7 +217,7 @@ contract Vault is
   function depositNative(
     address receiver
   ) external payable nonReentrant whenNotPaused onlyWhiteListed returns (uint256 shares) {
-    if ( msg.value == 0) revert InvalidDepositAmount();
+    if (msg.value == 0) revert InvalidDepositAmount();
     if (_strategy.asset() != wETHA()) revert InvalidDepositAsset();
     //  Wrap ETH
     address(wETHA()).functionCallWithValue(abi.encodeWithSignature("deposit()"), msg.value);
@@ -244,8 +245,7 @@ contract Vault is
    * @return shares The number of shares minted for the specified receiver.
    */
   function _depositInternal(uint256 assets, address receiver) private returns (uint256 shares) {
-
-    if (receiver == address(0)) revert InvalidShareHolder();
+    if (receiver == address(0)) revert InvalidReceiver();
 
     uint256 maxPriceAge = settings().getPriceMaxAge();
     uint256 maxPriceConf = settings().getPriceMaxConf();
@@ -290,13 +290,17 @@ contract Vault is
     shares = this.convertToShares(assets);
   }
 
-  function withdrawNative(uint256 assets) external nonReentrant whenNotPaused onlyWhiteListed override returns (uint256 shares) {
+  function withdrawNative(
+    uint256 assets
+  ) external override nonReentrant whenNotPaused onlyWhiteListed returns (uint256 shares) {
     if (_strategy.asset() != wETHA()) revert InvalidDepositAsset();
     shares = this.convertToShares(assets);
     _redeemInternal(shares, address(this), msg.sender, true);
   }
 
-  function redeemNative(uint256 shares) external nonReentrant whenNotPaused onlyWhiteListed override returns (uint256 assets) {
+  function redeemNative(
+    uint256 shares
+  ) external override nonReentrant whenNotPaused onlyWhiteListed returns (uint256 assets) {
     if (_strategy.asset() != wETHA()) revert InvalidDepositAsset();
     assets = _redeemInternal(shares, msg.sender, msg.sender, true);
   }
@@ -315,7 +319,7 @@ contract Vault is
     address holder
   ) external override nonReentrant whenNotPaused onlyWhiteListed returns (uint256 shares) {
     shares = this.convertToShares(assets);
-    this.redeem(shares, receiver, holder);
+    return _redeemInternal(shares, receiver, holder, false);
   }
 
   function maxRedeem(address shareHolder) external view override returns (uint256 maxShares) {
@@ -374,13 +378,12 @@ contract Vault is
 
     if (receiver == address(0)) revert InvalidReceiver();
 
-    // If the msg.sender is not the owner transfer the shares to msg.sender to burn
+    // If the msg.sender is not the owner transfer the shares to vault to burn
     if (msg.sender != holder) {
-      if (ERC20Upgradeable(address(this)).allowance(holder, msg.sender) < shares) {
-        revert NotEnoughBalanceToWithdraw();
+      if (allowance(holder, msg.sender) < shares) {
+        revert NoAllowance();
       }
-
-      ERC20Upgradeable(address(this)).transferFrom(holder, msg.sender, shares);
+      transferFrom(holder, msg.sender, shares);
     }
     /**
      *   withdrawAmount -------------- totalAssets()
@@ -396,7 +399,6 @@ contract Vault is
         })
       )) / totalSupply();
     if (withdrawAmount == 0) revert NoAssetsToWithdraw();
-
     uint256 amount = _strategy.undeploy(withdrawAmount);
     uint256 fee = 0;
     uint256 afterShares = totalSupply() - shares;

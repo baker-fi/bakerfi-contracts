@@ -7,12 +7,11 @@ import { IOracle } from "../interfaces/core/IOracle.sol";
 import { IOracle } from "../interfaces/core/IOracle.sol";
 import { IERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
-
 contract StrategyMock is IStrategy {
   using Address for address payable;
   uint256 internal _debRatio = 50; // 100
   int256 internal _havestPerCall = 0; // 100
-  
+
   address _asset;
 
   error NoBalance();
@@ -32,7 +31,7 @@ contract StrategyMock is IStrategy {
   }
 
   function undeploy(uint256 amount) external returns (uint256 actualAmount) {
-    if (IERC20Upgradeable(_asset).balanceOf(address(this)) < amount) revert NoBalance();    
+    if (IERC20Upgradeable(_asset).balanceOf(address(this)) < amount) revert NoBalance();
     IERC20Upgradeable(_asset).transfer(msg.sender, amount);
     emit StrategyAmountUpdate(address(this).balance - amount);
     return amount;
@@ -41,7 +40,7 @@ contract StrategyMock is IStrategy {
   function deployed(
     IOracle.PriceOptions memory
   ) external view override returns (uint256 actualAmount) {
-    uint256 col =  IERC20Upgradeable(_asset).balanceOf(address(this));
+    uint256 col = IERC20Upgradeable(_asset).balanceOf(address(this));
     uint256 deb = (col * _debRatio) / 100;
     actualAmount = col >= deb ? col - deb : 0;
   }

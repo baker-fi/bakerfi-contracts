@@ -29,7 +29,7 @@ describeif(network.name === 'hardhat')('Strategy Mainnet wstETH/ETH', function (
 
   it('Test Deploy', async function () {
     const { owner, weth, strategy } = await loadFixture(deployFunction);
-    
+
     const amount = ethers.parseUnits('10', 18);
     await weth.deposit?.call('', { value: amount });
     await weth.approve(await strategy.getAddress(), amount);
@@ -108,13 +108,13 @@ describeif(network.name === 'hardhat')('Strategy Mainnet wstETH/ETH', function (
   });
 
   it('Harvest - Debt Adjust', async function () {
-    const { owner, settings,weth, oracle, strategy, aave3Pool } = await loadFixture(deployFunction);
-
+    const { owner, settings, weth, oracle, strategy, aave3Pool } = await loadFixture(
+      deployFunction,
+    );
 
     const amount = ethers.parseUnits('10', 18);
     await weth.deposit?.call('', { value: amount });
     await weth.approve(await strategy.getAddress(), amount);
-    
 
     await strategy.deploy(amount);
     // Descrease the Collateral value by 10%
@@ -142,7 +142,9 @@ describeif(network.name === 'hardhat')('Strategy Mainnet wstETH/ETH', function (
   });
 
   it('Harvest Loss - Collateral Value is lower than debt', async function () {
-    const { owner, settings, weth, oracle, strategy, aave3Pool } = await loadFixture(deployFunction);
+    const { owner, settings, weth, oracle, strategy, aave3Pool } = await loadFixture(
+      deployFunction,
+    );
 
     const amount = ethers.parseUnits('10', 18);
     await weth.deposit?.call('', { value: amount });
