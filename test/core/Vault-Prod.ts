@@ -79,7 +79,6 @@ describeif(
     const provider = ethers.provider;
     const balanceBefore = await provider.getBalance(deployer.address);
 
-    await vault.aprove(vault.getAddress(), ethers.parseUnits('5', 18));
     await vault.redeemNative(ethers.parseUnits('5', 18));
     expect(await vault.balanceOf(deployer.address))
       // @ts-ignore
