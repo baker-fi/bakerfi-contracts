@@ -3,7 +3,6 @@ pragma solidity ^0.8.24;
 
 import { Ownable2StepUpgradeable } from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 import { PausableUpgradeable } from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
-import { ERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import { Rebase, RebaseLibrary } from "../libraries/RebaseLibrary.sol";
 import { IERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import { ServiceRegistry, WETH_CONTRACT } from "../core/ServiceRegistry.sol";
@@ -52,7 +51,6 @@ contract Vault is
   IVault
 {
   using RebaseLibrary for Rebase;
-  using SafeERC20Upgradeable for ERC20Upgradeable;
   using SafeERC20Upgradeable for IERC20Upgradeable;
   using AddressUpgradeable for address;
   using AddressUpgradeable for address payable;
@@ -199,7 +197,7 @@ contract Vault is
     if (msg.sender != address(_wETH)) revert ETHTransferNotAllowed(msg.sender);
   }
 
-  function maxMint(address) external view override returns (uint256 maxShares) {
+  function maxMint(address) external pure  override returns (uint256 maxShares) {
     return type(uint256).max;
   }
 
@@ -214,7 +212,7 @@ contract Vault is
     _depositInternal(assets, receiver);
   }
 
-  function maxDeposit(address) external view override returns (uint256 maxAssets) {
+  function maxDeposit(address) external pure override returns (uint256 maxAssets) {
     return type(uint256).max;
   }
 
