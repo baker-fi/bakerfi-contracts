@@ -138,7 +138,7 @@ describeif(network.name === 'hardhat')('StrategyLeverageSettings', function () {
   });
 
   it('Change Max Slippage ✅  Allow 0% Slippage', async function () {
-    const { settings, otherAccount } = await loadFixture(deployFunction);   
+    const { settings, otherAccount } = await loadFixture(deployFunction);
     // @ts-expect-error
     await settings.connect(otherAccount).setMaxSlippage(0);
     // @ts-expect-error

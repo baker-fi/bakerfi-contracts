@@ -163,6 +163,7 @@ abstract contract StrategyLeverage is
     if (!wETH().approve(uniRouterA(), 2 ** 256 - 1)) revert FailedToApproveAllowance();
     if (!ierc20().approve(uniRouterA(), 2 ** 256 - 1)) revert FailedToApproveAllowance();
   }
+  
 
   /**
    * @dev Fallback function to receive Ether.
@@ -663,8 +664,9 @@ abstract contract StrategyLeverage is
       maxAge: settings().getPriceMaxAge(),
       maxConf: settings().getPriceMaxConf()
     });
-    amountOut = (amountIn * _collateralOracle.getSafeLatestPrice(priceOptions).price) /
-                  _ethUSDOracle.getSafeLatestPrice(priceOptions).price;
+    amountOut =
+      (amountIn * _collateralOracle.getSafeLatestPrice(priceOptions).price) /
+      _ethUSDOracle.getSafeLatestPrice(priceOptions).price;
   }
 
   /**
@@ -680,8 +682,9 @@ abstract contract StrategyLeverage is
       maxAge: settings().getPriceMaxAge(),
       maxConf: settings().getPriceMaxConf()
     });
-    amountOut = (amountIn * _ethUSDOracle.getSafeLatestPrice(priceOptions).price) /
-                  _collateralOracle.getSafeLatestPrice(priceOptions).price;
+    amountOut =
+      (amountIn * _ethUSDOracle.getSafeLatestPrice(priceOptions).price) /
+      _collateralOracle.getSafeLatestPrice(priceOptions).price;
   }
 
   /**
@@ -792,6 +795,22 @@ abstract contract StrategyLeverage is
    */
   function renounceOwnership() public virtual override {
     revert InvalidOwner();
+  }
+
+  function getCollateralOracle() public view returns (address oracle) {
+    oracle = address(_collateralOracle);
+  }
+
+  function getDebtOracle()  public view  returns (address oracle) {
+    oracle = address(_ethUSDOracle);
+  }
+
+  function setCollateralOracle(IOracle oracle) public onlyGovernor {
+   _collateralOracle = oracle;
+  }
+
+  function setDebtOracle(IOracle oracle)  public onlyGovernor {
+    _ethUSDOracle = oracle;
   }
 
   uint256[44] private __gap;

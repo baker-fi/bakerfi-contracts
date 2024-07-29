@@ -56,9 +56,10 @@ export type NetworkConfig = {
     AAVEPool: string, // Validated      
     pyth: string, 
     chainlink?: {
-        wstEthToETH: string,
-        ethToUSD: string,
-        cbETHToETH: string,
+        wstEthToETH?: string,
+        ethToUSD?: string,
+        cbETHToETH?: string,
+        wstEthToETHRatio?: string     
     },
 };
 
@@ -124,6 +125,9 @@ const Config: DeployConfig = {
         swapFeeTier: 100,
         AAVEPool: "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5", // Validated      
         pyth: "0x8250f4aF4B972684F7b336503E2D6dFeDeB1487a",
+        chainlink: {
+            wstEthToETHRatio: "0xB88BAc61a4Ca37C43a3725912B1f472c9A5bc061",
+        }
     },   
     "local": {
         minTxConfirmations: 0,

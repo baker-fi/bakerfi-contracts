@@ -25,6 +25,4 @@ abstract contract UseUniQuoter is Initializable {
   function uniQuoterA() public view returns (address) {
     return address(_quoter);
   }
-
-  
 }
