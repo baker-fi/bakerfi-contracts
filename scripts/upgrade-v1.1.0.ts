@@ -18,7 +18,7 @@ async function main() {
   const result: any[] = [];
   const MIN_CONFIRMATIONS = 0;
   const spinner = ora('Cooking ....').start();
-  
+
   if (process.env.DEPLOY_WITH_LEDGER === 'true') {
     app = new ContractClientLedger(
       ethers.provider,
@@ -45,7 +45,7 @@ async function main() {
 
   spinner.text = `Upgrading Settings Contract on Proxy`;
 
-await app?.send(
+  await app?.send(
     'BakerFiProxyAdmin',
     networkConfig?.proxyAdmin ?? '',
     'upgrade',
@@ -107,9 +107,9 @@ await app?.send(
       minTxConfirmations: MIN_CONFIRMATIONS,
     },
   );
-  result.push(['Vault Instance',  vaultReceipt?.contractAddress]);
+  result.push(['Vault Instance', vaultReceipt?.contractAddress]);
 
-  spinner.succeed('🧑‍🍳 BakerFi Served 🍰 ',);
+  spinner.succeed('🧑‍🍳 BakerFi Served 🍰 ');
   console.table(result);
   process.exit(0);
 }

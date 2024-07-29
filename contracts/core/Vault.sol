@@ -19,8 +19,6 @@ import { AddressUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/Ad
 import { MathLibrary } from "../libraries/MathLibrary.sol";
 import { IWETH } from "../interfaces/tokens/IWETH.sol";
 
-
-
 /**
  * @title BakerFi Vault 🏦🧑‍🍳
  *
@@ -89,7 +87,7 @@ contract Vault is
   IWETH private _wETH;
 
   uint8 constant VAULT_VERSION = 2;
-  
+
   /**
    * @dev Modifier to restrict access to addresses that are whitelisted.
    *
@@ -140,7 +138,7 @@ contract Vault is
   }
 
   function initializeV2(ServiceRegistry registry) public reinitializer(VAULT_VERSION) {
-    _wETH = IWETH(registry.getServiceFromHash(WETH_CONTRACT));    
+    _wETH = IWETH(registry.getServiceFromHash(WETH_CONTRACT));
   }
 
   /**
