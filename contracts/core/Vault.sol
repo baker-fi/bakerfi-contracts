@@ -207,7 +207,7 @@ contract Vault is
     assets = this.convertToAssets(shares);
   }
 
-  function mint(uint256 shares, address receiver) external override returns (uint256 assets) {
+  function mint(uint256 shares, address receiver) external override nonReentrant whenNotPaused onlyWhiteListed returns (uint256 assets) {
     if (shares == 0) revert InvalidDepositAmount();
     assets = this.convertToAssets(shares);
     IERC20Upgradeable(address(_wETH)).safeTransferFrom(msg.sender, address(this), assets);
