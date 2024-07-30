@@ -245,7 +245,7 @@ abstract contract StrategyLeverage is
     IERC20Upgradeable(wETHA()).safeTransferFrom(msg.sender, address(this), amount);
 
     // 2. Initiate a WETH Flash Loan
-    uint256 leverage = calculateLeverageRatio(amount, getLoanToValue(), getNrLoops());
+    uint256 leverage = _calculateLeverageRatio(amount, getLoanToValue(), getNrLoops());
     uint256 loanAmount = leverage - amount;
     uint256 fee = flashLender().flashFee(wETHA(), loanAmount);
 
