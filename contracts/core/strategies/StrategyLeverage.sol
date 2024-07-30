@@ -809,6 +809,7 @@ abstract contract StrategyLeverage is
 
   function setDebtOracle(IOracle oracle)  public onlyGovernor {
     _ethUSDOracle = oracle;
+  }
   
   function asset() public view override returns (address) {
     return wETHA();
