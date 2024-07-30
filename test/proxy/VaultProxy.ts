@@ -3,7 +3,7 @@ import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import { expect } from 'chai';
 import { ethers, network } from 'hardhat';
 import { describeif } from '../common';
-import { deployServiceRegistry } from '../../scripts/common';
+import { deployServiceRegistry, deployWETH } from '../../scripts/common';
 
 describeif(network.name === 'hardhat')('Vault Proxy', function () {
   it('Vault Initialization', async function () {
@@ -25,10 +25,10 @@ async function deployFunction() {
 
   // Deploy Service Registry
   const serviceRegistry = await deployServiceRegistry(deployer.address);
-
+  const weth = await deployWETH(serviceRegistry);
   // Deploy Strategy Mock
   const StrategyMock = await ethers.getContractFactory('StrategyMock');
-  const strategy = await StrategyMock.deploy();
+  const strategy = await StrategyMock.deploy(await weth.getAddress());
   await strategy.waitForDeployment();
 
   // Deploy Non Upgradable Settings

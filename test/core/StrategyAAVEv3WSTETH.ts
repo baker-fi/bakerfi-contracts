@@ -28,12 +28,14 @@ describeif(network.name === 'hardhat')('Strategy Mainnet wstETH/ETH', function (
   });
 
   it('Test Deploy', async function () {
-    const { owner, strategy } = await loadFixture(deployFunction);
+    const { owner, weth, strategy } = await loadFixture(deployFunction);
+
+    const amount = ethers.parseUnits('10', 18);
+    await weth.deposit?.call('', { value: amount });
+    await weth.approve(await strategy.getAddress(), amount);
     // Deploy 10 ETH
     expect(
-      await strategy.deploy({
-        value: ethers.parseUnits('10', 18),
-      }),
+      await strategy.deploy(amount),
       // @ts-ignore
     ).to.changeEtherBalances([owner.address], [ethers.parseUnits('10', 18)]);
 
@@ -46,11 +48,14 @@ describeif(network.name === 'hardhat')('Strategy Mainnet wstETH/ETH', function (
   });
 
   it('Harvest Profit - No Debt Adjust', async function () {
-    const { owner, strategy, aave3Pool, oracle } = await loadFixture(deployFunction);
+    const { owner, strategy, weth, aave3Pool, oracle } = await loadFixture(deployFunction);
+
+    const amount = ethers.parseUnits('10', 18);
+    await weth.deposit?.call('', { value: amount });
+    await weth.approve(await strategy.getAddress(), amount);
+
     // Deploy 10 ETH
-    await strategy.deploy({
-      value: ethers.parseUnits('10', 18),
-    });
+    await strategy.deploy(amount);
     // Increment the Collateral value by 10%
     await oracle.setLatestPrice(ethers.parseUnits('2926', 18));
     await aave3Pool.setCollateralPerEth(1154 * 1e6 * 1.1);
@@ -68,11 +73,14 @@ describeif(network.name === 'hardhat')('Strategy Mainnet wstETH/ETH', function (
   });
 
   it('Harvest Loss - No Debt Adjust', async function () {
-    const { owner, oracle, strategy, aave3Pool } = await loadFixture(deployFunction);
+    const { owner, weth, oracle, strategy, aave3Pool } = await loadFixture(deployFunction);
+
+    const amount = ethers.parseUnits('10', 18);
+    await weth.deposit?.call('', { value: amount });
+    await weth.approve(await strategy.getAddress(), amount);
+
     // Deploy 10 ETH
-    await strategy.deploy({
-      value: ethers.parseUnits('10', 18),
-    });
+    await strategy.deploy(amount);
 
     expect(await strategy.getPosition([0, 0])).to.deep.equal([
       45702851552764668112n,
@@ -100,10 +108,15 @@ describeif(network.name === 'hardhat')('Strategy Mainnet wstETH/ETH', function (
   });
 
   it('Harvest - Debt Adjust', async function () {
-    const { owner, settings, oracle, strategy, aave3Pool } = await loadFixture(deployFunction);
-    await strategy.deploy({
-      value: ethers.parseUnits('10', 18),
-    });
+    const { owner, settings, weth, oracle, strategy, aave3Pool } = await loadFixture(
+      deployFunction,
+    );
+
+    const amount = ethers.parseUnits('10', 18);
+    await weth.deposit?.call('', { value: amount });
+    await weth.approve(await strategy.getAddress(), amount);
+
+    await strategy.deploy(amount);
     // Descrease the Collateral value by 10%
     await oracle.setLatestPrice(ethers.parseUnits('2394', 18));
     await strategy.setMaxLoanToValue(800 * 1e6);
@@ -129,10 +142,15 @@ describeif(network.name === 'hardhat')('Strategy Mainnet wstETH/ETH', function (
   });
 
   it('Harvest Loss - Collateral Value is lower than debt', async function () {
-    const { owner, settings, oracle, strategy, aave3Pool } = await loadFixture(deployFunction);
-    await strategy.deploy({
-      value: ethers.parseUnits('10', 18),
-    });
+    const { owner, settings, weth, oracle, strategy, aave3Pool } = await loadFixture(
+      deployFunction,
+    );
+
+    const amount = ethers.parseUnits('10', 18);
+    await weth.deposit?.call('', { value: amount });
+    await weth.approve(await strategy.getAddress(), amount);
+
+    await strategy.deploy(amount);
     // Increment the Collateral value by 10%
     await aave3Pool.setCollateralPerEth(1154 * 1e6 * 0.5);
 

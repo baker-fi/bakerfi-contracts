@@ -53,8 +53,8 @@ export class Vault extends Model<VaultMethods> implements Deployable {
     return this.sendTx(this.contract.methods.decreaseAllowance(spender, subtractedValue));
   }
 
-  async deposit(receiver: string, value: number) { 
-    return this.sendTx(this.contract.methods.deposit(receiver), value);
+  async depositNative(receiver: string, value: number) { 
+    return this.sendTx(this.contract.methods.depositNative(receiver), value);
   }
 
   async eip712Domain() { 
@@ -93,20 +93,12 @@ export class Vault extends Model<VaultMethods> implements Deployable {
     return this.sendTx(this.contract.methods.renounceOwnership());
   }
 
-  async settings() { 
-    return this.callTx(this.contract.methods.settings());
-  }
-
-  async settingsA() { 
-    return this.callTx(this.contract.methods.settingsA());
-  }
-
   async symbol() { 
     return this.callTx(this.contract.methods.symbol());
   }
 
-  async tokenPerETH() { 
-    return this.callTx(this.contract.methods.tokenPerETH());
+  async tokenPerAsset() { 
+    return this.callTx(this.contract.methods.tokenPerAsset());
   }
 
   async totalAssets() { 
@@ -129,8 +121,60 @@ export class Vault extends Model<VaultMethods> implements Deployable {
     return this.sendTx(this.contract.methods.transferOwnership(newOwner));
   }
 
-  async withdraw(shares: number) { 
-    return this.sendTx(this.contract.methods.withdraw(shares));
+  async redeemNative(shares: number) { 
+    return this.sendTx(this.contract.methods.redeemNative(shares));
+  }
+
+
+  async maxDeposit(receiver: string) { 
+    return this.callTx(this.contract.methods.maxDeposit(receiver));
+  }
+
+  async previewDeposit(assets: number){ 
+    return this.callTx(this.contract.methods.previewDeposit(assets));
+  }
+  async deposit(assets:number, receiver: string){ 
+    return this.sendTx(this.contract.methods.deposit(assets, receiver));
+  }
+
+  async maxMint(receiver: string) { 
+    return this.callTx(this.contract.methods.maxMint(receiver));
+  }
+
+  async previewMint(shares: number){ 
+    return this.callTx(this.contract.methods.previewMint(shares));
+  }
+
+  async mint( shares: number,  receiver: string){ 
+    return this.sendTx(this.contract.methods.mint(shares, receiver));
+  }
+
+  async maxWithdraw( owner: string){ 
+    return this.callTx(this.contract.methods.maxWithdraw(owner));
+  }
+
+  async previewWithdraw(assets: number){ 
+    return this.callTx(this.contract.methods.previewWithdraw(assets));
+  }
+
+  async withdraw(assets: number, receiver: string, owner: string){ 
+    return this.sendTx(this.contract.methods.withdraw(assets, receiver, owner));
+  }
+
+  async maxRedeem(owner: string) { 
+    return this.callTx(this.contract.methods.maxRedeem(owner));
+  }
+
+  async previewRedeem(shares: number) { 
+    return this.callTx(this.contract.methods.previewRedeem(shares));
+  }
+
+  async redeem(shares: number, receiver: string, owner: string) { 
+    return this.sendTx(this.contract.methods.redeem(shares, receiver, owner));
+  }
+
+  async asset(){ 
+    return this.callTx(this.contract.methods.asset());
   }
 
   async pause(shares: number) { 
