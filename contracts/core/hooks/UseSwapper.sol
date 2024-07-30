@@ -46,11 +46,11 @@ abstract contract UseSwapper is ISwapHandler, Initializable {
     if (address(_uniRouter) == address(0)) revert InvalidUniRouterContract();
   }
 
-  function uniRouter() public view returns (IV3SwapRouter) {
+  function uniRouter() internal view returns (IV3SwapRouter) {
     return _uniRouter;
   }
 
-  function uniRouterA() public view returns (address) {
+  function uniRouterA() internal view returns (address) {
     return address(_uniRouter);
   }
 

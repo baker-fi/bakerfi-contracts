@@ -288,7 +288,7 @@ export async function updatePythPrices(feeds: string[], pythAddress: string) {
 
   const currentPrices = await connection.getLatestPriceFeeds(feeds);
   const pyth = await ethers.getContractAt('IPyth', pythAddress);
-
+  // @ts-ignore
   const vaas = currentPrices?.map((feed) => Buffer.from(feed.vaa, 'base64'));
   const fee = await pyth.getUpdateFee(vaas);
   await pyth.updatePriceFeeds(vaas, { value: fee });

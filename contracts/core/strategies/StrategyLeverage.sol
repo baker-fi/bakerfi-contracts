@@ -337,7 +337,7 @@ abstract contract StrategyLeverage is
     uint256 totalCollateralBaseInEth,
     uint256 totalDebtBaseInEth
   ) internal returns (uint256 deltaAmount) {
-    uint256 deltaDebt = calculateDebtToPay(
+    uint256 deltaDebt = _calculateDebtToPay(
       getLoanToValue(),
       totalCollateralBaseInEth,
       totalDebtBaseInEth
@@ -500,7 +500,7 @@ abstract contract StrategyLeverage is
       (totalCollateralBaseInEth - totalDebtBaseInEth);
 
     // Calculate how much i need to burn to accomodate the withdraw
-    (uint256 deltaCollateralInETH, uint256 deltaDebtInETH) = calcDeltaPosition(
+    (uint256 deltaCollateralInETH, uint256 deltaDebtInETH) = _calcDeltaPosition(
       percentageToBurn,
       totalCollateralBaseInEth,
       totalDebtBaseInEth

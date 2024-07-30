@@ -16,11 +16,11 @@ abstract contract UseOracle is Initializable {
     if (address(_oracle) == address(0)) revert InvalidOracleContract();
   }
 
-  function oracle() public view returns (IOracle) {
+  function oracle() internal view returns (IOracle) {
     return _oracle;
   }
 
-  function getLastPrice() public view returns (IOracle.Price memory) {
+  function getLastPrice() internal view returns (IOracle.Price memory) {
     return _oracle.getLatestPrice();
   }
 }

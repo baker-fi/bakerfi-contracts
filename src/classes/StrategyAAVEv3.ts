@@ -68,11 +68,9 @@ export class StrategyAAVEv3
     return this.callTx(this.contract.methods.governor());
   }
 
-
   async renounceOwnership() {
     return this.sendTx(this.contract.methods.renounceOwnership());
   }
-
 
   async deployed(priceOptions: {
     maxAge: number;

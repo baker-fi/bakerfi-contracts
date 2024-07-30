@@ -25,6 +25,11 @@ export interface StrategyAAVEv3WstETHMethods {
 
   totalAssets(): ContractCallMethod<{'totalOwnedAssets': number;}>;
 
+  /**
+   * Ownership functions 
+   */
+  governor(): ContractCallMethod<string>;
+
   transferOwnership(newOwner: string): ContractSendMethod
 
   undeploy(amount: number): ContractSendMethod;

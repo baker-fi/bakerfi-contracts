@@ -14,6 +14,8 @@ export interface AAVEv3StrategyAnyMethods {
 
   owner(): ContractCallMethod<string>;
 
+  transferOwnership(newOwner: string): ContractSendMethod
+
   governor(): ContractCallMethod<string>;
 
   renounceOwnership(): ContractSendMethod
@@ -22,8 +24,6 @@ export interface AAVEv3StrategyAnyMethods {
     maxAge: number;
     maxConf: number;
   }): ContractCallMethod<{'totalOwnedAssets': number;}>;
-
-  transferOwnership(newOwner: string): ContractSendMethod
 
   undeploy(amount: number): ContractSendMethod;
  
