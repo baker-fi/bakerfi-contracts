@@ -16,11 +16,11 @@ contract UseIERC20 is Initializable {
     if (address(_ierc20) == address(0)) revert InvalidIERC20Contract();
   }
 
-  function ierc20() public view returns (IERC20) {
+  function ierc20() internal view returns (IERC20) {
     return _ierc20;
   }
 
-  function ierc20A() public view returns (address) {
+  function ierc20A() internal view returns (address) {
     return address(_ierc20);
   }
 }

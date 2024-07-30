@@ -16,11 +16,11 @@ abstract contract UseStETH is Initializable {
     if (address(_stETH) == address(0)) revert UseStETHInvalidStETHContract();
   }
 
-  function stETH() public view returns (IERC20) {
+  function stETH() internal view returns (IERC20) {
     return _stETH;
   }
 
-  function stETHA() public view returns (address) {
+  function stETHA() internal view returns (address) {
     return address(_stETH);
   }
 }

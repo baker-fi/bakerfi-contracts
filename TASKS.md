@@ -35,7 +35,7 @@ npx hardhat --network arbitrum vault:assets
 
 ### Shares/ETH Ratio 
 ```
-npx hardhat --network arbitrum vault:tokenPerETH 
+npx hardhat --network arbitrum vault:tokenPerAsset 
 ```
 
 ## Settings
