@@ -23,9 +23,7 @@ contract RatioOracle is IOracle {
 
   uint256 private constant _PRECISION = 1e18;
   uint256 private constant _DECIMALS = 18;
-  int256 internal constant MIN_EXPONENT = -20;
-  int256 internal constant MAX_EXPONENT = 20;
-
+  
   error InvalidPriceFromOracle();
   error InvalidPriceUpdatedAt();
 
