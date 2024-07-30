@@ -37,7 +37,7 @@ abstract contract UseWETH is Initializable {
    * @dev Returns the IWETH interface.
    * @return The IWETH interface.
    */
-  function wETH() public view returns (IWETH) {
+  function wETH() internal view returns (IWETH) {
     return _wETH;
   }
 
@@ -45,7 +45,7 @@ abstract contract UseWETH is Initializable {
    * @dev Returns the address of the WETH contract.
    * @return The address of the WETH contract.
    */
-  function wETHA() public view returns (address) {
+  function wETHA() internal view returns (address) {
     return address(_wETH);
   }
 

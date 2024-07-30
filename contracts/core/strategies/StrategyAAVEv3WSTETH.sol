@@ -13,7 +13,6 @@ import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/I
 import { WST_ETH_CONTRACT, WSTETH_USD_ORACLE_CONTRACT } from "../ServiceRegistry.sol";
 import { PERCENTAGE_PRECISION } from "../Constants.sol";
 
-
 /**
  * @title  AAVE v3 Recursive Staking Strategy for awstETH/WETH on EThereum
  *
@@ -87,9 +86,11 @@ contract StrategyAAVEv3WstETH is Initializable, StrategyAAVEv3, UseWstETH, UseSt
    */
   function _convertToWETH(uint256 amount) internal virtual override returns (uint256) {
     uint256 amountOutMinimum = 0;
-    if ( getMaxSlippage() > 0 ) {                
+    if (getMaxSlippage() > 0) {
       uint256 wethAmount = _toWETH(amount);
-      amountOutMinimum = (wethAmount * (PERCENTAGE_PRECISION - getMaxSlippage())) / PERCENTAGE_PRECISION;
+      amountOutMinimum =
+        (wethAmount * (PERCENTAGE_PRECISION - getMaxSlippage())) /
+        PERCENTAGE_PRECISION;
     }
     // Convert from wstETH -> weth directly
     (, uint256 amountOut) = _swap(

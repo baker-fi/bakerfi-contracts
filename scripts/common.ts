@@ -352,3 +352,10 @@ export async function deployLeverage() {
   await levarage.waitForDeployment();
   return levarage;
 }
+
+export async function deployTestLeverage() {
+  const Leverage = await ethers.getContractFactory('LeverageTest');
+  const levarage = await Leverage.deploy();
+  await levarage.waitForDeployment();
+  return levarage;
+}

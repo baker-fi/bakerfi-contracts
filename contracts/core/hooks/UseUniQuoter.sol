@@ -5,7 +5,6 @@ pragma experimental ABIEncoderV2;
 import { ServiceRegistry, UNISWAP_QUOTER_CONTRACT } from "../ServiceRegistry.sol";
 import { IQuoterV2 } from "../../interfaces/uniswap/v3/IQuoterV2.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import { PERCENTAGE_PRECISION } from "../Constants.sol";
 
 abstract contract UseUniQuoter is Initializable {
   IQuoterV2 private _quoter;
@@ -18,13 +17,11 @@ abstract contract UseUniQuoter is Initializable {
     if (address(_quoter) == address(0)) revert InvalidUniQuoterContract();
   }
 
-  function uniQuoter() public view returns (IQuoterV2) {
+  function uniQuoter() internal view returns (IQuoterV2) {
     return _quoter;
   }
 
-  function uniQuoterA() public view returns (address) {
+  function uniQuoterA() internal view returns (address) {
     return address(_quoter);
   }
-
-  
 }

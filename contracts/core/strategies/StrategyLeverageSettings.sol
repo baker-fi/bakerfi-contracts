@@ -61,7 +61,7 @@ contract StrategyLeverageSettings is GovernableOwnable {
   uint8 private _nrLoops;
 
   /**
-   * @dev 
+   * @dev
    */
   uint256 private _maxSlippage;
 

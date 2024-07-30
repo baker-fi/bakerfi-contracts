@@ -16,10 +16,10 @@ abstract contract UseSettings is Initializable {
     if (address(_settings) == address(0)) revert InvalidSettingsContract();
   }
 
-  function settings() public view returns (ISettings) {
+  function settings() internal view returns (ISettings) {
     return _settings;
   }
-  function settingsA() public view returns (address) {
+  function settingsA() internal view returns (address) {
     return address(_settings);
   }
 }

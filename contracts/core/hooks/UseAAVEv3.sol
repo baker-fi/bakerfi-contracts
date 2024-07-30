@@ -37,7 +37,7 @@ abstract contract UseAAVEv3 is Initializable {
    * @dev Returns the IPoolV3 interface.
    * @return The IPoolV3 interface.
    */
-  function aaveV3() public view returns (IPoolV3) {
+  function aaveV3() internal view returns (IPoolV3) {
     return _aavev3;
   }
 
@@ -45,7 +45,7 @@ abstract contract UseAAVEv3 is Initializable {
    * @dev Returns the address of the AAVE v3 contract.
    * @return The address of the AAVE v3 contract.
    */
-  function aaveV3A() public view returns (address) {
+  function aaveV3A() internal view returns (address) {
     return address(_aavev3);
   }
 }

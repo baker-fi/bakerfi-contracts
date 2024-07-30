@@ -15,7 +15,6 @@ import { PriceServiceConnection } from '@pythnetwork/price-service-client';
 import BaseConfig, { NetworkConfig } from '../../constants/network-deploy-config';
 import { feedIds, PythFeedNameEnum } from '../../constants/pyth';
 
-
 export async function deployBase() {
   const [deployer, otherAccount] = await ethers.getSigners();
   const networkName = network.name;
@@ -38,7 +37,6 @@ export async function deployBase() {
 
   const settings = await ethers.getContractAt('Settings', await settingsProxyDeploy.getAddress());
 
-
   // 5. Register UniswapV3 Universal Router
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from('Uniswap Router')),
@@ -56,8 +54,7 @@ export async function deployBase() {
   await deployETHOracle(serviceRegistry, config.pyth);
 
   await updatePythPrices(
-    [feedIds[PythFeedNameEnum.ETH_USD], 
-     feedIds[PythFeedNameEnum.WSTETH_USD]],
+    [feedIds[PythFeedNameEnum.ETH_USD], feedIds[PythFeedNameEnum.WSTETH_USD]],
     config.pyth,
   );
 
@@ -110,7 +107,7 @@ export async function deployBase() {
     'Settings',
     await settingsProxyDeploy.getAddress(),
   );
- 
+
   const strategyProxy = await ethers.getContractAt(
     'StrategyAAVEv3',
     await strategyProxyDeploy.getAddress(),
@@ -122,7 +119,7 @@ export async function deployBase() {
   await settingsProxy.setPriceMaxAge(360);
   await settingsProxy.setRebalancePriceMaxAge(360);
   await settingsProxy.setPriceMaxConf(0);
-  
+
   return {
     serviceRegistry,
     weth,
@@ -136,8 +133,6 @@ export async function deployBase() {
     config,
   };
 }
-
-
 
 export async function deployEthereum() {
   const [deployer, otherAccount] = await ethers.getSigners();
@@ -282,11 +277,7 @@ export function getDeployFunc() {
   return deployFunc;
 }
 
-
-export async function updatePythPrices(
-  feeds: string[], 
-  pythAddress: string
-) {
+export async function updatePythPrices(feeds: string[], pythAddress: string) {
   const connection = new PriceServiceConnection('https://hermes.pyth.network', {
     priceFeedRequestConfig: {
       // Provide this option to retrieve signed price updates for on-chain contracts.
@@ -296,13 +287,9 @@ export async function updatePythPrices(
   }); // See Hermes endpoints section below for other endpoints
 
   const currentPrices = await connection.getLatestPriceFeeds(feeds);
-  const pyth = await ethers.getContractAt(
-    "IPyth",
-    pythAddress
-  );
- 
-  const vaas = currentPrices?.map(feed=>Buffer.from(feed.vaa, 'base64'));
+  const pyth = await ethers.getContractAt('IPyth', pythAddress);
+  // @ts-ignore
+  const vaas = currentPrices?.map((feed) => Buffer.from(feed.vaa, 'base64'));
   const fee = await pyth.getUpdateFee(vaas);
-  await pyth.updatePriceFeeds(vaas, { value: fee});
-
+  await pyth.updatePriceFeeds(vaas, { value: fee });
 }
