@@ -1,5 +1,5 @@
-import { ContractSendMethod } from "web3-eth-contract";
 import { ContractCallMethod } from "@taikai/dappkit";
+import { ContractSendMethod } from "web3-eth-contract";
 
 export interface VaultMethods {
 
@@ -22,7 +22,7 @@ export interface VaultMethods {
     subtractedValue: number
   ): ContractSendMethod;
 
-  deposit(receiver: string): ContractSendMethod;
+  depositNative(receiver: string): ContractSendMethod;
 
   eip712Domain(): ContractCallMethod<{
     fields: string;
@@ -62,13 +62,9 @@ export interface VaultMethods {
 
   renounceOwnership(): ContractSendMethod;
 
-  settings(): ContractCallMethod<string>;
-
-  settingsA(): ContractCallMethod<string>;
-
   symbol(): ContractCallMethod<string>;
 
-  tokenPerETH(): ContractCallMethod<number>;
+  tokenPerAsset(): ContractCallMethod<number>;
 
   totalAssets(): ContractCallMethod<{ amount: number }>;
 
@@ -80,5 +76,32 @@ export interface VaultMethods {
 
   transferOwnership(newOwner: string): ContractSendMethod;
 
-  withdraw(shares: number): ContractSendMethod;
+  redeemNative(shares: number): ContractSendMethod;
+
+  maxDeposit(receiver: string): ContractCallMethod<number>;
+
+  previewDeposit(assets: number): ContractCallMethod<number>;
+  
+  deposit(assets:number, receiver: string): ContractSendMethod;
+
+  maxMint(receiver: string): ContractCallMethod<number>;
+
+  previewMint(shares: number): ContractCallMethod<number>;
+
+  mint( shares: number,  receiver: string): ContractSendMethod;
+
+  maxWithdraw( owner: string): ContractCallMethod<number>;
+
+  previewWithdraw(assets: number): ContractCallMethod<number>;
+
+  withdraw(assets: number, receiver: string, owner: string): ContractSendMethod;
+
+  maxRedeem(owner: string): ContractCallMethod<number>;
+
+  previewRedeem(shares: number): ContractCallMethod<number>;
+
+  redeem(shares: number, receiver: string, owner: string): ContractCallMethod<number>;
+
+  asset(): ContractCallMethod<number>;
+
 }

@@ -3,6 +3,8 @@ import {ContractCallMethod} from '@taikai/dappkit';
 
 export interface StrategyAAVEv3WstETHMethods {
 
+  deploy(amount: number): ContractSendMethod;
+
   getPosition(priceOptions: {
     maxAge: number;
     maxConf: number;
@@ -10,12 +12,11 @@ export interface StrategyAAVEv3WstETHMethods {
 
   harvest(): ContractSendMethod;
 
-
-  undeploy(amount: number): ContractSendMethod;
-
   owner(): ContractCallMethod<string>;
 
-  deploy(): ContractSendMethod;
+  governor(): ContractCallMethod<string>;
+
+  renounceOwnership(): ContractSendMethod
 
   deployed(priceOptions: {
     maxAge: number;
@@ -31,7 +32,7 @@ export interface StrategyAAVEv3WstETHMethods {
 
   transferOwnership(newOwner: string): ContractSendMethod
 
-  renounceOwnership(): ContractSendMethod
+  undeploy(amount: number): ContractSendMethod;
 
   getLoanToValue(): ContractCallMethod<number>;
 
@@ -44,5 +45,7 @@ export interface StrategyAAVEv3WstETHMethods {
   setMaxLoanToValue(maxLoanToValue: number): ContractSendMethod
 
   setNrLoops(nrLoops: number): ContractSendMethod
+
+  asset(): ContractCallMethod<string>;
 
 }

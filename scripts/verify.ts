@@ -52,9 +52,7 @@ async function main() {
     constructorArguments: [
       networkConfig.settings,
       networkConfig.proxyAdmin,
-      settingsFactory.interface.encodeFunctionData('initialize', [
-        deployConfig.owner
-      ]),
+      settingsFactory.interface.encodeFunctionData('initialize', [deployConfig.owner]),
     ],
   });
   console.log('Verifying Strategy');

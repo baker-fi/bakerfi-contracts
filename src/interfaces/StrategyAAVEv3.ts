@@ -2,9 +2,9 @@ import {ContractSendMethod} from 'web3-eth-contract';
 import {ContractCallMethod} from '@taikai/dappkit';
 
 export interface AAVEv3StrategyAnyMethods {
-
-  deploy(): ContractSendMethod;
-
+  
+  deploy(amount: number): ContractSendMethod;
+  
   getPosition(priceOptions: {
     maxAge: number;
     maxConf: number;
@@ -26,7 +26,7 @@ export interface AAVEv3StrategyAnyMethods {
   }): ContractCallMethod<{'totalOwnedAssets': number;}>;
 
   undeploy(amount: number): ContractSendMethod;
-  
+ 
   getLoanToValue(): ContractCallMethod<number>;
 
   getMaxLoanToValue(): ContractCallMethod<number>;
@@ -38,5 +38,7 @@ export interface AAVEv3StrategyAnyMethods {
   setMaxLoanToValue(maxLoanToValue: number): ContractSendMethod
 
   setNrLoops(nrLoops: number): ContractSendMethod
+
+  asset(): ContractCallMethod<string>;
 
 }

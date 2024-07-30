@@ -23,12 +23,15 @@ import BaseConfig, { NetworkConfig } from '../../constants/network-deploy-config
  */
 describeif(network.name === 'hardhat')('Strategy AAVE v3 L2', function () {
   it('Test Deploy', async function () {
-    const { owner, strategy } = await loadFixture(deployFunction);
+    const { owner, weth, strategy } = await loadFixture(deployFunction);
+
     // Deploy 10 ETH
+    const amount = ethers.parseUnits('10', 18);
+    await weth.deposit?.call('', { value: amount });
+    await weth.approve(await strategy.getAddress(), amount);
+
     expect(
-      await strategy.deploy({
-        value: ethers.parseUnits('10', 18),
-      }),
+      await strategy.deploy(amount),
       // @ts-ignore
     ).to.changeEtherBalances([owner.address], [ethers.parseUnits('10', 18)]);
     expect(await strategy.getPosition([0, 0])).to.deep.equal([
@@ -40,12 +43,15 @@ describeif(network.name === 'hardhat')('Strategy AAVE v3 L2', function () {
   });
 
   it('Test Undeploy', async function () {
-    const { owner, strategy } = await loadFixture(deployFunction);
+    const { owner, weth, strategy } = await loadFixture(deployFunction);
     const receiver = owner.address;
+
+    const amount = ethers.parseUnits('10', 18);
+    await weth.deposit?.call('', { value: amount });
+    await weth.approve(await strategy.getAddress(), amount);
     // Deploy 10TH ETH
-    await strategy.deploy({
-      value: ethers.parseUnits('10', 18),
-    });
+    await strategy.deploy(amount);
+
     expect(await strategy.getPosition([0, 0])).to.deep.equal([
       45702851552764668112n,
       35740737736704000000n,
@@ -56,37 +62,38 @@ describeif(network.name === 'hardhat')('Strategy AAVE v3 L2', function () {
     await expect(
       strategy.undeploy(ethers.parseUnits('5', 18)),
       // @ts-ignore
-    ).to.changeEtherBalances([owner.address], [4983156389718359984n]);
+    ).to.changeTokenBalances(weth, [owner.address], [4983156389718359984n]);
   });
 
   it('Deploy Fail - Zero Value', async () => {
     const { owner, otherAccount, strategy } = await loadFixture(deployFunction);
 
     await expect(
-      strategy.deploy({
-        value: 0,
-      }),
+      strategy.deploy(0),
       // @ts-ignore
     ).to.be.revertedWithCustomError(strategy, 'InvalidDeployAmount');
   });
 
   it('Deploy Fail - No Permissions', async () => {
-    const { owner, otherAccount, strategy } = await loadFixture(deployFunction);
+    const { owner, weth, otherAccount, strategy } = await loadFixture(deployFunction);
+    const amount = ethers.parseUnits('10', 18);
+    await weth.deposit?.call('', { value: amount });
+    await weth.approve(await strategy.getAddress(), amount);
     await expect(
       // @ts-expect-error
-      strategy.connect(otherAccount).deploy({
-        value: ethers.parseUnits('10', 18),
-      }),
+      strategy.connect(otherAccount).deploy(amount),
       // @ts-ignore
     ).to.be.revertedWith('Ownable: caller is not the owner');
   });
 
   it('Undeploy Fail - No Permissions', async () => {
-    const { owner, otherAccount, strategy } = await loadFixture(deployFunction);
+    const { owner, otherAccount, weth, strategy } = await loadFixture(deployFunction);
 
-    strategy.deploy({
-      value: ethers.parseUnits('10', 18),
-    });
+    const amount = ethers.parseUnits('10', 18);
+    await weth.deposit?.call('', { value: amount });
+    await weth.approve(await strategy.getAddress(), amount);
+
+    strategy.deploy(amount);
     await expect(
       // @ts-expect-error
       strategy.connect(otherAccount).undeploy(ethers.parseUnits('5', 18)),
@@ -103,11 +110,13 @@ describeif(network.name === 'hardhat')('Strategy AAVE v3 L2', function () {
   });
 
   it('Undeploy Fail - Uncollateralized', async () => {
-    const { oracle, otherAccount, aave3Pool, strategy } = await loadFixture(deployFunction);
+    const { oracle, weth, otherAccount, aave3Pool, strategy } = await loadFixture(deployFunction);
 
-    await strategy.deploy({
-      value: ethers.parseUnits('10', 18),
-    });
+    const amount = ethers.parseUnits('10', 18);
+    await weth.deposit?.call('', { value: amount });
+    await weth.approve(await strategy.getAddress(), amount);
+
+    await strategy.deploy(amount);
     await aave3Pool.setCollateralPerEth(1130 * 1e6 * 0.1);
     await oracle.setLatestPrice(1130 * 1e6 * 0.1);
     await expect(
@@ -215,9 +224,11 @@ describeif(network.name === 'hardhat')('Strategy AAVE v3 L2', function () {
     const attacker = await BorrowerAttacker.deploy();
     await attacker.initialize(await serviceRegistry.getAddress());
 
-    await strategy.deploy({
-      value: ethers.parseUnits('10', 18),
-    });
+    const amount = ethers.parseUnits('10', 18);
+    await weth.deposit?.call('', { value: amount });
+    await weth.approve(await strategy.getAddress(), amount);
+
+    await strategy.deploy(amount);
 
     await expect(
       attacker.flashme(await weth.getAddress(), ethers.parseUnits('1', 18)),
@@ -229,10 +240,12 @@ describeif(network.name === 'hardhat')('Strategy AAVE v3 L2', function () {
     const { weth, serviceRegistry, settings, strategy, oracle, ethOracle } = await loadFixture(
       deployFunction,
     );
+    const amount = ethers.parseUnits('10', 18);
+    await weth.deposit?.call('', { value: amount });
+    await weth.approve(await strategy.getAddress(), amount);
+
     // Deposit 10 ETH
-    await strategy.deploy({
-      value: ethers.parseUnits('10', 18),
-    });
+    await strategy.deploy(amount);
     await settings.setRebalancePriceMaxAge(60);
     // advance time by one hour and mine a new block
     await time.increase(3600);
@@ -245,9 +258,11 @@ describeif(network.name === 'hardhat')('Strategy AAVE v3 L2', function () {
       deployFunction,
     );
     // Deposit 10 ETH
-    await strategy.deploy({
-      value: ethers.parseUnits('10', 18),
-    });
+    const amount = ethers.parseUnits('10', 18);
+    await weth.deposit?.call('', { value: amount });
+    await weth.approve(await strategy.getAddress(), amount);
+
+    await strategy.deploy(amount);
     await settings.setRebalancePriceMaxAge(4800);
     // advance time by one hour and mine a new block
     await time.increase(3600);

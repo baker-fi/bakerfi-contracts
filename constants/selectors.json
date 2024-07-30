@@ -18,7 +18,7 @@
     "0x914e9240": "deposit",
     "0x95c496f4": "withdraw",
     "0x9ca7aead": "DOMAIN_SEPARATOR",
-    "0xa3414acc": "tokenPerETH",
+    "0xa3414acc": "tokenPerAsset",
     "0xab525eab": "rebalance",
     "0xb5fc7635": "nonces",
     "0xcfd08db9": "decimals",
@@ -436,7 +436,7 @@
     "0x8f2f2614": "convertToAssets",
     "0x914e9240": "deposit",
     "0x95c496f4": "withdraw",
-    "0xa3414acc": "tokenPerETH",
+    "0xa3414acc": "tokenPerAsset",
     "0xab525eab": "rebalance",
     "0xfa1e586e": "convertToShares"
   },

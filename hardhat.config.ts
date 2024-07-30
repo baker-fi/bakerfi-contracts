@@ -12,9 +12,10 @@ import { HardhatUserConfig } from "hardhat/config";
 import { STAGING_ACCOUNTS_PKEYS} from "./constants/test-accounts";
 import {HardhatNetworkAccountUserConfig} from "hardhat/types/config";
 import "@nomicfoundation/hardhat-verify";
-//import "hardhat-tracer";
+
 import 'solidity-docgen';
-import "./scripts/tasks";
+import "./scripts/tasks/";
+import "hardhat-storage-layout-changes";
 
 
 const devAccounts: HardhatNetworkAccountUserConfig[] =  STAGING_ACCOUNTS_PKEYS.map(
@@ -102,6 +103,9 @@ const config: HardhatUserConfig = {
       accounts: STAGING_ACCOUNTS_PKEYS
     },
   },
+  paths: {
+    storageLayouts: ".storage-layouts",
+  },
   solidity: {
     compilers: [
       {
@@ -138,7 +142,11 @@ const config: HardhatUserConfig = {
             enabled: true,
             runs: 200,
           },
-
+          outputSelection: {
+            "*": {
+              "*": ["storageLayout"],
+            },
+          },
         },
       },
       {
@@ -173,9 +181,15 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: {
-      base: process.env.BASESCAN_API_KEY,
+      base: process.env.BASESCAN_API_KEY || "",
     },
-  }  
+  } ,
+
+  storageLayoutChanges: {
+    contracts: ["Vault", "Settings", "StrategyAAVEv3"],
+    fullPath: false
+  }
+
 };
 
 export default config;

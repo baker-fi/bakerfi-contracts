@@ -87,9 +87,6 @@ export class StrategyAAVEv3
     return this.sendTx(this.contract.methods.undeploy(amount));
   }
 
-  async deployAssets(value: number) { 
-    return this.sendTx(this.contract.methods.deploy(), value);
-  }
 
   async getLoanToValue() { 
     return this.callTx(this.contract.methods.getLoanToValue());
