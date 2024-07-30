@@ -26,7 +26,8 @@ contract PythOracle is IOracle {
 
   IPyth private immutable _pyth;
   bytes32 private immutable _priceID;
-  uint256 private constant _PRECISION = 18;
+  uint256 private constant _PRECISION = 1e18;
+  uint256 private constant _DECIMALS = 18;
   int256 internal constant MIN_EXPONENT = -20;
   int256 internal constant MAX_EXPONENT = 20;
   /**
@@ -70,9 +71,9 @@ contract PythOracle is IOracle {
     }
 
     if (price.expo >= 0) {
-      outPrice.price = uint64(price.price) * uint256(10 ** (_PRECISION + uint32(price.expo)));
+      outPrice.price = uint64(price.price) * uint256(10 ** (_DECIMALS + uint32(price.expo)));
     } else {
-      outPrice.price = uint64(price.price) * uint256(10 ** (_PRECISION - uint32(-price.expo)));
+      outPrice.price = uint64(price.price) * uint256(10 ** (_DECIMALS - uint32(-price.expo)));
     }
     outPrice.lastUpdate = price.publishTime;
   }

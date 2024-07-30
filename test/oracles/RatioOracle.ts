@@ -59,7 +59,7 @@ describeif(network.name === 'hardhat')('Ratio Oracle', function () {
   it('Pyth Oracle Tests - Get The Latest Price', async function () {
     const now = Math.floor(new Date().getTime() / 1000);
     const { oracle } = await loadFixture(deployFunction);
-    expect(await oracle.getPrecision()).to.equal(18);
+    expect(await oracle.getPrecision()).to.equal(10n**18n);
 
     const [price, lastUpdate] = await oracle.getLatestPrice();
     expect(price).to.equal(3936610795005998708536n);
@@ -69,7 +69,7 @@ describeif(network.name === 'hardhat')('Ratio Oracle', function () {
   it('Pyth Oracle Tests - Get The Safe Latest Price', async function () {
     const now = Math.floor(new Date().getTime() / 1000);
     const { oracle } = await loadFixture(deployFunction);
-    expect(await oracle.getPrecision()).to.equal(18);
+    expect(await oracle.getPrecision()).to.equal(10n**18n);
 
     const [price, lastUpdate] = await oracle.getSafeLatestPrice([180, 0]);
     expect(price).to.equal(3936610795005998708536n);
@@ -86,7 +86,7 @@ describeif(network.name === 'hardhat')('Ratio Oracle', function () {
   });
 
 
-  it('Pyth Oracle Tests - Ratio 6 Decimals', async function () {
+  it('Pyth Oracle Tests - Ratio Ratio 6 Decimals', async function () {
     const {  ratioOracleCL, pythOracle} = await loadFixture(deployFunction);
     await ratioOracleCL.setLatestPrice(1174056n);
     await ratioOracleCL.setDecimals(6);
@@ -99,6 +99,24 @@ describeif(network.name === 'hardhat')('Ratio Oracle', function () {
     const [price] = await oracle.getLatestPrice();
     expect(price).to.equal(3936609768000000000000n);
   });
+
+
+  it('Pyth Oracle Tests - Base Ratio 9 Decimals', async function () {
+    
+    const {  ratioOracleCL, pythOracle} = await loadFixture(deployFunction);
+    
+    const OracleMock = await ethers.getContractFactory('OracleMock');
+    const oracleMock = await OracleMock.deploy();
+    await oracleMock.waitForDeployment();
+
+    const RatioOracle = await ethers.getContractFactory('RatioOracle');
+    const oracle = await RatioOracle.deploy(
+      await oracleMock.getAddress(),
+      await ratioOracleCL.getAddress(),
+    );
+    const [price] = await oracle.getLatestPrice();
+    expect(price).to.equal(1326683626112967056n);
+  })
 
 
 });
