@@ -2,12 +2,12 @@ import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import { expect } from 'chai';
 import { ethers, network } from 'hardhat';
 import { describeif } from '../common';
-import { deployLeverage } from '../../scripts/common';
+import { deployTestLeverage } from '../../scripts/common';
 
 describeif(network.name === 'hardhat')('Leverage', function () {
   async function deployFunction() {
     const [owner, otherAccount] = await ethers.getSigners();
-    const leverage = await deployLeverage();
+    const leverage = await deployTestLeverage();
     return { owner, leverage };
   }
 

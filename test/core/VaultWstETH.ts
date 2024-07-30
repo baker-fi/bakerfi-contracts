@@ -337,7 +337,6 @@ describeif(network.name === 'hardhat')('BakerFi Vault Main Net wstETH/ETH', func
 
     await expect(
       vault.withdraw(ethers.parseUnits('1', 18)),
-      // @ts-expect-error
     ).to.be.revertedWithCustomError(vault, 'NoPermissions');
   });
 

@@ -245,7 +245,7 @@ abstract contract StrategyLeverage is
     // 1. Wrap Ethereum
     address(wETHA()).functionCallWithValue(abi.encodeWithSignature("deposit()"), msg.value);
     // 2. Initiate a WETH Flash Loan
-    uint256 leverage = calculateLeverageRatio(msg.value, getLoanToValue(), getNrLoops());
+    uint256 leverage = _calculateLeverageRatio(msg.value, getLoanToValue(), getNrLoops());
     uint256 loanAmount = leverage - msg.value;
     uint256 fee = flashLender().flashFee(wETHA(), loanAmount);
 
@@ -337,7 +337,7 @@ abstract contract StrategyLeverage is
     uint256 totalCollateralBaseInEth,
     uint256 totalDebtBaseInEth
   ) internal returns (uint256 deltaAmount) {
-    uint256 deltaDebt = calculateDebtToPay(
+    uint256 deltaDebt = _calculateDebtToPay(
       getLoanToValue(),
       totalCollateralBaseInEth,
       totalDebtBaseInEth
@@ -503,7 +503,7 @@ abstract contract StrategyLeverage is
       (totalCollateralBaseInEth - totalDebtBaseInEth);
 
     // Calculate how much i need to burn to accomodate the withdraw
-    (uint256 deltaCollateralInETH, uint256 deltaDebtInETH) = calcDeltaPosition(
+    (uint256 deltaCollateralInETH, uint256 deltaDebtInETH) = _calcDeltaPosition(
       percentageToBurn,
       totalCollateralBaseInEth,
       totalDebtBaseInEth
