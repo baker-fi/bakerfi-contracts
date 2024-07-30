@@ -1,11 +1,8 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.24;
 
-import { PERCENTAGE_PRECISION } from "../core/Constants.sol";
 import { IOracle } from "../interfaces/core/IOracle.sol";
-import { IPyth } from "../interfaces/pyth/IPyth.sol";
 import { IChainlinkAggregator } from "../interfaces/chainlink/IChainlinkAggregator.sol";
-import { PythStructs } from "../interfaces/pyth/PythStructs.sol";
 
 /**
  * @title Ratio Oracle to create a price based on ETH/USD and WSTETH/STETH Ratio 
