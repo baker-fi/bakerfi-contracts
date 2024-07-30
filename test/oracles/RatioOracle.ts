@@ -138,6 +138,6 @@ describeif(network.name === 'base_devnet')('Ratio Oracle', function () {
     const { oracle } = await loadFixture(deployFunction);
 
     const [price] = await oracle.getLatestPrice();
-    expect(price).to.greaterThan(3003618594496755974593n);
+    expect(price).to.greaterThan(Number(3003618594496755974593n));
   });
 });
