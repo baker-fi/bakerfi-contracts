@@ -96,7 +96,6 @@ describeif(network.name === 'hardhat')('BakerFi Vault Main Net wstETH/ETH', func
       vault.depositNative(owner.address, {
         value: ethers.parseUnits('0', 18),
       }),
-      // @ts-expect-error
     ).to.be.revertedWithCustomError(vault, 'InvalidDepositAmount');
   });
 
@@ -110,7 +109,6 @@ describeif(network.name === 'hardhat')('BakerFi Vault Main Net wstETH/ETH', func
     await vault.approve(vault.getAddress(), ethers.parseUnits('20', 18));
     await expect(
       vault.redeemNative(ethers.parseUnits('20', 18)),
-      // @ts-expect-error
     ).to.be.revertedWithCustomError(vault, 'NotEnoughBalanceToWithdraw');
   });
 
@@ -301,7 +299,6 @@ describeif(network.name === 'hardhat')('BakerFi Vault Main Net wstETH/ETH', func
 
     await expect(
       vault.redeemNative(ethers.parseUnits('1', 18), '0x0000000000000000000000000000000000000000'),
-      // @ts-expect-error
     ).to.be.revertedWith('Invalid Receiver');
   });
 
@@ -350,7 +347,6 @@ describeif(network.name === 'hardhat')('BakerFi Vault Main Net wstETH/ETH', func
 
     await expect(
       vault.redeemNative(ethers.parseUnits('1', 18)),
-      // @ts-expect-error
     ).to.be.revertedWithCustomError(vault, 'NoPermissions');
   });
 
@@ -377,7 +373,6 @@ describeif(network.name === 'hardhat')('BakerFi Vault Main Net wstETH/ETH', func
 
     await expect(
       vault.redeemNative(ethers.parseUnits('1', 18)),
-      // @ts-expect-error
     ).to.be.revertedWithCustomError(vault, 'NoAssetsToWithdraw');
   });
 
@@ -428,7 +423,6 @@ describeif(network.name === 'hardhat')('BakerFi Vault Main Net wstETH/ETH', func
     const depositAmount = ethers.parseUnits('10', 18);
     await expect(
       vault.depositNative(owner.address, { value: depositAmount }),
-      // @ts-expect-error
     ).to.be.revertedWithCustomError(vault, 'MaxDepositReached');
   });
 
@@ -444,7 +438,6 @@ describeif(network.name === 'hardhat')('BakerFi Vault Main Net wstETH/ETH', func
     expect(await vault.balanceOf(owner.address)).to.equal(498105690803033405n);
     await expect(
       vault.depositNative(owner.address, { value: ethers.parseUnits('6', 17) }),
-      // @ts-expect-error
     ).to.be.revertedWithCustomError(vault, 'MaxDepositReached');
   });
 
