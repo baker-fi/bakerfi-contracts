@@ -163,6 +163,7 @@ abstract contract StrategyLeverage is
     if (!wETH().approve(uniRouterA(), 2 ** 256 - 1)) revert FailedToApproveAllowance();
     if (!ierc20().approve(uniRouterA(), 2 ** 256 - 1)) revert FailedToApproveAllowance();
   }
+  
 
   /**
    * @dev Fallback function to receive Ether.
@@ -794,6 +795,21 @@ abstract contract StrategyLeverage is
     revert InvalidOwner();
   }
 
+  function getCollateralOracle() public view returns (address oracle) {
+    oracle = address(_collateralOracle);
+  }
+
+  function getDebtOracle()  public view  returns (address oracle) {
+    oracle = address(_ethUSDOracle);
+  }
+
+  function setCollateralOracle(IOracle oracle) public onlyGovernor {
+   _collateralOracle = oracle;
+  }
+
+  function setDebtOracle(IOracle oracle)  public onlyGovernor {
+    _ethUSDOracle = oracle;
+  
   function asset() public view override returns (address) {
     return wETHA();
   }

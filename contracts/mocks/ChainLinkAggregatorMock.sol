@@ -7,11 +7,11 @@ contract ChainLinkAggregatorMock is IChainlinkAggregator {
   uint256 internal _exchangeRate;
   uint256 internal _lastUpdate;
 
-  uint8 internal immutable _DECIMALS = 6;
+  uint8 private _decimals = 6;
 
   constructor() {
     _lastUpdate = block.timestamp;
-    _exchangeRate = 3500 * (10 ** _DECIMALS);
+    _exchangeRate = 3500 * (10 ** _decimals);
   }
 
   function setLatestPrice(uint256 exchangeRate) external {
@@ -19,8 +19,12 @@ contract ChainLinkAggregatorMock is IChainlinkAggregator {
     _lastUpdate = block.timestamp;
   }
 
-  function decimals() external pure override returns (uint8) {
-    return _DECIMALS;
+  function setDecimals(uint8 ldecimals) external{
+    _decimals = ldecimals;
+  }
+
+  function decimals() external view override returns (uint8) {
+    return _decimals;
   }
 
   function latestAnswer() external view override returns (int256) {

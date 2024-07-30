@@ -23,7 +23,7 @@ describeif(network.name === 'hardhat')('Pyth Oracle Tests', function () {
 
   it('Pyth Oracle Tests - Decimal Price', async function () {
     const { pythMock, pythOracle } = await loadFixture(deployFunction);
-    expect(await pythOracle.getPrecision()).to.equal(18);
+    expect(await pythOracle.getPrecision()).to.equal(10n**18n);
 
     const updateData = new AbiCoder().encode(
       ['tuple(bytes32, tuple(int64, uint64, int32, uint),  tuple(int64, uint64, int32, uint))'],
@@ -42,7 +42,7 @@ describeif(network.name === 'hardhat')('Pyth Oracle Tests', function () {
 
   it('Pyth Oracle Tests - Fractional Price', async function () {
     const { pythMock, pythOracle } = await loadFixture(deployFunction);
-    expect(await pythOracle.getPrecision()).to.equal(18);
+    expect(await pythOracle.getPrecision()).to.equal(10n**18n);
     const updateData = new AbiCoder().encode(
       ['tuple(bytes32, tuple(int64, uint64, int32, uint),  tuple(int64, uint64, int32, uint))'],
       [[feedIds[PythFeedNameEnum.WSTETH_USD], [12, 0, 2, 1706801584], [12, 0, 2, 1706801584]]],
