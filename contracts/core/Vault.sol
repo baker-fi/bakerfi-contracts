@@ -301,7 +301,7 @@ contract Vault is
   ) external override nonReentrant whenNotPaused onlyWhiteListed returns (uint256 shares) {
     if (_strategy.asset() != address(_wETH)) revert InvalidDepositAsset();
     shares = this.convertToShares(assets);
-    _redeemInternal(shares, address(this), msg.sender, true);
+    _redeemInternal(shares, msg.sender, msg.sender, true);
   }
 
   function redeemNative(
