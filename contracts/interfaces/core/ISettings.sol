@@ -52,11 +52,11 @@ interface ISettings {
    * @dev Emitted when the Maximum Deposit ETH is changed
    * @param value The new amount that is allowed to be deposited
    */
-  event RebalancePriceMaxAgeChange(uint256 indexed value);
+  event RebalancePriceMaxAgeChanged(uint256 indexed value);
 
-  event PriceMaxAgeChange(uint256 indexed value);
+  event PriceMaxAgeChanged(uint256 indexed value);
 
-  event PriceMaxConfChange(uint256 indexed value);
+  event PriceMaxConfChanged(uint256 indexed value);
 
   /**
    * @dev Emitted when the Maximum Deposit ETH is changed
