@@ -1,6 +1,6 @@
 {
   "name": "@baker-fi/sdk",
-  "version": "v1.1.0-rc.2",
+  "version": "v1.1.0-rc.3",
   "description": "",
   "main": "dist/src/index.js",
   "module": "dist/src/index.js",
@@ -23,7 +23,7 @@
     "test:coverage": "REPORT_GAS=true npx hardhat coverage",
     "contract:size": "npx hardhat size-contracts",
     "lint": "npx hardhat check",
-    "prettier": "npx prettier --config .prettierrc.json --write 'contracts/**/*.sol' 'scripts/**/*.ts' 'test/**/*.ts'",
+    "prettier": "npx prettier --plugin=prettier-plugin-solidity --config .prettierrc.json --write 'contracts/**/*.sol' 'scripts/**/*.ts' 'test/**/*.ts'",
     "start": "NODE_ENV=production node dist/index.js",
     "export:flat": "npx hardhat export-flat",
     "export:selectors": "npx hardhat selectors",

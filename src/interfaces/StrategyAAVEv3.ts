@@ -39,6 +39,14 @@ export interface AAVEv3StrategyAnyMethods {
 
   setNrLoops(nrLoops: number): ContractSendMethod
 
+  getCollateralOracle(): ContractCallMethod<string>;
+
+  getDebtOracle(): ContractCallMethod<string>;
+
+  setCollateralOracle(oracle: string): ContractSendMethod
+  
+  setDebtOracle(oracle: string): ContractSendMethod
+
   asset(): ContractCallMethod<string>;
 
 }

@@ -46,6 +46,14 @@ export interface StrategyAAVEv3WstETHMethods {
 
   setNrLoops(nrLoops: number): ContractSendMethod
 
+  getCollateralOracle(): ContractCallMethod<string>;
+
+  getDebtOracle(): ContractCallMethod<string>;
+
+  setCollateralOracle(oracle: string): ContractSendMethod
+  
+  setDebtOracle(oracle: string): ContractSendMethod
+
   asset(): ContractCallMethod<string>;
 
 }
