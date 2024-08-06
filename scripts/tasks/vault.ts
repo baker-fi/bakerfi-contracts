@@ -119,7 +119,7 @@ task('vault:withdraw', 'Burn brETH shares and receive ETH')
       await app?.send(
         'Vault',
         networkConfig.vaultProxy ?? '',
-        'depositNative',
+        'withdrawNative',
         [ethers.parseUnits(amount, 18)],
         {
           chainId: network.config.chainId,

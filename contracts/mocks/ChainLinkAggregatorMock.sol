@@ -19,7 +19,7 @@ contract ChainLinkAggregatorMock is IChainlinkAggregator {
     _lastUpdate = block.timestamp;
   }
 
-  function setDecimals(uint8 ldecimals) external{
+  function setDecimals(uint8 ldecimals) external {
     _decimals = ldecimals;
   }
 

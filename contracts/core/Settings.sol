@@ -260,7 +260,7 @@ contract Settings is Ownable2StepUpgradeable, ISettings {
    */
   function setRebalancePriceMaxAge(uint256 value) external onlyOwner {
     _priceRebalanceMaxAge = value;
-    emit RebalancePriceMaxAgeChange(value);
+    emit RebalancePriceMaxAgeChanged(value);
   }
 
   /**
@@ -281,7 +281,7 @@ contract Settings is Ownable2StepUpgradeable, ISettings {
    */
   function setPriceMaxAge(uint256 value) external onlyOwner {
     _priceMaxAge = value;
-    emit PriceMaxAgeChange(value);
+    emit PriceMaxAgeChanged(value);
   }
 
   /**
@@ -299,7 +299,7 @@ contract Settings is Ownable2StepUpgradeable, ISettings {
   function setPriceMaxConf(uint256 value) external onlyOwner {
     if (value > PERCENTAGE_PRECISION) revert InvalidPercentage();
     _priceMaxConf = value;
-    emit PriceMaxConfChange(value);
+    emit PriceMaxConfChanged(value);
   }
 
   /**

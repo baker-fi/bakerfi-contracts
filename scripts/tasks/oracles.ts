@@ -7,9 +7,9 @@ import { PythFeedNameEnum, feedIds } from '../../constants/pyth';
 import { getClient } from './common';
 
 task('oracles:priceUpdate', 'Update Required Prices').setAction(async ({}, { ethers, network }) => {
-  const networkName = network.name;
-  const networkConfig = DeployConfig[networkName];
   const spinner = ora(`Pyth Price Updates`).start();
+  const networkName = network.name;
+  const networkDeployConfig = NetworkDeployConfig[networkName];
   try {
     let app = await getClient(ethers);
     const connection = new PriceServiceConnection('https://hermes.pyth.network', {
@@ -29,9 +29,6 @@ task('oracles:priceUpdate', 'Update Required Prices').setAction(async ({}, { eth
     // Get the latest values of the price feeds as json objects.
     // If you set `binary: true` above, then this method also returns signed price updates for the on-chain Pyth contract.
     const currentPrices = await connection.getLatestPriceFeeds(priceIds);
-    const networkName = network.name;
-    const networkConfig = DeployConfig[networkName];
-    const networkDeployConfig = NetworkDeployConfig[networkName];
     // You can also call this function to get price updates for the on-chain contract directly.
     const vaas = currentPrices?.map((feed) =>
       // @ts-ignore: Unreachable code error
@@ -41,6 +38,7 @@ task('oracles:priceUpdate', 'Update Required Prices').setAction(async ({}, { eth
     const fee = await app?.call('IPyth', networkDeployConfig.pyth ?? '', 'getUpdateFee', [vaas], {
       chainId: network.config.chainId,
     });
+  
     await app?.send('IPyth', networkDeployConfig.pyth ?? '', 'updatePriceFeeds', [vaas], {
       value: fee,
       chainId: network.config.chainId,

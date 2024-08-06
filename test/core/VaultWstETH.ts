@@ -107,9 +107,10 @@ describeif(network.name === 'hardhat')('BakerFi Vault Main Net wstETH/ETH', func
     });
 
     await vault.approve(vault.getAddress(), ethers.parseUnits('20', 18));
-    await expect(
-      vault.redeemNative(ethers.parseUnits('20', 18)),
-    ).to.be.revertedWithCustomError(vault, 'NotEnoughBalanceToWithdraw');
+    await expect(vault.redeemNative(ethers.parseUnits('20', 18))).to.be.revertedWithCustomError(
+      vault,
+      'NotEnoughBalanceToWithdraw',
+    );
   });
 
   it('Transfer 10 brETH', async function () {
@@ -345,9 +346,10 @@ describeif(network.name === 'hardhat')('BakerFi Vault Main Net wstETH/ETH', func
 
     await settings.enableAccount(otherAccount.address, true);
 
-    await expect(
-      vault.redeemNative(ethers.parseUnits('1', 18)),
-    ).to.be.revertedWithCustomError(vault, 'NoPermissions');
+    await expect(vault.redeemNative(ethers.parseUnits('1', 18))).to.be.revertedWithCustomError(
+      vault,
+      'NoPermissions',
+    );
   });
 
   // Mocked Strategy
@@ -371,9 +373,10 @@ describeif(network.name === 'hardhat')('BakerFi Vault Main Net wstETH/ETH', func
 
     await strategy.setRatio(110);
 
-    await expect(
-      vault.redeemNative(ethers.parseUnits('1', 18)),
-    ).to.be.revertedWithCustomError(vault, 'NoAssetsToWithdraw');
+    await expect(vault.redeemNative(ethers.parseUnits('1', 18))).to.be.revertedWithCustomError(
+      vault,
+      'NoAssetsToWithdraw',
+    );
   });
 
   it('Rebalance - Generates Revenue ', async () => {

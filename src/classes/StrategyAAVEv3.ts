@@ -112,6 +112,22 @@ export class StrategyAAVEv3
     return this.sendTx(this.contract.methods.setNrLoops(nrLoops));
   }
 
+  async getCollateralOracle() { 
+    return this.callTx(this.contract.methods.getCollateralOracle());
+  }
+
+  async getDebtOracle() {
+    return this.callTx(this.contract.methods.getDebtOracle());
+  }
+
+  async setCollateralOracle(oracle: string) { 
+    return this.sendTx(this.contract.methods.setCollateralOracle(oracle));
+  }
+  
+  async setDebtOracle(oracle: string) { 
+    return this.sendTx(this.contract.methods.setCollateralOracle(oracle));
+  }
+
   async getOwnershipTransferredEvents(
     filter: PastEventOptions
   ): XPromiseEvent<Events.OwnershipTransferredEvent> {

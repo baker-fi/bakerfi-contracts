@@ -86,7 +86,7 @@ _Emitted when the Maximum Deposit ETH is changed_
 ### PriceMaxAgeChange
 
 ```solidity
-event PriceMaxAgeChange(uint256 value)
+event PriceMaxAgeChanged(uint256 value)
 ```
 
 ### MaxDepositInETHChanged

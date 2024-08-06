@@ -138,7 +138,7 @@ const Config: DeployConfig = {
         uniswapQuoter: "0x53e12d61AF104185485C79cbeBEe3D1F896d705f",
         weth: "0x5bC13d5ce928Ae6e414A831D173E86fD040deBb9",
         wstETH: "0xf93e63A0d1ec46402065b862f08ad0962d5b2C88",
-        pyth: "0xff1a0f4744e8582df1ae09d5611b887b6a12925c",
+        pyth: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4",
         stETH: "0x07C1F45Dc0a620E6716d8A45485B8f0A79E270F8",
         oracles: [{
             pair:PythFeedNameEnum.WSTETH_USD,
