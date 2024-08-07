@@ -363,21 +363,14 @@ abstract contract StrategyLeverage is
   }
 
   function _adjustDebt(
-    uint256 totalCollateralBaseInUSD,
-    uint256 totalDebtBaseInUSD
+    uint256 totalCollateralInDebt,
+    uint256 totalDebt
   ) internal returns (uint256 deltaAmount) {
-    uint256 deltaDebtInUSD = _calculateDebtToPay(
+    uint256 deltaDebt = _calculateDebtToPay(
       getLoanToValue(),
-      totalCollateralBaseInUSD,
-      totalDebtBaseInUSD
+      totalCollateralInDebt,
+      totalDebt
     );
-
-    IOracle.PriceOptions memory priceOptions = IOracle.PriceOptions({
-      maxAge: settings().getPriceMaxAge(),
-      maxConf: settings().getPriceMaxConf()
-    });
-    uint256 deltaDebt = (deltaDebtInUSD * 1e18) /
-      _debtOracle.getSafeLatestPrice(priceOptions).price;
     uint256 fee = flashLender().flashFee(_debtToken, deltaDebt);
     // uint256 allowance = wETH().allowance(address(this), flashLenderA());
     bytes memory data = abi.encode(deltaDebt, address(0), FlashLoanAction.PAY_DEBT);
@@ -438,7 +431,7 @@ abstract contract StrategyLeverage is
     uint256 ltv = (totalDebt * PERCENTAGE_PRECISION) / totalCollateralInDebt;
     if (ltv > getMaxLoanToValue() && ltv < PERCENTAGE_PRECISION) {
       // Pay Debt to rebalance the position
-      deltaDebt = _adjustDebt(totalCollateralInDebt, totalCollateralInDebt);
+      deltaDebt = _adjustDebt(totalCollateralInDebt, totalDebt);
     }
     uint256 newDeployedAmount = totalCollateralInDebt - deltaDebt - (totalDebt - deltaDebt);
 

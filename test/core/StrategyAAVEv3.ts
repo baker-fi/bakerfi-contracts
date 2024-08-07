@@ -21,7 +21,8 @@ import BaseConfig, { NetworkConfig } from '../../constants/network-deploy-config
 /**
  * StrategyAAVEv3 Unit Tests
  */
-describeif(network.name === 'hardhat')('Strategy Leverage AAVEv3', function () {
+describeif(network.name === 'hardhat')
+('Strategy Leverage AAVEv3', function () {
   it('Test Initialized Strategy', async function () {
     const { owner, strategy } = await loadFixture(deployFunction);
     expect(await strategy.getPosition([0, 0])).to.deep.equal([0n, 0n, 0n]);
@@ -45,7 +46,7 @@ describeif(network.name === 'hardhat')('Strategy Leverage AAVEv3', function () {
       82382400483102720000000n,
       782024239n,
     ]);
-    expect(await strategy.totalAssets([0, 0])).to.equal(22962672346019840000000n);
+    expect(await strategy.totalAssets([0, 0])).to.equal(9962113816060668112n);
   });
 
   //TODO: Test Deploy Emission
@@ -65,12 +66,12 @@ describeif(network.name === 'hardhat')('Strategy Leverage AAVEv3', function () {
       82382400483102720000000n,
       782024239n,
     ]);
-    expect(await strategy.totalAssets([0, 0])).to.equal(22962672346019840000000n);
+    expect(await strategy.totalAssets([0, 0])).to.equal(9962113816060668112n);
     // Receive ~=5 ETH
     await expect(
       strategy.undeploy(ethers.parseUnits('5', 18)),
       // @ts-ignore
-    ).to.changeTokenBalances(weth, [owner.address], [4983140573531472298n]);
+    ).to.changeTokenBalances(weth, [owner.address], [4983156389718359984n]);
   });
 
   it('Deploy Fail - Zero Value', async () => {
@@ -281,7 +282,7 @@ describeif(network.name === 'hardhat')('Strategy Leverage AAVEv3', function () {
       782024239n,
     ]);
 
-    expect(await strategy.totalAssets([0, 0])).to.equal(22962672346019840000000n);
+    expect(await strategy.totalAssets([0, 0])).to.equal(9962113816060668112n);
 
     // Decremennt the Collateral value by 10%
     await oracle.setLatestPrice(ethers.parseUnits('2606', 18));
@@ -289,7 +290,7 @@ describeif(network.name === 'hardhat')('Strategy Leverage AAVEv3', function () {
     await expect(strategy.harvest())
       // @ts-ignore
       .to.emit(strategy, 'StrategyLoss')
-      .withArgs(2138584185252864000000n);
+      .withArgs(927802249567403037n);
 
     expect(await strategy.getPosition([0, 0])).to.deep.equal([
       103206488643869696000000n,
@@ -297,7 +298,7 @@ describeif(network.name === 'hardhat')('Strategy Leverage AAVEv3', function () {
       798228886n,
     ]);
 
-    expect(await strategy.totalAssets([0, 0])).to.equal(20824088160766976000000n);
+    expect(await strategy.totalAssets([0, 0])).to.equal(9034311566493265075n);
   });
 
   it('Harvest - Debt Adjust', async function () {
@@ -323,15 +324,15 @@ describeif(network.name === 'hardhat')('Strategy Leverage AAVEv3', function () {
     await expect(strategy.harvest())
       // @ts-ignore
       .to.emit(strategy, 'StrategyAmountUpdate')
-      .withArgs(12428165063107584000000n);
+      .withArgs(5391828660784201301n);
 
     expect(await strategy.getPosition([0, 0])).to.deep.equal([
-      65379801144452702675166n,
-      49712660252430336002135n,
+      65379801144452702660802n,
+      49712660252430335986000n,
       760367259n,
     ]);
 
-    expect(await strategy.totalAssets([0, 0])).to.equal(15667140892022366673031n);
+    expect(await strategy.totalAssets([0, 0])).to.equal(6797024248165885759n);
   });
 
   it('Harvest Loss - Collateral Value is lower than debt', async function () {

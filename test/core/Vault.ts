@@ -23,8 +23,7 @@ import { time } from '@nomicfoundation/hardhat-network-helpers';
  * Unit Tests for BakerFi Vault with a regular AAVEv3Strategy
  */
 
-describeif(network.name === 'hardhat');
-describe.only('BakerFi Vault', function () {
+describeif(network.name === 'hardhat')('BakerFi Vault', function () {
   it('Deposit with no Flash Loan Fees', async function () {
     const { owner, vault, weth, aave3Pool, strategy, cbETH, flashLender } = await loadFixture(
       deployFunction,
