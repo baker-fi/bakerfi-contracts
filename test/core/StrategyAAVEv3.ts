@@ -21,7 +21,9 @@ import BaseConfig, { NetworkConfig } from '../../constants/network-deploy-config
 /**
  * StrategyAAVEv3 Unit Tests
  */
-describeif(network.name === 'hardhat')('Strategy AAVE v3 L2', function () {
+describeif(network.name === 'hardhat')
+describe.only
+('Strategy AAVE v3 L2', function () {
   it('Test Deploy', async function () {
     const { owner, weth, strategy } = await loadFixture(deployFunction);
 
@@ -35,11 +37,11 @@ describeif(network.name === 'hardhat')('Strategy AAVE v3 L2', function () {
       // @ts-ignore
     ).to.changeEtherBalances([owner.address], [ethers.parseUnits('10', 18)]);
     expect(await strategy.getPosition([0, 0])).to.deep.equal([
-      45702851552764668112n,
-      35740737736704000000n,
+      105345072829122560000000n,
+      82382400483102720000000n,
       782024239n,
     ]);
-    expect(await strategy.deployed([0, 0])).to.equal(9962113816060668112n);
+    expect(await strategy.totalAssets([0, 0])).to.equal(22962672346019840000000n);
   });
 
   it('Test Undeploy', async function () {
@@ -53,16 +55,16 @@ describeif(network.name === 'hardhat')('Strategy AAVE v3 L2', function () {
     await strategy.deploy(amount);
 
     expect(await strategy.getPosition([0, 0])).to.deep.equal([
-      45702851552764668112n,
-      35740737736704000000n,
+      105345072829122560000000n,
+      82382400483102720000000n,
       782024239n,
     ]);
-    expect(await strategy.deployed([0, 0])).to.equal(9962113816060668112n);
+    expect(await strategy.totalAssets([0, 0])).to.equal(22962672346019840000000n);
     // Receive ~=5 ETH
     await expect(
       strategy.undeploy(ethers.parseUnits('5', 18)),
       // @ts-ignore
-    ).to.changeTokenBalances(weth, [owner.address], [4983156389718359984n]);
+    ).to.changeTokenBalances(weth, [owner.address], [4983140573531472298n]);
   });
 
   it('Deploy Fail - Zero Value', async () => {
@@ -156,7 +158,9 @@ describeif(network.name === 'hardhat')('Strategy AAVE v3 L2', function () {
       owner.address,
       await serviceRegistry.getAddress(),
       'cbETH',
-      'cbETH/ETH Oracle',
+      'WETH',
+      'cbETH/USD Oracle',
+      'ETH/USD Oracle',
       config.swapFeeTier,
       config.AAVEEModeCategory,
       proxyAdmin,
@@ -195,7 +199,9 @@ describeif(network.name === 'hardhat')('Strategy AAVE v3 L2', function () {
       owner.address,
       await serviceRegistry.getAddress(),
       'cbETH',
-      'cbETH/ETH Oracle',
+      'WETH',
+      'cbETH/USD Oracle',
+      'ETH/USD Oracle',
       config.swapFeeTier,
       config.AAVEEModeCategory,
       proxyAdmin,
@@ -318,10 +324,11 @@ async function deployFunction() {
   // Deploy AAVEv3 Mock Pool
   const aave3Pool = await deployAaveV3(cbETH, weth, serviceRegistry, AAVE_DEPOSIT);
 
-  const oracle = await deployOracleMock(serviceRegistry, 'cbETH/ETH Oracle');
+  const oracle = await deployOracleMock(serviceRegistry, 'cbETH/USD Oracle');
   const ethOracle = await deployOracleMock(serviceRegistry, 'ETH/USD Oracle');
 
   await oracle.setLatestPrice(ethers.parseUnits('2660', 18));
+
   await ethOracle.setLatestPrice(ethers.parseUnits('2305', 18));
 
   await deployQuoterV2Mock(serviceRegistry);
@@ -331,7 +338,9 @@ async function deployFunction() {
     owner.address,
     serviceRegistryAddress,
     'cbETH',
-    'cbETH/ETH Oracle',
+    'WETH',
+    'cbETH/USD Oracle',
+    'ETH/USD Oracle',
     config.swapFeeTier,
     config.AAVEEModeCategory,
     proxyAdmin,

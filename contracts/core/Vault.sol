@@ -135,10 +135,6 @@ contract Vault is
     _strategy = strategy;
   }
 
-  function initializeV2(ServiceRegistry registry) public reinitializer(VAULT_VERSION) {
-    _wETH = IWETH(registry.getServiceFromHash(WETH_CONTRACT));
-  }
-
   /**
    * @dev Function to rebalance the strategy, prevent a liquidation and pay fees
    * to protocol by minting shares to the fee receiver
@@ -459,7 +455,7 @@ contract Vault is
    * @return amount The total assets under management by the strategy.
    */
   function totalAssets() public view override returns (uint256 amount) {
-    amount = _strategy.deployed(IOracle.PriceOptions({ maxAge: 0, maxConf: 0 }));
+    amount = _strategy.totalAssets(IOracle.PriceOptions({ maxAge: 0, maxConf: 0 }));
   }
 
   /**
@@ -470,7 +466,7 @@ contract Vault is
   function _totalAssets(
     IOracle.PriceOptions memory priceOptions
   ) private view returns (uint256 amount) {
-    amount = _strategy.deployed(priceOptions);
+    amount = _strategy.totalAssets(priceOptions);
   }
 
   /**
@@ -548,9 +544,9 @@ contract Vault is
 
   /**
      * @dev Unpauses the contract
-     
+
      * Only the Owner is ablet to unpause the vault.
-     * 
+     *
      */
   function unpause() external onlyOwner {
     _unpause();

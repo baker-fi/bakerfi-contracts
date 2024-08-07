@@ -10,7 +10,7 @@ import { UseAAVEv3 } from "../hooks/UseAAVEv3.sol";
 import { DataTypes } from "../../interfaces/aave/v3/IPoolV3.sol";
 import { AddressUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 /**
- * @title  AAVE v3 Recursive Staking Strategy for anyETH/WETH
+ * @title  AAVE v3 Recursive Staking Strategy for Collateral/Debt
  *
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
@@ -43,8 +43,10 @@ contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
     address initialOwner,
     address initialGovernor,
     ServiceRegistry registry,
-    bytes32 collateral,
-    bytes32 oracle,
+    bytes32 collateralToken,
+    bytes32 debtToken,
+    bytes32 collateralOracle,
+    bytes32 debtOracle,
     uint24 swapFeeTier,
     uint8 eModeCategory
   ) public initializer {
@@ -52,8 +54,10 @@ contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
       initialOwner,
       initialGovernor,
       registry,
-      collateral,
-      oracle,
+      collateralToken,
+      debtToken,
+      collateralOracle,
+      debtOracle,
       swapFeeTier
     );
     _initUseAAVEv3(registry);
@@ -64,19 +68,21 @@ contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
   /**
    * Get the Current Position on AAVE v3 Money Market
    *
-   * @return collateralBalance  The Collateral Balance Amount
+   * @return collateralBalance The Collateral Balance Amount
    * @return debtBalance  -  The Debt Token Balance Amount
+   *
+   * @dev No Conversion to USD Done
    */
-  function _getMMPosition()
+  function _getLeverageBalances()
     internal
     view
     virtual
     override
     returns (uint256 collateralBalance, uint256 debtBalance)
   {
-    DataTypes.ReserveData memory wethReserve = (aaveV3().getReserveData(wETHA()));
-    DataTypes.ReserveData memory colleteralReserve = (aaveV3().getReserveData(ierc20A()));
-    debtBalance = IERC20(wethReserve.variableDebtTokenAddress).balanceOf(address(this));
+    DataTypes.ReserveData memory debtReserve = (aaveV3().getReserveData(_debtToken));
+    DataTypes.ReserveData memory colleteralReserve = (aaveV3().getReserveData(_collateralToken));
+    debtBalance = IERC20(debtReserve.variableDebtTokenAddress).balanceOf(address(this));
     collateralBalance = IERC20(colleteralReserve.aTokenAddress).balanceOf(address(this));
   }
   /**

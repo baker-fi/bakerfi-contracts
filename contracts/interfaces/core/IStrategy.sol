@@ -4,7 +4,7 @@ pragma solidity ^0.8.24;
 import { IOracle } from "./IOracle.sol";
 
 /**
- * @title Strategy Inteface to deploy and ERC-20 on a standard
+ * @title Strategy Inteface to deploy and ERC-20 on an investment strategy
  *
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
@@ -83,11 +83,11 @@ interface IStrategy {
   function undeploy(uint256 amount) external returns (uint256 undeployedAmount);
 
   /**
-   * @dev Retrieves the total owned assets by the Strategy in ETH
+   * @dev Retrieves the total owned assets by the Strategy in USD
    *
    * @return assets The total owned assets in Ether.
    */
-  function deployed(IOracle.PriceOptions memory options) external view returns (uint256 assets);
+  function totalAssets(IOracle.PriceOptions memory options) external view returns (uint256 assets);
 
   /**
    * The Asset deployed on this strategy

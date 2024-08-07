@@ -106,8 +106,10 @@ export async function deployAAVEv3StrategyAny(
   owner: string,
   governor: string,
   serviceRegistry: string,
-  collateral: string,
-  oracle: string,
+  collateralToken: string,
+  debtToken: string,
+  collateralOracle: string,
+  debtOracle: string,
   swapFreeTier: number,
   emodeCategory: number,
   proxyAdmin?: any,
@@ -123,8 +125,10 @@ export async function deployAAVEv3StrategyAny(
       owner,
       governor,
       serviceRegistry,
-      ethers.keccak256(Buffer.from(collateral)),
-      ethers.keccak256(Buffer.from(oracle)),
+      ethers.keccak256(Buffer.from(collateralToken)),
+      ethers.keccak256(Buffer.from(debtToken)),
+      ethers.keccak256(Buffer.from(collateralOracle)),
+      ethers.keccak256(Buffer.from(debtOracle)),
       swapFreeTier,
       emodeCategory,
     ]),
@@ -202,8 +206,8 @@ export async function deployAaveV3(stETH, weth, serviceRegistry, amount) {
 }
 
 export async function deployOracleMock(serviceRegistry, name) {
-  const WSETHToETH = await ethers.getContractFactory('OracleMock');
-  const oracle = await WSETHToETH.deploy();
+  const OracleMock = await ethers.getContractFactory('OracleMock');
+  const oracle = await OracleMock.deploy();
   await oracle.waitForDeployment();
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from(name)),
