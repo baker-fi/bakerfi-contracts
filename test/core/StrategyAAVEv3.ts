@@ -11,7 +11,7 @@ import {
   deployOracleMock,
   deployWETH,
   deploySettings,
-  deployAAVEv3StrategyAny,
+  deployAAVEv3Strategy,
   deployQuoterV2Mock,
 } from '../../scripts/common';
 
@@ -21,9 +21,13 @@ import BaseConfig, { NetworkConfig } from '../../constants/network-deploy-config
 /**
  * StrategyAAVEv3 Unit Tests
  */
-describeif(network.name === 'hardhat')
-describe.only
-('Strategy AAVE v3 L2', function () {
+describeif(network.name === 'hardhat')('Strategy Leverage AAVEv3', function () {
+  it('Test Initialized Strategy', async function () {
+    const { owner, strategy } = await loadFixture(deployFunction);
+    expect(await strategy.getPosition([0, 0])).to.deep.equal([0n, 0n, 0n]);
+    expect(await strategy.totalAssets([0, 0])).to.equal(0);
+  });
+
   it('Test Deploy', async function () {
     const { owner, weth, strategy } = await loadFixture(deployFunction);
 
@@ -43,6 +47,8 @@ describe.only
     ]);
     expect(await strategy.totalAssets([0, 0])).to.equal(22962672346019840000000n);
   });
+
+  //TODO: Test Deploy Emission
 
   it('Test Undeploy', async function () {
     const { owner, weth, strategy } = await loadFixture(deployFunction);
@@ -153,7 +159,7 @@ describe.only
       ethers.keccak256(Buffer.from('FlashLender')),
       owner.address,
     );
-    const { proxy: proxyStrategy } = await deployAAVEv3StrategyAny(
+    const { proxy: proxyStrategy } = await deployAAVEv3Strategy(
       owner.address,
       owner.address,
       await serviceRegistry.getAddress(),
@@ -194,7 +200,7 @@ describe.only
       ethers.keccak256(Buffer.from('FlashLender')),
       owner.address,
     );
-    const { proxy: proxyStrategy } = await deployAAVEv3StrategyAny(
+    const { proxy: proxyStrategy } = await deployAAVEv3Strategy(
       owner.address,
       owner.address,
       await serviceRegistry.getAddress(),
@@ -257,6 +263,96 @@ describe.only
     await time.increase(3600);
     // @ts-ignore
     await expect(strategy.harvest()).to.be.revertedWithCustomError(strategy, 'PriceOutdated');
+  });
+
+  it('Harvest Loss - No Debt Adjust', async function () {
+    const { owner, weth, oracle, strategy, aave3Pool } = await loadFixture(deployFunction);
+
+    const amount = ethers.parseUnits('10', 18);
+    await weth.deposit?.call('', { value: amount });
+    await weth.approve(await strategy.getAddress(), amount);
+
+    // Deploy 10 ETH
+    await strategy.deploy(amount);
+
+    expect(await strategy.getPosition([0, 0])).to.deep.equal([
+      105345072829122560000000n,
+      82382400483102720000000n,
+      782024239n,
+    ]);
+
+    expect(await strategy.totalAssets([0, 0])).to.equal(22962672346019840000000n);
+
+    // Decremennt the Collateral value by 10%
+    await oracle.setLatestPrice(ethers.parseUnits('2606', 18));
+
+    await expect(strategy.harvest())
+      // @ts-ignore
+      .to.emit(strategy, 'StrategyLoss')
+      .withArgs(2138584185252864000000n);
+
+    expect(await strategy.getPosition([0, 0])).to.deep.equal([
+      103206488643869696000000n,
+      82382400483102720000000n,
+      798228886n,
+    ]);
+
+    expect(await strategy.totalAssets([0, 0])).to.equal(20824088160766976000000n);
+  });
+
+  it('Harvest - Debt Adjust', async function () {
+    const { owner, settings, weth, oracle, strategy, aave3Pool } = await loadFixture(
+      deployFunction,
+    );
+
+    const amount = ethers.parseUnits('10', 18);
+    await weth.deposit?.call('', { value: amount });
+    await weth.approve(await strategy.getAddress(), amount);
+
+    await strategy.deploy(amount);
+    // Descrease the Collateral value by 20%
+    await oracle.setLatestPrice(ethers.parseUnits('2394', 18));
+    await strategy.setMaxLoanToValue(800 * 1e6);
+
+    expect(await strategy.getPosition([0, 0])).to.deep.equal([
+      94810565546210304000000n,
+      82382400483102720000000n,
+      868915821n,
+    ]);
+
+    await expect(strategy.harvest())
+      // @ts-ignore
+      .to.emit(strategy, 'StrategyAmountUpdate')
+      .withArgs(12428165063107584000000n);
+
+    expect(await strategy.getPosition([0, 0])).to.deep.equal([
+      65379801144452702675166n,
+      49712660252430336002135n,
+      760367259n,
+    ]);
+
+    expect(await strategy.totalAssets([0, 0])).to.equal(15667140892022366673031n);
+  });
+
+  it('Harvest Loss - Collateral Value is lower than debt', async function () {
+    const { owner, settings, weth, oracle, strategy, aave3Pool } = await loadFixture(
+      deployFunction,
+    );
+
+    const amount = ethers.parseUnits('10', 18);
+    await weth.deposit?.call('', { value: amount });
+    await weth.approve(await strategy.getAddress(), amount);
+
+    await strategy.deploy(amount);
+    // Increment the Collateral value by 10%
+    await aave3Pool.setCollateralPerEth(1154 * 1e6 * 0.5);
+
+    await oracle.setLatestPrice(1154 * 1e6 * 0.5);
+    // @ts-ignore
+    await expect(strategy.harvest()).to.be.revertedWithCustomError(
+      strategy,
+      'CollateralLowerThanDebt',
+    );
   });
 
   it('Rebalance - Success when the price is updated', async () => {
@@ -333,7 +429,7 @@ async function deployFunction() {
 
   await deployQuoterV2Mock(serviceRegistry);
 
-  const { proxy: proxyStrategy } = await deployAAVEv3StrategyAny(
+  const { proxy: proxyStrategy } = await deployAAVEv3Strategy(
     owner.address,
     owner.address,
     serviceRegistryAddress,

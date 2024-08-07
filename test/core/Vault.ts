@@ -14,7 +14,7 @@ import {
   deployCbETH,
   deploySettings,
   deployQuoterV2Mock,
-  deployAAVEv3StrategyAny,
+  deployAAVEv3Strategy,
 } from '../../scripts/common';
 import BaseConfig, { NetworkConfig } from '../../constants/network-deploy-config';
 import { time } from '@nomicfoundation/hardhat-network-helpers';
@@ -23,7 +23,8 @@ import { time } from '@nomicfoundation/hardhat-network-helpers';
  * Unit Tests for BakerFi Vault with a regular AAVEv3Strategy
  */
 
-describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
+describeif(network.name === 'hardhat');
+describe.only('BakerFi Vault', function () {
   it('Deposit with no Flash Loan Fees', async function () {
     const { owner, vault, weth, aave3Pool, strategy, cbETH, flashLender } = await loadFixture(
       deployFunction,
@@ -108,8 +109,8 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
   });
 
   it('convertToShares - 1ETH', async function () {
-    const { owner, vault, strategy } = await loadFixture(deployFunction);
-
+    const { owner, vault, strategy, settings } = await loadFixture(deployFunction);
+    await settings.setPriceMaxAge(0);
     await vault.depositNative(owner.address, {
       value: ethers.parseUnits('10', 18),
     });
@@ -118,8 +119,8 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
   });
 
   it('convertToAssets - 1e18 brETH', async function () {
-    const { owner, vault, strategy } = await loadFixture(deployFunction);
-
+    const { owner, settings, vault, strategy } = await loadFixture(deployFunction);
+    await settings.setPriceMaxAge(0);
     await vault.depositNative(owner.address, {
       value: ethers.parseUnits('10', 18),
     });
@@ -127,22 +128,24 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
   });
 
   it('convertToShares - 1ETH no balance', async function () {
-    const { owner, vault, strategy } = await loadFixture(deployFunction);
-
+    const { owner, settings, vault, strategy } = await loadFixture(deployFunction);
+    await settings.setPriceMaxAge(0);
     expect(await vault.convertToAssets(ethers.parseUnits('1', 18))).to.equal(
       ethers.parseUnits('1', 18),
     );
   });
 
   it('convertToAssets - 1e18 brETH  no balance', async function () {
-    const { owner, vault, strategy } = await loadFixture(deployFunction);
+    const { owner, vault, settings, strategy } = await loadFixture(deployFunction);
+    await settings.setPriceMaxAge(0);
     expect(await vault.convertToAssets(ethers.parseUnits('1', 18))).to.equal(
       ethers.parseUnits('1', 18),
     );
   });
 
   it('tokenPerAsset - No Balance', async function () {
-    const { owner, vault, strategy } = await loadFixture(deployFunction);
+    const { owner, vault, settings, strategy } = await loadFixture(deployFunction);
+    await settings.setPriceMaxAge(0);
     expect(await vault.tokenPerAsset()).to.equal(ethers.parseUnits('1', 18));
   });
 
@@ -797,12 +800,14 @@ async function deployFunction() {
 
   await deployQuoterV2Mock(serviceRegistry);
 
-  const { proxy: proxyStrategy } = await deployAAVEv3StrategyAny(
+  const { proxy: proxyStrategy } = await deployAAVEv3Strategy(
     owner.address,
     owner.address,
     serviceRegistryAddress,
     'cbETH',
+    'WETH',
     'cbETH/USD Oracle',
+    'ETH/USD Oracle',
     config.swapFeeTier,
     config.AAVEEModeCategory,
     proxyAdmin,

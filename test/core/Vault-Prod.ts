@@ -12,7 +12,7 @@ describeif(
     network.name === 'base_devnet',
 )('BakerFi - Production', function () {
   it('Test Initialized Vault', async function () {
-    const { deployer, vault, strategy } = await loadFixture(getDeployFunc());
+    const { deployer, vault, strategy } = await loadFixture(deployProd);
     expect(await vault.symbol()).to.equal('brETH');
     expect(await vault.balanceOf(deployer.address)).to.equal(0);
     expect(await vault.totalSupply()).to.equal(0);
@@ -23,7 +23,7 @@ describeif(
   });
 
   it('Deposit 1 ETH', async function () {
-    const { vault, deployer, strategy } = await loadFixture(getDeployFunc());
+    const { vault, deployer, strategy } = await loadFixture(deployProd);
 
     const depositAmount = ethers.parseUnits('1', 18);
     await vault.depositNative(deployer.address, {

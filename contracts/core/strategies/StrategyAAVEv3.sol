@@ -73,8 +73,8 @@ contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
    *
    * @dev No Conversion to USD Done
    */
-  function _getLeverageBalances()
-    internal
+  function getLeverageBalances()
+    public
     view
     virtual
     override

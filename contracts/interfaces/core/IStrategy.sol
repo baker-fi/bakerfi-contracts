@@ -83,9 +83,9 @@ interface IStrategy {
   function undeploy(uint256 amount) external returns (uint256 undeployedAmount);
 
   /**
-   * @dev Retrieves the total owned assets by the Strategy in USD
+   * @dev Retrieves the total owned assets by the Strategy in
    *
-   * @return assets The total owned assets in Ether.
+   * @return assets The total owned assets in the strategy.
    */
   function totalAssets(IOracle.PriceOptions memory options) external view returns (uint256 assets);
 

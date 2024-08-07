@@ -32,6 +32,7 @@ contract OracleMock is IOracle {
   ) public view override returns (IOracle.Price memory price) {
     price.price = _exchangeRate;
     price.lastUpdate = _lastUpdate;
-    if ((block.timestamp - price.lastUpdate) > options.maxAge) revert PriceOutdated();
+    if ((block.timestamp - price.lastUpdate) > options.maxAge && (options.maxAge > 0))
+      revert PriceOutdated();
   }
 }

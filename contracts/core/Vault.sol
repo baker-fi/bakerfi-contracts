@@ -169,8 +169,7 @@ contract Vault is
           uint256 feeInEthScaled = uint256(balanceChange) * settings().getPerformanceFee();
           uint256 sharesToMint = feeInEthScaled.mulDivUp(
             totalSupply(),
-            _totalAssets(IOracle.PriceOptions({ maxAge: maxPriceAge, maxConf: maxPriceConf })) *
-              PERCENTAGE_PRECISION
+            totalAssets() * PERCENTAGE_PRECISION
           );
           _mint(settings().getFeeReceiver(), sharesToMint);
         }
@@ -250,14 +249,10 @@ contract Vault is
    * @return shares The number of shares minted for the specified receiver.
    */
   function _depositInternal(uint256 assets, address receiver) private returns (uint256 shares) {
-    if (receiver == address(0)) revert InvalidReceiver();
-
     uint256 maxPriceAge = settings().getPriceMaxAge();
     uint256 maxPriceConf = settings().getPriceMaxConf();
-    Rebase memory total = Rebase(
-      _totalAssets(IOracle.PriceOptions({ maxAge: maxPriceAge, maxConf: maxPriceConf })),
-      totalSupply()
-    );
+    if (receiver == address(0)) revert InvalidReceiver();
+    Rebase memory total = Rebase(totalAssets(), totalSupply());
     if (
       // Or the Rebase is unititialized
       !((total.elastic == 0 && total.base == 0) ||
@@ -396,13 +391,7 @@ contract Vault is
      *
      *   withdrawAmount = share * totalAssets() / totalSupply()
      */
-    uint256 withdrawAmount = (shares *
-      _totalAssets(
-        IOracle.PriceOptions({
-          maxAge: settings().getPriceMaxAge(),
-          maxConf: settings().getPriceMaxConf()
-        })
-      )) / totalSupply();
+    uint256 withdrawAmount = (shares * totalAssets()) / totalSupply();
     if (withdrawAmount == 0) revert NoAssetsToWithdraw();
     uint256 amount = _strategy.undeploy(withdrawAmount);
     uint256 fee = 0;
@@ -468,7 +457,6 @@ contract Vault is
   ) private view returns (uint256 amount) {
     amount = _strategy.totalAssets(priceOptions);
   }
-
   /**
    * @dev Converts the specified amount of ETH to shares.
    *

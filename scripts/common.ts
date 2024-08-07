@@ -75,34 +75,7 @@ export async function deployVault(
   return { proxy, vault };
 }
 
-export async function deployStrategyAAVEv3WstETH(
-  owner: string,
-  governor: string,
-  serviceRegistry: string,
-  swapFreeTier: number,
-  emodeCategory: number,
-  proxyAdmin?: any,
-) {
-  const StrategyAAVEv3 = await ethers.getContractFactory('StrategyAAVEv3WstETH');
-  const strategy = await StrategyAAVEv3.deploy();
-  await strategy.waitForDeployment();
-  const BakerFiProxy = await ethers.getContractFactory('BakerFiProxy');
-  const proxy = await BakerFiProxy.deploy(
-    await strategy.getAddress(),
-    await proxyAdmin.getAddress(),
-    StrategyAAVEv3.interface.encodeFunctionData('initializeWstETH', [
-      owner,
-      governor,
-      serviceRegistry,
-      swapFreeTier,
-      emodeCategory,
-    ]),
-  );
-  await proxy.waitForDeployment();
-  return { strategy, proxy };
-}
-
-export async function deployAAVEv3StrategyAny(
+export async function deployAAVEv3Strategy(
   owner: string,
   governor: string,
   serviceRegistry: string,
