@@ -123,4 +123,45 @@ describeif(network.name === 'hardhat')('Math Library', function () {
       ),
     ).to.equal(10n ** 18n);
   });
+  it('Convert From 18 to 0 - 18 to 0', async function () {
+    const math = await loadFixture(deployFunction);
+    expect(
+      await math.toDecimals(
+        10n ** 18n,
+        18, // 0.01%
+        0,
+      ),
+    ).to.equal(1n);
+  });
+  it('Convert From 0 to 18 - 18 to 0', async function () {
+    const math = await loadFixture(deployFunction);
+    expect(
+      await math.toDecimals(
+        1,
+        0, // 0.01%
+        6,
+      ),
+    ).to.equal(1000000n);
+  });
+  it('Factor Overflow ', async function () {
+    const math = await loadFixture(deployFunction);
+    await expect(
+      math.toDecimals(
+        10n ** 18n,
+        18, // 0.01%
+        255,
+      ),
+    ).to.be.revertedWithCustomError(math, 'OverflowDetected');
+  });
+
+  it('Result Overflow', async function () {
+    const math = await loadFixture(deployFunction);
+    await expect(
+      math.toDecimals(
+        10n ** 48n,
+        0, // 0.01%
+        62,
+      ),
+    ).to.be.revertedWithCustomError(math, 'OverflowDetected');
+  });
 });
