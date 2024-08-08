@@ -12,15 +12,11 @@ import { ISwapHandler } from "../../interfaces/core/ISwapHandler.sol";
 import { IStrategyLeverage } from "../../interfaces/core/IStrategyLeverage.sol";
 import { UseLeverage } from "../hooks/UseLeverage.sol";
 import { UseSettings } from "../hooks/UseSettings.sol";
-import { UseWETH } from "../hooks/UseWETH.sol";
 import { UseFlashLender } from "../hooks/UseFlashLender.sol";
 import { UseSwapper } from "../hooks/UseSwapper.sol";
-import { UseIERC20 } from "../hooks/UseIERC20.sol";
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import { AddressUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
-import { ETH_USD_ORACLE_CONTRACT } from "../ServiceRegistry.sol";
 import { StrategyLeverageSettings } from "./StrategyLeverageSettings.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * @title Base Recursive Staking Strategy
@@ -46,15 +42,17 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
  *  ✅ Number of Loops on the recursive Strategy
  *
  *  Flow Deposit:
- *  1) Deploy X amount of ETH
- *  2) Borrow Y Amount of ETH
+ *  1) Deploy X amount of ETH/ERC20
+ *  2) Borrow Y Amount of ETH/ERC20
  *  3) Deposit X+Y amount of Collateral in AAVE
- *  4) Borrow Y ETH From AAVE to pay the flash loan
+ *  4) Borrow Y ETH/ERC20 From AAVE to pay the flash loan
  *  5) Ends up with X+Y Amount of Collateral and Y of Debt
  *
  *  This strategy could work for
  *  rETH/WETH
  *  wstETH/WETH
+ *  sUSD/DAI
+ *
  *  ...
  *
  * @notice The Contract is abstract and needs to be extended to implement the
@@ -87,7 +85,6 @@ abstract contract StrategyLeverage is
   using SafeERC20Upgradeable for IERC20Upgradeable;
   using AddressUpgradeable for address;
   using AddressUpgradeable for address payable;
-
 
   error InvalidOwner();
   error InvalidDebtToken();
@@ -472,15 +469,16 @@ abstract contract StrategyLeverage is
   function _getPosition(
     IOracle.PriceOptions memory priceOptions
   ) internal view returns (uint256 totalCollateralInUSD, uint256 totalDebtInUSD) {
-
     totalCollateralInUSD = 0;
     totalDebtInUSD = 0;
 
     (uint256 collateralBalance, uint256 debtBalance) = getLeverageBalances();
     // Convert Collateral Balance to $USD safely
     if (collateralBalance != 0) {
-      IOracle.Price memory collateralPrice =  _collateralOracle.getSafeLatestPrice(priceOptions);
-      totalCollateralInUSD = (collateralBalance * collateralPrice.price) / _collateralOracle.getPrecision();
+      IOracle.Price memory collateralPrice = _collateralOracle.getSafeLatestPrice(priceOptions);
+      totalCollateralInUSD =
+        (collateralBalance * collateralPrice.price) /
+        _collateralOracle.getPrecision();
     }
     // Convert DebtBalance to $USD safely
     if (debtBalance != 0) {

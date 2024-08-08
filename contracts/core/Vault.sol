@@ -92,7 +92,7 @@ contract Vault is
   // The WETH used for native deposits or withdraws
   IWETH private _wETH;
 
-  uint8 constant VAULT_VERSION = 2;
+  uint8 constant private VAULT_VERSION = 2;
 
   /**
    * @dev Modifier to restrict access to addresses that are whitelisted.
@@ -261,9 +261,7 @@ contract Vault is
     uint256 maxPriceConf = settings().getPriceMaxConf();
     if (receiver == address(0)) revert InvalidReceiver();
     Rebase memory total = Rebase(
-      _totalAssets(
-        IOracle.PriceOptions({ maxAge: maxPriceAge, maxConf: maxPriceConf })
-      ),
+      _totalAssets(IOracle.PriceOptions({ maxAge: maxPriceAge, maxConf: maxPriceConf })),
       totalSupply()
     );
     if (

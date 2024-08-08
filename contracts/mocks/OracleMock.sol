@@ -13,11 +13,11 @@ contract OracleMock is IOracle {
   }
 
   function getPrecision() public view override returns (uint256) {
-    return 10**_decimals;
+    return 10 ** _decimals;
   }
 
   function setDecimals(uint8 decimals) external {
-     _decimals = decimals;
+    _decimals = decimals;
   }
 
   //  WSETH/ETH
