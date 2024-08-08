@@ -260,7 +260,12 @@ contract Vault is
     uint256 maxPriceAge = settings().getPriceMaxAge();
     uint256 maxPriceConf = settings().getPriceMaxConf();
     if (receiver == address(0)) revert InvalidReceiver();
-    Rebase memory total = Rebase(totalAssets(), totalSupply());
+    Rebase memory total = Rebase(
+      _totalAssets(
+        IOracle.PriceOptions({ maxAge: maxPriceAge, maxConf: maxPriceConf })
+      ),
+      totalSupply()
+    );
     if (
       // Or the Rebase is unititialized
       !((total.elastic == 0 && total.base == 0) ||
