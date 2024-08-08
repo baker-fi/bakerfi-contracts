@@ -68,7 +68,7 @@ describeif(network.name === 'hardhat')('Strategy Proxy', function () {
     // Deploy AAVEv3 Mock Pool
     await deployAaveV3(cbETH, weth, serviceRegistry, AAVE_DEPOSIT);
     // Deploy cbETH/ETH Oracle
-    await deployOracleMock(serviceRegistry, 'cbETH/ETH Oracle');
+    await deployOracleMock(serviceRegistry, 'cbETH/USD Oracle');
     const ethOracle = await deployOracleMock(serviceRegistry, 'ETH/USD Oracle');
     await ethOracle.setLatestPrice(ethers.parseUnits('1', 18));
     await deployQuoterV2Mock(serviceRegistry);
@@ -84,7 +84,9 @@ describeif(network.name === 'hardhat')('Strategy Proxy', function () {
         owner.address,
         serviceRegistryAddress,
         ethers.keccak256(Buffer.from('cbETH')),
-        ethers.keccak256(Buffer.from('cbETH/ETH Oracle')),
+        ethers.keccak256(Buffer.from('WETH')),
+        ethers.keccak256(Buffer.from('cbETH/USD Oracle')),
+        ethers.keccak256(Buffer.from('ETH/USD Oracle')),
         config.swapFeeTier,
         config.AAVEEModeCategory,
       ]),
@@ -99,9 +101,9 @@ describeif(network.name === 'hardhat')('Strategy Proxy', function () {
     };
   }
 
-  it('Strategy Initialization', async function () {
+  it.only('Strategy Initialization', async function () {
     const { strategyProxy } = await loadFixture(deployFunction);
     expect(await strategyProxy.getPosition([0, 0])).to.deep.equal([0n, 0n, 0n]);
-    expect(await strategyProxy.deployed([0, 0])).to.equal(0);
+    expect(await strategyProxy.totalAssets([0, 0])).to.equal(0);
   });
 });

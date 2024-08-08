@@ -21,8 +21,7 @@ import BaseConfig, { NetworkConfig } from '../../constants/network-deploy-config
 /**
  * StrategyAAVEv3 Unit Tests
  */
-describeif(network.name === 'hardhat')
-('Strategy Leverage AAVEv3', function () {
+describeif(network.name === 'hardhat')('Strategy Leverage AAVEv3', function () {
   it('Test Initialized Strategy', async function () {
     const { owner, strategy } = await loadFixture(deployFunction);
     expect(await strategy.getPosition([0, 0])).to.deep.equal([0n, 0n, 0n]);

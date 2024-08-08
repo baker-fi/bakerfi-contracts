@@ -9,7 +9,7 @@ import { SafeERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/
 import { PERCENTAGE_PRECISION } from "../Constants.sol";
 import { IOracle } from "../../interfaces/core/IOracle.sol";
 import { ISwapHandler } from "../../interfaces/core/ISwapHandler.sol";
-import { IStrategy } from "../../interfaces/core/IStrategy.sol";
+import { IStrategyLeverage } from "../../interfaces/core/IStrategyLeverage.sol";
 import { UseLeverage } from "../hooks/UseLeverage.sol";
 import { UseUniQuoter } from "../hooks/UseUniQuoter.sol";
 import { UseSettings } from "../hooks/UseSettings.sol";
@@ -22,7 +22,6 @@ import { AddressUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/Ad
 import { ETH_USD_ORACLE_CONTRACT } from "../ServiceRegistry.sol";
 import { StrategyLeverageSettings } from "./StrategyLeverageSettings.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "hardhat/console.sol";
 
 /**
  * @title Base Recursive Staking Strategy
@@ -64,7 +63,7 @@ import "hardhat/console.sol";
  */
 abstract contract StrategyLeverage is
   StrategyLeverageSettings,
-  IStrategy,
+  IStrategyLeverage,
   IERC3156FlashBorrowerUpgradeable,
   UseSwapper,
   UseFlashLender,
@@ -123,7 +122,7 @@ abstract contract StrategyLeverage is
   uint24 internal _swapFeeTier;
   // Internal Storaged used for flash loan parameter authentication
   bytes32 private _flashLoanArgsHash = 0;
-
+  // The Deployed or Undeployed pending amount. Used for internal accounting
   uint256 private _pendingAmount = 0;
 
   /**
@@ -265,9 +264,6 @@ abstract contract StrategyLeverage is
    * - The AAVEv3 strategy must be properly configured and initialized.
    */
   function deploy(uint256 amount) external onlyOwner nonReentrant returns (uint256 deployedAmount) {
-    uint256 maxPriceAge = settings().getRebalancePriceMaxAge();
-    uint256 maxPriceConf = settings().getPriceMaxConf();
-
     if (amount == 0) revert InvalidDeployAmount();
     // 1. Transfer Assets from the Vault
     IERC20Upgradeable(_debtToken).safeTransferFrom(msg.sender, address(this), amount);
@@ -366,11 +362,7 @@ abstract contract StrategyLeverage is
     uint256 totalCollateralInDebt,
     uint256 totalDebt
   ) internal returns (uint256 deltaAmount) {
-    uint256 deltaDebt = _calculateDebtToPay(
-      getLoanToValue(),
-      totalCollateralInDebt,
-      totalDebt
-    );
+    uint256 deltaDebt = _calculateDebtToPay(getLoanToValue(), totalCollateralInDebt, totalDebt);
     uint256 fee = flashLender().flashFee(_debtToken, deltaDebt);
     // uint256 allowance = wETH().allowance(address(this), flashLenderA());
     bytes memory data = abi.encode(deltaDebt, address(0), FlashLoanAction.PAY_DEBT);
@@ -877,11 +869,11 @@ abstract contract StrategyLeverage is
     return _debtToken;
   }
 
-  function getCollateralToken() public view returns (address) {
+  function getCollateralAsset() external view returns (address) {
     return _collateralToken;
   }
 
-  function getDebToken() public view returns (address) {
+  function getDebAsset() external view returns (address) {
     return _debtToken;
   }
 
