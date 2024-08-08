@@ -4,6 +4,19 @@ pragma solidity ^0.8.24;
 library MathLibrary {
   error InvalidDivDenominator();
 
+  function toDecimals(
+    uint256 value,
+    uint8 from,
+    uint8 to
+  ) internal pure returns (uint256 converted) {
+    converted = value;
+    if (from > to) {
+      converted = value / (10 ** (from - to));
+    } else if (to > from) {
+      converted = value * (10 ** (to - from));
+    }
+  }
+
   function mulDivUp(uint256 x, uint256 y, uint256 denominator) internal pure returns (uint256) {
     uint256 product = x * y;
     // Not Allowed Division by 0

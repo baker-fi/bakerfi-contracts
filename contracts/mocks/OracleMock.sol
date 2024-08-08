@@ -6,14 +6,18 @@ import { IOracle } from "../interfaces/core/IOracle.sol";
 contract OracleMock is IOracle {
   uint256 internal _exchangeRate = 1130 * (1e6);
   uint256 internal _lastUpdate;
-  uint256 internal immutable PRICE_PRECISION = 1e9;
+  uint256 internal _decimals = 9;
 
   constructor() {
     _lastUpdate = block.timestamp;
   }
 
-  function getPrecision() public pure override returns (uint256) {
-    return PRICE_PRECISION;
+  function getPrecision() public view override returns (uint256) {
+    return 10**_decimals;
+  }
+
+  function setDecimals(uint8 decimals) external {
+     _decimals = decimals;
   }
 
   //  WSETH/ETH

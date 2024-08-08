@@ -424,8 +424,9 @@ async function deployFunction() {
   const ethOracle = await deployOracleMock(serviceRegistry, 'ETH/USD Oracle');
 
   await oracle.setLatestPrice(ethers.parseUnits('2660', 18));
-
   await ethOracle.setLatestPrice(ethers.parseUnits('2305', 18));
+  await oracle.setDecimals(18);
+  await ethOracle.setDecimals(18);
 
   await deployQuoterV2Mock(serviceRegistry);
 

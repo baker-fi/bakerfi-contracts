@@ -26,9 +26,9 @@ import { IWETH } from "../interfaces/tokens/IWETH.sol";
  *
  * @dev The BakerFi vault deployed to any supported chain (Arbitrum One, Optimism, Ethereum,...)
  *
- * This is smart contract where the users deposit their ETH and receives a share of the pool <x>brETH.
+ * This is smart contract where the users deposit their ETH or an ERC-20 and receives a share of the pool <x>brETH.
  * A share of the pool is an ERC-20 Token (transferable) and could be used to later to withdraw their
- * owned amount of the pool that could contain (Assets + Yield ). This vault could use a customized IStrategy
+ * owned amount of the pool that could contain (Assets + Yield). This vault could use a customized IStrategy
  * to deploy the capital and harvest an yield.
  *
  * The Contract is able to charge a performance and withdraw fee that is send to the treasury
@@ -40,6 +40,13 @@ import { IWETH } from "../interfaces/tokens/IWETH.sol";
  * During the beta phase only whitelisted addresses are able to deposit and withdraw
  *
  * The Contract is upgradeable and can use a BakerProxy in front of.
+ *
+ * The Vault follows the ERC-4626 Specification and can be integrated by any Aggregator
+ *
+ * Release Notes:
+ *
+ * 1.1 - ERC-4626 Compliant
+ * 1.2 - The Vault is not memory compatible with 1.1
  *
  */
 contract Vault is
@@ -75,13 +82,14 @@ contract Vault is
   uint256 private constant _ONE = 1e18;
 
   /**
-   * @dev The IStrategy contract representing the strategy for managing assets.
+   * @dev The IStrategy contract representing the strategy for deploying/undeploying assets.
    *
    * This private state variable holds the reference to the IStrategy contract,
    * which defines the strategy for managing assets within the current contract.
    */
   IStrategy private _strategy;
 
+  // The WETH used for native deposits or withdraws
   IWETH private _wETH;
 
   uint8 constant VAULT_VERSION = 2;
@@ -240,7 +248,7 @@ contract Vault is
   /**
    * @dev Deposits Ether into the contract and mints vault's shares for the specified receiver.
    *
-   * This function is externally callable, marked as non-reentrant, and restricted
+   * This function is externally callable, marked as non-reentrant, and could be restricted
    * to whitelisted addresses. It performs various checks, including verifying that
    * the deposited amount is valid, the Rebase state is initialized, and executes
    * the strategy's `deploy` function to handle the deposit.
@@ -307,7 +315,7 @@ contract Vault is
 
   /**
    *
-   * Withdraw X Assets from the vault
+   * Withdraw the Assets from the vault. The withdraw function burns shares to the msg.sender or delegated to msg.sender
    *
    * @param assets The amount of assets you were able to withdraw
    * @param receiver the receiver account of shares
@@ -331,7 +339,7 @@ contract Vault is
   }
 
   /**
-   * @dev Withdraws a specified number of vault's shares, converting them to ETH and
+   * @dev Withdraws a specified number of vault's shares, converting them to ETH/ERC-20 and
    * transferring to the caller.
    *
    * This function is externally callable, marked as non-reentrant, and restricted to whitelisted addresses.
@@ -340,7 +348,7 @@ contract Vault is
    * withdrawn shares.
    *
    * @param shares The number of shares to be withdrawn.
-   * @return retAmount The amount of Ether withdrawn after fees.
+   * @return retAmount The amount of ETH/ERC20 withdrawn after fees.
    *
    * Emits a {Withdraw} event after successfully handling the withdrawal.
    */
@@ -353,7 +361,7 @@ contract Vault is
   }
 
   /**
-   * @dev Withdraws a specified number of vault's shares, converting them to ETH and
+   * @dev Withdraws a specified number of vault's shares, converting them to ETH/ERC20 and
    * transferring to the caller.
    *
    * This function is externally callable, marked as non-reentrant, and restricted to whitelisted addresses.
@@ -362,7 +370,7 @@ contract Vault is
    * withdrawn shares.
    *
    * @param shares The number of shares to be withdrawn.
-   * @return retAmount The amount of Ether withdrawn after fees.
+   * @return retAmount The amount of ETH/ERC20 withdrawn after fees.
    *
    * Emits a {Withdraw} event after successfully handling the withdrawal.
    */
@@ -441,7 +449,7 @@ contract Vault is
    * deployed in the current strategy. This function uses the latest prices
    * and does not revert on outdated prices
    *
-   * @return amount The total assets under management by the strategy.
+   * @return amount The total assets under management by the strategy
    */
   function totalAssets() public view override returns (uint256 amount) {
     amount = _strategy.totalAssets(IOracle.PriceOptions({ maxAge: 0, maxConf: 0 }));
@@ -458,7 +466,7 @@ contract Vault is
     amount = _strategy.totalAssets(priceOptions);
   }
   /**
-   * @dev Converts the specified amount of ETH to shares.
+   * @dev Converts the specified amount of ETH/ERC20 to shares.
    *
    * This function is externally callable and provides a view of the number of shares that
    * would be equivalent to the given amount of assets based on the current Vault and Strategy state.
@@ -472,7 +480,7 @@ contract Vault is
   }
 
   /**
-   * @dev Converts the specified number of shares to ETH.
+   * @dev Converts the specified number of shares to ETH/ERC20.
    *
    * This function is externally callable and provides a view of the amount of assets that
    * would be equivalent to the given number of shares based on the current Rebase state.
@@ -486,14 +494,14 @@ contract Vault is
   }
 
   /**
-   * @dev Retrieves the token-to-ETH exchange rate.
+   * @dev Retrieves the token-to-Asset exchange rate.
    *
    * This function is externally callable and provides a view of the current exchange rate
-   * between the token and ETH. It calculates the rate based on the total supply of the token
+   * between the token and ETH/ERC20. It calculates the rate based on the total supply of the token
    * and the total assets under management by the strategy.
    *
    *   brETHSupply  ------   DeployedETH
-   *   tokenPerAsset  ------   1 ETH
+   *   tokenPerAsset  ------   1 ETH/ERC20
    *
    *   x = SupplybrETH * 1ETH / Deployed ETH
    *

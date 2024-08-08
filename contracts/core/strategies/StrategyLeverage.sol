@@ -88,6 +88,7 @@ abstract contract StrategyLeverage is
   using AddressUpgradeable for address;
   using AddressUpgradeable for address payable;
 
+
   error InvalidOwner();
   error InvalidDebtToken();
   error InvalidCollateralToken();
@@ -487,8 +488,7 @@ abstract contract StrategyLeverage is
       ) {
         revert PriceOutdated();
       }
-      // TODO Support tokens with different decimals
-      totalCollateralInUSD = (collateralBalance * collateralPrice.price) / 1e18;
+      totalCollateralInUSD = (collateralBalance * collateralPrice.price) / _collateralOracle.getPrecision();
     }
 
     if (debtBalance != 0) {
@@ -502,8 +502,7 @@ abstract contract StrategyLeverage is
       ) {
         revert PriceOutdated();
       }
-      // TODO Support tokens with different decimals
-      totalDebtInUSD = (debtBalance * debtPrice.price) / 1e18;
+      totalDebtInUSD = (debtBalance * debtPrice.price) / _debtOracle.getPrecision();
     }
   }
 

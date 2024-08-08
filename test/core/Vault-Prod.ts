@@ -11,7 +11,6 @@ describeif(
     network.name === 'arbitrum_devnet' ||
     network.name === 'base_devnet',
 )('BakerFi - Production', function () {
-
   it('Test Initialized Vault', async function () {
     const { deployer, vault, strategy } = await loadFixture(deployProd);
     expect(await vault.symbol()).to.equal('brETH');
@@ -172,7 +171,6 @@ describeif(
     });
     const balanceBefore = await ethers.provider.getBalance(feeReceiver);
 
-
     await vault.redeemNative(ethers.parseUnits('5', 18));
 
     const provider = ethers.provider;
@@ -197,8 +195,8 @@ describeif(
     await vault.redeemNative(withrawing);
     expect(await vault.balanceOf(deployer.address)).to.equal(0n);
     expect(await vault.totalSupply()).to.equal(0n);
-    expect((await strategy.getPosition([0, 0]))[0]).to
-      .greaterThan(1500)
+    expect((await strategy.getPosition([0, 0]))[0])
+      .to.greaterThan(1500)
       .lessThanOrEqual(10000);
     expect((await strategy.getPosition([0, 0]))[1]).to.equal(0n);
     expect((await strategy.getPosition([0, 0]))[2]).to.equal(0n);

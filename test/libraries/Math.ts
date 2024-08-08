@@ -90,4 +90,37 @@ describeif(network.name === 'hardhat')('Math Library', function () {
       ),
     ).to.be.revertedWithCustomError(math, 'InvalidDivDenominator');
   });
+
+  it('Convert From 18 to 36 Decimals', async function () {
+    const math = await loadFixture(deployFunction);
+    expect(
+      await math.toDecimals(
+        10n ** 18n,
+        18, // 0.01%
+        36,
+      ),
+    ).to.equal(10n ** 36n);
+  });
+
+  it('Convert From 18 to 6 Decimals', async function () {
+    const math = await loadFixture(deployFunction);
+    expect(
+      await math.toDecimals(
+        10n ** 18n,
+        18, // 0.01%
+        6,
+      ),
+    ).to.equal(10n ** 6n);
+  });
+
+  it('Convert From 18 to 18 - Remains the same', async function () {
+    const math = await loadFixture(deployFunction);
+    expect(
+      await math.toDecimals(
+        10n ** 18n,
+        18, // 0.01%
+        18,
+      ),
+    ).to.equal(10n ** 18n);
+  });
 });
