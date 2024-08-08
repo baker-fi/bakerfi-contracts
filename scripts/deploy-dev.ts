@@ -10,9 +10,9 @@ import {
   deployWETH,
   deployETHOracle,
   deployWStEth,
-  deployStrategyAAVEv3WstETH,
   deploySettings,
   deployBKR,
+  deployAAVEv3Strategy,
 } from './common';
 
 import BaseConfig, { NetworkConfig, VaultNamesEnum } from '../constants/network-deploy-config';
@@ -153,10 +153,14 @@ async function main() {
 
   // Deploying Proxied Strategy
   spinner.text = 'Deploying StrategyAAVEv3WstETH';
-  const { strategy, proxy: strategyProxy } = await deployStrategyAAVEv3WstETH(
+  const { strategy, proxy: strategyProxy } = await deployAAVEv3Strategy(
     owner.address,
     owner.address,
     await serviceRegistry.getAddress(),
+    'wstETH',
+    'WETH',
+    'wstETH/USD Oracle',
+    'ETH/USD Oracle',
     config.swapFeeTier,
     config.AAVEEModeCategory,
     proxyAdmin,
@@ -188,7 +192,7 @@ async function main() {
 
   spinner.text = 'Transferring Vault Ownership';
   const strategyProxied = await ethers.getContractAt(
-    'StrategyAAVEv3WstETH',
+    'StrategyAAVEv3',
     await (strategyProxy as any).getAddress(),
   );
   await strategyProxied.transferOwnership(vaultProxy);
@@ -209,3 +213,4 @@ main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
+

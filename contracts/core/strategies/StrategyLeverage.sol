@@ -11,7 +11,6 @@ import { IOracle } from "../../interfaces/core/IOracle.sol";
 import { ISwapHandler } from "../../interfaces/core/ISwapHandler.sol";
 import { IStrategyLeverage } from "../../interfaces/core/IStrategyLeverage.sol";
 import { UseLeverage } from "../hooks/UseLeverage.sol";
-import { UseUniQuoter } from "../hooks/UseUniQuoter.sol";
 import { UseSettings } from "../hooks/UseSettings.sol";
 import { UseWETH } from "../hooks/UseWETH.sol";
 import { UseFlashLender } from "../hooks/UseFlashLender.sol";
