@@ -472,36 +472,19 @@ abstract contract StrategyLeverage is
   function _getPosition(
     IOracle.PriceOptions memory priceOptions
   ) internal view returns (uint256 totalCollateralInUSD, uint256 totalDebtInUSD) {
+
     totalCollateralInUSD = 0;
     totalDebtInUSD = 0;
 
     (uint256 collateralBalance, uint256 debtBalance) = getLeverageBalances();
-    uint256 priceMaxAge = priceOptions.maxAge;
-
+    // Convert Collateral Balance to $USD safely
     if (collateralBalance != 0) {
-      IOracle.Price memory collateralPrice = priceMaxAge == 0
-        ? _collateralOracle.getLatestPrice()
-        : _collateralOracle.getSafeLatestPrice(priceOptions);
-      if (
-        !(priceMaxAge == 0 ||
-          (priceMaxAge > 0 && (collateralPrice.lastUpdate > (block.timestamp - priceMaxAge))))
-      ) {
-        revert PriceOutdated();
-      }
+      IOracle.Price memory collateralPrice =  _collateralOracle.getSafeLatestPrice(priceOptions);
       totalCollateralInUSD = (collateralBalance * collateralPrice.price) / _collateralOracle.getPrecision();
     }
-
+    // Convert DebtBalance to $USD safely
     if (debtBalance != 0) {
-      IOracle.Price memory debtPrice = priceMaxAge == 0
-        ? _debtOracle.getLatestPrice()
-        : _debtOracle.getSafeLatestPrice(priceOptions);
-
-      if (
-        !(priceMaxAge == 0 ||
-          (priceMaxAge > 0 && (debtPrice.lastUpdate > (block.timestamp - priceMaxAge))))
-      ) {
-        revert PriceOutdated();
-      }
+      IOracle.Price memory debtPrice = _debtOracle.getSafeLatestPrice(priceOptions);
       totalDebtInUSD = (debtBalance * debtPrice.price) / _debtOracle.getPrecision();
     }
   }
