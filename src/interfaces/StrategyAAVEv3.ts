@@ -2,13 +2,13 @@ import {ContractSendMethod} from 'web3-eth-contract';
 import {ContractCallMethod} from '@taikai/dappkit';
 
 export interface AAVEv3StrategyAnyMethods {
-  
+
   deploy(amount: number): ContractSendMethod;
-  
+
   getPosition(priceOptions: {
     maxAge: number;
     maxConf: number;
-  }): ContractCallMethod<{'totalCollateralInEth': number;'totalDebtInEth': number;'loanToValue': number;}>;
+  }): ContractCallMethod<{'totalCollateralInUSD': number;'totalDebtInUSD': number;'loanToValue': number;}>;
 
   harvest(): ContractSendMethod;
 
@@ -20,13 +20,13 @@ export interface AAVEv3StrategyAnyMethods {
 
   renounceOwnership(): ContractSendMethod
 
-  deployed(priceOptions: {
+  totalAssets(priceOptions: {
     maxAge: number;
     maxConf: number;
-  }): ContractCallMethod<{'totalOwnedAssets': number;}>;
+  }): ContractCallMethod<{'totalOwnedAssetsInDebt': number;}>;
 
   undeploy(amount: number): ContractSendMethod;
- 
+
   getLoanToValue(): ContractCallMethod<number>;
 
   getMaxLoanToValue(): ContractCallMethod<number>;
@@ -44,8 +44,12 @@ export interface AAVEv3StrategyAnyMethods {
   getDebtOracle(): ContractCallMethod<string>;
 
   setCollateralOracle(oracle: string): ContractSendMethod
-  
+
   setDebtOracle(oracle: string): ContractSendMethod
+
+  getCollateralToken(): ContractCallMethod<string>;
+
+  getDebtToken(): ContractCallMethod<string>;
 
   asset(): ContractCallMethod<string>;
 

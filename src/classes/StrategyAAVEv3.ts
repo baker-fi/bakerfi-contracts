@@ -72,11 +72,11 @@ export class StrategyAAVEv3
     return this.sendTx(this.contract.methods.renounceOwnership());
   }
 
-  async deployed(priceOptions: {
+  async totalAssets(priceOptions: {
     maxAge: number;
     maxConf: number;
   }) {
-    return this.callTx(this.contract.methods.deployed(priceOptions));
+    return this.callTx(this.contract.methods.totalAssets(priceOptions));
   }
 
   async transferOwnership(newOwner: string) {
@@ -88,31 +88,31 @@ export class StrategyAAVEv3
   }
 
 
-  async getLoanToValue() { 
+  async getLoanToValue() {
     return this.callTx(this.contract.methods.getLoanToValue());
   }
 
-  async getMaxLoanToValue() { 
+  async getMaxLoanToValue() {
     return this.callTx(this.contract.methods.getMaxLoanToValue());
   }
 
-  async getNrLoops() { 
+  async getNrLoops() {
     return this.callTx(this.contract.methods.getNrLoops());
   }
 
-  async setLoanToValue(loanToValue: number) { 
+  async setLoanToValue(loanToValue: number) {
     return this.sendTx(this.contract.methods.setLoanToValue(loanToValue));
   }
 
-  async setMaxLoanToValue(maxLoanToValue: number) { 
+  async setMaxLoanToValue(maxLoanToValue: number) {
     return this.sendTx(this.contract.methods.setMaxLoanToValue(maxLoanToValue));
   }
 
-  async setNrLoops(nrLoops: number) { 
+  async setNrLoops(nrLoops: number) {
     return this.sendTx(this.contract.methods.setNrLoops(nrLoops));
   }
 
-  async getCollateralOracle() { 
+  async getCollateralOracle() {
     return this.callTx(this.contract.methods.getCollateralOracle());
   }
 
@@ -120,11 +120,19 @@ export class StrategyAAVEv3
     return this.callTx(this.contract.methods.getDebtOracle());
   }
 
-  async setCollateralOracle(oracle: string) { 
+  async getCollateralToken() {
+    return this.callTx(this.contract.methods.getCollateralOracle());
+  }
+
+  async getDebtToken() {
+    return this.callTx(this.contract.methods.getDebtOracle());
+  }
+
+  async setCollateralOracle(oracle: string) {
     return this.sendTx(this.contract.methods.setCollateralOracle(oracle));
   }
-  
-  async setDebtOracle(oracle: string) { 
+
+  async setDebtOracle(oracle: string) {
     return this.sendTx(this.contract.methods.setCollateralOracle(oracle));
   }
 
@@ -177,9 +185,9 @@ export class StrategyAAVEv3
   async getNrLoopsChangedEvents(filter: PastEventOptions): XPromiseEvent<Events.NrLoopsChangedEvent> {
     return this.contract.self.getPastEvents('NrLoopsChanged', filter);
   }
-  
+
   async getSetMaxLoanToValueChangedEvents(filter: PastEventOptions): XPromiseEvent<Events.SetMaxLoanToValueChangedEvent> {
     return this.contract.self.getPastEvents('SetMaxLoanToValueChanged', filter);
   }
-  
+
 }
