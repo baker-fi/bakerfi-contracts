@@ -92,7 +92,7 @@ contract Vault is
   // The WETH used for native deposits or withdraws
   IWETH private _wETH;
 
-  uint8 constant private VAULT_VERSION = 2;
+  uint8 private constant VAULT_VERSION = 2;
 
   /**
    * @dev Modifier to restrict access to addresses that are whitelisted.

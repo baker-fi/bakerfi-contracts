@@ -17,13 +17,14 @@ import { MathLibrary } from "../../libraries/MathLibrary.sol";
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
  *
- * @dev This strategy is used by the bakerfi vault to deploy ETH capital
+ * @dev This strategy is used by the bakerfi vault to deploy ETH/ERC20 capital
  * on aave money market.
  *
- * The Collateral could be cbETH, wstETH, rETH against and the debt is always WETH
+ * The Collateral could be cbETH, wstETH, rETH against and the debt is an ERC20 (example: ETH)
  *
- * The strategy inherits all the business logic from StrategyAAVEv3Base and could be deployed
- * on Optimism, Arbitrum , Base and Ethereum.
+ * The strategy inherits all the business logic from StrategyAAVEv3Base
+ * and could be deployed on Optimism, Arbitrum , Base and Ethereum or any L2 with AAVE markets
+ *
  */
 contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
   using SafeERC20 for ERC20;
@@ -72,9 +73,9 @@ contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
    * Get the Current Position on AAVE v3 Money Market
    *
    * @return collateralBalance The Collateral Balance Amount
-   * @return debtBalance  -  The Debt Token Balance Amount
+   * @return debtBalance The Debt Token Balance Amount
    *
-   * @dev No Conversion to USD Done
+   * @dev !Important: No Conversion to USD Done
    */
   function getLeverageBalances()
     public

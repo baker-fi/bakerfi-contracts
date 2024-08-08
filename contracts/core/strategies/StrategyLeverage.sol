@@ -56,7 +56,7 @@ import { StrategyLeverageSettings } from "./StrategyLeverageSettings.sol";
  *  ...
  *
  * @notice The Contract is abstract and needs to be extended to implement the
- * conversion between WETH and the collateral
+ * conversion between debt token and the collateral , to integrate a money market
  */
 abstract contract StrategyLeverage is
   StrategyLeverageSettings,
@@ -139,8 +139,8 @@ abstract contract StrategyLeverage is
    * Requirements:
    * - The caller must be in the initializing state.
    * - The initial owner address must not be the zero address.
-   * - The ETH/USD oracle and collateral/USD oracle addresses must be valid.
-   * - Approval allowances must be successfully set for WETH and the collateral ERC20 token for UniSwap.
+   * - The debt/USD oracle and collateral/USD oracle addresses must be valid.
+   * - Approval allowances must be successfully set for debt ERC20 and the collateral ERC20 token for UniSwap.
    */
   function _initializeStrategyBase(
     address initialOwner,
@@ -250,8 +250,8 @@ abstract contract StrategyLeverage is
    * @dev Deploys funds in the AAVEv3 strategy
    *
    * This function is externally callable only by the owner, and it involves the following steps:
-   * 1. Wraps the received Ether into WETH.
-   * 2. Initiates a WETH flash loan to leverage the deposited amount.
+   * 1. Transfer the Debt Token to the Strategy
+   * 2. Initiates a Debt Token flash loan to leverage the deposited amount.
    *
    * @return deployedAmount The amount deployed in the AAVEv3 strategy after leveraging.
    *
@@ -265,7 +265,7 @@ abstract contract StrategyLeverage is
     // 1. Transfer Assets from the Vault
     IERC20Upgradeable(_debtToken).safeTransferFrom(msg.sender, address(this), amount);
 
-    // 2. Initiate a WETH Flash Loan
+    // 2. Initiate a Debt Token Flash Loan
     uint256 leverage = _calculateLeverageRatio(amount, getLoanToValue(), getNrLoops());
     uint256 loanAmount = leverage - amount;
     uint256 fee = flashLender().flashFee(_debtToken, loanAmount);
@@ -298,7 +298,7 @@ abstract contract StrategyLeverage is
    * The function returns a bytes32 success message after the actions are executed.
    *
    * @param initiator The address that initiated the flash loan.
-   * @param token The address of the token being flash borrowed (should be WETH in this case).
+   * @param token The address of the token being flash borrowed (should be Debt Token in this case).
    * @param amount The total amount of tokens being flash borrowed.
    * @param fee The fee amount associated with the flash loan.
    * @param callData Additional data encoded for specific actions, including the original amount, action type, and receiver address.
@@ -306,7 +306,6 @@ abstract contract StrategyLeverage is
    * Requirements:
    * - The flash loan sender must be the expected flash lender contract.
    * - The initiator must be the contract itself to ensure trust.
-   * - Only WETH flash loans are allowed.
    * - The contract must be properly configured and initialized.
    */
   function onFlashLoan(
@@ -318,7 +317,7 @@ abstract contract StrategyLeverage is
   ) external returns (bytes32) {
     if (msg.sender != flashLenderA()) revert InvalidFlashLoanSender();
     if (initiator != address(this)) revert InvalidLoanInitiator();
-    // Only Allow WETH Flash Loans
+    // Only Allow Debt Token Flash Loans
     if (token != _debtToken) revert InvalidFlashLoanAsset();
     if (_flashLoanArgsHash != keccak256(abi.encodePacked(initiator, token, amount, callData)))
       revert FailedToAuthenticateArgs();
@@ -337,7 +336,7 @@ abstract contract StrategyLeverage is
    * @dev Initiates the undeployment of a specified amount, sending the resulting ETH to the contract owner.
    *
    * This function allows the owner of the contract to undeploy a specified amount, which involves
-   * withdrawing the corresponding collateral, converting it to WETH, unwrapping WETH, and finally
+   * withdrawing the corresponding collateral, converting it to Debt Token, unwrapping Debt Token, and finally
    * sending the resulting ETH to the contract owner. The undeployment is subject to reentrancy protection.
    * The function returns the amount of ETH undeployed to the contract owner.
    * The method is designed to ensure that the collateralization ratio (collateral value to debt value) remains within acceptable limits.
@@ -494,9 +493,9 @@ abstract contract StrategyLeverage is
    * undeployment amount. It then uses a flash loan to perform the required operations, including paying off debt and
    * withdrawing ETH. The resulting undeployed amount is updated, and the contract's deployed amount is adjusted accordingly.
    *
-   * @param amount The amount of ETH to undeploy.
-   * @param receiver The address to receive the undeployed ETH.
-   * @return undeployedAmount The actual undeployed amount of ETH.
+   * @param amount The amount of Debt Token to Undeploy.
+   * @param receiver The address to receive the undeployed Debt Token.
+   * @return undeployedAmount The actual undeployed amount of Debt Token.
    *
    * Requirements:
    * - The contract must have a collateral margin greater than the debt to initiate undeployment.
@@ -558,11 +557,11 @@ abstract contract StrategyLeverage is
    *
    * This private function is used internally to repay the debt on the AAVEv3 strategy. It involves repaying
    * the debt on AAVE, obtaining a quote for the required collateral, withdrawing the collateral from AAVE, and
-   * swapping the collateral to obtain the necessary WETH. The leftover WETH after the swap is deposited back
+   * swapping the collateral to obtain the necessary Debt Token. The leftover Debt Token after the swap is deposited back
    * into AAVE if there are any. The function emits the `StrategyUndeploy` event after the debt repayment.
    *
    * @param debtAmount The amount of Debt Token to be repaid on AAVE.
-   * @param fee The fee amount in WETH associated with the debt repayment.
+   * @param fee The fee amount in Debt Token associated with the debt repayment.
    *
    * Requirements:
    * - The AAVEv3 strategy must be properly configured and initialized.
@@ -604,7 +603,7 @@ abstract contract StrategyLeverage is
   }
 
   /**
-   * @dev Internal function to convert the specified amount from WETH to the underlying assert cbETH, wstETH, rETH.
+   * @dev Internal function to convert the specified amount from Debt Token to the underlying collateral asset cbETH, wstETH, rETH.
    *
    * This function is virtual and intended to be overridden in derived contracts for customized implementation.
    *
@@ -626,7 +625,7 @@ abstract contract StrategyLeverage is
         (wsthETHAmount * (PERCENTAGE_PRECISION - getMaxSlippage())) /
         PERCENTAGE_PRECISION;
     }
-    // 1. Swap WETH -> cbETH/wstETH/rETH
+    // 1. Swap Debt Token -> Collateral Token
     (, uint256 amountOut) = _swap(
       ISwapHandler.SwapParams(
         _debtToken, // Asset In
@@ -642,12 +641,12 @@ abstract contract StrategyLeverage is
   }
 
   /**
-   * @dev Internal function to convert the specified amount to WETH from the underlying collateral.
+   * @dev Internal function to convert the specified amount to Debt Token from the underlying collateral.
    *
    * This function is virtual and intended to be overridden in derived contracts for customized implementation.
    *
-   * @param amount The amount to convert to WETH.
-   * @return uint256 The converted amount in WETH.
+   * @param amount The amount to convert to Debt Token.
+   * @return uint256 The converted amount in Debt Token.
    */
   function _convertToDebt(uint256 amount) internal virtual returns (uint256) {
     uint256 amountOutMinimum = 0;
@@ -663,7 +662,7 @@ abstract contract StrategyLeverage is
         (ethAmount * (PERCENTAGE_PRECISION - getMaxSlippage())) /
         PERCENTAGE_PRECISION;
     }
-    // 1.Swap cbETH -> WETH/wstETH/rETH
+    // 1.Swap Colalteral -> Debt Token
     (, uint256 amountOut) = _swap(
       ISwapHandler.SwapParams(
         _collateralToken, // Asset In
@@ -681,10 +680,10 @@ abstract contract StrategyLeverage is
   /**
    * @dev Internal function to convert the specified amount from Collateral Token to Debt Token.
    *
-   * This function calculates the equivalent amount in WETH based on the latest price from the collateral oracle.
+   * This function calculates the equivalent amount in Debt Tokeb based on the latest price from the collateral oracle.
    *
    * @param amountIn The amount in the underlying collateral.
-   * @return amountOut The equivalent amount in WETH.
+   * @return amountOut The equivalent amount in Debt Token.
    */
   function _toDebt(
     IOracle.PriceOptions memory priceOptions,
@@ -700,7 +699,7 @@ abstract contract StrategyLeverage is
    *
    * This function calculates the equivalent amount in the underlying collateral based on the latest price from the collateral oracle.
    *
-   * @param amountIn The amount in WETH.
+   * @param amountIn The amount in Debt Token to be converted.
    * @return amountOut The equivalent amount in the underlying collateral.
    */
   function _toCollateral(
@@ -713,15 +712,15 @@ abstract contract StrategyLeverage is
   }
 
   /**
-   * @dev Executes the supply and borrow operations on AAVE, converting assets from WETH.
+   * @dev Executes the supply and borrow operations on AAVE, converting assets from Debt Token.
    *
    * This function is private and is used internally in the AAVEv3 strategy for depositing collateral
-   * and borrowing ETH on the AAVE platform. It involves converting assets from WETH to the respective
+   * and borrowing ETH on the AAVE platform. It involves converting assets from Debt Tokens to the respective
    * tokens, supplying collateral, and borrowing ETH. The strategy owned value is logged on the  `StrategyDeploy` event.
    *
-   * @param amount The amount to be supplied to AAVE (collateral) in WETH.
-   * @param loanAmount The amount to be borrowed from AAVE in WETH.
-   * @param fee The fee amount in WETH associated with the flash loan.
+   * @param amount The amount to be supplied to AAVE (collateral) in Debt Token.
+   * @param loanAmount The amount to be borrowed from AAVE in Debt Token.
+   * @param fee The fee amount in Debt Token associated with the flash loan.
    *
    * Requirements:
    * - The AAVEv3 strategy must be properly configured and initialized.
@@ -743,11 +742,11 @@ abstract contract StrategyLeverage is
   }
 
   /**
-   * @dev Repays a specified amount, withdraws collateral, and sends the remaining ETH to the specified receiver.
+   * @dev Repays a specified amount, withdraws collateral, and sends the remaining Debt Token to the specified receiver.
    *
    * This private function is used internally to repay a specified amount on AAVE, withdraw collateral, and send
    * the remaining ETH to the specified receiver. It involves checking the available balance, repaying the debt on
-   * AAVE, withdrawing the specified amount of collateral, converting collateral to WETH, unwrapping WETH, and finally
+   * AAVE, withdrawing the specified amount of collateral, converting collateral to Debt Token, unwrapping Debt Token, and finally
    * sending the remaining ETH to the receiver. The function emits the `StrategyUndeploy` event after the operation.
    *
    * @param withdrawAmount The amount of collateral balance to be withdraw.
