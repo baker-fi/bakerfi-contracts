@@ -239,17 +239,18 @@ abstract contract StrategyLeverage is
    * - The received Ether amount must not be zero.
    * - The AAVEv3 strategy must be properly configured and initialized.
    */
-  function deploy() external payable onlyOwner nonReentrant returns (uint256 deployedAmount) {
-    if (msg.value == 0) revert InvalidDeployAmount();
-    // 1. Wrap Ethereum
-    address(wETHA()).functionCallWithValue(abi.encodeWithSignature("deposit()"), msg.value);
+  function deploy(uint256 amount) external onlyOwner nonReentrant returns (uint256 deployedAmount) {
+    if (amount == 0) revert InvalidDeployAmount();
+    // 1. Transfer Assets from the Vault
+    IERC20Upgradeable(wETHA()).safeTransferFrom(msg.sender, address(this), amount);
+
     // 2. Initiate a WETH Flash Loan
-    uint256 leverage = calculateLeverageRatio(msg.value, getLoanToValue(), getNrLoops());
-    uint256 loanAmount = leverage - msg.value;
+    uint256 leverage = _calculateLeverageRatio(amount, getLoanToValue(), getNrLoops());
+    uint256 loanAmount = leverage - amount;
     uint256 fee = flashLender().flashFee(wETHA(), loanAmount);
 
     if (!wETH().approve(flashLenderA(), loanAmount + fee)) revert FailedToApproveAllowance();
-    bytes memory data = abi.encode(msg.value, msg.sender, FlashLoanAction.SUPPLY_BOORROW);
+    bytes memory data = abi.encode(amount, msg.sender, FlashLoanAction.SUPPLY_BOORROW);
     _flashLoanArgsHash = keccak256(abi.encodePacked(address(this), wETHA(), loanAmount, data));
     if (
       !flashLender().flashLoan(IERC3156FlashBorrowerUpgradeable(this), wETHA(), loanAmount, data)
@@ -336,7 +337,7 @@ abstract contract StrategyLeverage is
     uint256 totalCollateralBaseInEth,
     uint256 totalDebtBaseInEth
   ) internal returns (uint256 deltaAmount) {
-    uint256 deltaDebt = calculateDebtToPay(
+    uint256 deltaDebt = _calculateDebtToPay(
       getLoanToValue(),
       totalCollateralBaseInEth,
       totalDebtBaseInEth
@@ -486,10 +487,7 @@ abstract contract StrategyLeverage is
    * Requirements:
    * - The contract must have a collateral margin greater than the debt to initiate undeployment.
    */
-  function _undeploy(
-    uint256 amount,
-    address payable receiver
-  ) private returns (uint256 undeployedAmount) {
+  function _undeploy(uint256 amount, address receiver) private returns (uint256 undeployedAmount) {
     (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition(
       IOracle.PriceOptions({
         maxAge: settings().getPriceMaxAge(),
@@ -502,7 +500,7 @@ abstract contract StrategyLeverage is
       (totalCollateralBaseInEth - totalDebtBaseInEth);
 
     // Calculate how much i need to burn to accomodate the withdraw
-    (uint256 deltaCollateralInETH, uint256 deltaDebtInETH) = calcDeltaPosition(
+    (uint256 deltaCollateralInETH, uint256 deltaDebtInETH) = _calcDeltaPosition(
       percentageToBurn,
       totalCollateralBaseInEth,
       totalDebtBaseInEth
@@ -559,15 +557,12 @@ abstract contract StrategyLeverage is
    */
   function _payDebt(uint256 debtAmount, uint256 fee) internal {
     _repay(wETHA(), debtAmount);
-    // Get a Quote to know how much collateral i require to pay debt , includes also
-    // the max Slippage
-    (, uint256 amountInMax) = getExactOutputMaxInput(
-      ierc20A(),
-      wETHA(),
-      debtAmount + fee,
-      _swapFeeTier,
-      getMaxSlippage()
-    );
+
+    // Convert ETH to WST using the current prices and
+    // calculate the maximum amount in using the max Slippage
+    uint256 wsthETHAmount = _fromWETH(debtAmount);
+    uint256 amountInMax = (wsthETHAmount * (PERCENTAGE_PRECISION + getMaxSlippage())) /
+      PERCENTAGE_PRECISION;
 
     _withdraw(ierc20A(), amountInMax, address(this));
 
@@ -600,14 +595,12 @@ abstract contract StrategyLeverage is
    */
   function _convertFromWETH(uint256 amount) internal virtual returns (uint256) {
     uint256 amountOutMinimum = 0;
+
     if (getMaxSlippage() > 0) {
-      (, amountOutMinimum) = getExactInputMinimumOutput(
-        wETHA(), // Asset In
-        ierc20A(), // Asset Out
-        amount,
-        _swapFeeTier,
-        getMaxSlippage()
-      );
+      uint256 wsthETHAmount = _fromWETH(amount);
+      amountOutMinimum =
+        (wsthETHAmount * (PERCENTAGE_PRECISION - getMaxSlippage())) /
+        PERCENTAGE_PRECISION;
     }
     // 1. Swap WETH -> cbETH/wstETH/rETH
     (, uint256 amountOut) = _swap(
@@ -635,13 +628,10 @@ abstract contract StrategyLeverage is
   function _convertToWETH(uint256 amount) internal virtual returns (uint256) {
     uint256 amountOutMinimum = 0;
     if (getMaxSlippage() > 0) {
-      (, amountOutMinimum) = getExactInputMinimumOutput(
-        ierc20A(), // Asset In
-        wETHA(), // Asset Out
-        amount,
-        _swapFeeTier,
-        getMaxSlippage()
-      );
+      uint256 ethAmount = _toWETH(amount);
+      amountOutMinimum =
+        (ethAmount * (PERCENTAGE_PRECISION - getMaxSlippage())) /
+        PERCENTAGE_PRECISION;
     }
     // 1.Swap cbETH -> WETH/wstETH/rETH
     (, uint256 amountOut) = _swap(
@@ -667,24 +657,13 @@ abstract contract StrategyLeverage is
    * @return amountOut The equivalent amount in WETH.
    */
   function _toWETH(uint256 amountIn) internal view returns (uint256 amountOut) {
+    IOracle.PriceOptions memory priceOptions = IOracle.PriceOptions({
+      maxAge: settings().getPriceMaxAge(),
+      maxConf: settings().getPriceMaxConf()
+    });
     amountOut =
-      (amountIn *
-        _collateralOracle
-          .getSafeLatestPrice(
-            IOracle.PriceOptions({
-              maxAge: settings().getPriceMaxAge(),
-              maxConf: settings().getPriceMaxConf()
-            })
-          )
-          .price) /
-      _ethUSDOracle
-        .getSafeLatestPrice(
-          IOracle.PriceOptions({
-            maxAge: settings().getPriceMaxAge(),
-            maxConf: settings().getPriceMaxConf()
-          })
-        )
-        .price;
+      (amountIn * _collateralOracle.getSafeLatestPrice(priceOptions).price) /
+      _ethUSDOracle.getSafeLatestPrice(priceOptions).price;
   }
 
   /**
@@ -696,24 +675,13 @@ abstract contract StrategyLeverage is
    * @return amountOut The equivalent amount in the underlying collateral.
    */
   function _fromWETH(uint256 amountIn) internal view returns (uint256 amountOut) {
+    IOracle.PriceOptions memory priceOptions = IOracle.PriceOptions({
+      maxAge: settings().getPriceMaxAge(),
+      maxConf: settings().getPriceMaxConf()
+    });
     amountOut =
-      (amountIn *
-        _ethUSDOracle
-          .getSafeLatestPrice(
-            IOracle.PriceOptions({
-              maxAge: settings().getPriceMaxAge(),
-              maxConf: settings().getPriceMaxConf()
-            })
-          )
-          .price) /
-      _collateralOracle
-        .getSafeLatestPrice(
-          IOracle.PriceOptions({
-            maxAge: settings().getPriceMaxAge(),
-            maxConf: settings().getPriceMaxConf()
-          })
-        )
-        .price;
+      (amountIn * _ethUSDOracle.getSafeLatestPrice(priceOptions).price) /
+      _collateralOracle.getSafeLatestPrice(priceOptions).price;
   }
 
   /**
@@ -775,11 +743,11 @@ abstract contract StrategyLeverage is
     uint256 wETHAmount = _convertToWETH(withdrawAmount);
     // Calculate how much ETH i am able to withdraw
     uint256 ethToWithdraw = wETHAmount - repayAmount - fee;
-    // Unwrap wETH
-    _unwrapWETH(ethToWithdraw);
-    // Withdraw ETh to Receiver
-    payable(receiver).sendValue(ethToWithdraw);
+
+    wETH().transfer(receiver, ethToWithdraw);
+
     emit StrategyUndeploy(msg.sender, ethToWithdraw);
+
     _pendingAmount = ethToWithdraw;
   }
 
@@ -824,6 +792,26 @@ abstract contract StrategyLeverage is
    */
   function renounceOwnership() public virtual override {
     revert InvalidOwner();
+  }
+
+  function getCollateralOracle() public view returns (address oracle) {
+    oracle = address(_collateralOracle);
+  }
+
+  function getDebtOracle() public view returns (address oracle) {
+    oracle = address(_ethUSDOracle);
+  }
+
+  function setCollateralOracle(IOracle oracle) public onlyGovernor {
+    _collateralOracle = oracle;
+  }
+
+  function setDebtOracle(IOracle oracle) public onlyGovernor {
+    _ethUSDOracle = oracle;
+  }
+
+  function asset() public view override returns (address) {
+    return wETHA();
   }
 
   uint256[44] private __gap;

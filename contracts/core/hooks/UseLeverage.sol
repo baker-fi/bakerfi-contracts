@@ -16,11 +16,11 @@ contract UseLeverage {
    * @param nrLoops The number of loops for the iterative calculation.
    * @return The calculated leverage ratio.
    */
-  function calculateLeverageRatio(
+  function _calculateLeverageRatio(
     uint256 baseValue,
     uint256 loanToValue,
     uint8 nrLoops
-  ) public pure returns (uint256) {
+  ) internal pure returns (uint256) {
     if (nrLoops > MAX_LOOPS) revert InvalidNumberOfLoops();
     if (loanToValue == 0 || loanToValue > PERCENTAGE_PRECISION) revert InvalidLoanToValue();
     uint256 leverage = baseValue;
@@ -44,11 +44,11 @@ contract UseLeverage {
    * @return deltaCollateralInETH The change in collateral in ETH.
    * @return deltaDebtInETH The change in debt in ETH.
    */
-  function calcDeltaPosition(
+  function _calcDeltaPosition(
     uint256 percentageToBurn,
     uint256 totalCollateralBaseInEth,
     uint256 totalDebtBaseInEth
-  ) public pure returns (uint256 deltaCollateralInETH, uint256 deltaDebtInETH) {
+  ) internal pure returns (uint256 deltaCollateralInETH, uint256 deltaDebtInETH) {
     if (percentageToBurn == 0 || percentageToBurn > PERCENTAGE_PRECISION) {
       revert InvalidPercentageValue();
     }
@@ -65,11 +65,11 @@ contract UseLeverage {
    * @param debt The current debt amount.
    * @return delta The additional debt that needs to be paid.
    */
-  function calculateDebtToPay(
+  function _calculateDebtToPay(
     uint256 targetLoanToValue,
     uint256 collateral,
     uint256 debt
-  ) public pure returns (uint256 delta) {
+  ) internal pure returns (uint256 delta) {
     uint256 colValue = ((targetLoanToValue * collateral) / PERCENTAGE_PRECISION);
     if (colValue >= debt) revert InvalidTargetValue();
     uint256 numerator = debt - colValue;

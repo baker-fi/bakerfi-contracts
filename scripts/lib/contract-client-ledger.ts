@@ -39,7 +39,7 @@ export class ContractClientLedger<
         nft: false,
       },
     );
-  
+
     const signature = await this._ledgerApp.signTransaction(this._path, unsignedTx, resolution);
     const signedTx = Transaction.from({
       ...tx.toJSON(),

@@ -16,10 +16,10 @@ abstract contract UseStrategy is Initializable {
     if (address(_strategy) == address(0)) revert InvalidStrategyContract();
   }
 
-  function strategy() public view returns (IStrategy) {
+  function strategy() internal view returns (IStrategy) {
     return _strategy;
   }
-  function strategyA() public view returns (address) {
+  function strategyA() internal view returns (address) {
     return address(_strategy);
   }
 }

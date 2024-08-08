@@ -4,13 +4,12 @@ pragma solidity ^0.8.24;
 import { IOracle } from "./IOracle.sol";
 
 /**
- * @title ETH Deploy Strategy
+ * @title Strategy Inteface to deploy and ERC-20 on a standard
  *
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
  *
- * @notice Deploys ETH and harvests yield
- *
+ * @notice Deploys an Any Standard ERC-20 and harvests yield
  */
 interface IStrategy {
   /**
@@ -66,7 +65,7 @@ interface IStrategy {
    * @return deployedAmount The amount deployed in the AAVEv3 strategy after leveraging.
    *
    */
-  function deploy() external payable returns (uint256 deployedAmount);
+  function deploy(uint256 amount) external returns (uint256 deployedAmount);
 
   /**
    * @notice Harvests the strategy by yield and rebalances the strategy
@@ -89,4 +88,9 @@ interface IStrategy {
    * @return assets The total owned assets in Ether.
    */
   function deployed(IOracle.PriceOptions memory options) external view returns (uint256 assets);
+
+  /**
+   * The Asset deployed on this strategy
+   */
+  function asset() external view returns (address);
 }

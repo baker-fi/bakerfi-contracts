@@ -72,7 +72,7 @@ contract PythMock is IPyth {
     uint age
   ) external view override returns (PythStructs.Price memory price) {
     require(_prices[id].price >= 0, "Invalid Price Feed");
-    require(_prices[id].publishTime >= age, "Old Price");
+    require(block.timestamp - _prices[id].publishTime <= age, "Old Price");
     return _prices[id];
   }
 

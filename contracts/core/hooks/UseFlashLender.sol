@@ -16,10 +16,10 @@ abstract contract UseFlashLender is Initializable {
     if (address(_fLender) == address(0)) revert InvalidFlashLenderContract();
   }
 
-  function flashLender() public view returns (IERC3156FlashLenderUpgradeable) {
+  function flashLender() internal view returns (IERC3156FlashLenderUpgradeable) {
     return _fLender;
   }
-  function flashLenderA() public view returns (address) {
+  function flashLenderA() internal view returns (address) {
     return address(_fLender);
   }
 }

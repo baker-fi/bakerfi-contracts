@@ -1,11 +1,18 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.24;
 
 import { IOracle } from "../interfaces/core/IOracle.sol";
 import { IChainlinkAggregator } from "../interfaces/chainlink/IChainlinkAggregator.sol";
 
 /**
- * Chainlink General Oracle using chainlink data feeds
+ * Oracle that uses ChainLink feeds to provide up to date prices 
+ * for further use on the protocol 
+ 
+ * @title Generic Chainlink Oracle Service
+ *
+ * @author Chef Kenji <chef.kenji@bakerfi.xyz>
+ * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz> * Chainlink General Oracle using chainlink data feeds
+ * 
  */
 contract ChainLinkOracle is IOracle {
   IChainlinkAggregator private immutable _priceFeed;
@@ -62,7 +69,7 @@ contract ChainLinkOracle is IOracle {
     price = getLatestPrice();
     if (priceOptions.maxAge != 0 && (block.timestamp - price.lastUpdate) > priceOptions.maxAge)
       revert PriceOutdated();
-    if (_minPrice > 0 && price.price < _minPrice) revert InvalidPriceFromOracle();
-    if (_maxPrice > 0 && price.price > _maxPrice) revert InvalidPriceFromOracle();
+    if (_minPrice >= 0 && price.price <= _minPrice) revert InvalidPriceFromOracle();
+    if (_maxPrice >= 0 && price.price >= _maxPrice) revert InvalidPriceFromOracle();
   }
 }

@@ -23,7 +23,7 @@ describeif(network.name === 'hardhat')('Pyth Oracle Tests', function () {
 
   it('Pyth Oracle Tests - Decimal Price', async function () {
     const { pythMock, pythOracle } = await loadFixture(deployFunction);
-    expect(await pythOracle.getPrecision()).to.equal(18);
+    expect(await pythOracle.getPrecision()).to.equal(10n ** 18n);
 
     const updateData = new AbiCoder().encode(
       ['tuple(bytes32, tuple(int64, uint64, int32, uint),  tuple(int64, uint64, int32, uint))'],
@@ -42,7 +42,7 @@ describeif(network.name === 'hardhat')('Pyth Oracle Tests', function () {
 
   it('Pyth Oracle Tests - Fractional Price', async function () {
     const { pythMock, pythOracle } = await loadFixture(deployFunction);
-    expect(await pythOracle.getPrecision()).to.equal(18);
+    expect(await pythOracle.getPrecision()).to.equal(10n ** 18n);
     const updateData = new AbiCoder().encode(
       ['tuple(bytes32, tuple(int64, uint64, int32, uint),  tuple(int64, uint64, int32, uint))'],
       [[feedIds[PythFeedNameEnum.WSTETH_USD], [12, 0, 2, 1706801584], [12, 0, 2, 1706801584]]],
@@ -82,7 +82,7 @@ describeif(network.name === 'hardhat')('Pyth Oracle Tests', function () {
       value: 10,
     });
     // 10% Max Confidence
-    const [price] = await pythOracle.getSafeLatestPrice([0, 1 * 10 ** 8]);
+    const [price] = await pythOracle.getSafeLatestPrice([180, 1 * 10 ** 8]);
     expect(price).to.equal(ethers.parseUnits('120000', 18));
   });
 
@@ -102,10 +102,10 @@ describeif(network.name === 'hardhat')('Pyth Oracle Tests', function () {
       value: 10,
     });
     // 10% Max Confidence
-    await expect(
-      pythOracle.getSafeLatestPrice([0, 1 * 10 ** 8]),
-      // @ts-expect-error
-    ).to.be.revertedWithCustomError(pythOracle, 'InvalidPriceAnswer');
+    await expect(pythOracle.getSafeLatestPrice([180, 1 * 10 ** 8])).to.be.revertedWithCustomError(
+      pythOracle,
+      'InvalidPriceAnswer',
+    );
   });
 
   it('Pyth Oracle Tests - Max Exponent', async function () {
@@ -121,9 +121,17 @@ describeif(network.name === 'hardhat')('Pyth Oracle Tests', function () {
       ],
     );
     await pythMock.updatePriceFeeds([updateData], { value: 10 });
-    await expect(
-      pythOracle.getSafeLatestPrice([0, 1 * 10 ** 8]),
-      // @ts-expect-error
-    ).to.be.revertedWithCustomError(pythOracle, 'InvalidPriceAnswer');
+    await expect(pythOracle.getSafeLatestPrice([180, 1 * 10 ** 8])).to.be.revertedWithCustomError(
+      pythOracle,
+      'InvalidPriceAnswer',
+    );
+  });
+
+  it('Pyth Oracle Tests - Revert when calling getSafeLatestPrice with max age =0 ', async function () {
+    const { pythOracle } = await loadFixture(deployFunction);
+    await expect(pythOracle.getSafeLatestPrice([0, 1 * 10 ** 8])).to.be.revertedWithCustomError(
+      pythOracle,
+      'InvalidPriceOption',
+    );
   });
 });

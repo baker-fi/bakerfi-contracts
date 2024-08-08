@@ -38,8 +38,8 @@ The Contract is upgradeable and can use a BakerProxy in front of._
 | └ | _totalAssets | Private 🔐 |   | |
 | └ | convertToShares | External ❗️ |   |NO❗️ |
 | └ | convertToAssets | External ❗️ |   |NO❗️ |
-| └ | tokenPerETH | External ❗️ |   |NO❗️ |
-| └ | _tokenPerETH | Internal 🔒 |   | |
+| └ | tokenPerAsset | External ❗️ |   |NO❗️ |
+| └ | _tokenPerAsset | Internal 🔒 |   | |
 | └ | pause | External ❗️ | 🛑  | onlyOwner |
 | └ | unpause | External ❗️ | 🛑  | onlyOwner |
 
@@ -296,10 +296,10 @@ would be equivalent to the given number of shares based on the current Rebase st
 | ---- | ---- | ----------- |
 | assets | uint256 | The calculated amount of assets. |
 
-### tokenPerETH
+### tokenPerAsset
 
 ```solidity
-function tokenPerETH() external view returns (uint256)
+function tokenPerAsset() external view returns (uint256)
 ```
 
 _Retrieves the token-to-ETH exchange rate.
@@ -314,10 +314,10 @@ and the total assets under management by the strategy._
 | ---- | ---- | ----------- |
 | [0] | uint256 | rate The calculated token-to-ETH exchange rate. |
 
-### _tokenPerETH
+### _tokenPerAsset
 
 ```solidity
-function _tokenPerETH(uint256 priceMaxAge) internal view returns (uint256)
+function _tokenPerAsset(uint256 priceMaxAge) internal view returns (uint256)
 ```
 
 ### pause

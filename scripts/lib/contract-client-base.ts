@@ -1,6 +1,5 @@
 import { ethers, Transaction, TransactionReceipt } from 'ethers';
 import { ContractClient, ContractTreeType, TxOptions } from './contract-client';
-const delay = ms => new Promise(res => setTimeout(res, ms));
 
 export abstract class ContractClientBase<ContractTree extends ContractTreeType>
   implements ContractClient<ContractTree>
@@ -34,19 +33,16 @@ export abstract class ContractClientBase<ContractTree extends ContractTreeType>
       ...deployTx,
       ...(options?.value ? { value: options.value } : {}),
       nonce: await this._provider.getTransactionCount(this.getAddress()),
-      chainId: options?.chainId ?? 1,      
+      chainId: options?.chainId ?? 1,
       ...(await this.buildGasOptions(options)),
-      gasLimit: options?.gasLimit ??(estimatedGas * 2n),
-    });    
+      gasLimit: options?.gasLimit ?? estimatedGas * 2n,
+    });
     const signedTx = await this.sign(tx);
     return await this.broadcastTx(signedTx);
   }
-  async broadcastTx(signedTx: Transaction,options?: TxOptions) {
+  async broadcastTx(signedTx: Transaction, options?: TxOptions) {
     const response = await this._provider.broadcastTransaction(signedTx.serialized);
-    const txReceipt = await response.wait();   
-    if(options && options.delayAfterTxReceiptMs && options?.delayAfterTxReceiptMs > 0 ) {
-      await delay(options?.delayAfterTxReceiptMs);
-    }
+    const txReceipt = await response.wait(options?.minTxConfirmations ?? 0);
     return txReceipt;
   }
 
@@ -55,7 +51,6 @@ export abstract class ContractClientBase<ContractTree extends ContractTreeType>
     const block = await this._provider.getBlock('latest');
     const gasOptions = {
       gasLimit: block?.gasLimit ?? 300000000n,
-      gasPrice: options?.gasPrice ?? feeData.gasPrice,
       maxFeePerGas: options?.maxFeePerGas ?? feeData?.maxFeePerGas ?? 0,
       maxPriorityFeePerGas: options?.maxPriorityFeePerGas ?? feeData.maxPriorityFeePerGas,
     };
@@ -83,10 +78,10 @@ export abstract class ContractClientBase<ContractTree extends ContractTreeType>
       ...(await this.buildGasOptions(options)),
     });
     const estimatedGas = await this._provider.estimateGas({
-      ...baseTx,
+      ...baseTx.toJSON(),
       from: this.getAddress(),
     });
-    baseTx.gasLimit = options?.gasLimit ?? (estimatedGas*2n);
+    baseTx.gasLimit = options?.gasLimit ?? estimatedGas * 2n;
     const signedTx = await this.sign(baseTx);
     return await this.broadcastTx(signedTx, options);
   }

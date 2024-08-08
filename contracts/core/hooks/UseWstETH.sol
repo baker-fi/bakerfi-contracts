@@ -45,7 +45,7 @@ abstract contract UseWstETH is Initializable {
    * @dev Returns the IWStETH interface.
    * @return The IWStETH interface.
    */
-  function wstETH() public view returns (IWStETH) {
+  function wstETH() internal view returns (IWStETH) {
     return _wstETH;
   }
 
@@ -53,7 +53,7 @@ abstract contract UseWstETH is Initializable {
    * @dev Returns the address of the WstETH contract.
    * @return The address of the WstETH contract.
    */
-  function wstETHA() public view returns (address) {
+  function wstETHA() internal view returns (address) {
     return address(_wstETH);
   }
 

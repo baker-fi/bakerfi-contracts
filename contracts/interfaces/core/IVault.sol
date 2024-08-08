@@ -1,93 +1,55 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.24;
 
+import { IERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/interfaces/IERC20Upgradeable.sol";
+import { IERC20MetadataUpgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
+import { IERC4626Upgradeable } from "@openzeppelin/contracts-upgradeable/interfaces/IERC4626Upgradeable.sol";
+
 /**
  * @title BakerFi IVault 🏦🧑‍🍳
+ *
+ * This vault class follows the ERC4626 standard and allows the support native
+ * currencies like ETHEREUM.
+ *
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
+ *
  * */
-abstract contract IVault {
+interface IVault is IERC20Upgradeable, IERC20MetadataUpgradeable, IERC4626Upgradeable {
   /**
-   * @dev Emitted when a ETH deposit is made to the contract.
+   * Deposits ETH or the native currency on the strategy
    *
-   * This event provides information about the depositor, receiver, deposited amount,
-   * and the corresponding number of shares minted as a result of the deposit.
+   * The strategy should support ETH as the deployed asset
    *
-   * @param depositor The address initiating the deposit.
-   * @param receiver The address receiving the minted shares.
-   * @param amount The amount of Ether deposited.
-   * @param shares The number of shares minted for the deposit.
+   * @param receiver Receiver of the minted shares after deposit
    */
-  event Deposit(
-    address indexed depositor,
-    address indexed receiver,
-    uint256 indexed amount,
-    uint256 shares
-  );
+  function depositNative(address receiver) external payable returns (uint256 shares);
 
   /**
-   * @dev Emitted when a withdrawal is made from the contract.
+   * @dev Reedemns ETH or the native currency from the strategy
    *
-   * This event provides information about the owner initiating the withdrawal, the withdrawn amount,
-   * and the corresponding number of shares burned as a result of the withdrawal.
+   * The strategy should support ETH as the deployed asset
    *
-   * @param owner The address initiating the withdrawal.
-   * @param amount The amount of Ether withdrawn after fees.
-   * @param shares The number of shares burned for the withdrawal.
+   * @param assets Receiver of the minted shares after deposit
    */
-  event Withdraw(address indexed owner, uint256 amount, uint256 indexed shares);
+  function withdrawNative(uint256 assets) external returns (uint256 shares);
 
   /**
-   * @dev Deposits Ether into the contract and mints vault's shares for the specified receiver.
+   * @dev Reedemns ETH or the native currency from the strategy
    *
-   * @param receiver The address to receive the minted shares.
-   * @return shares The number of shares minted for the specified receiver.
+   * The strategy should support ETH as the deployed asset
+   *
+   * @param shares Receiver of the minted shares after deposit
    */
-  function deposit(address receiver) external payable virtual returns (uint256 shares);
+
+  function redeemNative(uint256 shares) external returns (uint256 assets);
 
   /**
-   * @dev Withdraws a specified number of vault's shares, converting them to ETH and
-   * transferring to the caller.
+   * @dev The Vault Ration between the token price and the shares
+   * price. It could be used as price oracle for external entities
    *
-   * @param shares The number of shares to be withdrawn.
-   * @return amount The amount of Ether withdrawn after fees.
-   *
-   * Emits a {Withdraw} event after successfully handling the withdrawal.
    */
-  function withdraw(uint256 shares) external virtual returns (uint256 amount);
-
-  /**
-   * @dev Retrieves the total assets controlled/belonging to the vault
-   *
-   * This function is publicly accessible and provides a view of the total assets currently
-   * deployed in the current strategy.
-   *
-   * @return amount The total assets under management by the strategy.
-   */
-  function totalAssets() public view virtual returns (uint256 amount);
-
-  /**
-   * @dev Converts the specified amount of ETH to shares.
-   *
-   * @param assets The amount of assets to be converted to shares.
-   * @return shares The calculated number of shares.
-   */
-  function convertToShares(uint256 assets) external view virtual returns (uint256 shares);
-
-  /**
-   * @dev Converts the specified number of shares to ETH.
-   *
-   * @param shares The number of shares to be converted to assets.
-   * @return assets The calculated amount of assets.
-   */
-  function convertToAssets(uint256 shares) external view virtual returns (uint256 assets);
-
-  /**
-   * @dev Retrieves the token-to-ETH exchange rate.
-   *
-   * @return rate The calculated token-to-ETH exchange rate.
-   */
-  function tokenPerETH() external view virtual returns (uint256 rate);
+  function tokenPerAsset() external view returns (uint256 rate);
 
   /**
    * @dev Function to rebalance the strategy, prevent a liquidation and pay fees
@@ -96,5 +58,5 @@ abstract contract IVault {
    * @return balanceChange The change in balance after the rebalance operation.
    *
    */
-  function rebalance() external virtual returns (int256 balanceChange);
+  function rebalance() external returns (int256 balanceChange);
 }

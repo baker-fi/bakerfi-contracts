@@ -195,10 +195,7 @@ export async function deployAaveV3(stETH, weth, serviceRegistry, amount) {
   );
   await aaveV3PoolMock.waitForDeployment();
   const aaveV3PoolAddress = await aaveV3PoolMock.getAddress();
-  await serviceRegistry.registerService(
-    ethers.keccak256(Buffer.from('AAVEv3')),
-    aaveV3PoolAddress,
-  );
+  await serviceRegistry.registerService(ethers.keccak256(Buffer.from('AAVEv3')), aaveV3PoolAddress);
   await weth.deposit?.call('', { value: amount });
   await weth.transfer(aaveV3PoolAddress, amount);
   return aaveV3PoolMock;
@@ -351,6 +348,13 @@ export async function deployQuoterV2Mock(serviceRegistry: any) {
 
 export async function deployLeverage() {
   const Leverage = await ethers.getContractFactory('UseLeverage');
+  const levarage = await Leverage.deploy();
+  await levarage.waitForDeployment();
+  return levarage;
+}
+
+export async function deployTestLeverage() {
+  const Leverage = await ethers.getContractFactory('LeverageTest');
   const levarage = await Leverage.deploy();
   await levarage.waitForDeployment();
   return levarage;

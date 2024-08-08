@@ -12,9 +12,10 @@ import { HardhatUserConfig } from "hardhat/config";
 import { STAGING_ACCOUNTS_PKEYS} from "./constants/test-accounts";
 import {HardhatNetworkAccountUserConfig} from "hardhat/types/config";
 import "@nomicfoundation/hardhat-verify";
-//import "hardhat-tracer";
+
 import 'solidity-docgen';
-import "./scripts/tasks";
+import "./scripts/tasks/";
+import "hardhat-storage-layout-changes";
 
 
 const devAccounts: HardhatNetworkAccountUserConfig[] =  STAGING_ACCOUNTS_PKEYS.map(
@@ -44,6 +45,7 @@ const config: HardhatUserConfig = {
       chainId: 1337,
       hardfork: 'shanghai',
       url: process.env.WEB3_RPC_LOCAL_URL || 'http://127.0.0.1:8545',    
+      gasPrice: 20 * 1000000000,
       accounts: STAGING_ACCOUNTS_PKEYS,      
     },
     ethereum: {
@@ -101,6 +103,9 @@ const config: HardhatUserConfig = {
       accounts: STAGING_ACCOUNTS_PKEYS
     },
   },
+  paths: {
+    storageLayouts: ".storage-layouts",
+  },
   solidity: {
     compilers: [
       {
@@ -137,7 +142,11 @@ const config: HardhatUserConfig = {
             enabled: true,
             runs: 200,
           },
-
+          outputSelection: {
+            "*": {
+              "*": ["storageLayout"],
+            },
+          },
         },
       },
       {
@@ -171,10 +180,16 @@ const config: HardhatUserConfig = {
     collapseNewlines: true
   },
   etherscan: {
-    // Your API key for Etherscan
-    // Obtain one at https://etherscan.io/
-    apiKey: process.env.ETHERSCAN_API_KEY,
-  },  
+    apiKey: {
+      base: process.env.BASESCAN_API_KEY || "",
+    },
+  } ,
+
+  storageLayoutChanges: {
+    contracts: ["Vault", "Settings", "StrategyAAVEv3"],
+    fullPath: false
+  }
+
 };
 
 export default config;
