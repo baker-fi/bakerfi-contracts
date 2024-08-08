@@ -396,54 +396,67 @@ abstract contract StrategyLeverage is
    * @return balanceChange The change in strategy balance as an int256 value.
    */
   function harvest() external override onlyOwner nonReentrant returns (int256 balanceChange) {
-    (uint256 totalCollateral, uint256 totalDebt) = getLeverageBalances();
-    uint256 totalCollateralInDebt = _toDebt(
-      IOracle.PriceOptions({
-        maxAge: settings().getRebalancePriceMaxAge(),
-        maxConf: settings().getPriceMaxConf()
-      }),
-      totalCollateral
-    );
+      // Fetch leverage balances
+      (uint256 totalCollateral, uint256 totalDebt) = getLeverageBalances();
 
-    if (totalCollateralInDebt == 0 || totalDebt == 0) {
-      return 0;
-    }
-    if (totalCollateralInDebt <= totalDebt) revert CollateralLowerThanDebt();
+      // Convert total collateral to debt value using Oracle
+      uint256 totalCollateralInDebt = _toDebt(
+          IOracle.PriceOptions({
+              maxAge: settings().getRebalancePriceMaxAge(),
+              maxConf: settings().getPriceMaxConf()
+          }),
+          totalCollateral
+      );
 
-    uint256 deltaDebt = 0;
-    // Local Copy to reduce the number of SLOADs
-    uint256 deployedAmount = _deployedAssets;
+      // Early exit conditions
+      if (totalCollateralInDebt == 0 || totalDebt == 0) {
+          return 0;
+      }
+      if (totalCollateralInDebt <= totalDebt) {
+          revert CollateralLowerThanDebt();
+      }
 
-    if (deltaDebt >= totalCollateralInDebt) revert InvalidDeltaDebt();
+      uint256 deployedAmount = _deployedAssets;
+      uint256 deltaDebt = 0;
 
-    uint256 ltv = (totalDebt * PERCENTAGE_PRECISION) / totalCollateralInDebt;
-    if (ltv > getMaxLoanToValue() && ltv < PERCENTAGE_PRECISION) {
-      // Pay Debt to rebalance the position
-      deltaDebt = _adjustDebt(totalCollateralInDebt, totalDebt);
-    }
-    uint256 newDeployedAmount = totalCollateralInDebt - deltaDebt - (totalDebt - deltaDebt);
+      // Calculate Loan-to-Value ratio
+      uint256 ltv = (totalDebt * PERCENTAGE_PRECISION) / totalCollateralInDebt;
 
-    if (deltaDebt >= totalCollateralInDebt) revert InvalidDeltaDebt();
+      // Adjust debt if LTV exceeds the maximum allowed
+      if (ltv > getMaxLoanToValue() && ltv < PERCENTAGE_PRECISION) {
+          deltaDebt = _adjustDebt(totalCollateralInDebt, totalDebt);
+      }
 
-    if (newDeployedAmount == deployedAmount) {
-      return 0;
-    }
+      uint256 newDeployedAmount = totalCollateralInDebt - totalDebt;
 
-    // Log Profit or Loss when there is no debt adjustment
-    if (newDeployedAmount > deployedAmount && deltaDebt == 0) {
-      uint256 profit = newDeployedAmount - deployedAmount;
-      emit StrategyProfit(profit);
-      balanceChange = int256(profit);
-    } else if (newDeployedAmount < deployedAmount && deltaDebt == 0) {
-      uint256 loss = deployedAmount - newDeployedAmount;
-      emit StrategyLoss(loss);
-      balanceChange = -int256(loss);
-    }
+      // Ensure valid debt adjustment
+      if (deltaDebt >= totalCollateralInDebt) {
+          revert InvalidDeltaDebt();
+      }
 
-    _deployedAssets = newDeployedAmount;
+      // If no change in deployed amount, return early
+      if (newDeployedAmount == deployedAmount) {
+          return 0;
+      }
 
-    emit StrategyAmountUpdate(newDeployedAmount);
-  }
+      // Log profit or loss based on the new deployed amount
+      if (deltaDebt == 0) {
+          if (newDeployedAmount > deployedAmount) {
+              uint256 profit = newDeployedAmount - deployedAmount;
+              emit StrategyProfit(profit);
+              balanceChange = int256(profit);
+          } else {
+              uint256 loss = deployedAmount - newDeployedAmount;
+              emit StrategyLoss(loss);
+              balanceChange = -int256(loss);
+          }
+      }
+
+      // Update deployed assets
+      _deployedAssets = newDeployedAmount;
+      emit StrategyAmountUpdate(newDeployedAmount);
+}
+
 
   /**
    * Get the Money Market Position Balances (Collateral, Debt) in Token Balances
