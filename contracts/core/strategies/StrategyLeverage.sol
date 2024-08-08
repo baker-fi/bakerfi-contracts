@@ -837,20 +837,17 @@ function _undeploy(uint256 amount, address receiver) private returns (uint256 un
     address payable receiver
   ) internal {
     (uint256 collateralBalance, ) = getLeverageBalances();
-    uint256 cappedWithdrawAmount = collateralBalance > withdrawAmount
-      ? withdrawAmount
-      : collateralBalance;
+    uint256 cappedWithdrawAmount = collateralBalance < withdrawAmount ? collateralBalance : withdrawAmount;
 
     _repay(_debtToken, repayAmount);
-
     _withdraw(_collateralToken, cappedWithdrawAmount, address(this));
 
-    // Convert Collateral to Debt Token
     uint256 debtAmount = _convertToDebt(cappedWithdrawAmount);
-    // Calculate how much debt token i am able to withdraw
-    uint256 debtToWithdraw = debtAmount - repayAmount - fee;
+    uint256 debtToWithdraw = debtAmount > repayAmount + fee ? debtAmount - repayAmount - fee : 0;
 
-    IERC20Upgradeable(_debtToken).safeTransfer(receiver, debtToWithdraw);
+    if (debtToWithdraw > 0) {
+        IERC20Upgradeable(_debtToken).safeTransfer(receiver, debtToWithdraw);
+    }
 
     emit StrategyUndeploy(msg.sender, debtToWithdraw);
 
