@@ -18,7 +18,7 @@ contract ChainLinkOracle is IOracle {
   IChainlinkAggregator private immutable _priceFeed;
   uint8 private immutable _extPriceDecimals;
   uint8 private constant _PRICE_DECIMALS = 18;
-  uint256 private constant _PRECISION = 1e18;
+  uint256 private constant _PRECISION = 10 ** _PRICE_DECIMALS;
 
   // Price Circuit Breaker to prevent staled and prices from the aggreagator
   // The data feed aggregator includes both minAnswer and maxAnswer values.
