@@ -8,11 +8,11 @@ Recursive ETH Staking made easy, amplify your yields with recursive based strate
 * Liquidation Protection
 * Easy to Use Interface
 * Leverage based on Flash Loans
-* Liquid Yield Shares matETH 
+* Liquid Yield Shares brETH
 * Proxied Deployment for Settings, Vault and Strategies
 
-## Integrations 
-* AAVE v3 
+## Integrations
+* AAVE v3
 * Lido Staking Contracts
 * Uniswap v3
 * Balancer Flash Loans
@@ -20,7 +20,7 @@ Recursive ETH Staking made easy, amplify your yields with recursive based strate
 ## Prerequisites
 Before getting started with this project, make sure you have the following prerequisites:
 
-* Node.js (version 18 or higher)
+* Node.js (version 20 or higher)
 * NPM (version 9.0 or higher)
 * Hardhat (version 2.0.0 or higher)
 * Ethereum wallet or provider (e.g., MetaMask)
@@ -63,10 +63,10 @@ To run the automated tests, execute the following command:
 ```
 npm run test
 
-# With Gas Report 
+# With Gas Report
 npm run test:gas
 
-# With Gas Report + Test Coverage 
+# With Gas Report + Test Coverage
 npm run test:coverage
 ```
 
@@ -75,7 +75,7 @@ This will execute the tests defined in the ./test directory.
 ## Deployment
 To deploy your smart contracts to a specific network, configure the network settings in the hardhat.config.js file. Then, run the deployment script using the following command:
 
-### Production 
+### Production
 ```
 npx hardhat run --network <network-name> scripts/deploy.ts
 ```
@@ -84,7 +84,7 @@ npx hardhat run --network <network-name> scripts/deploy.ts
 
 ```
 # Open a terminal to run Ganache
-npm run ganache:dev 
+npm run ganache:dev
 # Open a separate terminal to run the deployment script
 npx hardhat run scripts/deploy-dev.ts
 ```
@@ -92,7 +92,7 @@ npx hardhat run scripts/deploy-dev.ts
 Replace <network-name> with the desired network from your configuration.
 
 
-## Create an SDK packager 
+## Create an SDK packager
 
 
 ```
@@ -103,7 +103,7 @@ npm run compile:clean && npm run build
 npm pack
 ```
 
-### Setup Development Environment 
+### Setup Development Environment
 
 1. Start ganache with the predefined accounts
 
@@ -129,19 +129,13 @@ stETH = 0x2C263d29775dC27167c58aB7B18dc6C942c141B0
 wstETH = 0x27F56eb75a1EBbE7e7218e8fCa5FF51E3d655f22
 Swap Router Mock = 0x26A76D21edD8049fd394786976EF578010569FcB
 AAVE v3 Mock = 0x621e8cdBc878Bdda95d0247B71FeBE0a8b2d4EE3
-BakerFi Vault = 0xE8A1e868E4736669b73B9E26BE22129bD6B4E83d 
-BakerFi Vault AAVEv3 Strategy = 0xC5Dfa3ebaDD8cf122b2b086e3aC28492Da76a0eE
+Vault = 0xE8A1e868E4736669b73B9E26BE22129bD6B4E83d
+AAVEv3 Strategy = 0xC5Dfa3ebaDD8cf122b2b086e3aC28492Da76a0eE
 WSETH/ETH Oracle = 0xE8F362bF1E066547113981FdaC7c1dDC6949a7Ac
+...
 ```
 
-### Development CLI Commands 
-
-#### Get the Network Deployment Addresses 
-
-```
-#HARDHAT_NETWORK=base_devnet npx ts-node --files scripts/cli.ts  contracts <serviceRegistryAddress>
-HARDHAT_NETWORK=base_devnet npx ts-node --files scripts/cli.ts  contracts 0xE8A1e868E4736669b73B9E26BE22129bD6B4E83d
-```
+### Development CLI Commands
 
 ### Interacting with Contracts
 You can interact with the deployed contracts using the Hardhat console. Start the console with the following command:
@@ -159,11 +153,11 @@ Replace <network-name> with the desired network from your configuration.
 
 ```
 npm run export:flat
-``` 
+```
 
 **Generate Documentation**
 ```
-npm run doc 
+npm run doc
 ```
 
 **Run Echidna for Testing**
@@ -172,7 +166,7 @@ npm run doc
 echidna . --config echidna.yaml  --contract VaultFuzzing
 ```
 
-**Verify a contract** 
+**Verify a contract**
 
 ```
 npx hardhat verify --network mainnet <contract_address> <args>...
@@ -183,15 +177,14 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 Please make sure to update tests as appropriate.
 
-## Documentation
+## Important
 
-* [Tasks](TASKS.md)
-* [License](LICENSE)
-
-## TODO 
-
-* BKR - Baker Governance Tokn Setup
-* Governor - Controlled by BRK Holders
+* [Hardhat Tasks Documentation](TASKS.md)
+* [Software License](LICENSE)
+* [Release Notes](RELEASE_NOTES.md)
+* [Contributing](CONTRIBUTING.md)
+* [Code of Conduct](CODE_OF_CONDUCT.md)
+* [Security](SECURITY.md)
 
 
 

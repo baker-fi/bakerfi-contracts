@@ -924,6 +924,9 @@ function _undeploy(uint256 amount, address receiver) private returns (uint256 un
   function getDebAsset() external view returns (address) {
     return _debtToken;
   }
-
-  uint256[44] private __gap;
+  /**
+   * @dev This empty reserved space is put in place to allow future versions to add new
+   * settings without shifting down storage in the inheritance chain.
+   */
+  uint256[25] private __gap;
 }
