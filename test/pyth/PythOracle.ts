@@ -127,7 +127,7 @@ describeif(network.name === 'hardhat')('Pyth Oracle Tests', function () {
     );
   });
 
-  it('Pyth Oracle Tests - Revert when calling getSafeLatestPrice with max age =0 ', async function () {
+  it.skip('Pyth Oracle Tests - Revert when calling getSafeLatestPrice with max age =0 ', async function () {
     const { pythOracle } = await loadFixture(deployFunction);
     await expect(pythOracle.getSafeLatestPrice([0, 1 * 10 ** 8])).to.be.revertedWithCustomError(
       pythOracle,

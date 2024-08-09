@@ -28,3 +28,4 @@ uint8 constant MAX_LOOPS = 20; // 100%
  */
 uint256 constant PERCENTAGE_PRECISION = 1e9;
 address constant ETH = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
+uint8 constant SYSTEM_DECIMALS = 18;
