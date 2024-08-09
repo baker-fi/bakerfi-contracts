@@ -54,7 +54,7 @@ contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
     uint24 swapFeeTier,
     uint8 eModeCategory
   ) public initializer {
-    _initializeStrategyBase(
+    _initializeStrategyLeverage(
       initialOwner,
       initialGovernor,
       registry,

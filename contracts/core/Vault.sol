@@ -517,7 +517,7 @@ contract Vault is
     uint256 totalAssetsValue = _totalAssets(priceOptions);
 
     if (totalSupply() == 0 || totalAssetsValue == 0) {
-        return _ONE;
+      return _ONE;
     }
 
     return (totalSupply() * _ONE) / totalAssetsValue;
