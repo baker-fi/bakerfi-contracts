@@ -18,7 +18,7 @@ import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/I
  * @author Chef Kal-El <chef.kal-el@bakerfi.xyz>
  */
 abstract contract UseWETH is Initializable {
-  IWETH private _wETH;
+  address private _wETH;
   using SafeERC20 for IERC20;
 
   error InvalidWETHContract();
@@ -29,8 +29,8 @@ abstract contract UseWETH is Initializable {
    * @param registry The address of the ServiceRegistry contract for accessing WETH.
    */
   function _initUseWETH(ServiceRegistry registry) internal onlyInitializing {
-    _wETH = IWETH(registry.getServiceFromHash(WETH_CONTRACT));
-    if (address(_wETH) == address(0)) revert InvalidWETHContract();
+    _wETH = registry.getServiceFromHash(WETH_CONTRACT);
+    if (_wETH == address(0)) revert InvalidWETHContract();
   }
 
   /**
@@ -38,7 +38,7 @@ abstract contract UseWETH is Initializable {
    * @return The IWETH interface.
    */
   function wETH() internal view returns (IWETH) {
-    return _wETH;
+    return IWETH(_wETH);
   }
 
   /**
@@ -46,7 +46,7 @@ abstract contract UseWETH is Initializable {
    * @return The address of the WETH contract.
    */
   function wETHA() internal view returns (address) {
-    return address(_wETH);
+    return _wETH;
   }
 
   /**

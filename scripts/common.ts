@@ -75,39 +75,14 @@ export async function deployVault(
   return { proxy, vault };
 }
 
-export async function deployStrategyAAVEv3WstETH(
+export async function deployAAVEv3Strategy(
   owner: string,
   governor: string,
   serviceRegistry: string,
-  swapFreeTier: number,
-  emodeCategory: number,
-  proxyAdmin?: any,
-) {
-  const StrategyAAVEv3 = await ethers.getContractFactory('StrategyAAVEv3WstETH');
-  const strategy = await StrategyAAVEv3.deploy();
-  await strategy.waitForDeployment();
-  const BakerFiProxy = await ethers.getContractFactory('BakerFiProxy');
-  const proxy = await BakerFiProxy.deploy(
-    await strategy.getAddress(),
-    await proxyAdmin.getAddress(),
-    StrategyAAVEv3.interface.encodeFunctionData('initializeWstETH', [
-      owner,
-      governor,
-      serviceRegistry,
-      swapFreeTier,
-      emodeCategory,
-    ]),
-  );
-  await proxy.waitForDeployment();
-  return { strategy, proxy };
-}
-
-export async function deployAAVEv3StrategyAny(
-  owner: string,
-  governor: string,
-  serviceRegistry: string,
-  collateral: string,
-  oracle: string,
+  collateralToken: string,
+  debtToken: string,
+  collateralOracle: string,
+  debtOracle: string,
   swapFreeTier: number,
   emodeCategory: number,
   proxyAdmin?: any,
@@ -123,8 +98,10 @@ export async function deployAAVEv3StrategyAny(
       owner,
       governor,
       serviceRegistry,
-      ethers.keccak256(Buffer.from(collateral)),
-      ethers.keccak256(Buffer.from(oracle)),
+      ethers.keccak256(Buffer.from(collateralToken)),
+      ethers.keccak256(Buffer.from(debtToken)),
+      ethers.keccak256(Buffer.from(collateralOracle)),
+      ethers.keccak256(Buffer.from(debtOracle)),
       swapFreeTier,
       emodeCategory,
     ]),
@@ -202,8 +179,8 @@ export async function deployAaveV3(stETH, weth, serviceRegistry, amount) {
 }
 
 export async function deployOracleMock(serviceRegistry, name) {
-  const WSETHToETH = await ethers.getContractFactory('OracleMock');
-  const oracle = await WSETHToETH.deploy();
+  const OracleMock = await ethers.getContractFactory('OracleMock');
+  const oracle = await OracleMock.deploy();
   await oracle.waitForDeployment();
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from(name)),
