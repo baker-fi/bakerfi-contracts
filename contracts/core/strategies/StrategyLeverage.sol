@@ -240,7 +240,7 @@ abstract contract StrategyLeverage is
   function totalAssets(
     IOracle.PriceOptions memory priceOptions
   ) public view returns (uint256 totalOwnedAssetsInDebt) {
-    (uint256 totalCollateral, uint256 totalDebt) = getLeverageBalances();
+    (uint256 totalCollateral, uint256 totalDebt) = getBalances();
     uint256 totalCollateralInDebt = _toDebt(priceOptions, totalCollateral);
     totalOwnedAssetsInDebt = totalCollateralInDebt > totalDebt
       ? (totalCollateralInDebt - totalDebt)
@@ -445,7 +445,7 @@ function _adjustDebt(
    */
   function harvest() external override onlyOwner nonReentrant returns (int256 balanceChange) {
     // Fetch leverage balances
-    (uint256 totalCollateral, uint256 totalDebt) = getLeverageBalances();
+    (uint256 totalCollateral, uint256 totalDebt) = getBalances();
 
     // Convert total collateral to debt value using Oracle
     uint256 totalCollateralInDebt = _toDebt(
@@ -511,7 +511,7 @@ function _adjustDebt(
    * @return collateralBalance
    * @return debtBalance
    */
-  function getLeverageBalances()
+  function getBalances()
     public
     view
     virtual
@@ -531,7 +531,7 @@ function _adjustDebt(
     totalCollateralInUSD = 0;
     totalDebtInUSD = 0;
 
-    (uint256 collateralBalance, uint256 debtBalance) = getLeverageBalances();
+    (uint256 collateralBalance, uint256 debtBalance) = getBalances();
     // Convert Collateral Balance to $USD safely
     if (collateralBalance != 0) {
       IOracle.Price memory collateralPrice = _collateralOracle.getSafeLatestPrice(priceOptions);
@@ -568,7 +568,7 @@ function _undeploy(uint256 amount, address receiver) private returns (uint256 un
     });
 
     // Fetch collateral and debt balances
-    (uint256 totalCollateralBalance, uint256 totalDebtBalance) = getLeverageBalances();
+    (uint256 totalCollateralBalance, uint256 totalDebtBalance) = getBalances();
     uint256 totalCollateralInDebt = _toDebt(options, totalCollateralBalance);
 
     // Ensure the position is not in liquidation state
@@ -836,7 +836,7 @@ function _undeploy(uint256 amount, address receiver) private returns (uint256 un
     uint256 fee,
     address payable receiver
   ) internal {
-    (uint256 collateralBalance, ) = getLeverageBalances();
+    (uint256 collateralBalance, ) = getBalances();
     uint256 cappedWithdrawAmount = collateralBalance < withdrawAmount ? collateralBalance : withdrawAmount;
 
     _repay(_debtToken, repayAmount);

@@ -1,6 +1,6 @@
 # Bakerfi Smart Contracts
 
-Recursive ETH Staking made easy, amplify your yields with recursive based strategies based on lending markets (AAVE v3, ...) and flash loans.
+Unlock higher yields with flexible, low-risk strategies that go beyond just ETH staking. Our platform leverages diverse opportunities across liquidity, money markets and defi protocols, allowing you to maximize returns with customized, secure and curated investments.
 
 ## Features
 
@@ -187,7 +187,4 @@ Please make sure to update tests as appropriate.
 * [Security](SECURITY.md)
 
 
-
-
-
-
+Cooking up your Yields by Chefs 🧑‍🍳

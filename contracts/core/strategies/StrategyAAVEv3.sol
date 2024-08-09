@@ -77,7 +77,7 @@ contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
    *
    * @dev !Important: No Conversion to USD Done
    */
-  function getLeverageBalances()
+  function getBalances()
     public
     view
     virtual
