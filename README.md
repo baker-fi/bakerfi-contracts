@@ -177,7 +177,7 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 Please make sure to update tests as appropriate.
 
-## Important
+## Important Links
 
 * [Hardhat Tasks Documentation](TASKS.md)
 * [Software License](LICENSE)
@@ -186,5 +186,6 @@ Please make sure to update tests as appropriate.
 * [Code of Conduct](CODE_OF_CONDUCT.md)
 * [Security](SECURITY.md)
 
+## Other
 
-Cooking up your Yields by Chefs 🧑‍🍳
+[BakerFi](https//bakerfi.xyz) - Cooking up your Yields 🧑‍🍳
