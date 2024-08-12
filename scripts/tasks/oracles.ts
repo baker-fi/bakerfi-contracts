@@ -38,7 +38,7 @@ task('oracles:priceUpdate', 'Update Required Prices').setAction(async ({}, { eth
     const fee = await app?.call('IPyth', networkDeployConfig.pyth ?? '', 'getUpdateFee', [vaas], {
       chainId: network.config.chainId,
     });
-  
+
     await app?.send('IPyth', networkDeployConfig.pyth ?? '', 'updatePriceFeeds', [vaas], {
       value: fee,
       chainId: network.config.chainId,

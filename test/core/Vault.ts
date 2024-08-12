@@ -542,7 +542,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
     await expect(vault.withdraw(withdrawAmount, owner.address, owner.address))
       // @ts-ignore
       .to.emit(vault, 'Withdraw')
-      .withArgs(owner.address, owner.address, owner.address, 4983156389718359984n, withdrawAmount)
+      .withArgs(owner.address, owner.address, owner.address, 4983156389718359985n, withdrawAmount)
       .emit(vault, 'Transfer')
       .withArgs(owner.address, '0x0000000000000000000000000000000000000000', 5000000000000000000n);
 
@@ -572,7 +572,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
         otherAccount.address,
         otherAccount.address,
         owner.address,
-        4983156389718359984n,
+        4983156389718359985n,
         withdrawAmount,
       )
       .emit(vault, 'Transfer')
@@ -677,7 +677,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
         owner.address,
         owner.address,
         owner.address,
-        9928554229559295998n,
+        9928554229559296000n,
         9962113816060668112n,
       )
       .emit(vault, 'Transfer')
@@ -707,7 +707,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
         otherAccount.address,
         otherAccount.address,
         owner.address,
-        4983156389718359984n,
+        4983156389718359985n,
         withdrawAmount,
       )
       .emit(vault, 'Transfer')
