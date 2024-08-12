@@ -564,7 +564,7 @@ abstract contract StrategyLeverage is
 
     // Convert ETH to WST using the current prices and
     // calculate the maximum amount in using the max Slippage
-    uint256 wsthETHAmount = _fromWETH(debtAmount, false);
+    uint256 wsthETHAmount = _fromWETH(debtAmount, true);
     uint256 amountInMax = (wsthETHAmount * (PERCENTAGE_PRECISION + getMaxSlippage())) /
       PERCENTAGE_PRECISION;
 

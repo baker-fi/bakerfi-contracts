@@ -285,7 +285,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault Main Net wstETH/ETH', func
         await wstETH.getAddress(),
         await strategy.getAddress(),
         await strategy.getAddress(),
-        14328833434505431584n,
+        14328833434505431585n,
       );
 
     expect(await vault.totalAssets()).to.equal(6797024248165885759n);
