@@ -1,5 +1,4 @@
 import '@nomicfoundation/hardhat-ethers';
-import { anyUint } from '@nomicfoundation/hardhat-chai-matchers/withArgs';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import { expect } from 'chai';
 import { ethers, network } from 'hardhat';
@@ -18,12 +17,37 @@ import {
 } from '../../scripts/common';
 import BaseConfig, { NetworkConfig } from '../../constants/network-deploy-config';
 import { time } from '@nomicfoundation/hardhat-network-helpers';
+import { anyValue } from '@nomicfoundation/hardhat-chai-matchers/withArgs';
 
 /**
  * Unit Tests for BakerFi Vault with a regular AAVEv3Strategy
  */
 
 describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
+  it('Deposit - Emit Strategy Amount Update', async function () {
+    const { owner, vault, strategy } = await loadFixture(deployFunction);
+    await expect(
+      vault.depositNative(owner.address, {
+        value: ethers.parseUnits('10', 18),
+        // @ts-ignore
+      }),
+    )
+      .to.emit(strategy, 'StrategyAmountUpdate')
+      .withArgs(9962113816060668112n);
+  });
+
+  it('Deposit - Emit Strategy Deploy', async function () {
+    const { owner, vault, strategy } = await loadFixture(deployFunction);
+    await expect(
+      vault.depositNative(owner.address, {
+        value: ethers.parseUnits('10', 18),
+        // @ts-ignore
+      }),
+    )
+      .to.emit(strategy, 'StrategyDeploy')
+      .withArgs(anyValue, 9962113816060668112n);
+  });
+
   it('Deposit with no Flash Loan Fees', async function () {
     const { owner, vault, weth, aave3Pool, strategy, cbETH, flashLender } = await loadFixture(
       deployFunction,
@@ -528,7 +552,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
   });
 
   it('Withdraw Success', async function () {
-    const { vault, weth, owner } = await loadFixture(deployFunction);
+    const { vault, weth, owner, strategy } = await loadFixture(deployFunction);
 
     const depositAmount = ethers.parseUnits('10', 18);
     const withdrawAmount = ethers.parseUnits('5', 18);
@@ -542,7 +566,14 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
     await expect(vault.withdraw(withdrawAmount, owner.address, owner.address))
       // @ts-ignore
       .to.emit(vault, 'Withdraw')
-      .withArgs(owner.address, owner.address, owner.address, 4983156389718359984n, withdrawAmount)
+      .withArgs(owner.address, owner.address, owner.address, 4983156389718359985n, withdrawAmount)
+      // @ts-ignore
+      .emit(strategy, 'StrategyUndeploy')
+      .withArgs(anyValue, 4999999996959053025n)
+      // @ts-ignore
+      .emit(strategy, 'StrategyAmountUpdate')
+      .withArgs(4962113819101615087n)
+      // @ts-ignore
       .emit(vault, 'Transfer')
       .withArgs(owner.address, '0x0000000000000000000000000000000000000000', 5000000000000000000n);
 
@@ -572,7 +603,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
         otherAccount.address,
         otherAccount.address,
         owner.address,
-        4983156389718359984n,
+        4983156389718359985n,
         withdrawAmount,
       )
       .emit(vault, 'Transfer')
@@ -677,7 +708,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
         owner.address,
         owner.address,
         owner.address,
-        9928554229559295998n,
+        9928554229559296000n,
         9962113816060668112n,
       )
       .emit(vault, 'Transfer')
@@ -707,7 +738,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault For L2s', function () {
         otherAccount.address,
         otherAccount.address,
         owner.address,
-        4983156389718359984n,
+        4983156389718359985n,
         withdrawAmount,
       )
       .emit(vault, 'Transfer')
