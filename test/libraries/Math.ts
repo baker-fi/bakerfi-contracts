@@ -80,12 +80,12 @@ describeif(network.name === 'hardhat')('Math Library', function () {
     ).to.equal(0n);
   });
 
-  it('Revert when division by 0 ', async function () {
+  it('mulDivDown - Revert when division by 0 ', async function () {
     const math = await loadFixture(deployFunction);
     await expect(
-      math.mulDivUp(
-        10n,
-        2n, // 0.01%
+      math.mulDivDown(
+        1000n,
+        500n, // 0.01%
         0n,
       ),
     ).to.be.revertedWithCustomError(math, 'InvalidDivDenominator');

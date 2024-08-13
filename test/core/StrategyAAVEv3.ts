@@ -70,7 +70,7 @@ describeif(network.name === 'hardhat')('Strategy Leverage AAVEv3', function () {
     await expect(
       strategy.undeploy(ethers.parseUnits('5', 18)),
       // @ts-ignore
-    ).to.changeTokenBalances(weth, [owner.address], [4983156389718359984n]);
+    ).to.changeTokenBalances(weth, [owner.address], [4983156389718359985n]);
   });
 
   it('Deploy Fail - Zero Value', async () => {

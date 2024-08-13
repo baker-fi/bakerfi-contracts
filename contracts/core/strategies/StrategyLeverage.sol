@@ -17,6 +17,7 @@ import { UseSwapper } from "../hooks/UseSwapper.sol";
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import { AddressUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import { StrategyLeverageSettings } from "./StrategyLeverageSettings.sol";
+import { MathLibrary } from "../../libraries/MathLibrary.sol";
 
 /**
  * @title Base Recursive Staking Strategy
@@ -85,6 +86,7 @@ abstract contract StrategyLeverage is
   using SafeERC20Upgradeable for IERC20Upgradeable;
   using AddressUpgradeable for address;
   using AddressUpgradeable for address payable;
+  using MathLibrary for uint256;
 
   error InvalidOwner();
   error InvalidDebtToken();

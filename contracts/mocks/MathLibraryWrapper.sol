@@ -14,4 +14,16 @@ contract MathLibraryWrapper {
   ) external pure returns (uint256 converted) {
     return MathLibrary.toDecimals(value, from, to);
   }
+
+  function mulDivDown(uint256 x, uint256 y, uint256 denominator) external pure returns (uint256) {
+    return MathLibrary.mulDivDown(x, y, denominator);
+  }
+  function mulDiv(
+    uint256 x,
+    uint256 y,
+    uint256 denominator,
+    bool roundUp
+  ) external pure returns (uint256) {
+    return MathLibrary.mulDiv(x, y, denominator, roundUp);
+  }
 }
