@@ -212,12 +212,9 @@ describeif(network.name === 'hardhat')('BakerFi Vault Main Net wstETH/ETH', func
     const balanceBefore = await provider.getBalance(owner.address);
     await vault.approve(vault.getAddress(), balanceOf);
 
-
-    await expect(vault.redeemNative(balanceOf-10n))
+    await expect(vault.redeemNative(balanceOf - 10n))
       // @ts-ignore
       .to.be.revertedWithCustomError(vault, 'InvalidShareBalance');
-
-
   });
 
   it('Withdraw - a withdraw that reaches the minimum shares should fail', async function () {

@@ -102,7 +102,6 @@ describeif(network.name === 'hardhat')('Math Library', function () {
     ).to.equal(4n);
   });
 
-
   it('mulDivDown - Modulo Not Zero', async function () {
     const math = await loadFixture(deployFunction);
     expect(
@@ -124,10 +123,4 @@ describeif(network.name === 'hardhat')('Math Library', function () {
       ),
     ).to.equal(5n);
   });
-
-
-
-
-
-
 });
