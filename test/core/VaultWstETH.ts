@@ -201,6 +201,25 @@ describeif(network.name === 'hardhat')('BakerFi Vault Main Net wstETH/ETH', func
     expect(await vault.tokenPerAsset()).to.equal(ethers.parseUnits('1', 18));
   });
 
+  it('Withdraw - Burn all brETH except 10', async function () {
+    const { owner, vault, strategy } = await loadFixture(deployFunction);
+    await vault.depositNative(owner.address, {
+      value: ethers.parseUnits('10', 18),
+    });
+
+    const provider = ethers.provider;
+    const balanceOf = await vault.balanceOf(owner.address);
+    const balanceBefore = await provider.getBalance(owner.address);
+    await vault.approve(vault.getAddress(), balanceOf);
+
+
+    await expect(vault.redeemNative(balanceOf-10n))
+      // @ts-ignore
+      .to.be.revertedWithCustomError(vault, 'InvalidShareBalance');
+
+
+  });
+
   it('Withdraw - a withdraw that reaches the minimum shares should fail', async function () {
     const { owner, vault, strategy } = await loadFixture(deployFunction);
     await vault.depositNative(owner.address, {
