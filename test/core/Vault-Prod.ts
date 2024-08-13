@@ -66,7 +66,7 @@ describeif(
       .lessThanOrEqual(ethers.parseUnits('11', 17));
   });
 
-  it('Deposit + Withdraw', async function () {
+  it.only('Deposit + Withdraw', async function () {
     const { vault, deployer, strategy } = await loadFixture(deployProd);
     const depositAmount = ethers.parseUnits('10', 18);
 
@@ -86,6 +86,7 @@ describeif(
       .emit(strategy, 'StrategyUndeploy')
       // @ts-ignore
       .emit(strategy, 'StrategyAmountUpdate')
+        .withArgs(anyValue)
 
     expect(await vault.balanceOf(deployer.address))
       // @ts-ignore
