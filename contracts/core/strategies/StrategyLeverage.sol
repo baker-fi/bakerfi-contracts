@@ -243,7 +243,7 @@ abstract contract StrategyLeverage is
     IOracle.PriceOptions memory priceOptions
   ) public view returns (uint256 totalOwnedAssetsInDebt) {
     (uint256 totalCollateral, uint256 totalDebt) = getBalances();
-    uint256 totalCollateralInDebt = _toDebt(priceOptions, totalCollateral);
+    uint256 totalCollateralInDebt = _toDebt(priceOptions, totalCollateral, false);
     totalOwnedAssetsInDebt = totalCollateralInDebt > totalDebt
       ? (totalCollateralInDebt - totalDebt)
       : 0;
@@ -455,7 +455,8 @@ function _adjustDebt(
         maxAge: settings().getRebalancePriceMaxAge(),
         maxConf: settings().getPriceMaxConf()
       }),
-      totalCollateral
+      totalCollateral,
+      false
     );
 
     // Early exit conditions
@@ -557,12 +558,12 @@ function _adjustDebt(
    *
    * @param amount The amount of Debt Token to Undeploy.
    * @param receiver The address to receive the undeployed Debt Token.
-   * @return undeployedAmount The actual undeployed amount of Debt Token.
+   * @return receivedAmount The actual undeployed amount of Debt Token.
    *
    * Requirements:
    * - The contract must have a collateral margin greater than the debt to initiate undeployment.
    */
-function _undeploy(uint256 amount, address receiver) private returns (uint256 undeployedAmount) {
+function _undeploy(uint256 amount, address receiver) private returns (uint256 receivedAmount) {
     // Get price options from settings
     IOracle.PriceOptions memory options = IOracle.PriceOptions({
         maxAge: settings().getPriceMaxAge(),
@@ -571,7 +572,7 @@ function _undeploy(uint256 amount, address receiver) private returns (uint256 un
 
     // Fetch collateral and debt balances
     (uint256 totalCollateralBalance, uint256 totalDebtBalance) = getBalances();
-    uint256 totalCollateralInDebt = _toDebt(options, totalCollateralBalance);
+    uint256 totalCollateralInDebt = _toDebt(options, totalCollateralBalance, false);
 
     // Ensure the position is not in liquidation state
     if (totalCollateralInDebt <= totalDebtBalance) revert NoCollateralMarginToScale();
@@ -585,9 +586,8 @@ function _undeploy(uint256 amount, address receiver) private returns (uint256 un
         totalCollateralInDebt,
         totalDebtBalance
     );
-
     // Convert deltaCollateralInDebt to deltaCollateralAmount
-    uint256 deltaCollateralAmount = _toCollateral(options, deltaCollateralInDebt);
+    uint256 deltaCollateralAmount = _toCollateral(options, deltaCollateralInDebt, true);
 
     // Calculate flash loan fee
     uint256 fee = flashLender().flashFee(_debtToken, deltaDebt);
@@ -606,17 +606,21 @@ function _undeploy(uint256 amount, address receiver) private returns (uint256 un
         _flashLoanArgsHash = 0;
         revert FailedToRunFlashLoan();
     }
+    // The amount of Withdrawn minus the repay ampunt
+    emit StrategyUndeploy(msg.sender, deltaCollateralInDebt-deltaDebt);
 
     // Reset hash after successful flash loan
     _flashLoanArgsHash = 0;
 
     // Update deployed assets after withdrawal
-    undeployedAmount = _pendingAmount;
+    receivedAmount = _pendingAmount;
+    uint256 undeployedAmount = deltaCollateralInDebt - deltaDebt;
     _deployedAssets = _deployedAssets > undeployedAmount ? _deployedAssets - undeployedAmount : 0;
 
     // Emit strategy update and reset pending amount
     emit StrategyAmountUpdate(_deployedAssets);
-    _pendingAmount = 0;
+    // Pending amount is not cleared to save gas
+    //_pendingAmount = 0;
 }
 
 
@@ -645,7 +649,7 @@ function _undeploy(uint256 amount, address receiver) private returns (uint256 un
     });
 
     // Calculate the equivalent collateral amount for the debt
-    uint256 collateralAmount = _toCollateral(options, debtAmount);
+    uint256 collateralAmount = _toCollateral(options, debtAmount, true);
 
     // Calculate maximum collateral required with slippage
     uint256 amountInMax = collateralAmount * (PERCENTAGE_PRECISION + getMaxSlippage()) / PERCENTAGE_PRECISION;
@@ -694,7 +698,8 @@ function _undeploy(uint256 amount, address receiver) private returns (uint256 un
           maxAge: settings().getPriceMaxAge(),
           maxConf: settings().getPriceMaxConf()
         }),
-        amount
+        amount,
+        false
       );
       amountOutMinimum =
         (wsthETHAmount * (PERCENTAGE_PRECISION - getMaxSlippage())) /
@@ -731,7 +736,8 @@ function _undeploy(uint256 amount, address receiver) private returns (uint256 un
           maxAge: settings().getPriceMaxAge(),
           maxConf: settings().getPriceMaxConf()
         }),
-        amount
+        amount,
+        false
       );
       amountOutMinimum =
         (ethAmount * (PERCENTAGE_PRECISION - getMaxSlippage())) /
@@ -762,11 +768,14 @@ function _undeploy(uint256 amount, address receiver) private returns (uint256 un
    */
   function _toDebt(
     IOracle.PriceOptions memory priceOptions,
-    uint256 amountIn
+    uint256 amountIn,
+    bool roundUp
   ) internal view returns (uint256 amountOut) {
-    amountOut =
-      (amountIn * _collateralOracle.getSafeLatestPrice(priceOptions).price) /
-      _debtOracle.getSafeLatestPrice(priceOptions).price;
+    amountOut = amountIn.mulDiv(
+      _collateralOracle.getSafeLatestPrice(priceOptions).price,
+      _debtOracle.getSafeLatestPrice(priceOptions).price,
+      roundUp
+    );
   }
 
   /**
@@ -779,11 +788,14 @@ function _undeploy(uint256 amount, address receiver) private returns (uint256 un
    */
   function _toCollateral(
     IOracle.PriceOptions memory priceOptions,
-    uint256 amountIn
+    uint256 amountIn,
+    bool roundUp
   ) internal view returns (uint256 amountOut) {
-    amountOut =
-      (amountIn * _debtOracle.getSafeLatestPrice(priceOptions).price) /
-      _collateralOracle.getSafeLatestPrice(priceOptions).price;
+    amountOut =amountIn.mulDiv(
+      _debtOracle.getSafeLatestPrice(priceOptions).price,
+      _collateralOracle.getSafeLatestPrice(priceOptions).price,
+      roundUp
+    );
   }
 
   /**
@@ -809,7 +821,8 @@ function _undeploy(uint256 amount, address receiver) private returns (uint256 un
         maxAge: settings().getRebalancePriceMaxAge(),
         maxConf: settings().getPriceMaxConf()
       }),
-      collateralIn
+      collateralIn,
+      false
     );
     uint256 deployedAmount = collateralInDebt - loanAmount - fee;
     _pendingAmount = deployedAmount;
@@ -844,14 +857,12 @@ function _undeploy(uint256 amount, address receiver) private returns (uint256 un
     _repay(_debtToken, repayAmount);
     _withdraw(_collateralToken, cappedWithdrawAmount, address(this));
 
-    uint256 debtAmount = _convertToDebt(cappedWithdrawAmount);
-    uint256 debtToWithdraw = debtAmount > repayAmount + fee ? debtAmount - repayAmount - fee : 0;
+    uint256 withdrawnAmount = _convertToDebt(cappedWithdrawAmount);
+    uint256 debtToWithdraw = withdrawnAmount > repayAmount + fee ? withdrawnAmount - repayAmount - fee : 0;
 
     if (debtToWithdraw > 0) {
         IERC20Upgradeable(_debtToken).safeTransfer(receiver, debtToWithdraw);
     }
-
-    emit StrategyUndeploy(msg.sender, debtToWithdraw);
 
     _pendingAmount = debtToWithdraw;
   }
