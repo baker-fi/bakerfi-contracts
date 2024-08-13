@@ -75,15 +75,15 @@ describeif(network.name === 'hardhat')('BakerFi Vault Main Net wstETH/ETH', func
         owner.address,
         owner.address,
         owner.address,
-        996631271986539459n,
+        996631271986539460n,
         ethers.parseUnits('1', 18),
       );
     // @ts-ignore
-    await expect(tx).to.changeEtherBalances([owner.address], [996631271986539459n]);
+    await expect(tx).to.changeEtherBalances([owner.address], [996631271986539460n]);
     expect(await vault.balanceOf(owner.address)).to.equal(8962113816060668112n);
-    expect((await strategy.getPosition([0, 0]))[0]).to.equal(41115185511636981793n);
+    expect((await strategy.getPosition([0, 0]))[0]).to.equal(41115185511636981792n);
     expect((await strategy.getPosition([0, 0]))[1]).to.equal(32153071688990855996n);
-    expect(await vault.totalAssets()).to.equal(8962113822646125797n);
+    expect(await vault.totalAssets()).to.equal(8962113822646125796n);
     expect((await strategy.getPosition([0, 0]))[2]).to.equal(782024239n);
     expect(await vault.totalSupply()).to.equal(8962113816060668112n);
     expect(await vault.tokenPerAsset()).to.equal(999999999265189238n);
@@ -191,7 +191,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault Main Net wstETH/ETH', func
 
     expect(await vault.balanceOf(owner.address)).to.equal(0);
     expect(await vault.totalSupply()).to.equal(0);
-    expect((await strategy.getPosition([0, 0]))[0]).to.equal(1);
+    expect((await strategy.getPosition([0, 0]))[0]).to.equal(0);
     expect((await strategy.getPosition([0, 0]))[1]).to.equal(0);
     expect(balanceAfter - balanceBefore).to.greaterThan(
       // @ts-ignore
@@ -199,6 +199,22 @@ describeif(network.name === 'hardhat')('BakerFi Vault Main Net wstETH/ETH', func
     );
     expect((await strategy.getPosition([0, 0]))[2]).to.equal(0);
     expect(await vault.tokenPerAsset()).to.equal(ethers.parseUnits('1', 18));
+  });
+
+  it('Withdraw - Burn all brETH except 10', async function () {
+    const { owner, vault, strategy } = await loadFixture(deployFunction);
+    await vault.depositNative(owner.address, {
+      value: ethers.parseUnits('10', 18),
+    });
+
+    const provider = ethers.provider;
+    const balanceOf = await vault.balanceOf(owner.address);
+    const balanceBefore = await provider.getBalance(owner.address);
+    await vault.approve(vault.getAddress(), balanceOf);
+
+    await expect(vault.redeemNative(balanceOf - 10n))
+      // @ts-ignore
+      .to.be.revertedWithCustomError(vault, 'InvalidShareBalance');
   });
 
   it('Withdraw - a withdraw that reaches the minimum shares should fail', async function () {
@@ -249,11 +265,11 @@ describeif(network.name === 'hardhat')('BakerFi Vault Main Net wstETH/ETH', func
         '0xf15CC0ccBdDA041e2508B829541917823222F364',
         '0xf15CC0ccBdDA041e2508B829541917823222F364',
         '0xf15CC0ccBdDA041e2508B829541917823222F364',
-        5001090809999999998n,
+        5001090809999999999n,
         5000000000000000000n,
       );
     // @ts-ignore
-    await expect(tx).to.changeEtherBalances([owner.address], [5001090809999999998n]);
+    await expect(tx).to.changeEtherBalances([owner.address], [5001090809999999999n]);
   });
 
   it('Adjust Debt with No Flash Loan Fees', async () => {
@@ -285,7 +301,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault Main Net wstETH/ETH', func
         await wstETH.getAddress(),
         await strategy.getAddress(),
         await strategy.getAddress(),
-        14328833434505431584n,
+        14328833434505431585n,
       );
 
     expect(await vault.totalAssets()).to.equal(6797024248165885759n);
