@@ -116,8 +116,6 @@ describeif(network.name === 'hardhat')('Ratio Oracle', function () {
 describeif(network.name === 'base_devnet')('Ratio Oracle', function () {
   async function deployFunction() {
     const config: NetworkConfig = BaseConfig[network.name];
-    const deployConfig = DeployConfig[network.name];
-
     const PythOracle = await ethers.getContractFactory('PythOracle');
     const pythOracle = await PythOracle.deploy(feedIds[PythFeedNameEnum.ETH_USD], config.pyth);
     const RatioOracle = await ethers.getContractFactory('RatioOracle');

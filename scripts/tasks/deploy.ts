@@ -6,20 +6,13 @@ import { getClient } from './common';
 import { feedIds, PythFeedNameEnum } from '../../constants/pyth';
 
 task('deploy:oracle:wstEthToUsdRatio', 'Deploy an oracle with Exchange Ratio').setAction(
-  async ({}, { ethers, network }) => {
+  async ({}, { ethers, network, run }) => {
     const networkName = network.name;
     const deployConfig = DeployConfig[networkName];
     const networkConfig = NetworkConfig[networkName];
     const spinner = ora(`Deploying Ratio Oracle`).start();
     try {
       let app = await getClient(ethers);
-      /* const pythOracle = await app?.deploy('PythOracle', [
-        feedIds[PythFeedNameEnum.ETH_USD],
-        networkConfig.pyth,
-      ], {
-        chainId: BigInt(network.config.chainId ?? 0),
-        minTxConfirmations: 3,
-      });*/
       const oracle = await app?.deploy(
         'RatioOracle',
         [deployConfig.ethUSDOracle, networkConfig.chainlink?.wstEthToETHRatio],
@@ -28,7 +21,16 @@ task('deploy:oracle:wstEthToUsdRatio', 'Deploy an oracle with Exchange Ratio').s
           minTxConfirmations: 3,
         },
       );
-      spinner.succeed(`Exchange Ratio Oracle is ${oracle?.contractAddress}`);
+      await app?.send(
+        'StrategyAAVEv3',
+        deployConfig.strategyProxy,
+        'setCollateralOracle',
+        [oracle.contractAddress],
+        {
+          chainId: BigInt(network.config.chainId ?? 0),
+        },
+      );
+      spinner.succeed(`Exchange Ratio Oracle is ${"0xcc9b1371216a9c50c3f09434a1ce180fd55c0e48"}`);
     } catch (e) {
       console.log(e);
       spinner.fail('Failed 💥');
