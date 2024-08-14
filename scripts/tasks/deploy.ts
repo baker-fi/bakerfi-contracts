@@ -1,7 +1,40 @@
 import ora from 'ora';
 import { task } from 'hardhat/config';
 import DeployConfig from '../../constants/contracts';
+import NetworkConfig from '../../constants/network-deploy-config';
 import { getClient } from './common';
+import { feedIds, PythFeedNameEnum } from '../../constants/pyth';
+
+task('deploy:oracle:wstEthToUsdRatio', 'Deploy an oracle with Exchange Ratio').setAction(
+  async ({}, { ethers, network }) => {
+    const networkName = network.name;
+    const deployConfig = DeployConfig[networkName];
+    const networkConfig = NetworkConfig[networkName];
+    const spinner = ora(`Deploying Ratio Oracle`).start();
+    try {
+      let app = await getClient(ethers);
+      /* const pythOracle = await app?.deploy('PythOracle', [
+        feedIds[PythFeedNameEnum.ETH_USD],
+        networkConfig.pyth,
+      ], {
+        chainId: BigInt(network.config.chainId ?? 0),
+        minTxConfirmations: 3,
+      });*/
+      const oracle = await app?.deploy(
+        'RatioOracle',
+        [deployConfig.ethUSDOracle, networkConfig.chainlink?.wstEthToETHRatio],
+        {
+          chainId: BigInt(network.config.chainId ?? 0),
+          minTxConfirmations: 3,
+        },
+      );
+      spinner.succeed(`Exchange Ratio Oracle is ${oracle?.contractAddress}`);
+    } catch (e) {
+      console.log(e);
+      spinner.fail('Failed 💥');
+    }
+  },
+);
 
 task('deploy:upgrade:settings', 'Upgrade the settings Contract').setAction(
   async ({}, { ethers, network }) => {

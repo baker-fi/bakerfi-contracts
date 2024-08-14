@@ -109,6 +109,29 @@ async function main() {
   );
   result.push(['Vault Instance', vaultReceipt?.contractAddress]);
 
+  // Upgrade ETH/USD and WSTETH/USD ORacles
+  await app?.send(
+    'StrategyAAVEv3',
+    networkConfig?.strategyProxy ?? '',
+    'setCollateralOracle',
+    [networkConfig.wstETHUSDOracle],
+    {
+      chainId: BigInt(hre.network.config.chainId ?? 0),
+      minTxConfirmations: MIN_CONFIRMATIONS,
+    },
+  );
+
+  await app?.send(
+    'StrategyAAVEv3',
+    networkConfig?.strategyProxy ?? '',
+    'setDebtOracle',
+    [networkConfig.ethUSDOracle],
+    {
+      chainId: BigInt(hre.network.config.chainId ?? 0),
+      minTxConfirmations: MIN_CONFIRMATIONS,
+    },
+  );
+
   spinner.succeed('🧑‍🍳 BakerFi Served 🍰 ');
   console.table(result);
   process.exit(0);
