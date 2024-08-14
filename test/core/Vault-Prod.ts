@@ -66,7 +66,7 @@ describeif(
       .lessThanOrEqual(ethers.parseUnits('11', 17));
   });
 
-  it.only('Deposit + Withdraw', async function () {
+  it('Deposit + Withdraw', async function () {
     const { vault, deployer, strategy } = await loadFixture(deployProd);
     const depositAmount = ethers.parseUnits('10', 18);
 
