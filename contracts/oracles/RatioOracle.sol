@@ -47,7 +47,7 @@ contract RatioOracle is IOracle {
       ? _baseOracle.getLatestPrice()
       : _baseOracle.getSafeLatestPrice(priceOptions);
 
-    IOracle.Price memory ratio = getRatio(priceOptions);
+    IOracle.Price memory ratio = getRatio();
     outPrice.price = (ratio.price * basePrice.price) / _basePrecision;
     outPrice.lastUpdate = basePrice.lastUpdate > ratio.lastUpdate
       ? basePrice.lastUpdate
@@ -72,16 +72,11 @@ contract RatioOracle is IOracle {
    * to show prices on the frontend
    *
    * */
-  function getRatio(
-    PriceOptions memory priceOptions
-  ) public view returns (IOracle.Price memory ratio) {
+  function getRatio() public view returns (IOracle.Price memory ratio) {
     (, int256 answer, uint256 startedAt, uint256 updatedAt, ) = _ratioFeed.latestRoundData();
 
     if (answer <= 0) revert InvalidPriceFromOracle();
     if (startedAt == 0 || updatedAt == 0) revert InvalidPriceUpdatedAt();
-
-    if (priceOptions.maxAge != 0 && (block.timestamp - updatedAt) > priceOptions.maxAge)
-      revert PriceOutdated();
 
     ratio.price = uint256(answer) * (10 ** (_DECIMALS - _ratioPriceDecimals));
     ratio.lastUpdate = updatedAt;
