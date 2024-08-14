@@ -84,7 +84,7 @@ contract Vault is
 
   IWETH private _wETH;
 
-  uint8 constant VAULT_VERSION = 2;
+  uint8 constant VAULT_VERSION = 3;
 
   /**
    * @dev Modifier to restrict access to addresses that are whitelisted.
@@ -548,9 +548,9 @@ contract Vault is
 
   /**
      * @dev Unpauses the contract
-     
+
      * Only the Owner is ablet to unpause the vault.
-     * 
+     *
      */
   function unpause() external onlyOwner {
     _unpause();
