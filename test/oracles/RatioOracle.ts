@@ -116,10 +116,11 @@ describeif(network.name === 'hardhat')('Ratio Oracle', function () {
 describeif(network.name === 'base_devnet')('Ratio Oracle', function () {
   async function deployFunction() {
     const config: NetworkConfig = BaseConfig[network.name];
-    const deployConfig = DeployConfig[network.name];
+    const PythOracle = await ethers.getContractFactory('PythOracle');
+    const pythOracle = await PythOracle.deploy(feedIds[PythFeedNameEnum.ETH_USD], config.pyth);
     const RatioOracle = await ethers.getContractFactory('RatioOracle');
     const oracle = await RatioOracle.deploy(
-      deployConfig.ethUSDOracle,
+      await pythOracle.getAddress(),
       config.chainlink?.wstEthToETHRatio,
     );
     return { oracle };
@@ -130,6 +131,8 @@ describeif(network.name === 'base_devnet')('Ratio Oracle', function () {
     const { oracle } = await loadFixture(deployFunction);
 
     const [price] = await oracle.getLatestPrice();
-    expect(price).to.greaterThan(Number(3003618594496755974593n));
+    expect(price).to
+      .greaterThan(Number(3003618594496755974593n))
+      .lessThan(Number(5003618594496755974593n));
   });
 });
