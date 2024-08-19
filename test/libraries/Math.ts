@@ -80,12 +80,12 @@ describeif(network.name === 'hardhat')('Math Library', function () {
     ).to.equal(0n);
   });
 
-  it('Revert when division by 0 ', async function () {
+  it('mulDivDown - Revert when division by 0 ', async function () {
     const math = await loadFixture(deployFunction);
     await expect(
-      math.mulDivUp(
-        10n,
-        2n, // 0.01%
+      math.mulDivDown(
+        1000n,
+        500n, // 0.01%
         0n,
       ),
     ).to.be.revertedWithCustomError(math, 'InvalidDivDenominator');
@@ -163,5 +163,48 @@ describeif(network.name === 'hardhat')('Math Library', function () {
         62,
       ),
     ).to.be.revertedWithCustomError(math, 'OverflowDetected');
+  });
+  it('mulDivDown - Revert when division by 0 ', async function () {
+    const math = await loadFixture(deployFunction);
+    await expect(
+      math.mulDivDown(
+        1000n,
+        500n, // 0.01%
+        0n,
+      ),
+    ).to.be.revertedWithCustomError(math, 'InvalidDivDenominator');
+  });
+
+  it('mulDivDown - Modulo 0', async function () {
+    const math = await loadFixture(deployFunction);
+    expect(
+      await math.mulDivDown(
+        1000n,
+        2n, // 0.01%
+        500n,
+      ),
+    ).to.equal(4n);
+  });
+
+  it('mulDivDown - Modulo Not Zero', async function () {
+    const math = await loadFixture(deployFunction);
+    expect(
+      await math.mulDivDown(
+        1050n,
+        2n, // 0.01%
+        500n,
+      ),
+    ).to.equal(4n);
+  });
+
+  it('mulDivUp - Modulo Not Zero', async function () {
+    const math = await loadFixture(deployFunction);
+    expect(
+      await math.mulDivUp(
+        1050n,
+        2n, // 0.01%
+        500n,
+      ),
+    ).to.equal(5n);
   });
 });

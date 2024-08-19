@@ -17,6 +17,7 @@ import { UseSwapper } from "../hooks/UseSwapper.sol";
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import { AddressUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import { StrategyLeverageSettings } from "./StrategyLeverageSettings.sol";
+import { MathLibrary } from "../../libraries/MathLibrary.sol";
 
 /**
  * @title Base Recursive Staking Strategy
@@ -85,6 +86,7 @@ abstract contract StrategyLeverage is
   using SafeERC20Upgradeable for IERC20Upgradeable;
   using AddressUpgradeable for address;
   using AddressUpgradeable for address payable;
+  using MathLibrary for uint256;
 
   error InvalidOwner();
   error InvalidDebtToken();
@@ -241,7 +243,7 @@ abstract contract StrategyLeverage is
     IOracle.PriceOptions memory priceOptions
   ) public view returns (uint256 totalOwnedAssetsInDebt) {
     (uint256 totalCollateral, uint256 totalDebt) = getBalances();
-    uint256 totalCollateralInDebt = _toDebt(priceOptions, totalCollateral);
+    uint256 totalCollateralInDebt = _toDebt(priceOptions, totalCollateral, false);
     totalOwnedAssetsInDebt = totalCollateralInDebt > totalDebt
       ? (totalCollateralInDebt - totalDebt)
       : 0;
@@ -456,7 +458,8 @@ abstract contract StrategyLeverage is
         maxAge: settings().getRebalancePriceMaxAge(),
         maxConf: settings().getPriceMaxConf()
       }),
-      totalCollateral
+      totalCollateral,
+      false
     );
 
     // Early exit conditions
@@ -558,12 +561,12 @@ abstract contract StrategyLeverage is
    *
    * @param amount The amount of Debt Token to Undeploy.
    * @param receiver The address to receive the undeployed Debt Token.
-   * @return undeployedAmount The actual undeployed amount of Debt Token.
+   * @return receivedAmount The actual undeployed amount of Debt Token.
    *
    * Requirements:
    * - The contract must have a collateral margin greater than the debt to initiate undeployment.
    */
-  function _undeploy(uint256 amount, address receiver) private returns (uint256 undeployedAmount) {
+function _undeploy(uint256 amount, address receiver) private returns (uint256 receivedAmount) {
     // Get price options from settings
     IOracle.PriceOptions memory options = IOracle.PriceOptions({
       maxAge: settings().getPriceMaxAge(),
@@ -572,7 +575,7 @@ abstract contract StrategyLeverage is
 
     // Fetch collateral and debt balances
     (uint256 totalCollateralBalance, uint256 totalDebtBalance) = getBalances();
-    uint256 totalCollateralInDebt = _toDebt(options, totalCollateralBalance);
+    uint256 totalCollateralInDebt = _toDebt(options, totalCollateralBalance, false);
 
     // Ensure the position is not in liquidation state
     if (totalCollateralInDebt <= totalDebtBalance) revert NoCollateralMarginToScale();
@@ -587,9 +590,8 @@ abstract contract StrategyLeverage is
       totalCollateralInDebt,
       totalDebtBalance
     );
-
     // Convert deltaCollateralInDebt to deltaCollateralAmount
-    uint256 deltaCollateralAmount = _toCollateral(options, deltaCollateralInDebt);
+    uint256 deltaCollateralAmount = _toCollateral(options, deltaCollateralInDebt, true);
 
     // Calculate flash loan fee
     uint256 fee = flashLender().flashFee(_debtToken, deltaDebt);
@@ -614,18 +616,23 @@ abstract contract StrategyLeverage is
       _flashLoanArgsHash = 0;
       revert FailedToRunFlashLoan();
     }
+    // The amount of Withdrawn minus the repay ampunt
+    emit StrategyUndeploy(msg.sender, deltaCollateralInDebt-deltaDebt);
 
     // Reset hash after successful flash loan
     _flashLoanArgsHash = 0;
 
     // Update deployed assets after withdrawal
-    undeployedAmount = _pendingAmount;
+    receivedAmount = _pendingAmount;
+    uint256 undeployedAmount = deltaCollateralInDebt - deltaDebt;
     _deployedAssets = _deployedAssets > undeployedAmount ? _deployedAssets - undeployedAmount : 0;
 
     // Emit strategy update and reset pending amount
     emit StrategyAmountUpdate(_deployedAssets);
-    _pendingAmount = 0;
-  }
+    // Pending amount is not cleared to save gas
+    //_pendingAmount = 0;
+}
+
 
   /**
    * @dev Repays the debt on AAVEv3 strategy, handling the withdrawal and swap operations.
@@ -652,7 +659,7 @@ abstract contract StrategyLeverage is
     });
 
     // Calculate the equivalent collateral amount for the debt
-    uint256 collateralAmount = _toCollateral(options, debtAmount);
+    uint256 collateralAmount = _toCollateral(options, debtAmount, true);
 
     // Calculate maximum collateral required with slippage
     uint256 amountInMax = (collateralAmount * (PERCENTAGE_PRECISION + getMaxSlippage())) /
@@ -701,7 +708,8 @@ abstract contract StrategyLeverage is
           maxAge: settings().getPriceMaxAge(),
           maxConf: settings().getPriceMaxConf()
         }),
-        amount
+        amount,
+        false
       );
       amountOutMinimum =
         (wsthETHAmount * (PERCENTAGE_PRECISION - getMaxSlippage())) /
@@ -738,7 +746,8 @@ abstract contract StrategyLeverage is
           maxAge: settings().getPriceMaxAge(),
           maxConf: settings().getPriceMaxConf()
         }),
-        amount
+        amount,
+        false
       );
       amountOutMinimum =
         (ethAmount * (PERCENTAGE_PRECISION - getMaxSlippage())) /
@@ -769,11 +778,14 @@ abstract contract StrategyLeverage is
    */
   function _toDebt(
     IOracle.PriceOptions memory priceOptions,
-    uint256 amountIn
+    uint256 amountIn,
+    bool roundUp
   ) internal view returns (uint256 amountOut) {
-    amountOut =
-      (amountIn * _collateralOracle.getSafeLatestPrice(priceOptions).price) /
-      _debtOracle.getSafeLatestPrice(priceOptions).price;
+    amountOut = amountIn.mulDiv(
+      _collateralOracle.getSafeLatestPrice(priceOptions).price,
+      _debtOracle.getSafeLatestPrice(priceOptions).price,
+      roundUp
+    );
   }
 
   /**
@@ -786,11 +798,14 @@ abstract contract StrategyLeverage is
    */
   function _toCollateral(
     IOracle.PriceOptions memory priceOptions,
-    uint256 amountIn
+    uint256 amountIn,
+    bool roundUp
   ) internal view returns (uint256 amountOut) {
-    amountOut =
-      (amountIn * _debtOracle.getSafeLatestPrice(priceOptions).price) /
-      _collateralOracle.getSafeLatestPrice(priceOptions).price;
+    amountOut =amountIn.mulDiv(
+      _debtOracle.getSafeLatestPrice(priceOptions).price,
+      _collateralOracle.getSafeLatestPrice(priceOptions).price,
+      roundUp
+    );
   }
 
   /**
@@ -816,7 +831,8 @@ abstract contract StrategyLeverage is
         maxAge: settings().getRebalancePriceMaxAge(),
         maxConf: settings().getPriceMaxConf()
       }),
-      collateralIn
+      collateralIn,
+      false
     );
     uint256 deployedAmount = collateralInDebt - loanAmount - fee;
     _pendingAmount = deployedAmount;
@@ -853,14 +869,12 @@ abstract contract StrategyLeverage is
     _repay(_debtToken, repayAmount);
     _withdraw(_collateralToken, cappedWithdrawAmount, address(this));
 
-    uint256 debtAmount = _convertToDebt(cappedWithdrawAmount);
-    uint256 debtToWithdraw = debtAmount > repayAmount + fee ? debtAmount - repayAmount - fee : 0;
+    uint256 withdrawnAmount = _convertToDebt(cappedWithdrawAmount);
+    uint256 debtToWithdraw = withdrawnAmount > repayAmount + fee ? withdrawnAmount - repayAmount - fee : 0;
 
     if (debtToWithdraw > 0) {
       IERC20Upgradeable(_debtToken).safeTransfer(receiver, debtToWithdraw);
     }
-
-    emit StrategyUndeploy(msg.sender, debtToWithdraw);
 
     _pendingAmount = debtToWithdraw;
   }
