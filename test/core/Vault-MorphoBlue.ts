@@ -89,7 +89,7 @@ describeif(
           .lessThanOrEqual(ethers.parseUnits('6', 17));
     });
 
-    it.only('Withdraw - Burn all brETH', async function () {
+    it('Withdraw - Burn all brETH', async function () {
         const { vault, deployer, strategy } = await loadFixture(deployMorphoProd);
 
         await vault.depositNative(deployer.address, {
@@ -105,18 +105,13 @@ describeif(
             .to.greaterThan(ethers.parseUnits('1000', 18))
             // @ts-ignore
             .lessThanOrEqual(ethers.parseUnits('100000', 18));
-
-        try {
-            const balanceOf = await vault.balanceOf(deployer.address);
-            await vault.approve(vault.getAddress(), balanceOf);
-            await vault.redeemNative(balanceOf);
-            expect(await vault.balanceOf(deployer.address)).to.equal(0);
-            expect(await vault.totalSupply()).to.equal(0);
-            expect((await strategy.getPosition([0, 0]))[0]).to.equal(0);
-            expect((await strategy.getPosition([0, 0]))[1]).to.equal(0);
-        } catch(e) {
-            console.log(JSON.stringify(e));
-        }
+        const balanceOf = await vault.balanceOf(deployer.address);
+        await vault.approve(vault.getAddress(), balanceOf);
+        await vault.redeemNative(balanceOf);
+        expect(await vault.balanceOf(deployer.address)).to.equal(0);
+        expect(await vault.totalSupply()).to.equal(0);
+        expect((await strategy.getPosition([0, 0]))[0]).to.equal(0);
+        expect((await strategy.getPosition([0, 0]))[1]).to.equal(0);
 
       });
 

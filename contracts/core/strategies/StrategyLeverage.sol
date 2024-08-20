@@ -124,7 +124,6 @@ abstract contract StrategyLeverage is
   bytes32 private _flashLoanArgsHash = 0;
   // The Deployed or Undeployed pending amount. Used for internal accounting
   uint256 private _pendingAmount = 0;
-
   /**
    * @dev Internal function to initialize the AAVEv3 strategy base.
    *
@@ -860,16 +859,18 @@ function _undeploy(uint256 amount, address receiver) private returns (uint256 re
     uint256 fee,
     address payable receiver
   ) internal {
-    (uint256 collateralBalance, ) = getBalances();
-    uint256 cappedWithdrawAmount = collateralBalance < withdrawAmount
-      ? collateralBalance
-      : withdrawAmount;
 
-    _repay(repayAmount);
+    (uint256 collateralBalance, uint256 debtBalance) = getBalances();
+    uint256 cappedWithdrawAmount = withdrawAmount > collateralBalance ? collateralBalance: withdrawAmount;
+    uint256 cappedRepayAmount = repayAmount > debtBalance ? debtBalance: repayAmount;
+
+    // Use Capped Amounts to avoid overflows
+    _repay(cappedRepayAmount);
+
     _withdraw(cappedWithdrawAmount, address(this));
 
     uint256 withdrawnAmount = _convertToDebt(cappedWithdrawAmount);
-    uint256 debtToWithdraw = withdrawnAmount > repayAmount + fee ? withdrawnAmount - repayAmount - fee : 0;
+    uint256 debtToWithdraw = withdrawnAmount > (cappedRepayAmount + fee) ? withdrawnAmount - (cappedRepayAmount + fee) : 0;
 
     if (debtToWithdraw > 0) {
       IERC20Upgradeable(_debtToken).safeTransfer(receiver, debtToWithdraw);

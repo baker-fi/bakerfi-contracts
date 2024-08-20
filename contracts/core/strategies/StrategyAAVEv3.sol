@@ -93,6 +93,7 @@ contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
     debtBalance = debtBalance.toDecimals(debtDecimals, SYSTEM_DECIMALS);
     collateralBalance = collateralBalance.toDecimals(collateralDecimals, SYSTEM_DECIMALS);
   }
+
   /**
    * Deposit an asset on the AAVEv3 Pool
    *

@@ -13,6 +13,7 @@ import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
 import { MORPHO_BLUE_CONTRACT } from "../../core/ServiceRegistry.sol";
 import { SYSTEM_DECIMALS } from "../../core/Constants.sol";
 import { MathLibrary } from "../../libraries/MathLibrary.sol";
+import {SharesMathLib} from "@morpho-org/morpho-blue/src/libraries/SharesMathLib.sol";
 
 /**
  * @title Recursive Staking Strategy for Morpho Blue
@@ -39,6 +40,7 @@ import { MathLibrary } from "../../libraries/MathLibrary.sol";
   using MorphoBalancesLib for IMorpho;
   using MarketParamsLib for MarketParams;
   using MathLibrary for uint256;
+  using SharesMathLib  for uint256;
 
   struct StrategyLeverageMorphoParams {
     bytes32 collateralToken; ///< The token used as collateral in the strategy.
@@ -50,7 +52,6 @@ import { MathLibrary } from "../../libraries/MathLibrary.sol";
     address irm; ///< The interest rate model (IRM) address.
     uint256 lltv; ///< The liquidation loan-to-value ratio (LLTV).
   }
-
 
   error InvalidMorphoBlueContract(); ///< Thrown when the Morpho contract address is invalid.
   error FailedToRepayDebt(); ///< Thrown when the debt repayment fails.
@@ -125,10 +126,14 @@ import { MathLibrary } from "../../libraries/MathLibrary.sol";
     returns (uint256 collateralBalance, uint256 debtBalance)
   {
     Id marketId = _marketParams.id();
+
     uint256 totalSupplyAssets = _morpho.collateral(marketId, address(this));
+    // !Important this returns the round up quantity
     uint256 totalBorrowAssets = _morpho.expectedBorrowAssets(_marketParams, address(this));
+
     uint8 debtDecimals = ERC20(_marketParams.loanToken).decimals();
     uint8 collateralDecimals = ERC20(_marketParams.collateralToken).decimals();
+
     debtBalance = totalBorrowAssets.toDecimals(debtDecimals, SYSTEM_DECIMALS);
     collateralBalance = totalSupplyAssets.toDecimals(collateralDecimals, SYSTEM_DECIMALS);
   }
@@ -161,6 +166,7 @@ import { MathLibrary } from "../../libraries/MathLibrary.sol";
     _morpho.borrow(_marketParams, debtAmount, shares, onBehalf, receiver);
   }
 
+
   /**
    * @notice Repays debt in the Morpho protocol.
    * @param amount The amount of the asset being used for repayment.
@@ -168,9 +174,24 @@ import { MathLibrary } from "../../libraries/MathLibrary.sol";
    */
   function _repay(uint256 amount) internal virtual override {
     if (!ERC20(_debtToken).approve(address(_morpho), amount)) revert FailedToApproveAllowance();
-    uint256 shares;
+
+    Id marketId = _marketParams.id();
     address onBehalf = address(this);
-    (uint256 assetsRepaid, ) = _morpho.repay(_marketParams, amount, shares, onBehalf, hex"");
+    uint256 shares = 0;
+    uint256 amountPaid = 0;
+    // Get the Market Balances
+    (,, uint256 totalBorrowAssets, uint256 totalBorrowShares) = _morpho.expectedMarketBalances(_marketParams);
+    // Bound the Max Repay Amount to prevent underflow or overflows
+    uint256 borrowShares = _morpho.position(marketId, address(this)).borrowShares;
+    uint256 repaidAmount = borrowShares.toAssetsUp(totalBorrowAssets, totalBorrowShares);
+    // Use the Shares when we are clearing our position or use the debt amount for other cases
+    // This approach follows Morpho Protocol Documentation
+    if ( amount >= repaidAmount ) {
+      shares = borrowShares;
+    } else {
+      amountPaid = amount;
+    }
+    (uint256 assetsRepaid, ) = _morpho.repay(_marketParams, amountPaid, shares, onBehalf, hex"");
     if (assetsRepaid < amount) revert FailedToRepayDebt();
   }
 
