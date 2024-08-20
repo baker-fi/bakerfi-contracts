@@ -1,0 +1,91 @@
+
+import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
+import { expect } from 'chai';
+import { ethers, network } from 'hardhat';
+import { describeif } from '../common';
+import { anyValue } from '@nomicfoundation/hardhat-chai-matchers/withArgs';
+import { deployMorphoProd} from './common';
+
+
+
+describeif(
+    network.name === 'ethereum_devnet' ||
+    network.name === 'base_devnet',
+  )('BakerFi Morpho Blue Vault - Production', function () {
+
+    it('Vault Initialization', async function () {
+        const { vault, deployer, strategy } = await loadFixture(deployMorphoProd);
+        expect(await vault.symbol()).to.equal('brETH');
+        expect(await vault.balanceOf(deployer.address)).to.equal(0);
+        expect(await vault.totalSupply()).to.equal(0);
+        expect((await strategy.getPosition([0, 0]))[0]).to.equal(0);
+        expect((await strategy.getPosition([0, 0]))[1]).to.equal(0);
+        expect((await strategy.getPosition([0, 0]))[2]).to.equal(0);
+        expect(await vault.totalAssets()).to.equal(0);
+    })
+
+
+    it('Deposit 1 ETH', async function () {
+      const { vault, deployer, strategy } = await loadFixture(deployMorphoProd);
+      const depositAmount = ethers.parseUnits('1', 18);
+
+      await expect(
+        vault.depositNative(deployer.address, {
+          value: depositAmount,
+        }),
+      ).to.emit(strategy, 'StrategyDeploy')
+        .emit(strategy, 'StrategyAmountUpdate');
+
+      expect(await vault.balanceOf(deployer.address))
+        .to.greaterThan(ethers.parseUnits('9', 17))
+        .lessThanOrEqual(ethers.parseUnits('10', 18));
+      expect(await vault.totalSupply())
+        .to.greaterThan(ethers.parseUnits('9', 17))
+        .lessThanOrEqual(ethers.parseUnits('10', 18));
+      expect(await vault.totalAssets())
+        .to.greaterThan(ethers.parseUnits('9', 17))
+        .lessThanOrEqual(ethers.parseUnits('11', 17));
+    });
+
+    it.only('Deposit + Withdraw', async function () {
+        const { vault, deployer, strategy } = await loadFixture(deployMorphoProd);
+        const depositAmount = ethers.parseUnits('1', 18);
+
+        await vault.depositNative(deployer.address, {
+          value: depositAmount,
+        });
+
+        await expect(vault.redeemNative(ethers.parseUnits('5', 17)))
+          // @ts-ignore
+          .to.emit(vault, 'Withdraw')
+          // @ts-ignore
+          .emit(strategy, 'StrategyUndeploy')
+          // @ts-ignore
+          .emit(strategy, 'StrategyAmountUpdate')
+            .withArgs(anyValue)
+
+        expect(await vault.totalAssets())
+          // @ts-ignore
+          .to.greaterThan(ethers.parseUnits('4', 17))
+          // @ts-ignore
+          .lessThanOrEqual(ethers.parseUnits('6', 17));
+    });
+
+    it('Withdraw - Burn all brETH', async function () {
+        const { vault, deployer, strategy } = await loadFixture(deployMorphoProd);
+        await vault.depositNative(deployer.address, {
+          value: ethers.parseUnits('10', 18),
+        });
+
+        const balanceOf = await vault.balanceOf(deployer.address);
+        await vault.approve(vault.getAddress(), balanceOf);
+        await vault.redeemNative(balanceOf);
+
+        expect(await vault.balanceOf(deployer.address)).to.equal(0);
+        expect(await vault.totalSupply()).to.equal(0);
+        expect((await strategy.getPosition([0, 0]))[0]).to.equal(0);
+        expect((await strategy.getPosition([0, 0]))[1]).to.equal(0);
+      });
+
+
+  })

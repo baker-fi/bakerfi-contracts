@@ -5,7 +5,7 @@ import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/I
 import { StrategyLeverage } from "./StrategyLeverage.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import { IMorpho, MarketParams } from "@morpho-org/morpho-blue/src/interfaces/IMorpho.sol";
+import { IMorpho, MarketParams, Id } from "@morpho-org/morpho-blue/src/interfaces/IMorpho.sol";
 import { MarketParamsLib } from "@morpho-org/morpho-blue/src/libraries/MarketParamsLib.sol";
 import { MorphoLib } from "@morpho-org/morpho-blue/src/libraries/periphery/MorphoLib.sol";
 import { MorphoBalancesLib } from "@morpho-org/morpho-blue/src/libraries/periphery/MorphoBalancesLib.sol";
@@ -51,9 +51,10 @@ import { MathLibrary } from "../../libraries/MathLibrary.sol";
     uint256 lltv; ///< The liquidation loan-to-value ratio (LLTV).
   }
 
+
   error InvalidMorphoBlueContract(); ///< Thrown when the Morpho contract address is invalid.
-  error FailedToApproveAllowance(); ///< Thrown when approval for ERC20 allowance fails.
   error FailedToRepayDebt(); ///< Thrown when the debt repayment fails.
+  error InvalidMorphoBlueMarket(); ///< Thrown when the debt repayment fails.
 
   MarketParams private _marketParams; ///< Parameters related to the market for the strategy.
   IMorpho private _morpho; ///< Instance of the Morpho protocol interface.
@@ -93,14 +94,21 @@ import { MathLibrary } from "../../libraries/MathLibrary.sol";
       params.swapFeeTier
     );
 
+    // Check if the Morpho Blue Contract exists
     _morpho = IMorpho(registry.getServiceFromHash(MORPHO_BLUE_CONTRACT));
     if (address(_morpho) == address(0)) revert InvalidMorphoBlueContract();
 
+    // Initialize Market Params
     _marketParams.loanToken = registry.getServiceFromHash(params.debtToken);
     _marketParams.collateralToken = registry.getServiceFromHash(params.collateralToken);
     _marketParams.oracle = params.morphoOracle;
     _marketParams.irm = params.irm;
     _marketParams.lltv = params.lltv;
+
+    // Verify if the market exists on Morpho
+    Id marketId = _marketParams.id();
+    MarketParams memory lParams = _morpho.idToMarketParams(marketId);
+    if(lParams.lltv == 0) revert InvalidMorphoBlueMarket();
   }
 
   /**
@@ -116,7 +124,8 @@ import { MathLibrary } from "../../libraries/MathLibrary.sol";
     override
     returns (uint256 collateralBalance, uint256 debtBalance)
   {
-    uint256 totalSupplyAssets = _morpho.expectedSupplyAssets(_marketParams, address(this));
+    Id marketId = _marketParams.id();
+    uint256 totalSupplyAssets = _morpho.collateral(marketId, address(this));
     uint256 totalBorrowAssets = _morpho.expectedBorrowAssets(_marketParams, address(this));
     uint8 debtDecimals = ERC20(_marketParams.loanToken).decimals();
     uint8 collateralDecimals = ERC20(_marketParams.collateralToken).decimals();
@@ -126,46 +135,39 @@ import { MathLibrary } from "../../libraries/MathLibrary.sol";
 
   /**
    * @notice Supplies collateral to the Morpho protocol.
-   * @param assetIn The address of the asset being supplied as collateral.
    * @param amountIn The amount of the asset being supplied.
    * @dev This function approves the Morpho contract to spend the asset and then transfers the asset from the user to the contract.
    */
-  function _supply(address assetIn, uint256 amountIn) internal virtual override {
-    if (!ERC20(assetIn).approve(address(_morpho), amountIn)) revert FailedToApproveAllowance();
-    ERC20(assetIn).safeTransferFrom(msg.sender, address(this), amountIn);
-    uint256 shares;
+  function _supply(uint256 amountIn) internal virtual override {
+    if (!ERC20(_collateralToken).approve(address(_morpho), amountIn)) revert FailedToApproveAllowance();
     address onBehalf = address(this);
     _morpho.supplyCollateral(_marketParams, amountIn, onBehalf, hex"");
   }
 
   /**
    * @notice Supplies collateral and borrows a specified amount from Morpho.
-   * @param assetIn The address of the asset being supplied as collateral.
-   * @param amountIn The amount of the asset being supplied.
-   * @param borrowOut The amount to borrow against the supplied collateral.
+   * @param collateralAmount The amount of the asset being supplied.
+   * @param debtAmount The amount to borrow against the supplied collateral.
    * @dev This function supplies the asset and borrows from Morpho in a single transaction.
    */
   function _supplyAndBorrow(
-    address assetIn,
-    uint256 amountIn,
-    address,
-    uint256 borrowOut
+    uint256 collateralAmount,
+    uint256 debtAmount
   ) internal virtual override {
-    _supply(assetIn, amountIn);
+    _supply( collateralAmount);
     uint256 shares;
     address onBehalf = address(this);
     address receiver = address(this);
-    _morpho.borrow(_marketParams, borrowOut, shares, onBehalf, receiver);
+    _morpho.borrow(_marketParams, debtAmount, shares, onBehalf, receiver);
   }
 
   /**
    * @notice Repays debt in the Morpho protocol.
-   * @param assetIn The address of the asset being used to repay the debt.
    * @param amount The amount of the asset being used for repayment.
    * @dev This function approves Morpho to spend the asset and then repays the debt. If the repayment is insufficient, it reverts.
    */
-  function _repay(address assetIn, uint256 amount) internal virtual override {
-    if (!ERC20(assetIn).approve(address(_morpho), amount)) revert FailedToApproveAllowance();
+  function _repay(uint256 amount) internal virtual override {
+    if (!ERC20(_debtToken).approve(address(_morpho), amount)) revert FailedToApproveAllowance();
     uint256 shares;
     address onBehalf = address(this);
     (uint256 assetsRepaid, ) = _morpho.repay(_marketParams, amount, shares, onBehalf, hex"");
@@ -174,12 +176,11 @@ import { MathLibrary } from "../../libraries/MathLibrary.sol";
 
   /**
    * @notice Withdraws collateral from the Morpho protocol.
-   * @param assetOut The address of the asset to be withdrawn.
    * @param amount The amount of the asset to be withdrawn.
    * @param to The address to receive the withdrawn asset.
    * @dev This function withdraws collateral from Morpho and sends it to the specified address.
    */
-  function _withdraw(address assetOut, uint256 amount, address to) internal virtual override {
+  function _withdraw(uint256 amount, address to) internal virtual override {
     address onBehalf = address(this);
     address receiver = to;
     _morpho.withdrawCollateral(_marketParams, amount, onBehalf, receiver);

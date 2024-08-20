@@ -28,7 +28,19 @@ export type StrategyType = "base" | "wstETH";
 export enum VaultNamesEnum {
     AAVE_V3_WSTETH_ETH = "AAVEv3 wstETH/ETH",
 };
+
+
+type MorphoBlueMarkets  = "wstETH / WETH" ;
+
 export type VaultNames = keyof VaultNamesEnum;
+
+export type MorphoMarket = {
+    collateralToken: string,
+    debtToken: string,
+    oracle: string,
+    irm: string,
+    lltv: bigint,
+};
 
 export type NetworkConfig = {
     owner: string,
@@ -54,6 +66,12 @@ export type NetworkConfig = {
             collateralOracle: OracleRegistryNames,
             debtOracle: OracleRegistryNames,
     }},
+    morpho?: {
+        blue: string;
+        markets: {
+            [key: string]: MorphoMarket
+        }
+    }
     swapFeeTier: number,
     AAVEPool: string, // Validated
     pyth: string,
@@ -100,6 +118,18 @@ const Config: DeployConfig = {
         swapFeeTier: 100,
         AAVEPool: "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5", // Validated
         pyth: "0x8250f4aF4B972684F7b336503E2D6dFeDeB1487a",
+        morpho: {
+            blue: "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb",
+            markets: {
+            "wstETH / WETH": {
+                collateralToken: "0x4200000000000000000000000000000000000006",
+                debtToken: "0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452",
+                oracle:  "0x4A11590e5326138B514E08A9B52202D42077Ca65",
+                irm: "0x46415998764C29aB2a25CbeA6254146D50D22687",
+                lltv: 945000000000000000n,
+            }
+            }
+        }
     },
     "base_devnet": {
         minTxConfirmations: 0,
@@ -133,6 +163,18 @@ const Config: DeployConfig = {
         pyth: "0x8250f4aF4B972684F7b336503E2D6dFeDeB1487a",
         chainlink: {
             wstEthToETHRatio: "0xB88BAc61a4Ca37C43a3725912B1f472c9A5bc061",
+        },
+        morpho: {
+            blue: "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb",
+            markets: {
+            "wstETH / WETH": {
+                collateralToken: "0x4200000000000000000000000000000000000006",
+                debtToken: "0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452",
+                oracle:  "0x4A11590e5326138B514E08A9B52202D42077Ca65",
+                irm: "0x46415998764C29aB2a25CbeA6254146D50D22687",
+                lltv: 945000000000000000n,
+            }
+            }
         }
     },
     "local": {
