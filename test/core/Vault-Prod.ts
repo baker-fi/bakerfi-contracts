@@ -211,23 +211,18 @@ describeif(
     expect(await vault.tokenPerAsset()).to.equal(ethers.parseUnits('1', 18));
   });
 
-
-
   it('Withdraw - Burn all brETH', async function () {
     const {  deployer, vault, strategy } = await loadFixture(deployAAVEProd);
     await vault.depositNative(deployer.address, {
       value: ethers.parseUnits('10', 18),
     });
-
     const balanceOf = await vault.balanceOf(deployer.address);
     await vault.approve(vault.getAddress(), balanceOf);
     await vault.redeemNative(balanceOf);
-
     expect(await vault.balanceOf(deployer.address)).to.equal(0);
     expect(await vault.totalSupply()).to.equal(0);
     expect((await strategy.getPosition([0, 0]))[0]).to.equal(0);
     expect((await strategy.getPosition([0, 0]))[1]).to.equal(0);
   });
-
 
 });

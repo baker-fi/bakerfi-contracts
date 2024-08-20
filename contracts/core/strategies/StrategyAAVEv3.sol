@@ -100,7 +100,7 @@ contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
    * @param amountIn the amount to deposit
    */
   function _supply(uint256 amountIn) internal virtual override {
-    if (!ERC20(_debtToken).approve(aaveV3A(), amountIn)) revert FailedToApproveAllowanceForAAVE();
+    if (!ERC20(_collateralToken).approve(aaveV3A(), amountIn)) revert FailedToApproveAllowanceForAAVE();
     aaveV3().supply(_collateralToken, amountIn, address(this), 0);
   }
 

@@ -858,7 +858,7 @@ function _undeploy(uint256 amount, address receiver) private returns (uint256 re
     _withdraw(cappedWithdrawAmount, address(this));
 
     uint256 withdrawnAmount = _convertToDebt(cappedWithdrawAmount);
-    uint256 debtToWithdraw = withdrawnAmount > repayAmount + fee ? withdrawnAmount - repayAmount - fee : 0;
+    uint256 debtToWithdraw = withdrawnAmount > (repayAmount + fee) ? withdrawnAmount - (repayAmount + fee) : 0;
 
     if (debtToWithdraw > 0) {
         IERC20Upgradeable(_debtToken).safeTransfer(receiver, debtToWithdraw);
