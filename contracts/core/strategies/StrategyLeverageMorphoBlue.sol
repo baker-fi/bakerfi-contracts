@@ -166,7 +166,6 @@ import {SharesMathLib} from "@morpho-org/morpho-blue/src/libraries/SharesMathLib
     _morpho.borrow(_marketParams, debtAmount, shares, onBehalf, receiver);
   }
 
-
   /**
    * @notice Repays debt in the Morpho protocol.
    * @param amount The amount of the asset being used for repayment.

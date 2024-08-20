@@ -124,6 +124,7 @@ abstract contract StrategyLeverage is
   bytes32 private _flashLoanArgsHash = 0;
   // The Deployed or Undeployed pending amount. Used for internal accounting
   uint256 private _pendingAmount = 0;
+
   /**
    * @dev Internal function to initialize the AAVEv3 strategy base.
    *
@@ -278,7 +279,7 @@ abstract contract StrategyLeverage is
 
     // 4. Approve the flash lender to spend the loan amount plus fee
     if (!IERC20Upgradeable(_debtToken).approve(flashLenderA(), loanAmount + fee)) {
-      revert FailedToApproveAllowance();
+        revert FailedToApproveAllowance();
     }
 
     // 5. Prepare and authenticate flash loan data
@@ -286,11 +287,9 @@ abstract contract StrategyLeverage is
     _flashLoanArgsHash = keccak256(abi.encodePacked(address(this), _debtToken, loanAmount, data));
 
     // 6. Execute the flash loan
-    if (
-      !flashLender().flashLoan(IERC3156FlashBorrowerUpgradeable(this), _debtToken, loanAmount, data)
-    ) {
-      _flashLoanArgsHash = 0;
-      revert FailedToRunFlashLoan();
+    if (!flashLender().flashLoan(IERC3156FlashBorrowerUpgradeable(this), _debtToken, loanAmount, data)) {
+        _flashLoanArgsHash = 0;
+        revert FailedToRunFlashLoan();
     }
 
     // 7. Reset flash loan argument hash and update deployed assets
@@ -303,7 +302,7 @@ abstract contract StrategyLeverage is
 
     // 9. Reset the pending amount to zero
     _pendingAmount = 0;
-  }
+}
 
   /**
    * @dev Handles the execution of actions after receiving a flash loan.
@@ -331,7 +330,7 @@ abstract contract StrategyLeverage is
     uint256 amount,
     uint256 fee,
     bytes memory callData
-  ) external returns (bytes32) {
+) external returns (bytes32) {
     // Validate the flash loan sender
     if (msg.sender != flashLenderA()) revert InvalidFlashLoanSender();
 
@@ -350,17 +349,17 @@ abstract contract StrategyLeverage is
 
     // Execute the appropriate action based on the decoded flash loan data
     if (data.action == FlashLoanAction.SUPPLY_BORROW) {
-      _supplyBorrow(data.originalAmount, amount, fee);
+        _supplyBorrow(data.originalAmount, amount, fee);
     } else if (data.action == FlashLoanAction.PAY_DEBT_WITHDRAW) {
-      _repayAndWithdraw(data.originalAmount, amount, fee, payable(data.receiver));
+        _repayAndWithdraw(data.originalAmount, amount, fee, payable(data.receiver));
     } else if (data.action == FlashLoanAction.PAY_DEBT) {
-      _payDebt(amount, fee);
+        _payDebt(amount, fee);
     } else {
-      revert InvalidFlashLoanAction();
+        revert InvalidFlashLoanAction();
     }
 
     return _SUCCESS_MESSAGE;
-  }
+}
   /**
    * @dev Initiates the undeployment of a specified amount, sending the resulting ETH to the contract owner.
    *
@@ -383,18 +382,18 @@ abstract contract StrategyLeverage is
     undeployedAmount = _undeploy(amount, payable(msg.sender));
   }
 
-  /**
-   * @notice Adjusts the current debt position by calculating the amount of debt to repay and executing a flash loan.
-   * @dev The function calculates the necessary debt to repay based on the loan-to-value (LTV) ratio and initiates a flash loan
-   *      to cover this amount. The function also handles the approval for the flash loan and manages the flash loan execution.
-   * @param totalCollateralInDebt The total collateral value expressed in debt terms.
-   * @param totalDebt The current total debt amount.
-   * @return deltaAmount The total amount of debt adjusted, including any flash loan fees.
-   */
-  function _adjustDebt(
+/**
+ * @notice Adjusts the current debt position by calculating the amount of debt to repay and executing a flash loan.
+ * @dev The function calculates the necessary debt to repay based on the loan-to-value (LTV) ratio and initiates a flash loan
+ *      to cover this amount. The function also handles the approval for the flash loan and manages the flash loan execution.
+ * @param totalCollateralInDebt The total collateral value expressed in debt terms.
+ * @param totalDebt The current total debt amount.
+ * @return deltaAmount The total amount of debt adjusted, including any flash loan fees.
+ */
+function _adjustDebt(
     uint256 totalCollateralInDebt,
     uint256 totalDebt
-  ) internal returns (uint256 deltaAmount) {
+) internal returns (uint256 deltaAmount) {
     // Calculate the debt amount to repay to reach the desired Loan-to-Value (LTV) ratio
     uint256 deltaDebt = _calculateDebtToPay(getLoanToValue(), totalCollateralInDebt, totalDebt);
 
@@ -406,18 +405,16 @@ abstract contract StrategyLeverage is
 
     // Approve the flash lender to spend the debt amount plus fee
     if (!IERC20Upgradeable(_debtToken).approve(flashLenderA(), deltaDebt + fee)) {
-      revert FailedToApproveAllowance();
+        revert FailedToApproveAllowance();
     }
 
     // Set a unique hash for the flash loan arguments to prevent reentrancy attacks
     _flashLoanArgsHash = keccak256(abi.encodePacked(address(this), _debtToken, deltaDebt, data));
 
     // Execute the flash loan for the calculated debt amount
-    if (
-      !flashLender().flashLoan(IERC3156FlashBorrowerUpgradeable(this), _debtToken, deltaDebt, data)
-    ) {
-      _flashLoanArgsHash = 0;
-      revert FailedToRunFlashLoan();
+    if (!flashLender().flashLoan(IERC3156FlashBorrowerUpgradeable(this), _debtToken, deltaDebt, data)) {
+        _flashLoanArgsHash = 0;
+        revert FailedToRunFlashLoan();
     }
 
     // Reset the hash after successful flash loan execution
@@ -425,7 +422,8 @@ abstract contract StrategyLeverage is
 
     // Return the total amount adjusted, including the flash loan fee
     deltaAmount = deltaDebt + fee;
-  }
+}
+
 
   /**
    * @dev Harvests the strategy by rebalancing the collateral and debt positions.
@@ -568,8 +566,8 @@ abstract contract StrategyLeverage is
 function _undeploy(uint256 amount, address receiver) private returns (uint256 receivedAmount) {
     // Get price options from settings
     IOracle.PriceOptions memory options = IOracle.PriceOptions({
-      maxAge: settings().getPriceMaxAge(),
-      maxConf: settings().getPriceMaxConf()
+        maxAge: settings().getPriceMaxAge(),
+        maxConf: settings().getPriceMaxConf()
     });
 
     // Fetch collateral and debt balances
@@ -580,14 +578,13 @@ function _undeploy(uint256 amount, address receiver) private returns (uint256 re
     if (totalCollateralInDebt <= totalDebtBalance) revert NoCollateralMarginToScale();
 
     // Calculate percentage to burn to accommodate the withdrawal
-    uint256 percentageToBurn = (amount * PERCENTAGE_PRECISION) /
-      (totalCollateralInDebt - totalDebtBalance);
+    uint256 percentageToBurn = (amount * PERCENTAGE_PRECISION) / (totalCollateralInDebt - totalDebtBalance);
 
     // Calculate delta position (collateral and debt)
     (uint256 deltaCollateralInDebt, uint256 deltaDebt) = _calcDeltaPosition(
-      percentageToBurn,
-      totalCollateralInDebt,
-      totalDebtBalance
+        percentageToBurn,
+        totalCollateralInDebt,
+        totalDebtBalance
     );
     // Convert deltaCollateralInDebt to deltaCollateralAmount
     uint256 deltaCollateralAmount = _toCollateral(options, deltaCollateralInDebt, true);
@@ -597,23 +594,17 @@ function _undeploy(uint256 amount, address receiver) private returns (uint256 re
 
     // Approve the flash lender to spend the debt amount plus fee
     if (!IERC20Upgradeable(_debtToken).approve(flashLenderA(), deltaDebt + fee)) {
-      revert FailedToApproveAllowance();
+        revert FailedToApproveAllowance();
     }
 
     // Prepare data for flash loan execution
-    bytes memory data = abi.encode(
-      deltaCollateralAmount,
-      receiver,
-      FlashLoanAction.PAY_DEBT_WITHDRAW
-    );
+    bytes memory data = abi.encode(deltaCollateralAmount, receiver, FlashLoanAction.PAY_DEBT_WITHDRAW);
     _flashLoanArgsHash = keccak256(abi.encodePacked(address(this), _debtToken, deltaDebt, data));
 
     // Execute flash loan
-    if (
-      !flashLender().flashLoan(IERC3156FlashBorrowerUpgradeable(this), _debtToken, deltaDebt, data)
-    ) {
-      _flashLoanArgsHash = 0;
-      revert FailedToRunFlashLoan();
+    if (!flashLender().flashLoan(IERC3156FlashBorrowerUpgradeable(this), _debtToken, deltaDebt, data)) {
+        _flashLoanArgsHash = 0;
+        revert FailedToRunFlashLoan();
     }
     // The amount of Withdrawn minus the repay ampunt
     emit StrategyUndeploy(msg.sender, deltaCollateralInDebt-deltaDebt);
@@ -653,41 +644,42 @@ function _undeploy(uint256 amount, address receiver) private returns (uint256 re
 
     // Fetch price options from settings
     IOracle.PriceOptions memory options = IOracle.PriceOptions({
-      maxAge: settings().getPriceMaxAge(),
-      maxConf: settings().getPriceMaxConf()
+        maxAge: settings().getPriceMaxAge(),
+        maxConf: settings().getPriceMaxConf()
     });
 
     // Calculate the equivalent collateral amount for the debt
     uint256 collateralAmount = _toCollateral(options, debtAmount, true);
 
     // Calculate maximum collateral required with slippage
-    uint256 amountInMax = (collateralAmount * (PERCENTAGE_PRECISION + getMaxSlippage())) /
-      PERCENTAGE_PRECISION;
+    uint256 amountInMax = collateralAmount * (PERCENTAGE_PRECISION + getMaxSlippage()) / PERCENTAGE_PRECISION;
 
     // Withdraw the collateral needed for the swap
-    _withdraw(amountInMax, address(this));
+    _withdraw( amountInMax, address(this));
 
     // Perform the swap to convert collateral into debt token
     (uint256 amountIn, ) = _swap(
-      ISwapHandler.SwapParams(
-        _collateralToken,
-        _debtToken,
-        ISwapHandler.SwapType.EXACT_OUTPUT,
-        amountInMax,
-        debtAmount + fee,
-        _swapFeeTier,
-        bytes("")
-      )
+        ISwapHandler.SwapParams(
+            _collateralToken,
+             _debtToken,
+            ISwapHandler.SwapType.EXACT_OUTPUT,
+            amountInMax,
+            debtAmount + fee,
+            _swapFeeTier,
+            bytes("")
+        )
     );
+
     // If there's leftover collateral after the swap, redeposit it
     if (amountIn < amountInMax) {
-      uint256 swapLeftover = amountInMax - amountIn;
-      _supply(swapLeftover);
+        uint256 swapLeftover = amountInMax - amountIn;
+        _supply(swapLeftover);
     }
 
     // Emit event for strategy undeployment
     emit StrategyUndeploy(msg.sender, debtAmount);
-  }
+}
+
 
   /**
    * @dev Internal function to convert the specified amount from Debt Token to the underlying collateral asset cbETH, wstETH, rETH.
@@ -859,21 +851,17 @@ function _undeploy(uint256 amount, address receiver) private returns (uint256 re
     uint256 fee,
     address payable receiver
   ) internal {
+    (uint256 collateralBalance, ) = getBalances();
+    uint256 cappedWithdrawAmount = collateralBalance < withdrawAmount ? collateralBalance : withdrawAmount;
 
-    (uint256 collateralBalance, uint256 debtBalance) = getBalances();
-    uint256 cappedWithdrawAmount = withdrawAmount > collateralBalance ? collateralBalance: withdrawAmount;
-    uint256 cappedRepayAmount = repayAmount > debtBalance ? debtBalance: repayAmount;
-
-    // Use Capped Amounts to avoid overflows
-    _repay(cappedRepayAmount);
-
+    _repay(repayAmount);
     _withdraw(cappedWithdrawAmount, address(this));
 
     uint256 withdrawnAmount = _convertToDebt(cappedWithdrawAmount);
-    uint256 debtToWithdraw = withdrawnAmount > (cappedRepayAmount + fee) ? withdrawnAmount - (cappedRepayAmount + fee) : 0;
+    uint256 debtToWithdraw = withdrawnAmount > repayAmount + fee ? withdrawnAmount - repayAmount - fee : 0;
 
     if (debtToWithdraw > 0) {
-      IERC20Upgradeable(_debtToken).safeTransfer(receiver, debtToWithdraw);
+        IERC20Upgradeable(_debtToken).safeTransfer(receiver, debtToWithdraw);
     }
 
     _pendingAmount = debtToWithdraw;
@@ -895,8 +883,8 @@ function _undeploy(uint256 amount, address receiver) private returns (uint256 re
    * @dev Deposit and borrow and asset using the asset deposited as collateral
    */
   function _supplyAndBorrow(
-    uint256 colalteralAmount,
-    uint256 debtAmount
+    uint256 amountIn,
+    uint256 borrowOut
   ) internal virtual;
 
   /**
@@ -910,7 +898,7 @@ function _undeploy(uint256 amount, address receiver) private returns (uint256 re
    * @param amount The amoun to withdraw
    * @param to the account that will receive the asset
    */
-  function _withdraw( uint256 amount, address to) internal virtual;
+  function _withdraw(uint256 amount, address to) internal virtual;
 
   /**
    * @dev
