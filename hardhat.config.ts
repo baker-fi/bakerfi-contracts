@@ -19,14 +19,14 @@ import "hardhat-storage-layout-changes";
 
 
 const devAccounts: HardhatNetworkAccountUserConfig[] =  STAGING_ACCOUNTS_PKEYS.map(
-  key=>  { return {privateKey: key, balance: "1000000000000000000000000"}}); 
+  key=>  { return {privateKey: key, balance: "1000000000000000000000000"}});
 
 const config: HardhatUserConfig = {
   gasReporter: {
     enabled: process.env.REPORT_GAS === "true",
     currency: 'USDC',
     gasPrice: 10
-  },  
+  },
   mocha: {
     timeout: 100000000
   },

@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { ethers, network } from 'hardhat';
 import { describeif } from '../common';
 import { anyValue } from '@nomicfoundation/hardhat-chai-matchers/withArgs';
-import { deployProd } from './common';
+import { deployAAVEProd } from './common';
 
 describeif(
   network.name === 'ethereum_devnet' ||
@@ -12,7 +12,7 @@ describeif(
     network.name === 'base_devnet',
 )('BakerFi - Production', function () {
   it('Test Initialized Vault', async function () {
-    const { deployer, vault, strategy } = await loadFixture(deployProd);
+    const { deployer, vault, strategy } = await loadFixture(deployAAVEProd);
     expect(await vault.symbol()).to.equal('brETH');
     expect(await vault.balanceOf(deployer.address)).to.equal(0);
     expect(await vault.totalSupply()).to.equal(0);
@@ -23,7 +23,7 @@ describeif(
   });
 
   it('Deposit 1 ETH', async function () {
-    const { vault, deployer, strategy } = await loadFixture(deployProd);
+    const { vault, deployer, strategy } = await loadFixture(deployAAVEProd);
 
     const depositAmount = ethers.parseUnits('1', 18);
     await vault.depositNative(deployer.address, {
@@ -67,7 +67,7 @@ describeif(
   });
 
   it('Deposit + Withdraw', async function () {
-    const { vault, deployer, strategy } = await loadFixture(deployProd);
+    const { vault, deployer, strategy } = await loadFixture(deployAAVEProd);
     const depositAmount = ethers.parseUnits('10', 18);
 
     await strategy.setLoanToValue(ethers.parseUnits('500', 6));
@@ -132,7 +132,7 @@ describeif(
   });
 
   it('Liquidation Protection - Adjust Debt', async function () {
-    const { vault, strategy, deployer } = await loadFixture(deployProd);
+    const { vault, strategy, deployer } = await loadFixture(deployAAVEProd);
 
     await strategy.setLoanToValue(ethers.parseUnits('500', 6));
     await strategy.setMaxLoanToValue(ethers.parseUnits('510', 6));
@@ -167,7 +167,7 @@ describeif(
   });
 
   it('Deposit and Withdraw and pay the fee', async function () {
-    const { deployer, vault, settings } = await loadFixture(deployProd);
+    const { deployer, vault, settings } = await loadFixture(deployAAVEProd);
     const feeReceiver = '0x1260E3ca7aD848498e3D6446FBcBc7c7A0717607';
 
     await settings.setFeeReceiver(feeReceiver);
@@ -193,7 +193,7 @@ describeif(
   });
 
   it('Deposit and Withdraw all the shares from a user', async function () {
-    const { deployer, vault, strategy } = await loadFixture(deployProd);
+    const { deployer, vault, strategy } = await loadFixture(deployAAVEProd);
 
     await vault.depositNative(deployer.address, {
       value: ethers.parseUnits('10', 18),
@@ -214,7 +214,7 @@ describeif(
 
 
   it('Withdraw - Burn all brETH', async function () {
-    const {  deployer, vault, strategy } = await loadFixture(deployProd);
+    const {  deployer, vault, strategy } = await loadFixture(deployAAVEProd);
     await vault.depositNative(deployer.address, {
       value: ethers.parseUnits('10', 18),
     });
@@ -227,9 +227,7 @@ describeif(
     expect(await vault.totalSupply()).to.equal(0);
     expect((await strategy.getPosition([0, 0]))[0]).to.equal(0);
     expect((await strategy.getPosition([0, 0]))[1]).to.equal(0);
-
   });
-
 
 
 });

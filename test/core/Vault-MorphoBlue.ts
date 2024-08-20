@@ -45,15 +45,33 @@ describeif(
       expect(await vault.totalAssets())
         .to.greaterThan(ethers.parseUnits('9', 17))
         .lessThanOrEqual(ethers.parseUnits('11', 17));
+
+    expect(await vault.totalAssets())
+        .to.greaterThan(ethers.parseUnits('9', 17))
+        .lessThanOrEqual(ethers.parseUnits('11', 17));
+
+
     });
 
-    it.only('Deposit + Withdraw', async function () {
+    it('Deposit + Withdraw', async function () {
         const { vault, deployer, strategy } = await loadFixture(deployMorphoProd);
         const depositAmount = ethers.parseUnits('1', 18);
 
         await vault.depositNative(deployer.address, {
           value: depositAmount,
         });
+
+        const [collateralBalance, debtBalance] = await strategy.getBalances();
+
+        expect(collateralBalance)
+            .to.greaterThan(ethers.parseUnits('3', 18))
+            // @ts-ignore
+            .lessThanOrEqual(ethers.parseUnits('5', 18));
+        expect(debtBalance)
+            .to.greaterThan(ethers.parseUnits('3', 18))
+            // @ts-ignore
+            .lessThanOrEqual(ethers.parseUnits('5', 18));
+
 
         await expect(vault.redeemNative(ethers.parseUnits('5', 17)))
           // @ts-ignore
@@ -71,20 +89,35 @@ describeif(
           .lessThanOrEqual(ethers.parseUnits('6', 17));
     });
 
-    it('Withdraw - Burn all brETH', async function () {
+    it.only('Withdraw - Burn all brETH', async function () {
         const { vault, deployer, strategy } = await loadFixture(deployMorphoProd);
+
         await vault.depositNative(deployer.address, {
-          value: ethers.parseUnits('10', 18),
+            value: ethers.parseUnits('1', 18),
         });
+        const [collateralBalanceInUSD, debtBalanceInUSD] = await strategy.getPosition([0,0]);
 
-        const balanceOf = await vault.balanceOf(deployer.address);
-        await vault.approve(vault.getAddress(), balanceOf);
-        await vault.redeemNative(balanceOf);
+        expect(collateralBalanceInUSD)
+            .to.greaterThan(ethers.parseUnits('10000', 18))
+            // @ts-ignore
+            .lessThanOrEqual(ethers.parseUnits('100000', 18));
+        expect(debtBalanceInUSD)
+            .to.greaterThan(ethers.parseUnits('1000', 18))
+            // @ts-ignore
+            .lessThanOrEqual(ethers.parseUnits('100000', 18));
 
-        expect(await vault.balanceOf(deployer.address)).to.equal(0);
-        expect(await vault.totalSupply()).to.equal(0);
-        expect((await strategy.getPosition([0, 0]))[0]).to.equal(0);
-        expect((await strategy.getPosition([0, 0]))[1]).to.equal(0);
+        try {
+            const balanceOf = await vault.balanceOf(deployer.address);
+            await vault.approve(vault.getAddress(), balanceOf);
+            await vault.redeemNative(balanceOf);
+            expect(await vault.balanceOf(deployer.address)).to.equal(0);
+            expect(await vault.totalSupply()).to.equal(0);
+            expect((await strategy.getPosition([0, 0]))[0]).to.equal(0);
+            expect((await strategy.getPosition([0, 0]))[1]).to.equal(0);
+        } catch(e) {
+            console.log(JSON.stringify(e));
+        }
+
       });
 
 

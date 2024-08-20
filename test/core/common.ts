@@ -5,6 +5,7 @@ import {
   deployVault,
   deployBalancerFL,
   deployAAVEv3Strategy,
+  deployStrategyLeverageMorphoBlue,
   deployETHOracle,
   deployWSTETHToUSDOracle,
   deploySettings,
@@ -14,7 +15,20 @@ import { PriceServiceConnection } from '@pythnetwork/price-service-client';
 import BaseConfig, { NetworkConfig } from '../../constants/network-deploy-config';
 import { feedIds, PythFeedNameEnum } from '../../constants/pyth';
 
-export async function deployProd() {
+
+type StrategyType  = "AAVEv3" | "MorphoBlue" ;
+
+export async function deployMorphoProd() {
+  return await deployProd("MorphoBlue");
+}
+
+
+export async function deployAAVEProd() {
+  return await deployProd("AAVEv3");
+}
+
+
+export async function deployProd(type: StrategyType) {
   const [deployer, otherAccount] = await ethers.getSigners();
   const networkName = network.name;
   const config: NetworkConfig = BaseConfig[networkName];
@@ -41,9 +55,6 @@ export async function deployProd() {
     config.uniswapRouter02,
   );
 
-  // 7. Register AAVE V3 Service
-  await serviceRegistry.registerService(ethers.keccak256(Buffer.from('AAVEv3')), config.AAVEPool);
-
   // 8. Register wstETH
   await serviceRegistry.registerService(ethers.keccak256(Buffer.from('wstETH')), config.wstETH);
   // 9. Deploy the Oracle
@@ -56,11 +67,6 @@ export async function deployProd() {
     config.pyth,
   );
 
-  await serviceRegistry.registerService(
-    ethers.keccak256(Buffer.from('Uniswap Quoter')),
-    config.uniswapQuoter,
-  );
-
   // 10. Balancer Vault
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from('Balancer Vault')),
@@ -70,19 +76,47 @@ export async function deployProd() {
   // 11. Flash Lender Adapter
   await deployBalancerFL(serviceRegistry);
 
+  let strategyProxyDeploy;
   // 12. Deploy the Strategy
-  const { proxy: strategyProxyDeploy, strategy: strategyInstance } = await deployAAVEv3Strategy(
-    deployer.address,
-    deployer.address,
-    await serviceRegistry.getAddress(),
-    'wstETH',
-    'WETH',
-    'wstETH/USD Oracle',
-    'ETH/USD Oracle',
-    config.swapFeeTier,
-    config.AAVEEModeCategory,
-    proxyAdmin,
-  );
+  switch(type) {
+    case 'AAVEv3':
+      await serviceRegistry.registerService(ethers.keccak256(Buffer.from('AAVEv3')), config.AAVEPool);
+      const { proxy: aProxy} = await deployAAVEv3Strategy(
+        deployer.address,
+        deployer.address,
+        await serviceRegistry.getAddress(),
+        'wstETH',
+        'WETH',
+        'wstETH/USD Oracle',
+        'ETH/USD Oracle',
+        config.swapFeeTier,
+        config.AAVEEModeCategory,
+        proxyAdmin,
+      );
+      strategyProxyDeploy = aProxy;
+      break;
+
+    case 'MorphoBlue':
+      await serviceRegistry.registerService(ethers.keccak256(Buffer.from('Morpho Blue')), config.morpho?.blue);
+      const { proxy: mProxy } = await deployStrategyLeverageMorphoBlue(
+        deployer.address,
+        deployer.address,
+        await serviceRegistry.getAddress(),
+        'wstETH',
+        'WETH',
+        'wstETH/USD Oracle',
+        'ETH/USD Oracle',
+        config.swapFeeTier,
+        config?.morpho.markets["wstETH / WETH"].oracle,
+        config?.morpho.markets["wstETH / WETH"].irm,
+        config?.morpho.markets["wstETH / WETH"].lltv,
+        proxyAdmin,
+      );
+      strategyProxyDeploy = mProxy;
+      break;
+    default:
+        throw "No ";
+  }
 
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from('Strategy')),

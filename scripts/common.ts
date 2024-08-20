@@ -110,6 +110,48 @@ export async function deployAAVEv3Strategy(
   return { strategy, proxy };
 }
 
+
+export async function deployStrategyLeverageMorphoBlue(
+  owner: string,
+  governor: string,
+  serviceRegistry: string,
+  collateralToken: string,
+  debtToken: string,
+  collateralOracle: string,
+  debtOracle: string,
+  swapFreeTier: number,
+  morphoOracle: string,
+  irm: string,
+  lltv: string,
+  proxyAdmin?: any,
+) {
+
+  const Strategy = await ethers.getContractFactory('StrategyLeverageMorphoBlue');
+  const strategy = await Strategy.deploy();
+  await strategy.waitForDeployment();
+  const BakerFiProxy = await ethers.getContractFactory('BakerFiProxy');
+  const proxy = await BakerFiProxy.deploy(
+    await strategy.getAddress(),
+    await proxyAdmin.getAddress(),
+    Strategy.interface.encodeFunctionData('initialize', [
+      owner,
+      governor,
+      serviceRegistry,
+      [
+        ethers.keccak256(Buffer.from(collateralToken)),
+        ethers.keccak256(Buffer.from(debtToken)),
+        ethers.keccak256(Buffer.from(collateralOracle)),
+        ethers.keccak256(Buffer.from(debtOracle)),
+        swapFreeTier,
+        morphoOracle,
+        irm,
+        lltv
+      ]
+    ]),
+  );
+  await proxy.waitForDeployment();
+  return { strategy, proxy };
+}
 export async function deployStEth(serviceRegistry, owner, maxSupply) {
   const STETHMock = await ethers.getContractFactory('ERC20Mock');
 
