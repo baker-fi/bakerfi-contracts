@@ -16,7 +16,7 @@ import {
 } from '../../scripts/common';
 
 import { describeif } from '../common';
-import BaseConfig, { NetworkConfig, StrategyImplementation } from '../../constants/network-deploy-config';
+import BaseConfig, { AAVEv3Market, NetworkConfig, StrategyImplementation } from '../../constants/network-deploy-config';
 
 /**
  * StrategyAAVEv3 Unit Tests
@@ -167,8 +167,8 @@ describeif(network.name === 'hardhat')('Strategy Leverage AAVEv3', function () {
       'WETH',
       'cbETH/USD Oracle',
       'ETH/USD Oracle',
-      config[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
-      config[StrategyImplementation.AAVE_V3_WSTETH_ETH].AAVEEModeCategory,
+      config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
+      (config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH] as AAVEv3Market).AAVEEModeCategory,
       proxyAdmin,
     );
     const pStrategy = await ethers.getContractAt(
@@ -208,8 +208,8 @@ describeif(network.name === 'hardhat')('Strategy Leverage AAVEv3', function () {
       'WETH',
       'cbETH/USD Oracle',
       'ETH/USD Oracle',
-      config[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
-      config[StrategyImplementation.AAVE_V3_WSTETH_ETH].AAVEEModeCategory,
+      config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
+      (config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH] as AAVEv3Market).AAVEEModeCategory,
       proxyAdmin,
     );
     const pStrategy = await ethers.getContractAt(
@@ -438,8 +438,8 @@ async function deployFunction() {
     'WETH',
     'cbETH/USD Oracle',
     'ETH/USD Oracle',
-    config[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
-    config[StrategyImplementation.AAVE_V3_WSTETH_ETH].AAVEEModeCategory,
+    config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
+    (config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH] as AAVEv3Market).AAVEEModeCategory,
     proxyAdmin,
   );
   const pStrategy = await ethers.getContractAt('StrategyAAVEv3', await proxyStrategy.getAddress());

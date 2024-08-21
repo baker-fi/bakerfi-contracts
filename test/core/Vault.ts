@@ -15,7 +15,7 @@ import {
   deployQuoterV2Mock,
   deployAAVEv3Strategy,
 } from '../../scripts/common';
-import BaseConfig, { NetworkConfig, StrategyImplementation } from '../../constants/network-deploy-config';
+import BaseConfig, { AAVEv3Market, NetworkConfig, StrategyImplementation } from '../../constants/network-deploy-config';
 import { time } from '@nomicfoundation/hardhat-network-helpers';
 import { anyValue } from '@nomicfoundation/hardhat-chai-matchers/withArgs';
 
@@ -1276,8 +1276,8 @@ async function deployFunction() {
     'WETH',
     'cbETH/USD Oracle',
     'ETH/USD Oracle',
-    config[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
-    config[StrategyImplementation.AAVE_V3_WSTETH_ETH].AAVEEModeCategory,
+    config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
+    (config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH] as AAVEv3Market).AAVEEModeCategory,
     proxyAdmin,
   );
 
