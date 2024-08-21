@@ -1,5 +1,5 @@
 import DeployConfig from '../constants/contracts';
-import NetworkDeployConfig from '../constants/network-deploy-config';
+import NetworkDeployConfig, { StrategyImplementation } from '../constants/network-deploy-config';
 import hre from 'hardhat';
 import { feedIds, PythFeedNameEnum } from '../constants/pyth';
 
@@ -74,8 +74,8 @@ async function main() {
         networkConfig.serviceRegistry,
         hre.ethers.keccak256(Buffer.from('wstETH')),
         hre.ethers.keccak256(Buffer.from('wstETH/USD Oracle')),
-        deployConfig.swapFeeTier,
-        deployConfig.AAVEEModeCategory,
+        deployConfig[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
+        deployConfig[StrategyImplementation.AAVE_V3_WSTETH_ETH].AAVEEModeCategory,
       ]),
     ],
   });

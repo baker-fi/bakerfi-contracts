@@ -122,7 +122,7 @@ export async function deployStrategyLeverageMorphoBlue(
   swapFreeTier: number,
   morphoOracle: string,
   irm: string,
-  lltv: string,
+  lltv: bigint,
   proxyAdmin?: any,
 ) {
 

@@ -23,23 +23,33 @@ export type OracleRegistryNames =
   | "cbETH/USD Oracle"
   | "ETH/USD Oracle";
 
-export type StrategyType = "base" | "wstETH";
 
-export enum VaultNamesEnum {
+export enum StrategyImplementation {
     AAVE_V3_WSTETH_ETH = "AAVEv3 wstETH/ETH",
+    MORPHO_BLUE_WSTETH_ETH = "Morpho Blue wstETH/ETH",
 };
 
 
-type MorphoBlueMarkets  = "wstETH / WETH" ;
-
-export type VaultNames = keyof VaultNamesEnum;
-
-export type MorphoMarket = {
+export type Market = {
+    sharesName: string,
+    sharesSymbol: string,
     collateralToken: string,
     debtToken: string,
+    collateralOracle: OracleRegistryNames,
+    debtOracle: OracleRegistryNames,
+    swapFeeTier: number,
+}
+
+export type MorphoMarket = Market & {
     oracle: string,
     irm: string,
     lltv: bigint,
+    type: "morpho"
+};
+
+export type AAVEv3Market =  Market & {
+    AAVEEModeCategory: number;
+    type: "aavev3"
 };
 
 export type NetworkConfig = {
@@ -55,25 +65,11 @@ export type NetworkConfig = {
         pair: PythOraclePairs,
         address: string,
     }[],
-    AAVEEModeCategory: number,
-    vaults:{
-        [key: string] :{
-            sharesName: string,
-            sharesSymbol: string,
-            type:  StrategyType;
-            collateralToken: string,
-            debtToken: string,
-            collateralOracle: OracleRegistryNames,
-            debtOracle: OracleRegistryNames,
-    }},
-    morpho?: {
-        blue: string;
-        markets: {
-            [key: string]: MorphoMarket
-        }
-    }
-    swapFeeTier: number,
-    AAVEPool: string, // Validated
+    markets:{
+        [key: string]: MorphoMarket | AAVEv3Market
+    },
+    morpho?: string;
+    AAVEPool?: string,
     pyth: string,
     chainlink?: {
         wstEthToETH?: string,
@@ -103,33 +99,37 @@ const Config: DeployConfig = {
             pair: PythFeedNameEnum.ETH_USD,
             address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
         }],
-        AAVEEModeCategory: 1,
-        vaults: {
-            [VaultNamesEnum.AAVE_V3_WSTETH_ETH]: {
+
+        markets: {
+            [StrategyImplementation.AAVE_V3_WSTETH_ETH]: {
                 sharesName: "AAVEv3 Bread ETH",
                 sharesSymbol: "AAVEv3brETH",
-                type: "base",
+                collateralToken: "wstETH",
+                type: "aavev3",
+                debtToken: "WETH",
+                collateralOracle: "wstETH/USD Oracle",
+                debtOracle: "ETH/USD Oracle",
+                AAVEEModeCategory: 1,
+                swapFeeTier: 100,
+            },
+            [StrategyImplementation.MORPHO_BLUE_WSTETH_ETH]: {
+                sharesName: "Morpho Bread ETH",
+                sharesSymbol: "MorphobrETH",
                 collateralToken: "wstETH",
                 debtToken: "WETH",
                 collateralOracle: "wstETH/USD Oracle",
                 debtOracle: "ETH/USD Oracle",
-            }
-        },
-        swapFeeTier: 100,
-        AAVEPool: "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5", // Validated
-        pyth: "0x8250f4aF4B972684F7b336503E2D6dFeDeB1487a",
-        morpho: {
-            blue: "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb",
-            markets: {
-            "wstETH / WETH": {
-                collateralToken: "0x4200000000000000000000000000000000000006",
-                debtToken: "0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452",
+                type: "morpho",
                 oracle:  "0x4A11590e5326138B514E08A9B52202D42077Ca65",
                 irm: "0x46415998764C29aB2a25CbeA6254146D50D22687",
                 lltv: 945000000000000000n,
+                swapFeeTier: 100,
             }
-            }
-        }
+        },
+
+        AAVEPool: "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5", // Validated
+        pyth: "0x8250f4aF4B972684F7b336503E2D6dFeDeB1487a",
+        morpho: "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb",
     },
     "base_devnet": {
         minTxConfirmations: 0,
@@ -146,42 +146,44 @@ const Config: DeployConfig = {
             pair: PythFeedNameEnum.ETH_USD,
             address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
         }],
-        AAVEEModeCategory: 1,
-        vaults: {
-            [VaultNamesEnum.AAVE_V3_WSTETH_ETH]: {
+
+        markets: {
+            [StrategyImplementation.AAVE_V3_WSTETH_ETH]: {
                 sharesName: "AAVEv3 Bread ETH",
                 sharesSymbol: "AAVEv3brETH",
-                type: "base",
+                AAVEEModeCategory: 1,
+                collateralToken: "wstETH",
+                type: "aavev3",
+                debtToken: "WETH",
+                collateralOracle: "wstETH/USD Oracle",
+                debtOracle: "ETH/USD Oracle",
+                swapFeeTier: 100,
+            },
+            [StrategyImplementation.MORPHO_BLUE_WSTETH_ETH]: {
+                sharesName: "Morpho Bread ETH",
+                sharesSymbol: "MorphobrETH",
                 collateralToken: "wstETH",
                 debtToken: "WETH",
                 collateralOracle: "wstETH/USD Oracle",
                 debtOracle: "ETH/USD Oracle",
+                type: "morpho",
+                oracle:  "0x4A11590e5326138B514E08A9B52202D42077Ca65",
+                irm: "0x46415998764C29aB2a25CbeA6254146D50D22687",
+                lltv: 945000000000000000n,
+                swapFeeTier: 100,
             }
         },
-        swapFeeTier: 100,
+
         AAVEPool: "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5", // Validated
         pyth: "0x8250f4aF4B972684F7b336503E2D6dFeDeB1487a",
         chainlink: {
             wstEthToETHRatio: "0xB88BAc61a4Ca37C43a3725912B1f472c9A5bc061",
         },
-        morpho: {
-            blue: "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb",
-            markets: {
-            "wstETH / WETH": {
-                collateralToken: "0x4200000000000000000000000000000000000006",
-                debtToken: "0xc1CBa3fCea344f92D9239c08C0568f6F2F0ee452",
-                oracle:  "0x4A11590e5326138B514E08A9B52202D42077Ca65",
-                irm: "0x46415998764C29aB2a25CbeA6254146D50D22687",
-                lltv: 945000000000000000n,
-            }
-            }
-        }
+        morpho: "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb"
     },
     "local": {
         minTxConfirmations: 0,
         owner: "0xf15CC0ccBdDA041e2508B829541917823222F364",
-        AAVEEModeCategory: 0,
-        swapFeeTier: 500,
         uniswapRouter02: "0xB7d0add4df75aa719bE464e860C8c40bb7FA2122",
         uniswapQuoter: "0x53e12d61AF104185485C79cbeBEe3D1F896d705f",
         weth: "0x5bC13d5ce928Ae6e414A831D173E86fD040deBb9",
@@ -195,15 +197,17 @@ const Config: DeployConfig = {
             pair: PythFeedNameEnum.ETH_USD,
             address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
         }],
-        vaults: {
-            [VaultNamesEnum.AAVE_V3_WSTETH_ETH]: {
+        markets: {
+            [StrategyImplementation.AAVE_V3_WSTETH_ETH]: {
                 sharesName: "AAVEv3 Bread ETH",
                 sharesSymbol: "AAVEv3brETH",
-                type: "base",
+                type: "aavev3",
+                AAVEEModeCategory: 1,
                 collateralToken: "wstETH",
                 debtToken: "WETH",
                 collateralOracle: "wstETH/USD Oracle",
                 debtOracle: "ETH/USD Oracle",
+                swapFeeTier: 500,
             }
         },
         balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Validated
@@ -224,19 +228,20 @@ const Config: DeployConfig = {
             pair: "ETH/USD",
             address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
         }],
-        vaults: {
-            [VaultNamesEnum.AAVE_V3_WSTETH_ETH]: {
+        markets: {
+            [StrategyImplementation.AAVE_V3_WSTETH_ETH]: {
                 sharesName: "AAVEv3 Bread ETH",
                 sharesSymbol: "AAVEv3brETH",
-                type: "base",
+                type: "aavev3",
                 collateralToken: "wstETH",
+                AAVEEModeCategory: 2,
                 debtToken: "WETH",
                 collateralOracle: "wstETH/USD Oracle",
                 debtOracle: "ETH/USD Oracle",
+                swapFeeTier: 100,
             }
         },
-        AAVEEModeCategory: 2,
-        swapFeeTier: 100,
+
         AAVEPool: "0x794a61358D6845594F94dc1DB02A252b5b4814aD", // Validated
         pyth: "0xff1a0f4744e8582df1ae09d5611b887b6a12925c",
         // TODO: Update these addresses
@@ -261,19 +266,20 @@ const Config: DeployConfig = {
             pair: PythFeedNameEnum.ETH_USD,
             address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
         }],
-        vaults: {
-            [VaultNamesEnum.AAVE_V3_WSTETH_ETH]: {
+        markets: {
+            [StrategyImplementation.AAVE_V3_WSTETH_ETH]: {
                 sharesName: "AAVEv3 Bread ETH",
                 sharesSymbol: "AAVEv3brETH",
-                type: "base",
+                type: "aavev3",
                 collateralToken: "wstETH",
                 debtToken: "WETH",
                 collateralOracle: "wstETH/USD Oracle",
+                AAVEEModeCategory: 2,
                 debtOracle: "ETH/USD Oracle",
+                swapFeeTier: 100,
             }
         },
-        AAVEEModeCategory: 2,
-        swapFeeTier: 100,
+
         AAVEPool: "0x794a61358D6845594F94dc1DB02A252b5b4814aD", // Validated
         pyth: "0xff1a0f4744e8582df1ae09d5611b887b6a12925c",
          // TODO: Update these addresses
@@ -293,17 +299,17 @@ const Config: DeployConfig = {
         wstETH: "",
         stETH: undefined,
         oracles: [],
-        AAVEEModeCategory: 2,
-        swapFeeTier: 100,
-        vaults: {
-            [VaultNamesEnum.AAVE_V3_WSTETH_ETH]: {
+        markets: {
+            [StrategyImplementation.AAVE_V3_WSTETH_ETH]: {
                 sharesName: "AAVEv3 Bread ETH",
                 sharesSymbol: "AAVEv3brETH",
-                type: "base",
+                type: "aavev3",
+                AAVEEModeCategory: 2,
                 collateralToken: "wstETH",
                 debtToken: "WETH",
                 collateralOracle: "wstETH/USD Oracle",
                 debtOracle: "ETH/USD Oracle",
+                swapFeeTier: 100,
             }
         },
         AAVEPool: "",

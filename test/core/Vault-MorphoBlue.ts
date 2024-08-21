@@ -113,6 +113,14 @@ describeif(
         expect((await strategy.getPosition([0, 0]))[0]).to.equal(0);
         expect((await strategy.getPosition([0, 0]))[1]).to.equal(0);
 
+
+        await vault.depositNative(deployer.address, {
+            value: ethers.parseUnits('1', 18),
+        });
+
+        expect(await vault.totalAssets())
+            .to.greaterThan(ethers.parseUnits('9', 17))
+            .lessThanOrEqual(ethers.parseUnits('11', 17));
       });
 
 
