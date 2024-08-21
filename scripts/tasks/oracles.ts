@@ -82,3 +82,22 @@ task('oracles:prices', 'Generate an artifact tree').setAction(async ({}, { run }
   await run('oracles:getETHPrice');
   await run('oracles:getWSTETHPrice');
 });
+
+task('oracles:compare', 'Generate an artifact tree').setAction(async ({}, { ethers, network }) => {
+  const networkName = network.name;
+  const networkConfig = DeployConfig[networkName];
+
+  try {
+    const ethUSDOracle = await ethers.getContractAt('PythOracle', networkConfig.ethUSDOracle ?? '');
+    const wstETHUSDOracle = await ethers.getContractAt(
+      'PythOracle',
+      networkConfig.wstETHUSDOracle ?? '',
+    );
+    const priceETHUSD = (await ethUSDOracle.getLatestPrice()).price;
+    const priceWSTETHUSD = (await wstETHUSDOracle.getLatestPrice()).price;
+    const ratio = (priceWSTETHUSD * 10000n) / priceETHUSD;
+    console.log(`${priceETHUSD}, ${priceWSTETHUSD}, ${ratio}`);
+  } catch (e) {
+    console.log(e);
+  }
+});

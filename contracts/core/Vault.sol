@@ -90,7 +90,7 @@ contract Vault is
    */
   IStrategy private _strategy;
 
-  uint8 private constant VAULT_VERSION = 2;
+  uint8 constant VAULT_VERSION = 3;
 
   /**
    * @dev Modifier to restrict access to addresses that are whitelisted.

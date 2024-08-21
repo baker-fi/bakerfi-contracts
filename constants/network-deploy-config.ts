@@ -241,7 +241,6 @@ const Config: DeployConfig = {
                 swapFeeTier: 100,
             }
         },
-
         AAVEPool: "0x794a61358D6845594F94dc1DB02A252b5b4814aD", // Validated
         pyth: "0xff1a0f4744e8582df1ae09d5611b887b6a12925c",
         // TODO: Update these addresses
@@ -279,7 +278,6 @@ const Config: DeployConfig = {
                 swapFeeTier: 100,
             }
         },
-
         AAVEPool: "0x794a61358D6845594F94dc1DB02A252b5b4814aD", // Validated
         pyth: "0xff1a0f4744e8582df1ae09d5611b887b6a12925c",
          // TODO: Update these addresses
