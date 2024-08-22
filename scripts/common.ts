@@ -110,7 +110,6 @@ export async function deployAAVEv3Strategy(
   return { strategy, proxy };
 }
 
-
 export async function deployStrategyLeverageMorphoBlue(
   owner: string,
   governor: string,
@@ -125,7 +124,6 @@ export async function deployStrategyLeverageMorphoBlue(
   lltv: bigint,
   proxyAdmin?: any,
 ) {
-
   const Strategy = await ethers.getContractFactory('StrategyLeverageMorphoBlue');
   const strategy = await Strategy.deploy();
   await strategy.waitForDeployment();
@@ -145,8 +143,8 @@ export async function deployStrategyLeverageMorphoBlue(
         swapFreeTier,
         morphoOracle,
         irm,
-        lltv
-      ]
+        lltv,
+      ],
     ]),
   );
   await proxy.waitForDeployment();

@@ -230,7 +230,6 @@ contract Vault is
   function depositNative(
     address receiver
   ) external payable nonReentrant whenNotPaused onlyWhiteListed returns (uint256 shares) {
-
     if (msg.value == 0) revert InvalidDepositAmount();
     if (_strategy.asset() != wETHA()) revert InvalidDepositAsset();
     //  Wrap ETH

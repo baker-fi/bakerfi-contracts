@@ -15,7 +15,11 @@ import {
   deployAAVEv3Strategy,
 } from './common';
 
-import BaseConfig, { AAVEv3Market, NetworkConfig, StrategyImplementation } from '../constants/network-deploy-config';
+import BaseConfig, {
+  AAVEv3Market,
+  NetworkConfig,
+  StrategyImplementation,
+} from '../constants/network-deploy-config';
 import ora from 'ora';
 
 /**

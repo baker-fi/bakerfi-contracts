@@ -55,7 +55,7 @@ export type AAVEv3Market =  Market & {
 export type NetworkConfig = {
     owner: string,
     uniswapRouter02: string,
-    uniswapQuoter: string,
+    uniswapQuoter?: string,
     balancerVault: string,
     weth: string,
     wstETH: string;
@@ -312,7 +312,37 @@ const Config: DeployConfig = {
         },
         AAVEPool: "",
         pyth: "",
-    }
+    },
+    "ethereum_devnet": {
+        minTxConfirmations: 6,
+        owner: "",
+        uniswapRouter02: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45",
+        balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
+        weth: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+        wstETH: "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
+        oracles: [{
+            pair: PythFeedNameEnum.WSTETH_USD,
+            address: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4"
+        }, {
+            pair: PythFeedNameEnum.ETH_USD,
+            address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
+        }],
+        markets: {
+            [StrategyImplementation.AAVE_V3_WSTETH_ETH]: {
+                sharesName: "AAVEv3 Bread ETH",
+                sharesSymbol: "AAVEv3ETH",
+                type: "aavev3",
+                collateralToken: "wstETH",
+                debtToken: "WETH",
+                collateralOracle: "wstETH/USD Oracle",
+                AAVEEModeCategory: 2,
+                debtOracle: "ETH/USD Oracle",
+                swapFeeTier: 100,
+            }
+        },
+        AAVEPool: "0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2",
+        pyth: "0x4305FB66699C3B2702D4d05CF36551390A4c69C6",
+    },
 }
 
 

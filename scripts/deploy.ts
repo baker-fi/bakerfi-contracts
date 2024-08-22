@@ -19,7 +19,7 @@ const networkName = hre.network.name;
 const chainId = BigInt(hre.network.config.chainId ?? 0n);
 
 // Script Parameters Section
-const strategy  = process.env.STRATEGY || StrategyImplementation.AAVE_V3_WSTETH_ETH;
+const strategy = process.env.STRATEGY || StrategyImplementation.AAVE_V3_WSTETH_ETH;
 
 type ProxyContracts = keyof typeof ContractTree;
 
@@ -46,7 +46,6 @@ export const RegistryNames = [
   `${StrategyImplementation.MORPHO_BLUE_WSTETH_ETH} Strategy`,
   `${StrategyImplementation.MORPHO_BLUE_WSTETH_ETH} Vault`,
 ];
-
 
 type RegistryName = (typeof RegistryNames)[number];
 /****************************************
@@ -81,7 +80,7 @@ async function main() {
   let strategyAddress;
   let strategyConfig;
   let strategyContract;
-  switch(strategy) {
+  switch (strategy) {
     case StrategyImplementation.AAVE_V3_WSTETH_ETH:
       strategyConfig = config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH];
       strategyContract = 'StrategyAAVEv3';
@@ -130,15 +129,15 @@ async function main() {
             strategyConfig.swapFeeTier,
             strategyConfig.oracle,
             strategyConfig.irm,
-            strategyConfig.lltv
-          ]
+            strategyConfig.lltv,
+          ],
         ],
         spinner,
         result,
       );
       break;
     default:
-      throw Error("Unrecognized strategy;");
+      throw Error('Unrecognized strategy;');
   }
 
   ////////////////////////////////////
@@ -377,11 +376,11 @@ async function deployInfra(
   );
   // Registering Uniswap Quoter
   await registerName(app, config, registryReceipt, 'Pyth', config.pyth, spinner, result);
-  if(config.AAVEPool) {
+  if (config.AAVEPool) {
     await registerName(app, config, registryReceipt, 'AAVEv3', config.AAVEPool, spinner, result);
   }
   // AAVE Vault
-  if(config.morpho) {
+  if (config.morpho) {
     await registerName(app, config, registryReceipt, 'Morpho Blue', config.morpho, spinner, result);
   }
   // Register Balancer Vault

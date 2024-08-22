@@ -2,15 +2,7 @@
 pragma solidity ^0.8.24;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {
-    IMorpho,
-    Authorization,
-    Id,
-    Signature,
-    Market,
-    MarketParams,
-    Position
-} from "@morpho-org/morpho-blue/src/interfaces/IMorpho.sol";
+import { IMorpho, Authorization, Id, Signature, Market, MarketParams, Position } from "@morpho-org/morpho-blue/src/interfaces/IMorpho.sol";
 
 /**
  * @title Morpho Mock used for Unit Testing
@@ -21,7 +13,6 @@ import {
  * @notice Morpho Mock used for Unit Testing
  */
 contract MorphoMock is IMorpho {
-
   struct UserInfo {
     uint256 depositAmount;
     uint256 borrowedAmount;
@@ -31,7 +22,7 @@ contract MorphoMock is IMorpho {
   IERC20 private _borrowedToken;
 
   Market private _singleMarket;
-  address immutable private _owner;
+  address private immutable _owner;
 
   uint256 private _collateralBalance;
   uint256 private _debtBalance;
@@ -87,9 +78,9 @@ contract MorphoMock is IMorpho {
     address onBehalf,
     bytes memory
   ) external override returns (uint256 assetsSupplied, uint256 sharesSupplied) {
-      _collateralToken.transferFrom(msg.sender, address(this), assets);
-      _collateralBalance+=assetsSupplied;
-      _users[onBehalf].depositAmount+= assets;
+    _collateralToken.transferFrom(msg.sender, address(this), assets);
+    _collateralBalance += assetsSupplied;
+    _users[onBehalf].depositAmount += assets;
   }
 
   function withdraw(
@@ -108,17 +99,16 @@ contract MorphoMock is IMorpho {
     address onBehalf,
     address receiver
   ) internal returns (uint256 assetsWithdrawn, uint256 sharesWithdrawn) {
+    uint256 collateralInUSD = (_users[msg.sender].depositAmount * _collateralPerUSD) / 1e18;
+    uint256 debtInUSD = (_users[msg.sender].borrowedAmount * _borrowedPerUSD) / 1e18;
+    uint256 assetsToUSD = (assets * _collateralPerUSD) / 1e18;
 
-    uint256 collateralInUSD = _users[msg.sender].depositAmount * _collateralPerUSD /1e18;
-      uint256 debtInUSD = _users[msg.sender].borrowedAmount * _borrowedPerUSD /1e18;
-      uint256 assetsToUSD = assets * _collateralPerUSD /1e18;
-
-      require((collateralInUSD - debtInUSD) > assetsToUSD, "No Balance");
+    require((collateralInUSD - debtInUSD) > assetsToUSD, "No Balance");
 
     (_collateralToken).transfer(receiver, assets);
-      _users[msg.sender].depositAmount -= assets;
-      assetsWithdrawn = assets;
-      sharesWithdrawn = assets;
+    _users[msg.sender].depositAmount -= assets;
+    assetsWithdrawn = assets;
+    sharesWithdrawn = assets;
   }
 
   function borrow(
@@ -128,15 +118,13 @@ contract MorphoMock is IMorpho {
     address onBehalf,
     address receiver
   ) external override returns (uint256 assetsBorrowed, uint256 sharesBorrowed) {
-
-    uint256 collateralInUSD = _users[msg.sender].depositAmount * _collateralPerUSD /1e18;
-    uint256 debtInUSD = _users[msg.sender].borrowedAmount * _borrowedPerUSD /1e18;
+    uint256 collateralInUSD = (_users[msg.sender].depositAmount * _collateralPerUSD) / 1e18;
+    uint256 debtInUSD = (_users[msg.sender].borrowedAmount * _borrowedPerUSD) / 1e18;
 
     require((collateralInUSD - debtInUSD) > assets, "No Balance");
 
     (_borrowedToken).transfer(receiver, assets);
     _users[msg.sender].borrowedAmount += assets;
-
   }
 
   function repay(
@@ -146,7 +134,6 @@ contract MorphoMock is IMorpho {
     address onBehalf,
     bytes memory data
   ) external override returns (uint256 assetsRepaid, uint256 sharesRepaid) {
-
     _borrowedToken.transferFrom(msg.sender, address(this), assets);
     _users[msg.sender].borrowedAmount -= assets;
     assetsRepaid = assets;
@@ -159,9 +146,9 @@ contract MorphoMock is IMorpho {
     address onBehalf,
     bytes memory
   ) external override {
-      _collateralToken.transferFrom(msg.sender, address(this), assets);
-      _collateralBalance+=assets;
-      _users[onBehalf].depositAmount+= assets;
+    _collateralToken.transferFrom(msg.sender, address(this), assets);
+    _collateralBalance += assets;
+    _users[onBehalf].depositAmount += assets;
   }
 
   function withdrawCollateral(
@@ -194,9 +181,7 @@ contract MorphoMock is IMorpho {
 
   function extSloads(bytes32[] memory slots) external view override returns (bytes32[] memory) {}
 
-  function position(Id id, address user) external view override returns (Position memory p) {
-
-  }
+  function position(Id id, address user) external view override returns (Position memory p) {}
 
   function market(Id id) external view override returns (Market memory m) {}
 
