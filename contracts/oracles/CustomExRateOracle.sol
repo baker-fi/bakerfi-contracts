@@ -30,9 +30,10 @@ contract CustomExRateOracle is ExRateOracle {
     _resultDecimals = resultDecimals;
     _call.callData = call.callData;
   }
+
   /**
    *
-   * Get a Rati from the External oracle
+   * Get a Ratio from the External oracle
    *
    * @dev This method is not part of the IOracle interface but it could be usefull
    * to show prices on the frontend
@@ -41,7 +42,6 @@ contract CustomExRateOracle is ExRateOracle {
    *
    * */
   function getRatio() public view virtual override returns (IOracle.Price memory ratio) {
-
     (bool success, bytes memory result) = _call.target.staticcall(_call.callData);
 
     if (!success) revert InvalidPriceFromOracle();

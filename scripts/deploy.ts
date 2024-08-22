@@ -241,15 +241,19 @@ async function deployOracles(
     }
 
     let oracleReceipt;
-    if (chainId == 1n  && oracle.pair == "wstETH/USD") {
-      oracleReceipt = await client.deploy('CustomExRateOracle', [
-        oracles['ETH/USD'].contractAddress,
-        [config.wstETH, "0x035faf82"], // stEthPerToken
-        18
-      ], {
-        chainId,
-        minTxConfirmations: config.minTxConfirmations,
-      });
+    if (chainId == 1n && oracle.pair == 'wstETH/USD') {
+      oracleReceipt = await client.deploy(
+        'CustomExRateOracle',
+        [
+          oracles['ETH/USD'].contractAddress,
+          [config.wstETH, '0x035faf82'], // stEthPerToken
+          18,
+        ],
+        {
+          chainId,
+          minTxConfirmations: config.minTxConfirmations,
+        },
+      );
     } else {
       oracleReceipt = await client.deploy('PythOracle', [feedId, config.pyth], {
         chainId,

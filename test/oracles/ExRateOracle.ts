@@ -120,10 +120,10 @@ describeif(network.name === 'base_devnet')('Ratio Oracle', function () {
     const pythOracle = await PythOracle.deploy(feedIds[PythFeedNameEnum.ETH_USD], config.pyth);
     const ChainLinkExRateOracle = await ethers.getContractFactory('ChainLinkExRateOracle');
 
-    const oracleConfig = config.oracles?.find((pair)=> pair.pair == PythFeedNameEnum.WSTETH_USD);
+    const oracleConfig = config.oracles?.find((pair) => pair.pair == PythFeedNameEnum.WSTETH_USD);
     const oracle = await ChainLinkExRateOracle.deploy(
       await pythOracle.getAddress(),
-      (oracleConfig as ClExRateOracle).clExRateAddress
+      (oracleConfig as ClExRateOracle).clExRateAddress,
     );
     return { oracle };
   }
