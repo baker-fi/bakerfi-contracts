@@ -314,19 +314,20 @@ const Config: DeployConfig = {
         pyth: "",
     },
     "ethereum_devnet": {
-        minTxConfirmations: 6,
+        minTxConfirmations: 0,
         owner: "",
         uniswapRouter02: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45",
         balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8",
         weth: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
         wstETH: "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
-        oracles: [{
-            pair: PythFeedNameEnum.WSTETH_USD,
-            address: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4"
-        }, {
+        morpho: "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb",
+        oracles: [ {
             pair: PythFeedNameEnum.ETH_USD,
             address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
-        }],
+        },{
+            pair: PythFeedNameEnum.WSTETH_USD,
+            address: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4"
+        },],
         markets: {
             [StrategyImplementation.AAVE_V3_WSTETH_ETH]: {
                 sharesName: "AAVEv3 Bread ETH",
@@ -335,8 +336,21 @@ const Config: DeployConfig = {
                 collateralToken: "wstETH",
                 debtToken: "WETH",
                 collateralOracle: "wstETH/USD Oracle",
-                AAVEEModeCategory: 2,
+                AAVEEModeCategory: 1,
                 debtOracle: "ETH/USD Oracle",
+                swapFeeTier: 100,
+            },
+            [StrategyImplementation.MORPHO_BLUE_WSTETH_ETH]: {
+                sharesName: "Morpho Bread ETH",
+                sharesSymbol: "MorphobrETH",
+                collateralToken: "wstETH",
+                debtToken: "WETH",
+                collateralOracle: "wstETH/USD Oracle",
+                debtOracle: "ETH/USD Oracle",
+                type: "morpho",
+                oracle:  "0xbD60A6770b27E084E8617335ddE769241B0e71D8",
+                irm: "0x870aC11D48B15DB9a138Cf899d20F13F79Ba00BC",
+                lltv: 945000000000000000n,
                 swapFeeTier: 100,
             }
         },

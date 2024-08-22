@@ -41,6 +41,7 @@ export const RegistryNames = [
   'ETH/USD Oracle',
   'BakerFiProxyAdmin',
   'Pyth',
+
   `${StrategyImplementation.AAVE_V3_WSTETH_ETH} Strategy`,
   `${StrategyImplementation.AAVE_V3_WSTETH_ETH} Vault`,
   `${StrategyImplementation.MORPHO_BLUE_WSTETH_ETH} Strategy`,
@@ -217,6 +218,7 @@ async function deployOracles(
   spinner,
   result,
 ) {
+  const oracles = {};
   for (const oracle of config.oracles) {
     spinner.text = `Deploying ${oracle.pair} Oracle`;
     let feedId;
@@ -237,10 +239,24 @@ async function deployOracles(
       default:
         throw Error('Unknow Oracle type');
     }
-    const oracleReceipt = await client.deploy('PythOracle', [feedId, config.pyth], {
-      chainId,
-      minTxConfirmations: config.minTxConfirmations,
-    });
+
+    let oracleReceipt;
+    if (chainId == 1n  && oracle.pair == "wstETH/USD") {
+      oracleReceipt = await client.deploy('CustomExRateOracle', [
+        oracles['ETH/USD'].contractAddress,
+        [config.wstETH, "0x035faf82"], // stEthPerToken
+        18
+      ], {
+        chainId,
+        minTxConfirmations: config.minTxConfirmations,
+      });
+    } else {
+      oracleReceipt = await client.deploy('PythOracle', [feedId, config.pyth], {
+        chainId,
+        minTxConfirmations: config.minTxConfirmations,
+      });
+    }
+    oracles[oracle.pair] = oracleReceipt;
     spinner.text = `Registering ${oracle.pair} Oracle`;
     await client.send(
       'ServiceRegistry',
@@ -361,16 +377,6 @@ async function deployInfra(
     registryReceipt,
     'Uniswap Router',
     config.uniswapRouter02,
-    spinner,
-    result,
-  );
-  // Registering Uniswap Quoter
-  await registerName(
-    app,
-    config,
-    registryReceipt,
-    'Uniswap Quoter',
-    config.uniswapQuoter,
     spinner,
     result,
   );
