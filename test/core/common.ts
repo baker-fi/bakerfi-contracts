@@ -58,9 +58,9 @@ export async function deployProd(type: StrategyImplementation) {
   // 8. Register wstETH
   await serviceRegistry.registerService(ethers.keccak256(Buffer.from('wstETH')), config.wstETH);
   // 9. Deploy the Oracle
+  await deployETHOracle(serviceRegistry, config.pyth);
 
   await deployWSTETHToUSDOracle(serviceRegistry, config.pyth);
-  await deployETHOracle(serviceRegistry, config.pyth);
 
   await updatePythPrices(
     [feedIds[PythFeedNameEnum.ETH_USD], feedIds[PythFeedNameEnum.WSTETH_USD]],
