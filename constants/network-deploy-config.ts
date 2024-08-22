@@ -16,7 +16,9 @@ export type Networks =
   | "arbitrum_devnet"
   | "arbitrum";
 
-export type PythOraclePairs = "wstETH/USD" | "cbETH/USD" | "ETH/USD";
+export type OraclePairs = "wstETH/USD" | "cbETH/USD" | "ETH/USD";
+
+export type OracleType = "chainlink" | "pyth" | "clExRate" | "customExRate";
 
 export type OracleRegistryNames =
   | "wstETH/USD Oracle"
@@ -52,6 +54,38 @@ export type AAVEv3Market =  Market & {
     type: "aavev3"
 };
 
+export type PythOracle = {
+    pair: OraclePairs,
+    type: "pyth",
+    address: string,
+}
+
+export type ChainLinkOracle = {
+    pair: OraclePairs,
+    type: "chainlink",
+    base: string,
+    address: string,
+}
+
+export type ClExRateOracle = {
+    pair: OraclePairs,
+    type: "clExRate",
+    clExRateAddress: string,
+    base: string,
+    address: string,
+}
+
+export type CustomExRateOracle = {
+    pair: OraclePairs,
+    type: "customExRate",
+    address: string,
+    base?: string,
+    target?: string,
+    callData?: string,
+}
+
+export type Oracle = PythOracle| ChainLinkOracle|ClExRateOracle| CustomExRateOracle;
+
 export type NetworkConfig = {
     owner: string,
     uniswapRouter02: string,
@@ -61,22 +95,13 @@ export type NetworkConfig = {
     wstETH: string;
     stETH?: string;
     minTxConfirmations: number;
-    oracles: {
-        pair: PythOraclePairs,
-        address: string,
-    }[],
+    oracles: Oracle[],
     markets:{
         [key: string]: MorphoMarket | AAVEv3Market
     },
     morpho?: string;
     AAVEPool?: string,
     pyth: string,
-    chainlink?: {
-        wstEthToETH?: string,
-        ethToUSD?: string,
-        cbETHToETH?: string,
-        wstEthToETHRatio?: string
-    },
 };
 
 export type DeployConfig = {
@@ -93,13 +118,16 @@ const Config: DeployConfig = {
         weth: "0x4200000000000000000000000000000000000006", // Validated
         wstETH: "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452", // Validated
         oracles: [{
-            pair: PythFeedNameEnum.WSTETH_USD,
-            address: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4"
-        }, {
             pair: PythFeedNameEnum.ETH_USD,
+            type: "pyth",
             address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
+        }, {
+            pair: PythFeedNameEnum.WSTETH_USD,
+            type: "clExRate",
+            clExRateAddress: "0xB88BAc61a4Ca37C43a3725912B1f472c9A5bc061",
+            base: PythFeedNameEnum.ETH_USD,
+            address: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4"
         }],
-
         markets: {
             [StrategyImplementation.AAVE_V3_WSTETH_ETH]: {
                 sharesName: "AAVEv3 Bread ETH",
@@ -140,11 +168,15 @@ const Config: DeployConfig = {
         weth: "0x4200000000000000000000000000000000000006", // Validated
         wstETH: "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452", // Validated
         oracles: [{
-            pair: PythFeedNameEnum.WSTETH_USD,
-            address: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4"
-        }, {
             pair: PythFeedNameEnum.ETH_USD,
+            type: "pyth",
             address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
+        }, {
+            pair: PythFeedNameEnum.WSTETH_USD,
+            type: "clExRate",
+            clExRateAddress: "0xB88BAc61a4Ca37C43a3725912B1f472c9A5bc061",
+            base: PythFeedNameEnum.ETH_USD,
+            address: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4"
         }],
 
         markets: {
@@ -176,9 +208,6 @@ const Config: DeployConfig = {
 
         AAVEPool: "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5", // Validated
         pyth: "0x8250f4aF4B972684F7b336503E2D6dFeDeB1487a",
-        chainlink: {
-            wstEthToETHRatio: "0xB88BAc61a4Ca37C43a3725912B1f472c9A5bc061",
-        },
         morpho: "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb"
     },
     "local": {
@@ -192,9 +221,11 @@ const Config: DeployConfig = {
         stETH: "0x07C1F45Dc0a620E6716d8A45485B8f0A79E270F8",
         oracles: [{
             pair:PythFeedNameEnum.WSTETH_USD,
+            type: "pyth",
             address: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4"
         }, {
             pair: PythFeedNameEnum.ETH_USD,
+            type: "pyth",
             address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
         }],
         markets: {
@@ -222,11 +253,15 @@ const Config: DeployConfig = {
         weth: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1", // Validated
         wstETH: "0x5979D7b546E38E414F7E9822514be443A4800529", // Validated
         oracles: [{
-            pair:PythFeedNameEnum.WSTETH_USD,
-            address: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4"
-        }, {
-            pair: "ETH/USD",
+            pair: PythFeedNameEnum.ETH_USD,
+            type: "pyth",
             address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
+        }, {
+            pair: PythFeedNameEnum.WSTETH_USD,
+            type: "clExRate",
+            base: PythFeedNameEnum.ETH_USD,
+            clExRateAddress: "0xB88BAc61a4Ca37C43a3725912B1f472c9A5bc061",
+            address: ""
         }],
         markets: {
             [StrategyImplementation.AAVE_V3_WSTETH_ETH]: {
@@ -243,12 +278,7 @@ const Config: DeployConfig = {
         },
         AAVEPool: "0x794a61358D6845594F94dc1DB02A252b5b4814aD", // Validated
         pyth: "0xff1a0f4744e8582df1ae09d5611b887b6a12925c",
-        // TODO: Update these addresses
-        chainlink: {
-            wstEthToETH: "",
-            ethToUSD: "",
-            cbETHToETH: "",
-        }
+
     },
     "arbitrum": {
         minTxConfirmations: 6,
@@ -259,11 +289,15 @@ const Config: DeployConfig = {
         weth: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1", // Validated
         wstETH: "0x5979D7b546E38E414F7E9822514be443A4800529", // Validated
         oracles: [{
-            pair: PythFeedNameEnum.WSTETH_USD,
-            address: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4"
-        }, {
             pair: PythFeedNameEnum.ETH_USD,
-            address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
+            type: "pyth",
+            address: "å"
+        }, {
+            pair: PythFeedNameEnum.WSTETH_USD,
+            type: "clExRate",
+            base: PythFeedNameEnum.ETH_USD,
+            clExRateAddress: "0xB88BAc61a4Ca37C43a3725912B1f472c9A5bc061",
+            address: ""
         }],
         markets: {
             [StrategyImplementation.AAVE_V3_WSTETH_ETH]: {
@@ -280,12 +314,6 @@ const Config: DeployConfig = {
         },
         AAVEPool: "0x794a61358D6845594F94dc1DB02A252b5b4814aD", // Validated
         pyth: "0xff1a0f4744e8582df1ae09d5611b887b6a12925c",
-         // TODO: Update these addresses
-         chainlink: {
-            wstEthToETH: "",
-            ethToUSD: "",
-            cbETHToETH: "",
-        }
     },
     hardhat: {
         minTxConfirmations: 0,
@@ -323,10 +351,16 @@ const Config: DeployConfig = {
         morpho: "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb",
         oracles: [ {
             pair: PythFeedNameEnum.ETH_USD,
-            address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
+            type: "chainlink",
+            base: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
+            address: "" // Deploy Adress
         },{
             pair: PythFeedNameEnum.WSTETH_USD,
-            address: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4"
+            type: 'customExRate',
+            base: PythFeedNameEnum.ETH_USD,
+            target: "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",  // wstETH Contract
+            callData: "0x035faf82", // stEthPerToken Selector,
+            address: "",
         },],
         markets: {
             [StrategyImplementation.AAVE_V3_WSTETH_ETH]: {
