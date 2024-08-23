@@ -352,17 +352,6 @@ export async function deployFlashBorrowerMock(serviceRegistry) {
   return borrower;
 }
 
-export async function deployQuoterV2Mock(serviceRegistry: any) {
-  const QuoterMock = await ethers.getContractFactory('QuoterV2Mock');
-  const quoter = await QuoterMock.deploy();
-  await quoter.waitForDeployment();
-  await serviceRegistry.registerService(
-    ethers.keccak256(Buffer.from('Uniswap Quoter')),
-    await quoter.getAddress(),
-  );
-  return quoter;
-}
-
 export async function deployLeverage() {
   const Leverage = await ethers.getContractFactory('UseLeverage');
   const levarage = await Leverage.deploy();

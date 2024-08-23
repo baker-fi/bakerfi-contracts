@@ -112,6 +112,12 @@ export type NetworkConfig = {
     morpho?: string;
     AAVEPool?: string,
     pyth: string,
+    chainlink?: {
+        wstEthToETH?: string,
+        ethToUSD?: string,
+        cbETHToETH?: string,
+        wstEthToETHRatio?: string
+    },
 };
 
 export type DeployConfig = {

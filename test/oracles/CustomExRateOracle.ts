@@ -23,10 +23,13 @@ describeif(network.name === 'ethereum_devnet')('Custom Exchange Rate Oracle', fu
   it('Get the Ratio and the price', async function () {
     const { oracle } = await loadFixture(deployFunction);
     const ratio = await oracle.getRatio();
+    // @ts-ignore
     expect(ratio.price).to.greaterThan(ethers.parseUnits('1', 18));
     const price = await oracle.getLatestPrice();
     expect(price.price)
+      // @ts-ignore
       .to.greaterThan(ethers.parseUnits('1000', 18))
+      // @ts-ignore
       .lessThan(ethers.parseUnits('100000', 18));
   });
 });

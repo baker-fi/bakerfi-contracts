@@ -29,7 +29,6 @@ export const RegistryNames = [
   'Pyth',
   'DeploymentRegistry',
   'Uniswap Router',
-  'Uniswap Quoter',
   'WETH',
   'stETH',
   'wstETH',
@@ -388,7 +387,7 @@ async function deployInfra(
     spinner,
     result,
   );
-  // Registering Uniswap Quoter
+  // Registering Pyth
   await registerName(app, config, registryReceipt, 'Pyth', config.pyth, spinner, result);
   if (config.AAVEPool) {
     await registerName(app, config, registryReceipt, 'AAVEv3', config.AAVEPool, spinner, result);

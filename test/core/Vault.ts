@@ -12,7 +12,6 @@ import {
   deployWETH,
   deployCbETH,
   deploySettings,
-  deployQuoterV2Mock,
   deployAAVEv3Strategy,
 } from '../../scripts/common';
 import {

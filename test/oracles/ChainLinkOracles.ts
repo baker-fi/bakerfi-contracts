@@ -3,7 +3,9 @@ import { expect } from 'chai';
 import { ethers, network } from 'hardhat';
 import { describeif } from '../common';
 import { time } from '@nomicfoundation/hardhat-network-helpers';
-import BaseConfig, { NetworkConfig } from '../../constants/network-deploy-config';
+import BaseConfig from '../../constants/network-deploy-config';
+import { NetworkConfig } from '../../constants/types';
+
 
 export async function deploy() {
   const [owner] = await ethers.getSigners();

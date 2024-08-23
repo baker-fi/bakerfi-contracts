@@ -175,7 +175,11 @@ const Config: DeployConfig = {
         },
         AAVEPool: "0x794a61358D6845594F94dc1DB02A252b5b4814aD", // Validated
         pyth: "0xff1a0f4744e8582df1ae09d5611b887b6a12925c",
-
+        chainlink: {
+            wstEthToETH: "0xb523AE262D20A936BC152e6023996e46FDC2A95D",
+            ethToUSD: "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612",
+            cbETHToETH: "0xa668682974E3f121185a3cD94f00322beC674275",
+        }
     },
     "arbitrum": {
         minTxConfirmations: 6,

@@ -4,7 +4,6 @@ import {
   deployFlashLender,
   deployServiceRegistry,
   deployStEth,
-  deployQuoterV2Mock,
   deployWSTETHToUSDOracle,
   deployVault,
   deployWETH,
@@ -143,11 +142,6 @@ async function main() {
   const pythMock = await PythMock.deploy();
   await pythMock.waitForDeployment();
   result.push(['PythMock', await pythMock.getAddress()]);
-
-  // 9. Deploy wstETH/ETH Oracle
-  spinner.text = 'Deploying Uniswap Quoter';
-  const uniQuoter = await deployQuoterV2Mock(serviceRegistry);
-  result.push(['Uniswap Quoter', await uniQuoter.getAddress()]);
 
   spinner.text = 'Deploying wstETH/USD Oracle';
   const oracle = await deployWSTETHToUSDOracle(serviceRegistry, await pythMock.getAddress());
