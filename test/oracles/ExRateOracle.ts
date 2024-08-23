@@ -3,11 +3,10 @@ import { expect } from 'chai';
 import { ethers, network } from 'hardhat';
 import { describeif } from '../common';
 import { time } from '@nomicfoundation/hardhat-network-helpers';
-import { PythFeedNameEnum, feedIds } from '../../constants/pyth';
+import {  feedIds } from '../../constants/pyth';
 import { AbiCoder } from 'ethers';
-import BaseConfig, { ClExRateOracle, NetworkConfig } from '../../constants/network-deploy-config';
-
-import DeployConfig from '../../constants/contracts';
+import BaseConfig from '../../constants/network-deploy-config';
+import { ClExRateOracle, NetworkConfig, OracleNamesEnum } from '../../constants/types';
 
 describeif(network.name === 'hardhat')('Ratio Oracle', function () {
   async function deployFunction() {
@@ -25,7 +24,7 @@ describeif(network.name === 'hardhat')('Ratio Oracle', function () {
 
     const PythOracle = await ethers.getContractFactory('PythOracle');
     const pythOracle = await PythOracle.deploy(
-      feedIds[PythFeedNameEnum.ETH_USD],
+      feedIds[OracleNamesEnum.ETH_USD],
       await pyth.getAddress(),
     );
     await pythOracle.waitForDeployment();
@@ -40,7 +39,7 @@ describeif(network.name === 'hardhat')('Ratio Oracle', function () {
       ['tuple(bytes32, tuple(int64, uint64, int32, uint),  tuple(int64, uint64, int32, uint))'],
       [
         [
-          feedIds[PythFeedNameEnum.ETH_USD],
+          feedIds[OracleNamesEnum.ETH_USD],
           [335300, 0, -2, 1706801584],
           [335300, 0, -2, 1706801584],
         ],
@@ -117,13 +116,13 @@ describeif(network.name === 'base_devnet')('Ratio Oracle', function () {
   async function deployFunction() {
     const config: NetworkConfig = BaseConfig[network.name];
     const PythOracle = await ethers.getContractFactory('PythOracle');
-    const pythOracle = await PythOracle.deploy(feedIds[PythFeedNameEnum.ETH_USD], config.pyth);
+    const pythOracle = await PythOracle.deploy(feedIds[OracleNamesEnum.ETH_USD], config.pyth);
     const ChainLinkExRateOracle = await ethers.getContractFactory('ChainLinkExRateOracle');
 
-    const oracleConfig = config.oracles?.find((pair) => pair.pair == PythFeedNameEnum.WSTETH_USD);
+    const oracleConfig = config.oracles?.find((pair) => pair.name == "wstETH/USD Oracle");
     const oracle = await ChainLinkExRateOracle.deploy(
       await pythOracle.getAddress(),
-      (oracleConfig as ClExRateOracle).clExRateAddress,
+      (oracleConfig as ClExRateOracle).rateAggregator,
     );
     return { oracle };
   }

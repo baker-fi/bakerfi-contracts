@@ -11,14 +11,15 @@ import {
   deploySettings,
 } from '../../scripts/common';
 import { PriceServiceConnection } from '@pythnetwork/price-service-client';
-
-import BaseConfig, {
+import BaseConfig from '../../constants/network-deploy-config';
+import {
   AAVEv3Market,
   MorphoMarket,
   NetworkConfig,
+  OracleNamesEnum,
   StrategyImplementation,
-} from '../../constants/network-deploy-config';
-import { feedIds, PythFeedNameEnum } from '../../constants/pyth';
+} from '../../constants/types';
+import { feedIds } from '../../constants/pyth';
 
 export async function deployMorphoProd() {
   return await deployProd(StrategyImplementation.MORPHO_BLUE_WSTETH_ETH);
@@ -63,7 +64,7 @@ export async function deployProd(type: StrategyImplementation) {
   await deployWSTETHToUSDOracle(serviceRegistry, config.pyth);
 
   await updatePythPrices(
-    [feedIds[PythFeedNameEnum.ETH_USD], feedIds[PythFeedNameEnum.WSTETH_USD]],
+    [feedIds[OracleNamesEnum.ETH_USD], feedIds[OracleNamesEnum.WSTETH_USD]],
     config.pyth,
   );
 

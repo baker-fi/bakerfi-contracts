@@ -1,6 +1,6 @@
 import '@nomicfoundation/hardhat-ethers';
 import { ethers } from 'hardhat';
-import { feeds } from '../constants/network-deploy-config';
+import { pythFeeds } from '../constants/types';
 
 export async function deployFlashLender(serviceRegistry, weth, depositedAmount) {
   const MockFlashLender = await ethers.getContractFactory('MockFlashLender');
@@ -242,7 +242,7 @@ export async function deployPythMock(serviceRegistry) {
 
 export async function deployETHOracle(serviceRegistry, pyth) {
   const oracleContract = await ethers.getContractFactory('PythOracle');
-  const oracle = await oracleContract.deploy(feeds.ETHUSDFeedId, pyth);
+  const oracle = await oracleContract.deploy(pythFeeds.ETHUSDFeedId, pyth);
   await oracle.waitForDeployment();
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from('ETH/USD Oracle')),
@@ -253,7 +253,7 @@ export async function deployETHOracle(serviceRegistry, pyth) {
 
 export async function deployCbETHToUSDOracle(serviceRegistry, pyth) {
   const oracleContract = await ethers.getContractFactory('PythOracle');
-  const oracle = await oracleContract.deploy(feeds.CBETHUSDFeedId, pyth);
+  const oracle = await oracleContract.deploy(pythFeeds.CBETHUSDFeedId, pyth);
   await oracle.waitForDeployment();
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from('cbETH/USD Oracle')),
@@ -265,7 +265,7 @@ export async function deployCbETHToUSDOracle(serviceRegistry, pyth) {
 
 export async function deployWSTETHToUSDOracle(serviceRegistry, pyth) {
   const WSETHToETH = await ethers.getContractFactory('PythOracle');
-  const oracle = await WSETHToETH.deploy(feeds.WSETHUSDFeedId, pyth);
+  const oracle = await WSETHToETH.deploy(pythFeeds.WSETHUSDFeedId, pyth);
   await oracle.waitForDeployment();
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from('wstETH/USD Oracle')),

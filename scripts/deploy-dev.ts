@@ -15,11 +15,14 @@ import {
   deployAAVEv3Strategy,
 } from './common';
 
-import BaseConfig, {
+import {
   AAVEv3Market,
   NetworkConfig,
   StrategyImplementation,
-} from '../constants/network-deploy-config';
+} from '../constants/types';
+
+import BaseConfig from '../constants/network-deploy-config';
+
 import ora from 'ora';
 
 /**

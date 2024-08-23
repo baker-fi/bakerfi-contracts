@@ -1,11 +1,12 @@
 import 'dotenv/config';
 import hre from 'hardhat';
 import { ethers } from 'hardhat';
-import BaseConfig, {
+import BaseConfig from '../constants/network-deploy-config';
+
+import {
   NetworkConfig,
-  OracleRegistryNames,
   StrategyImplementation,
-} from '../constants/network-deploy-config';
+} from '../constants/types';
 import ora from 'ora';
 import { ContractClientWallet } from './lib/contract-client-wallet';
 import { STAGING_ACCOUNTS_PKEYS } from '../constants/test-accounts';
@@ -13,7 +14,6 @@ import { ContractClient } from './lib/contract-client';
 import { ContractClientLedger } from './lib/contract-client-ledger';
 import ContractTree from '../src/contract-blob.json';
 import { TransactionReceipt } from 'ethers';
-import { PythFeedNameEnum, feedIds } from '../constants/pyth';
 
 const networkName = hre.network.name;
 const chainId = BigInt(hre.network.config.chainId ?? 0n);
@@ -213,66 +213,70 @@ async function main() {
 async function deployOracles(
   client: ContractClient<typeof ContractTree>,
   chainId: bigint,
-  config,
+  config: NetworkConfig,
   registryAddress: string,
   spinner,
   result,
 ) {
   const oracles = {};
   for (const oracle of config.oracles) {
-    spinner.text = `Deploying ${oracle.pair} Oracle`;
-    let feedId;
-    let oracleName: OracleRegistryNames | null = null;
-    switch (oracle.pair) {
-      case 'cbETH/USD':
-        feedId = feedIds[PythFeedNameEnum.CBETH_USD];
-        oracleName = 'cbETH/USD Oracle';
-        break;
-      case 'wstETH/USD':
-        feedId = feedIds[PythFeedNameEnum.WSTETH_USD];
-        oracleName = 'wstETH/USD Oracle';
-        break;
-      case 'ETH/USD':
-        feedId = feedIds[PythFeedNameEnum.ETH_USD];
-        oracleName = 'ETH/USD Oracle';
-        break;
-      default:
-        throw Error('Unknow Oracle type');
-    }
-
+    spinner.text = `Deploying ${oracle.name} Oracle`;
     let oracleReceipt;
-    if (chainId == 1n && oracle.pair == 'wstETH/USD') {
-      oracleReceipt = await client.deploy(
-        'CustomExRateOracle',
-        [
-          oracles['ETH/USD'].contractAddress,
-          [config.wstETH, '0x035faf82'], // stEthPerToken
-          18,
-        ],
-        {
+
+    switch (oracle.type) {
+      case 'chainlink':
+        oracleReceipt = await client.deploy('ChainLinkOracle', [
+          oracle.aggregator, 0, 0
+        ], {
           chainId,
           minTxConfirmations: config.minTxConfirmations,
-        },
-      );
-    } else {
-      oracleReceipt = await client.deploy('PythOracle', [feedId, config.pyth], {
-        chainId,
-        minTxConfirmations: config.minTxConfirmations,
-      });
+        });
+        break;
+      case 'pyth':
+        oracleReceipt = await client.deploy('PythOracle', [
+          oracle.feedId, config.pyth
+        ], {
+          chainId,
+          minTxConfirmations: config.minTxConfirmations,
+        });
+        break;
+      case 'clExRate':
+        oracleReceipt = await client.deploy(
+          'ChainLinkExRateOracle',
+          [oracles[oracle.base].contractAddress, oracle.rateAggregator],
+          {
+            chainId,
+            minTxConfirmations: config.minTxConfirmations,
+          },
+        );
+        break;
+      case 'customExRate':
+        oracleReceipt = await client.deploy(
+          'CustomExRateOracle',
+          [oracles[oracle.base].contractAddress, [oracle.target, oracle.callData], 18],
+          {
+            chainId,
+            minTxConfirmations: config.minTxConfirmations,
+          },
+        );
+        break;
+      default:
+        throw Error('Oracle type unrecognized');
     }
-    oracles[oracle.pair] = oracleReceipt;
-    spinner.text = `Registering ${oracle.pair} Oracle`;
+
+    oracles[oracle.name] = oracleReceipt;
+    spinner.text = `Registering ${oracle.name} Oracle`;
     await client.send(
       'ServiceRegistry',
       registryAddress,
       'registerService',
-      [ethers.keccak256(Buffer.from(oracleName)), oracleReceipt?.contractAddress],
+      [ethers.keccak256(Buffer.from(oracle.name)), oracleReceipt?.contractAddress],
       {
         chainId,
         minTxConfirmations: config.minTxConfirmations,
       },
     );
-    result.push([`${oracle.pair} Oracle`, oracleReceipt?.contractAddress, oracleReceipt?.hash]);
+    result.push([`${oracle.name} Oracle`, oracleReceipt?.contractAddress, oracleReceipt?.hash]);
   }
 }
 

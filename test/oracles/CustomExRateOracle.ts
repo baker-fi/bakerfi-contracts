@@ -2,18 +2,15 @@ import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import { expect } from 'chai';
 import { ethers, network } from 'hardhat';
 import { describeif } from '../common';
-import { time } from '@nomicfoundation/hardhat-network-helpers';
-import { PythFeedNameEnum, feedIds } from '../../constants/pyth';
-import { AbiCoder } from 'ethers';
-import BaseConfig, { NetworkConfig } from '../../constants/network-deploy-config';
-
-import DeployConfig from '../../constants/contracts';
+import { feedIds } from '../../constants/pyth';
+import BaseConfig from '../../constants/network-deploy-config';
+import { NetworkConfig, OracleNamesEnum } from '../../constants/types';
 
 describeif(network.name === 'ethereum_devnet')('Custom Exchange Rate Oracle', function () {
   async function deployFunction() {
     const config: NetworkConfig = BaseConfig[network.name];
     const PythOracle = await ethers.getContractFactory('PythOracle');
-    const pythOracle = await PythOracle.deploy(feedIds[PythFeedNameEnum.ETH_USD], config.pyth);
+    const pythOracle = await PythOracle.deploy(feedIds[OracleNamesEnum.ETH_USD], config.pyth);
     const CustomExRateOracle = await ethers.getContractFactory('CustomExRateOracle');
     const oracle = await CustomExRateOracle.deploy(
       await pythOracle.getAddress(),

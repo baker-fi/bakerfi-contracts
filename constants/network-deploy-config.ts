@@ -1,112 +1,5 @@
-import { PythFeedNameEnum } from "./pyth";
-
-export const feeds  = {
-    ETHUSDFeedId: "0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace",
-    CBETHUSDFeedId: "0x15ecddd26d49e1a8f1de9376ebebc03916ede873447c1255d2d5891b92ce5717",
-    WSETHUSDFeedId: "0x6df640f3b8963d8f8358f791f352b8364513f6ab1cca5ed3f1f7b5448980e784"
-};
-
-export type Networks =
-  | "ethereum_devnet"
-  | "base"
-  | "base_devnet"
-  | "optimism_devnet"
-  | "local"
-  | "hardhat"
-  | "arbitrum_devnet"
-  | "arbitrum";
-
-export type OraclePairs = "wstETH/USD" | "cbETH/USD" | "ETH/USD";
-
-export type OracleType = "chainlink" | "pyth" | "clExRate" | "customExRate";
-
-export type OracleRegistryNames =
-  | "wstETH/USD Oracle"
-  | "cbETH/USD Oracle"
-  | "ETH/USD Oracle";
-
-
-export enum StrategyImplementation {
-    AAVE_V3_WSTETH_ETH = "AAVEv3 wstETH/ETH",
-    MORPHO_BLUE_WSTETH_ETH = "Morpho Blue wstETH/ETH",
-};
-
-
-export type Market = {
-    sharesName: string,
-    sharesSymbol: string,
-    collateralToken: string,
-    debtToken: string,
-    collateralOracle: OracleRegistryNames,
-    debtOracle: OracleRegistryNames,
-    swapFeeTier: number,
-}
-
-export type MorphoMarket = Market & {
-    oracle: string,
-    irm: string,
-    lltv: bigint,
-    type: "morpho"
-};
-
-export type AAVEv3Market =  Market & {
-    AAVEEModeCategory: number;
-    type: "aavev3"
-};
-
-export type PythOracle = {
-    pair: OraclePairs,
-    type: "pyth",
-    address: string,
-}
-
-export type ChainLinkOracle = {
-    pair: OraclePairs,
-    type: "chainlink",
-    base: string,
-    address: string,
-}
-
-export type ClExRateOracle = {
-    pair: OraclePairs,
-    type: "clExRate",
-    clExRateAddress: string,
-    base: string,
-    address: string,
-}
-
-export type CustomExRateOracle = {
-    pair: OraclePairs,
-    type: "customExRate",
-    address: string,
-    base?: string,
-    target?: string,
-    callData?: string,
-}
-
-export type Oracle = PythOracle| ChainLinkOracle|ClExRateOracle| CustomExRateOracle;
-
-export type NetworkConfig = {
-    owner: string,
-    uniswapRouter02: string,
-    uniswapQuoter?: string,
-    balancerVault: string,
-    weth: string,
-    wstETH: string;
-    stETH?: string;
-    minTxConfirmations: number;
-    oracles: Oracle[],
-    markets:{
-        [key: string]: MorphoMarket | AAVEv3Market
-    },
-    morpho?: string;
-    AAVEPool?: string,
-    pyth: string,
-};
-
-export type DeployConfig = {
-    [key in Networks]?: NetworkConfig;
-};
+import { feedIds } from "./pyth";
+import { DeployConfig, OracleNamesEnum, StrategyImplementation } from "./types";
 
 const Config: DeployConfig = {
     "base": {
@@ -118,14 +11,15 @@ const Config: DeployConfig = {
         weth: "0x4200000000000000000000000000000000000006", // Validated
         wstETH: "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452", // Validated
         oracles: [{
-            pair: PythFeedNameEnum.ETH_USD,
+            name: "ETH/USD Oracle",
             type: "pyth",
+            feedId: feedIds[OracleNamesEnum.ETH_USD],
             address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
         }, {
-            pair: PythFeedNameEnum.WSTETH_USD,
             type: "clExRate",
-            clExRateAddress: "0xB88BAc61a4Ca37C43a3725912B1f472c9A5bc061",
-            base: PythFeedNameEnum.ETH_USD,
+            name: "wstETH/USD Oracle",
+            rateAggregator: "0xB88BAc61a4Ca37C43a3725912B1f472c9A5bc061",
+            base: "ETH/USD Oracle",
             address: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4"
         }],
         markets: {
@@ -168,17 +62,17 @@ const Config: DeployConfig = {
         weth: "0x4200000000000000000000000000000000000006", // Validated
         wstETH: "0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452", // Validated
         oracles: [{
-            pair: PythFeedNameEnum.ETH_USD,
+            name: "ETH/USD Oracle",
             type: "pyth",
+            feedId: feedIds[OracleNamesEnum.ETH_USD],
             address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
         }, {
-            pair: PythFeedNameEnum.WSTETH_USD,
             type: "clExRate",
-            clExRateAddress: "0xB88BAc61a4Ca37C43a3725912B1f472c9A5bc061",
-            base: PythFeedNameEnum.ETH_USD,
+            name: "wstETH/USD Oracle",
+            rateAggregator: "0xB88BAc61a4Ca37C43a3725912B1f472c9A5bc061",
+            base: "ETH/USD Oracle",
             address: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4"
         }],
-
         markets: {
             [StrategyImplementation.AAVE_V3_WSTETH_ETH]: {
                 sharesName: "AAVEv3 Bread ETH",
@@ -220,13 +114,15 @@ const Config: DeployConfig = {
         pyth: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4",
         stETH: "0x07C1F45Dc0a620E6716d8A45485B8f0A79E270F8",
         oracles: [{
-            pair:PythFeedNameEnum.WSTETH_USD,
+            name: "wstETH/USD Oracle",
             type: "pyth",
-            address: "0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4"
+            feedId: feedIds[OracleNamesEnum.WSTETH_USD],
+            address: ""
         }, {
-            pair: PythFeedNameEnum.ETH_USD,
+            name: "ETH/USD Oracle",
             type: "pyth",
-            address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
+            feedId: feedIds[OracleNamesEnum.ETH_USD],
+            address: ""
         }],
         markets: {
             [StrategyImplementation.AAVE_V3_WSTETH_ETH]: {
@@ -253,14 +149,15 @@ const Config: DeployConfig = {
         weth: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1", // Validated
         wstETH: "0x5979D7b546E38E414F7E9822514be443A4800529", // Validated
         oracles: [{
-            pair: PythFeedNameEnum.ETH_USD,
+            name: "ETH/USD Oracle",
             type: "pyth",
-            address: "0x501F860caE70FA5058f1D33458F6066fdB62A591"
+            feedId: feedIds[OracleNamesEnum.ETH_USD],
+            address: ""
         }, {
-            pair: PythFeedNameEnum.WSTETH_USD,
             type: "clExRate",
-            base: PythFeedNameEnum.ETH_USD,
-            clExRateAddress: "0xB88BAc61a4Ca37C43a3725912B1f472c9A5bc061",
+            name: "wstETH/USD Oracle",
+            rateAggregator: "0xB1552C5e96B312d0Bf8b554186F846C40614a540",
+            base: "ETH/USD Oracle",
             address: ""
         }],
         markets: {
@@ -289,14 +186,15 @@ const Config: DeployConfig = {
         weth: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1", // Validated
         wstETH: "0x5979D7b546E38E414F7E9822514be443A4800529", // Validated
         oracles: [{
-            pair: PythFeedNameEnum.ETH_USD,
+            name: "ETH/USD Oracle",
             type: "pyth",
-            address: "å"
+            feedId: feedIds[OracleNamesEnum.ETH_USD],
+            address: ""
         }, {
-            pair: PythFeedNameEnum.WSTETH_USD,
             type: "clExRate",
-            base: PythFeedNameEnum.ETH_USD,
-            clExRateAddress: "0xB88BAc61a4Ca37C43a3725912B1f472c9A5bc061",
+            name: "wstETH/USD Oracle",
+            rateAggregator: "0xB1552C5e96B312d0Bf8b554186F846C40614a540",
+            base: "ETH/USD Oracle",
             address: ""
         }],
         markets: {
@@ -350,14 +248,14 @@ const Config: DeployConfig = {
         wstETH: "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
         morpho: "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb",
         oracles: [ {
-            pair: PythFeedNameEnum.ETH_USD,
+            name: "ETH/USD Oracle",
             type: "chainlink",
-            base: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
+            aggregator: "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
             address: "" // Deploy Adress
         },{
-            pair: PythFeedNameEnum.WSTETH_USD,
+            name: "wstETH/USD Oracle",
             type: 'customExRate',
-            base: PythFeedNameEnum.ETH_USD,
+            base: "ETH/USD Oracle",
             target: "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",  // wstETH Contract
             callData: "0x035faf82", // stEthPerToken Selector,
             address: "",

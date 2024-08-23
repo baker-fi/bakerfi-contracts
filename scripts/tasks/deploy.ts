@@ -3,7 +3,6 @@ import { task } from 'hardhat/config';
 import DeployConfig from '../../constants/contracts';
 import NetworkConfig from '../../constants/network-deploy-config';
 import { getClient } from './common';
-import { feedIds, PythFeedNameEnum } from '../../constants/pyth';
 
 task('deploy:oracle:wstEthToUsdRatio', 'Deploy an oracle with Exchange Ratio').setAction(
   async ({}, { ethers, network, run }) => {

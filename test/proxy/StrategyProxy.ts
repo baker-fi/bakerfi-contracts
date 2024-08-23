@@ -14,11 +14,8 @@ import {
   deployQuoterV2Mock,
 } from '../../scripts/common';
 
-import BaseConfig, {
-  AAVEv3Market,
-  NetworkConfig,
-  StrategyImplementation,
-} from '../../constants/network-deploy-config';
+import BaseConfig from '../../constants/network-deploy-config';
+import { AAVEv3Market, NetworkConfig, StrategyImplementation } from '../../constants/types';
 
 describeif(network.name === 'hardhat')('Strategy Proxy', function () {
   async function deployFunction() {

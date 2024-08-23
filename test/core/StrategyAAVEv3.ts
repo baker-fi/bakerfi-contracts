@@ -16,11 +16,12 @@ import {
 } from '../../scripts/common';
 
 import { describeif } from '../common';
-import BaseConfig, {
+import BaseConfig from '../../constants/network-deploy-config';
+import {
   AAVEv3Market,
   NetworkConfig,
   StrategyImplementation,
-} from '../../constants/network-deploy-config';
+} from '../../constants/types';
 
 /**
  * StrategyAAVEv3 Unit Tests

@@ -15,11 +15,12 @@ import {
   deployQuoterV2Mock,
   deployAAVEv3Strategy,
 } from '../../scripts/common';
-import BaseConfig, {
+import {
   AAVEv3Market,
   NetworkConfig,
   StrategyImplementation,
-} from '../../constants/network-deploy-config';
+} from '../../constants/types';
+import BaseConfig from '../../constants/network-deploy-config';
 import { time } from '@nomicfoundation/hardhat-network-helpers';
 import { anyValue } from '@nomicfoundation/hardhat-chai-matchers/withArgs';
 
