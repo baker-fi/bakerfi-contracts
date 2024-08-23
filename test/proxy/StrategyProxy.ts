@@ -11,7 +11,6 @@ import {
   deployOracleMock,
   deployWETH,
   deploySettings,
-  deployQuoterV2Mock,
 } from '../../scripts/common';
 
 import BaseConfig from '../../constants/network-deploy-config';
@@ -72,7 +71,6 @@ describeif(network.name === 'hardhat')('Strategy Proxy', function () {
     await deployOracleMock(serviceRegistry, 'cbETH/USD Oracle');
     const ethOracle = await deployOracleMock(serviceRegistry, 'ETH/USD Oracle');
     await ethOracle.setLatestPrice(ethers.parseUnits('1', 18));
-    await deployQuoterV2Mock(serviceRegistry);
 
     const StrategyLeverageAAVEv3 = await ethers.getContractFactory('StrategyLeverageAAVEv3');
     const strategyLogic = await StrategyLeverageAAVEv3.deploy();

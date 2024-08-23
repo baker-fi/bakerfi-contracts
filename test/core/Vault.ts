@@ -1269,7 +1269,6 @@ async function deployFunction() {
   await ethOracle.setLatestPrice(ethers.parseUnits('2305', 18));
   await oracle.setDecimals(18);
   await ethOracle.setDecimals(18);
-  await deployQuoterV2Mock(serviceRegistry);
 
   const { proxy: proxyStrategy } = await deployAAVEv3Strategy(
     owner.address,
