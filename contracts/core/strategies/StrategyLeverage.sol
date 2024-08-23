@@ -60,12 +60,12 @@ import { MathLibrary } from "../../libraries/MathLibrary.sol";
  * conversion between debt token and the collateral , to integrate a money market
  */
 abstract contract StrategyLeverage is
-  StrategyLeverageSettings,
   IStrategyLeverage,
   IERC3156FlashBorrowerUpgradeable,
+  StrategyLeverageSettings,
+  ReentrancyGuardUpgradeable,
   UseSwapper,
   UseFlashLender,
-  ReentrancyGuardUpgradeable,
   UseLeverage,
   UseSettings
 {
