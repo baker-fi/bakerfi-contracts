@@ -22,11 +22,11 @@ import { MathLibrary } from "../../libraries/MathLibrary.sol";
  *
  * The Collateral could be cbETH, wstETH, rETH against and the debt is an ERC20 (example: ETH)
  *
- * The strategy inherits all the business logic from StrategyAAVEv3Base
+ * The strategy inherits all the business logic from StrategyLeverage
  * and could be deployed on Optimism, Arbitrum , Base and Ethereum or any L2 with AAVE markets
  *
  */
-contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
+contract StrategyLeverageAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
   using SafeERC20 for ERC20;
   using AddressUpgradeable for address;
   using AddressUpgradeable for address payable;

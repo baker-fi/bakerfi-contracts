@@ -74,13 +74,13 @@ describeif(network.name === 'hardhat')('Strategy Proxy', function () {
     await ethOracle.setLatestPrice(ethers.parseUnits('1', 18));
     await deployQuoterV2Mock(serviceRegistry);
 
-    const StrategyAAVEv3 = await ethers.getContractFactory('StrategyAAVEv3');
-    const strategyLogic = await StrategyAAVEv3.deploy();
+    const StrategyLeverageAAVEv3 = await ethers.getContractFactory('StrategyLeverageAAVEv3');
+    const strategyLogic = await StrategyLeverageAAVEv3.deploy();
 
     const proxyDeployment = await BakerFiProxy.deploy(
       await strategyLogic.getAddress(),
       await proxyAdmin.getAddress(),
-      StrategyAAVEv3.interface.encodeFunctionData('initialize', [
+      StrategyLeverageAAVEv3.interface.encodeFunctionData('initialize', [
         owner.address,
         owner.address,
         serviceRegistryAddress,
@@ -94,7 +94,7 @@ describeif(network.name === 'hardhat')('Strategy Proxy', function () {
       ]),
     );
     await proxyDeployment.waitForDeployment();
-    const strategyProxy = await StrategyAAVEv3.attach(await proxyDeployment.getAddress());
+    const strategyProxy = await StrategyLeverageAAVEv3.attach(await proxyDeployment.getAddress());
     return {
       owner,
       otherAccount,

@@ -87,14 +87,14 @@ export async function deployAAVEv3Strategy(
   emodeCategory: number,
   proxyAdmin?: any,
 ) {
-  const StrategyAAVEv3 = await ethers.getContractFactory('StrategyAAVEv3');
-  const strategy = await StrategyAAVEv3.deploy();
+  const StrategyLeverageAAVEv3 = await ethers.getContractFactory('StrategyLeverageAAVEv3');
+  const strategy = await StrategyLeverageAAVEv3.deploy();
   await strategy.waitForDeployment();
   const BakerFiProxy = await ethers.getContractFactory('BakerFiProxy');
   const proxy = await BakerFiProxy.deploy(
     await strategy.getAddress(),
     await proxyAdmin.getAddress(),
-    StrategyAAVEv3.interface.encodeFunctionData('initialize', [
+    StrategyLeverageAAVEv3.interface.encodeFunctionData('initialize', [
       owner,
       governor,
       serviceRegistry,

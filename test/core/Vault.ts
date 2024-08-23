@@ -1285,7 +1285,7 @@ async function deployFunction() {
     proxyAdmin,
   );
 
-  const pStrategy = await ethers.getContractAt('StrategyAAVEv3', await proxyStrategy.getAddress());
+  const pStrategy = await ethers.getContractAt('StrategyLeverageAAVEv3', await proxyStrategy.getAddress());
 
   const { proxy } = await deployVault(
     owner.address,

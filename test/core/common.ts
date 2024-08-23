@@ -151,7 +151,7 @@ export async function deployProd(type: StrategyImplementation) {
   );
 
   const strategyProxy = await ethers.getContractAt(
-    'StrategyAAVEv3',
+    'StrategyLeverageAAVEv3',
     await strategyProxyDeploy.getAddress(),
   );
   const vaultProxy = await ethers.getContractAt('Vault', await vaultProxyDeploy.getAddress());

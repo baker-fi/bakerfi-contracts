@@ -84,7 +84,7 @@ async function main() {
   switch (strategy) {
     case StrategyImplementation.AAVE_V3_WSTETH_ETH:
       strategyConfig = config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH];
-      strategyContract = 'StrategyAAVEv3';
+      strategyContract = 'StrategyLeverageAAVEv3';
 
       strategyAddress = await deployProxyContract(
         app,

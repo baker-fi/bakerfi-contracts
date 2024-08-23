@@ -21,7 +21,7 @@ task('deploy:oracle:wstEthToUsdRatio', 'Deploy an oracle with Exchange Ratio').s
         },
       );
       await app?.send(
-        'StrategyAAVEv3',
+        'StrategyLeverageAAVEv3',
         deployConfig.strategyProxy,
         'setCollateralOracle',
         [oracle.contractAddress],
@@ -74,7 +74,7 @@ task('deploy:upgrade:strategy', 'Upgrade the settings Contract').setAction(
     const spinner = ora(`Upgrading strategy Contract`).start();
     try {
       let app = await getClient(ethers);
-      const stratReceipt = await app?.deploy('StrategyAAVEv3', [], {
+      const stratReceipt = await app?.deploy('StrategyLeverageAAVEv3', [], {
         chainId: BigInt(network.config.chainId ?? 0),
       });
       await app?.send(

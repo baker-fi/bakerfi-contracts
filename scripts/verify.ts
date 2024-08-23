@@ -62,7 +62,7 @@ async function main() {
     constructorArguments: [],
   });
   console.log('Verifying Strategy Proxy');
-  const strategyFactory = await hre.ethers.getContractFactory('StrategyAAVEv3');
+  const strategyFactory = await hre.ethers.getContractFactory('StrategyLeverageAAVEv3');
   await hre.run('verify:verify', {
     address: deployConfig.strategyProxy,
     contract: 'contracts/proxy/BakerFiProxy.sol:BakerFiProxy',

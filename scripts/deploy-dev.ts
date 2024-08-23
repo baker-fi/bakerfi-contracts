@@ -158,7 +158,7 @@ async function main() {
   result.push(['ETH/USD Oracle', await ethOracle.getAddress()]);
 
   // Deploying Proxied Strategy
-  spinner.text = 'Deploying StrategyAAVEv3WstETH';
+  spinner.text = 'Deploying StrategyLeverageAAVEv3WstETH';
   const { strategy, proxy: strategyProxy } = await deployAAVEv3Strategy(
     owner.address,
     owner.address,
@@ -198,7 +198,7 @@ async function main() {
 
   spinner.text = 'Transferring Vault Ownership';
   const strategyProxied = await ethers.getContractAt(
-    'StrategyAAVEv3',
+    'StrategyLeverageAAVEv3',
     await (strategyProxy as any).getAddress(),
   );
   await strategyProxied.transferOwnership(vaultProxy);
