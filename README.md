@@ -8,7 +8,7 @@ BakerFi is a DeFi protocol that unlocks higher yields with flexible, low-risk st
 * Liquidation Protection
 * Easy to Use Interface
 * Leverage based on Flash Loans
-* Liquid Yield Shares matETH
+* Liquid Yield Shares brETH
 * Proxied Deployment for Settings, Vault and Strategies
 
 ## Integrations
@@ -31,7 +31,7 @@ Before getting started with this project, make sure you have the following prere
 1. Clone the project repository to your local machine:
 
 ```
-git clone https://github.com/hvasconcelos/bakerfi
+git clone https://github.com/your_username/bakerfi
 ```
 
 2. Navigate to the project directory:
@@ -190,8 +190,8 @@ Please make sure to update tests as appropriate.
 
 ## TODO
 
-* BKR - Baker Governance Tokn Setup
-* Governor - Controlled by BRK Holders
+* BKR - Baker Governance Token Setup
+* Governor - Controlled by BKR Holders
 
 
 
