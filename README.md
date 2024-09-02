@@ -1,4 +1,4 @@
-# Bakerfi Smart Contracts
+# BakerFi Smart Contracts
 
 Unlock higher yields with flexible, low-risk strategies that go beyond just ETH staking. Our platform leverages diverse opportunities across liquidity, money markets and defi protocols, allowing you to maximize returns with customized, secure and curated investments.
 
@@ -31,7 +31,7 @@ Before getting started with this project, make sure you have the following prere
 1. Clone the project repository to your local machine:
 
 ```
-git clone https://github.com/hvasconcelos/bakerfi
+git clone https://github.com/your_username/bakerfi
 ```
 
 2. Navigate to the project directory:
@@ -120,7 +120,7 @@ This will start a local Ethereum network with accounts pre-loaded with test Ethe
 npm run deploy:local
 ```
 
-If everything runs sucessfully you should get Bakerfi Vault deployed with some mocked Services for testing purposes
+If everything runs sucessfully you should get BakerFi Vault deployed with some mocked Services for testing purposes
 ```
 Service Registry = 0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e
 WETH = 0xd7630A747b24b7245ff60e3095aD04684dC1a292
@@ -129,8 +129,8 @@ stETH = 0x2C263d29775dC27167c58aB7B18dc6C942c141B0
 wstETH = 0x27F56eb75a1EBbE7e7218e8fCa5FF51E3d655f22
 Swap Router Mock = 0x26A76D21edD8049fd394786976EF578010569FcB
 AAVE v3 Mock = 0x621e8cdBc878Bdda95d0247B71FeBE0a8b2d4EE3
-Vault = 0xE8A1e868E4736669b73B9E26BE22129bD6B4E83d
-AAVEv3 Strategy = 0xC5Dfa3ebaDD8cf122b2b086e3aC28492Da76a0eE
+BakerFi Vault = 0xE8A1e868E4736669b73B9E26BE22129bD6B4E83d
+BakerFi Vault AAVEv3 Strategy = 0xC5Dfa3ebaDD8cf122b2b086e3aC28492Da76a0eE
 WSETH/ETH Oracle = 0xE8F362bF1E066547113981FdaC7c1dDC6949a7Ac
 ...
 ```
@@ -177,8 +177,10 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 Please make sure to update tests as appropriate.
 
-## Important Links
+## Documentation
 
+* [Tasks](TASKS.md)
+* [License](LICENSE)
 * [Hardhat Tasks Documentation](TASKS.md)
 * [Software License](LICENSE)
 * [Release Notes](RELEASE_NOTES.md)

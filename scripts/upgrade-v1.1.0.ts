@@ -49,14 +49,14 @@ async function main() {
     'BakerFiProxyAdmin',
     networkConfig?.proxyAdmin ?? '',
     'upgrade',
-    [networkConfig.settingsProxy, settingsReceipt?.contractAddress],
+    [networkConfig.settingsProxy, settingsReceipt.contractAddress],
     {
       chainId: BigInt(hre.network.config.chainId ?? 0),
       minTxConfirmations: MIN_CONFIRMATIONS,
     },
   );
 
-  result.push(['Settings Instance', settingsReceipt?.contractAddress]);
+  result.push(['Settings Instance', settingsReceipt.contractAddress]);
 
   // 2. Deploying Strategy Instance
 
@@ -73,17 +73,16 @@ async function main() {
     'BakerFiProxyAdmin',
     networkConfig?.proxyAdmin ?? '',
     'upgrade',
-    [networkConfig.strategyProxy, stratReceipt?.contractAddress],
+    [networkConfig.strategyProxy,stratReceipt.contractAddress],
     {
       chainId: BigInt(hre.network.config.chainId ?? 0),
       minTxConfirmations: MIN_CONFIRMATIONS,
     },
   );
 
-  result.push(['Strategy Instance', stratReceipt?.contractAddress]);
+  result.push(['Strategy Instance', stratReceipt.contractAddress]);
 
   // 3. Deploying Vault Instance
-
   spinner.text = `Deploying new  Vault Contract`;
 
   const vaultReceipt = await app?.deploy('Vault', [], {
@@ -109,6 +108,32 @@ async function main() {
   );
   result.push(['Vault Instance', vaultReceipt?.contractAddress]);
 
+  spinner.text = `Setting Collarateral Oracle`;
+  // Upgrade ETH/USD and WSTETH/USD ORacles
+  await app?.send(
+    'StrategyAAVEv3',
+    networkConfig?.strategyProxy ?? '',
+    'setCollateralOracle',
+    [networkConfig.wstETHUSDOracle],
+    {
+      chainId: BigInt(hre.network.config.chainId ?? 0),
+      minTxConfirmations: MIN_CONFIRMATIONS,
+    },
+  );
+  result.push(['Collateral Oracle', networkConfig.wstETHUSDOracle]);
+
+  spinner.text = `Setting Debt Oracle`;
+  await app?.send(
+    'StrategyAAVEv3',
+    networkConfig?.strategyProxy ?? '',
+    'setDebtOracle',
+    [networkConfig.ethUSDOracle],
+    {
+      chainId: BigInt(hre.network.config.chainId ?? 0),
+      minTxConfirmations: MIN_CONFIRMATIONS,
+    },
+  );
+  result.push(['Debt Oracle', networkConfig.ethUSDOracle]);
   spinner.succeed('🧑‍🍳 BakerFi Served 🍰 ');
   console.table(result);
   process.exit(0);

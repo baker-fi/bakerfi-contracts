@@ -1,103 +1,103 @@
-import DeployConfig from '../constants/contracts';
+import DeployConfig, { BakerDeployConfig } from '../constants/contracts';
 import NetworkDeployConfig from '../constants/network-deploy-config';
 import hre from 'hardhat';
 import { feedIds, PythFeedNameEnum } from '../constants/pyth';
 
 async function main() {
   const networkName = hre.network.name;
-  const networkConfig = DeployConfig[networkName];
-  const deployConfig = NetworkDeployConfig[networkName];
+  const deployConfig: BakerDeployConfig = DeployConfig[networkName];
+  const networkConfig = NetworkDeployConfig[networkName];
 
   console.log('Verifying Service Registry');
   await hre.run('verify:verify', {
-    address: networkConfig.serviceRegistry,
-    constructorArguments: [deployConfig.owner],
+    address: deployConfig.serviceRegistry,
+    constructorArguments: [networkConfig.owner],
   });
   console.log('Verifying Proxy Admin');
   // Verifying Proxy Admin
   await hre.run('verify:verify', {
     contract: 'contracts/proxy/BakerFiProxyAdmin.sol:BakerFiProxyAdmin',
-    address: networkConfig.proxyAdmin,
-    constructorArguments: [deployConfig.owner],
+    address: deployConfig.proxyAdmin,
+    constructorArguments: [networkConfig.owner],
   });
   console.log('Verifying Flash Lender');
   // Verifying Proxy Admin
   await hre.run('verify:verify', {
-    address: networkConfig.flashLender,
-    constructorArguments: [networkConfig.serviceRegistry],
+    address: deployConfig.flashLender,
+    constructorArguments: [deployConfig.serviceRegistry],
   });
   console.log('Verifying wstETH/USD Oracle ');
   // Verifying Proxy Admin
   await hre.run('verify:verify', {
-    address: networkConfig.wstETHUSDOracle,
-    constructorArguments: [feedIds[PythFeedNameEnum.WSTETH_USD], deployConfig.pyth],
+    address: deployConfig.wstETHUSDOracle,
+    constructorArguments: [deployConfig.ethUSDOracle, networkConfig.wstETHToETHExRatio],
   });
   console.log('Verifying ETH/USD Oracle ');
   // Verifying Proxy Admin
   await hre.run('verify:verify', {
-    address: networkConfig.ethUSDOracle,
-    constructorArguments: [feedIds[PythFeedNameEnum.ETH_USD], deployConfig.pyth],
+    address: deployConfig.ethUSDOracle,
+    constructorArguments: [feedIds[PythFeedNameEnum.ETH_USD], networkConfig.pyth],
   });
   console.log('Verifying Settings');
   await hre.run('verify:verify', {
-    address: networkConfig.settings,
+    address: deployConfig.settings,
     constructorArguments: [],
   });
 
   console.log('Verifying Settings Proxy');
   const settingsFactory = await hre.ethers.getContractFactory('Settings');
   await hre.run('verify:verify', {
-    address: networkConfig.settingsProxy,
+    address: deployConfig.settingsProxy,
     contract: 'contracts/proxy/BakerFiProxy.sol:BakerFiProxy',
     constructorArguments: [
-      networkConfig.settings,
-      networkConfig.proxyAdmin,
-      settingsFactory.interface.encodeFunctionData('initialize', [deployConfig.owner]),
+      deployConfig.settings,
+      deployConfig.proxyAdmin,
+      settingsFactory.interface.encodeFunctionData('initialize', [networkConfig.owner]),
     ],
   });
   console.log('Verifying Strategy');
   await hre.run('verify:verify', {
-    address: networkConfig.strategy,
+    address: deployConfig.strategy,
     constructorArguments: [],
   });
   console.log('Verifying Strategy Proxy');
   const strategyFactory = await hre.ethers.getContractFactory('StrategyAAVEv3');
   await hre.run('verify:verify', {
-    address: networkConfig.strategyProxy,
+    address: deployConfig.strategyProxy,
     contract: 'contracts/proxy/BakerFiProxy.sol:BakerFiProxy',
     constructorArguments: [
-      networkConfig.settings,
-      networkConfig.proxyAdmin,
+      deployConfig.settings,
+      deployConfig.proxyAdmin,
       strategyFactory.interface.encodeFunctionData('initialize', [
-        deployConfig.owner,
-        deployConfig.owner,
-        networkConfig.serviceRegistry,
+        networkConfig.owner,
+        networkConfig.owner,
+        deployConfig.serviceRegistry,
         hre.ethers.keccak256(Buffer.from('wstETH')),
         hre.ethers.keccak256(Buffer.from('wstETH/USD Oracle')),
-        deployConfig.swapFeeTier,
-        deployConfig.AAVEEModeCategory,
+        networkConfig.swapFeeTier,
+        networkConfig.AAVEEModeCategory,
       ]),
     ],
   });
   console.log('Verifying Strategy');
   await hre.run('verify:verify', {
-    address: networkConfig.vault,
+    address: deployConfig.vault,
     constructorArguments: [],
   });
   console.log('Verifying Vault Proxy');
   const vaultFactory = await hre.ethers.getContractFactory('Vault');
   await hre.run('verify:verify', {
-    address: networkConfig.vaultProxy,
+    address: deployConfig.vaultProxy,
     contract: 'contracts/proxy/BakerFiProxy.sol:BakerFiProxy',
     constructorArguments: [
-      networkConfig.vault,
-      networkConfig.proxyAdmin,
+      deployConfig.vault,
+      deployConfig.proxyAdmin,
       vaultFactory.interface.encodeFunctionData('initialize', [
-        deployConfig.owner,
+        networkConfig.owner,
         'AAVEv3 Bread ETH',
         'AAVEv3brETH',
-        networkConfig.serviceRegistry,
-        networkConfig.strategyProxy,
+        deployConfig.serviceRegistry,
+        deployConfig.strategyProxy,
       ]),
     ],
   });
