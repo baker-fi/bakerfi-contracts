@@ -176,4 +176,10 @@ contract StrategyLeverageSettings is GovernableOwnable {
     _maxSlippage = slippage;
     emit MaxSlippageChanged(slippage);
   }
+
+  /**
+   * @dev This empty reserved space is put in place to allow future versions to add new
+   * settings without shifting down storage in the inheritance chain.
+   */
+  uint256[25] private __gap;
 }

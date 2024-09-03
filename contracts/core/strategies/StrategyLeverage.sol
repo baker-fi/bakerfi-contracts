@@ -9,17 +9,13 @@ import { SafeERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/
 import { PERCENTAGE_PRECISION } from "../Constants.sol";
 import { IOracle } from "../../interfaces/core/IOracle.sol";
 import { ISwapHandler } from "../../interfaces/core/ISwapHandler.sol";
-import { IStrategy } from "../../interfaces/core/IStrategy.sol";
+import { IStrategyLeverage } from "../../interfaces/core/IStrategyLeverage.sol";
 import { UseLeverage } from "../hooks/UseLeverage.sol";
-import { UseUniQuoter } from "../hooks/UseUniQuoter.sol";
 import { UseSettings } from "../hooks/UseSettings.sol";
-import { UseWETH } from "../hooks/UseWETH.sol";
 import { UseFlashLender } from "../hooks/UseFlashLender.sol";
 import { UseSwapper } from "../hooks/UseSwapper.sol";
-import { UseIERC20 } from "../hooks/UseIERC20.sol";
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import { AddressUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
-import { ETH_USD_ORACLE_CONTRACT } from "../ServiceRegistry.sol";
 import { StrategyLeverageSettings } from "./StrategyLeverageSettings.sol";
 import { MathLibrary } from "../../libraries/MathLibrary.sol";
 
@@ -29,14 +25,14 @@ import { MathLibrary } from "../../libraries/MathLibrary.sol";
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
  *
- * @dev This contract implements a strategy and could be used to deploy ETH on a AAVE with
+ * @dev This contract implements a strategy and could be used to deploy a ERC-20 on a AAVE with
  * the a recursive staking strategy and receive an amplified yield
  *
  * The Strategy interacts with :
  *
  * ✅ BalancerFlashLender to request a flash loan from Balancer
- * ✅ Uniswap to convert from collateral token to WETH
- * ✅ Uniswap Quoter to reqques a precise price token
+ * ✅ Uniswap to convert from collateral token to debt token
+ * ✅ Uniswap Quoter to request a precise price token
  * ✅ AAVE as the lending/borrow market
  *
  * The APY of this strategy depends on the followwin factors:
@@ -47,37 +43,34 @@ import { MathLibrary } from "../../libraries/MathLibrary.sol";
  *  ✅ Number of Loops on the recursive Strategy
  *
  *  Flow Deposit:
- *  1) Deploy X amount of ETH
- *  2) Borrow Y Amount of ETH
+ *  1) Deploy X amount of ETH/ERC20
+ *  2) Borrow Y Amount of ETH/ERC20
  *  3) Deposit X+Y amount of Collateral in AAVE
- *  4) Borrow Y ETH From AAVE to pay the flash loan
+ *  4) Borrow Y ETH/ERC20 From AAVE to pay the flash loan
  *  5) Ends up with X+Y Amount of Collateral and Y of Debt
- *
- *  LeverageRatio = LeverageFunc(numberOfLoops, LTV)
- *  APY ~=  LidoAPY - (LidoAPY-AAVE_Borrow_Rate)*(1-leverateRatio);
  *
  *  This strategy could work for
  *  rETH/WETH
- *  awstETH/WETH
+ *  wstETH/WETH
+ *  sUSD/DAI
+ *
+ *  ...
  *
  * @notice The Contract is abstract and needs to be extended to implement the
- * conversion between WETH and the collateral
+ * conversion between debt token and the collateral , to integrate a money market
  */
 abstract contract StrategyLeverage is
   StrategyLeverageSettings,
-  IStrategy,
+  IStrategyLeverage,
   IERC3156FlashBorrowerUpgradeable,
-  UseWETH,
-  UseIERC20,
   UseSwapper,
   UseFlashLender,
-  UseUniQuoter,
   ReentrancyGuardUpgradeable,
   UseLeverage,
   UseSettings
 {
   enum FlashLoanAction {
-    SUPPLY_BOORROW,
+    SUPPLY_BORROW,
     PAY_DEBT_WITHDRAW,
     PAY_DEBT
   }
@@ -96,6 +89,8 @@ abstract contract StrategyLeverage is
   using MathLibrary for uint256;
 
   error InvalidOwner();
+  error InvalidDebtToken();
+  error InvalidCollateralToken();
   error InvalidDebtOracle();
   error InvalidCollateralOracle();
   error InvalidDeployAmount();
@@ -111,15 +106,24 @@ abstract contract StrategyLeverage is
   error ETHTransferNotAllowed(address sender);
   error FailedToApproveAllowance();
   error FailedToAuthenticateArgs();
+  error InvalidFlashLoanAction();
 
-  uint256 internal _pendingAmount = 0;
-  uint256 private _deployedAmount = 0;
-
+  // Assets in debtToken() Controlled by the strategy that can be unwinded
+  uint256 private _deployedAssets = 0;
+  // Collateral IERC20 Token used on this leverage Position
+  address internal _collateralToken;
+  // Debt IERC20 Token address used on this
+  address internal _debtToken;
+  // Collateral Price Oracle used for balance conversions to USD
   IOracle private _collateralOracle;
-  IOracle private _ethUSDOracle;
+  // Debt Price Oracle used for balance conversions to USD
+  IOracle private _debtOracle;
+  // Swap tier used to convert between Collateral and Debt
   uint24 internal _swapFeeTier;
-
+  // Internal Storaged used for flash loan parameter authentication
   bytes32 private _flashLoanArgsHash = 0;
+  // The Deployed or Undeployed pending amount. Used for internal accounting
+  uint256 private _pendingAmount = 0;
 
   /**
    * @dev Internal function to initialize the AAVEv3 strategy base.
@@ -129,41 +133,57 @@ abstract contract StrategyLeverage is
    *
    * @param initialOwner The address to be set as the initial owner of the AAVEv3 strategy base contract.
    * @param registry The service registry contract address to be used for initialization.
-   * @param collateralIERC20 The hash representing the collateral ERC20 token in the service registry.
-   * @param collateralOracle The hash representing the collateral/ETH oracle in the service registry.
+   * @param collateralToken The hash representing the collateral ERC20 token in the service registry.
+   * @param debtToken The hash representing the collateral/ETH oracle in the service registry.
+   * @param collateralOracle The hash representing the collateral ERC20 token in the service registry.
+   * @param debtOracle The hash representing the collateral/ETH oracle in the service registry.
    * @param swapFeeTier The swap fee tier for Uniswap.
    *
    * Requirements:
    * - The caller must be in the initializing state.
    * - The initial owner address must not be the zero address.
-   * - The ETH/USD oracle and collateral/USD oracle addresses must be valid.
-   * - Approval allowances must be successfully set for WETH and the collateral ERC20 token for UniSwap.
+   * - The debt/USD oracle and collateral/USD oracle addresses must be valid.
+   * - Approval allowances must be successfully set for debt ERC20 and the collateral ERC20 token for UniSwap.
    */
   function _initializeStrategyBase(
     address initialOwner,
     address initialGovernor,
     ServiceRegistry registry,
-    bytes32 collateralIERC20,
+    // Collateral Token Hash registered on service Registry
+    bytes32 collateralToken,
+    bytes32 debtToken,
     bytes32 collateralOracle,
+    bytes32 debtOracle,
     uint24 swapFeeTier
   ) internal onlyInitializing {
     if (initialOwner == address(0)) revert InvalidOwner();
+
     _initLeverageSettings(initialOwner, initialGovernor);
-    _initUseWETH(registry);
-    _initUseIERC20(registry, collateralIERC20);
 
     _initUseSwapper(registry);
     _initUseFlashLender(registry);
-    _initUseUniQuoter(registry);
     _initUseSettings(registry);
-    _collateralOracle = IOracle(registry.getServiceFromHash(collateralOracle));
-    _ethUSDOracle = IOracle(registry.getServiceFromHash(ETH_USD_ORACLE_CONTRACT));
-    _swapFeeTier = swapFeeTier;
-    if (address(_ethUSDOracle) == address(0)) revert InvalidDebtOracle();
-    if (address(_collateralOracle) == address(0)) revert InvalidCollateralOracle();
 
-    if (!wETH().approve(uniRouterA(), 2 ** 256 - 1)) revert FailedToApproveAllowance();
-    if (!ierc20().approve(uniRouterA(), 2 ** 256 - 1)) revert FailedToApproveAllowance();
+    // Find the Tokens on Registry
+    _collateralToken = registry.getServiceFromHash(collateralToken);
+    _debtToken = registry.getServiceFromHash(debtToken);
+
+    // Find the Oracles on the Registry
+    _collateralOracle = IOracle(registry.getServiceFromHash(collateralOracle));
+    _debtOracle = IOracle(registry.getServiceFromHash(debtOracle));
+
+    _swapFeeTier = swapFeeTier;
+
+    if (_collateralToken == address(0)) revert InvalidCollateralToken();
+    if (_debtToken == address(0)) revert InvalidDebtToken();
+
+    if (address(_collateralOracle) == address(0)) revert InvalidCollateralOracle();
+    if (address(_debtOracle) == address(0)) revert InvalidDebtOracle();
+
+    if (!IERC20Upgradeable(_collateralToken).approve(uniRouterA(), 2 ** 256 - 1))
+      revert FailedToApproveAllowance();
+    if (!IERC20Upgradeable(_debtToken).approve(uniRouterA(), 2 ** 256 - 1))
+      revert FailedToApproveAllowance();
   }
 
   /**
@@ -175,18 +195,19 @@ abstract contract StrategyLeverage is
    *  It allows the contract to accept incoming Ether fromn the WETH contract
    */
   receive() external payable {
-    if (msg.sender != wETHA()) revert ETHTransferNotAllowed(msg.sender);
+    if (msg.sender != _debtToken && msg.sender != _collateralToken)
+      revert ETHTransferNotAllowed(msg.sender);
   }
 
   /**
    * @dev Retrieves the position details including total collateral, total debt, and loan-to-value ratio.
    *
-   * This function is externally callable and returns the total collateral in Ether, total debt in Ether,
+   * This function is externally callable and returns the total collateral in Ether, total debt in USD,
    * and the loan-to-value ratio for the AAVEv3 strategy.
    *
-   * @return totalCollateralInEth The total collateral in Ether.
-   * @return totalDebtInEth The total debt in Ether.
-   * @return loanToValue The loan-to-value ratio calculated as (totalDebtInEth * PERCENTAGE_PRECISION) / totalCollateralInEth.
+   * @return totalCollateralInUSD The total collateral in USD.
+   * @return totalDebtInUSD The total debt in USD.
+   * @return loanToValue The loan-to-value ratio calculated as (totalDebtInUSD * PERCENTAGE_PRECISION) / totalCollateralInUSD.
    *
    * Requirements:
    * - The AAVEv3 strategy must be properly configured and initialized.
@@ -196,34 +217,35 @@ abstract contract StrategyLeverage is
   )
     external
     view
-    returns (uint256 totalCollateralInEth, uint256 totalDebtInEth, uint256 loanToValue)
+    returns (uint256 totalCollateralInUSD, uint256 totalDebtInUSD, uint256 loanToValue)
   {
-    (totalCollateralInEth, totalDebtInEth) = _getPosition(priceOptions);
-    if (totalCollateralInEth == 0) {
+    (totalCollateralInUSD, totalDebtInUSD) = _getPosition(priceOptions);
+    if (totalCollateralInUSD == 0) {
       loanToValue = 0;
     } else {
-      loanToValue = (totalDebtInEth * PERCENTAGE_PRECISION) / totalCollateralInEth;
+      loanToValue = (totalDebtInUSD * PERCENTAGE_PRECISION) / totalCollateralInUSD;
     }
   }
 
   /**
-   * @dev Retrieves the total owned assets by the Strategy in ETH
+   * @dev Retrieves the total owned assets by the Strategy in USD
    *
-   * This function is externally callable and returns the total owned assets in Ether, calculated as the difference
+   * This function is externally callable and returns the total owned assets in USD, calculated as the difference
    * between total collateral and total debt. If the total collateral is less than or equal to the total debt, the
    * total owned assets is set to 0.
    *
-   * @return totalOwnedAssets The total owned assets in Ether.
+   * @return totalOwnedAssetsInDebt The total owned assets in Debt Token
    *
    * Requirements:
    * - The AAVEv3 strategy must be properly configured and initialized.
    */
-  function deployed(
+  function totalAssets(
     IOracle.PriceOptions memory priceOptions
-  ) public view returns (uint256 totalOwnedAssets) {
-    (uint256 totalCollateralInEth, uint256 totalDebtInEth) = _getPosition(priceOptions);
-    totalOwnedAssets = totalCollateralInEth > totalDebtInEth
-      ? (totalCollateralInEth - totalDebtInEth)
+  ) public view returns (uint256 totalOwnedAssetsInDebt) {
+    (uint256 totalCollateral, uint256 totalDebt) = getBalances();
+    uint256 totalCollateralInDebt = _toDebt(priceOptions, totalCollateral, false);
+    totalOwnedAssetsInDebt = totalCollateralInDebt > totalDebt
+      ? (totalCollateralInDebt - totalDebt)
       : 0;
   }
 
@@ -231,8 +253,8 @@ abstract contract StrategyLeverage is
    * @dev Deploys funds in the AAVEv3 strategy
    *
    * This function is externally callable only by the owner, and it involves the following steps:
-   * 1. Wraps the received Ether into WETH.
-   * 2. Initiates a WETH flash loan to leverage the deposited amount.
+   * 1. Transfer the Debt Token to the Strategy
+   * 2. Initiates a Debt Token flash loan to leverage the deposited amount.
    *
    * @return deployedAmount The amount deployed in the AAVEv3 strategy after leveraging.
    *
@@ -242,31 +264,45 @@ abstract contract StrategyLeverage is
    * - The AAVEv3 strategy must be properly configured and initialized.
    */
   function deploy(uint256 amount) external onlyOwner nonReentrant returns (uint256 deployedAmount) {
+    // Ensure a non-zero deployment amount
     if (amount == 0) revert InvalidDeployAmount();
-    // 1. Transfer Assets from the Vault
-    IERC20Upgradeable(wETHA()).safeTransferFrom(msg.sender, address(this), amount);
 
-    // 2. Initiate a WETH Flash Loan
+    // 1. Transfer assets from the vault to the contract
+    IERC20Upgradeable(_debtToken).safeTransferFrom(msg.sender, address(this), amount);
+
+    // 2. Calculate leverage and determine the loan amount needed
     uint256 leverage = _calculateLeverageRatio(amount, getLoanToValue(), getNrLoops());
     uint256 loanAmount = leverage - amount;
-    uint256 fee = flashLender().flashFee(wETHA(), loanAmount);
 
-    if (!wETH().approve(flashLenderA(), loanAmount + fee)) revert FailedToApproveAllowance();
-    bytes memory data = abi.encode(amount, msg.sender, FlashLoanAction.SUPPLY_BOORROW);
-    _flashLoanArgsHash = keccak256(abi.encodePacked(address(this), wETHA(), loanAmount, data));
-    if (
-      !flashLender().flashLoan(IERC3156FlashBorrowerUpgradeable(this), wETHA(), loanAmount, data)
-    ) {
-      _flashLoanArgsHash = 0;
-      revert FailedToRunFlashLoan();
+    // 3. Calculate the flash loan fee for the required loan amount
+    uint256 fee = flashLender().flashFee(_debtToken, loanAmount);
+
+    // 4. Approve the flash lender to spend the loan amount plus fee
+    if (!IERC20Upgradeable(_debtToken).approve(flashLenderA(), loanAmount + fee)) {
+        revert FailedToApproveAllowance();
     }
+
+    // 5. Prepare and authenticate flash loan data
+    bytes memory data = abi.encode(amount, msg.sender, FlashLoanAction.SUPPLY_BORROW);
+    _flashLoanArgsHash = keccak256(abi.encodePacked(address(this), _debtToken, loanAmount, data));
+
+    // 6. Execute the flash loan
+    if (!flashLender().flashLoan(IERC3156FlashBorrowerUpgradeable(this), _debtToken, loanAmount, data)) {
+        _flashLoanArgsHash = 0;
+        revert FailedToRunFlashLoan();
+    }
+
+    // 7. Reset flash loan argument hash and update deployed assets
     _flashLoanArgsHash = 0;
     deployedAmount = _pendingAmount;
-    _deployedAmount = _deployedAmount + deployedAmount;
-    emit StrategyAmountUpdate(_deployedAmount);
-    // Pending amount is not cleared to save gas
-    // _pendingAmount = 0;
-  }
+    _deployedAssets += deployedAmount;
+
+    // 8. Emit an event for the updated strategy amount
+    emit StrategyAmountUpdate(_deployedAssets);
+
+    // 9. Reset the pending amount to zero
+    _pendingAmount = 0;
+}
 
   /**
    * @dev Handles the execution of actions after receiving a flash loan.
@@ -278,7 +314,7 @@ abstract contract StrategyLeverage is
    * The function returns a bytes32 success message after the actions are executed.
    *
    * @param initiator The address that initiated the flash loan.
-   * @param token The address of the token being flash borrowed (should be WETH in this case).
+   * @param token The address of the token being flash borrowed (should be Debt Token in this case).
    * @param amount The total amount of tokens being flash borrowed.
    * @param fee The fee amount associated with the flash loan.
    * @param callData Additional data encoded for specific actions, including the original amount, action type, and receiver address.
@@ -286,7 +322,6 @@ abstract contract StrategyLeverage is
    * Requirements:
    * - The flash loan sender must be the expected flash lender contract.
    * - The initiator must be the contract itself to ensure trust.
-   * - Only WETH flash loans are allowed.
    * - The contract must be properly configured and initialized.
    */
   function onFlashLoan(
@@ -295,29 +330,41 @@ abstract contract StrategyLeverage is
     uint256 amount,
     uint256 fee,
     bytes memory callData
-  ) external returns (bytes32) {
+) external returns (bytes32) {
+    // Validate the flash loan sender
     if (msg.sender != flashLenderA()) revert InvalidFlashLoanSender();
+
+    // Validate the flash loan initiator
     if (initiator != address(this)) revert InvalidLoanInitiator();
-    // Only Allow WETH Flash Loans
-    if (token != wETHA()) revert InvalidFlashLoanAsset();
-    if (_flashLoanArgsHash != keccak256(abi.encodePacked(initiator, token, amount, callData)))
-      revert FailedToAuthenticateArgs();
+
+    // Ensure the token used is the debt token
+    if (token != _debtToken) revert InvalidFlashLoanAsset();
+
+    // Authenticate the provided arguments against the stored hash
+    bytes32 expectedHash = keccak256(abi.encodePacked(initiator, token, amount, callData));
+    if (_flashLoanArgsHash != expectedHash) revert FailedToAuthenticateArgs();
+
+    // Decode the flash loan data
     FlashLoanData memory data = abi.decode(callData, (FlashLoanData));
-    if (data.action == FlashLoanAction.SUPPLY_BOORROW) {
-      _supplyBorrow(data.originalAmount, amount, fee);
-      // Use the Borrowed to pay ETH and deleverage
+
+    // Execute the appropriate action based on the decoded flash loan data
+    if (data.action == FlashLoanAction.SUPPLY_BORROW) {
+        _supplyBorrow(data.originalAmount, amount, fee);
     } else if (data.action == FlashLoanAction.PAY_DEBT_WITHDRAW) {
-      _repayAndWithdraw(data.originalAmount, amount, fee, payable(data.receiver));
+        _repayAndWithdraw(data.originalAmount, amount, fee, payable(data.receiver));
     } else if (data.action == FlashLoanAction.PAY_DEBT) {
-      _payDebt(amount, fee);
+        _payDebt(amount, fee);
+    } else {
+        revert InvalidFlashLoanAction();
     }
+
     return _SUCCESS_MESSAGE;
-  }
+}
   /**
    * @dev Initiates the undeployment of a specified amount, sending the resulting ETH to the contract owner.
    *
    * This function allows the owner of the contract to undeploy a specified amount, which involves
-   * withdrawing the corresponding collateral, converting it to WETH, unwrapping WETH, and finally
+   * withdrawing the corresponding collateral, converting it to Debt Token, unwrapping Debt Token, and finally
    * sending the resulting ETH to the contract owner. The undeployment is subject to reentrancy protection.
    * The function returns the amount of ETH undeployed to the contract owner.
    * The method is designed to ensure that the collateralization ratio (collateral value to debt value) remains within acceptable limits.
@@ -335,29 +382,48 @@ abstract contract StrategyLeverage is
     undeployedAmount = _undeploy(amount, payable(msg.sender));
   }
 
-  function _adjustDebt(
-    uint256 totalCollateralBaseInEth,
-    uint256 totalDebtBaseInEth
-  ) internal returns (uint256 deltaAmount) {
-    uint256 deltaDebt = _calculateDebtToPay(
-      getLoanToValue(),
-      totalCollateralBaseInEth,
-      totalDebtBaseInEth
-    );
-    uint256 fee = flashLender().flashFee(wETHA(), deltaDebt);
-    // uint256 allowance = wETH().allowance(address(this), flashLenderA());
+/**
+ * @notice Adjusts the current debt position by calculating the amount of debt to repay and executing a flash loan.
+ * @dev The function calculates the necessary debt to repay based on the loan-to-value (LTV) ratio and initiates a flash loan
+ *      to cover this amount. The function also handles the approval for the flash loan and manages the flash loan execution.
+ * @param totalCollateralInDebt The total collateral value expressed in debt terms.
+ * @param totalDebt The current total debt amount.
+ * @return deltaAmount The total amount of debt adjusted, including any flash loan fees.
+ */
+function _adjustDebt(
+    uint256 totalCollateralInDebt,
+    uint256 totalDebt
+) internal returns (uint256 deltaAmount) {
+    // Calculate the debt amount to repay to reach the desired Loan-to-Value (LTV) ratio
+    uint256 deltaDebt = _calculateDebtToPay(getLoanToValue(), totalCollateralInDebt, totalDebt);
+
+    // Calculate the flash loan fee for the debt amount
+    uint256 fee = flashLender().flashFee(_debtToken, deltaDebt);
+
+    // Prepare data for the flash loan execution
     bytes memory data = abi.encode(deltaDebt, address(0), FlashLoanAction.PAY_DEBT);
-    if (!wETH().approve(flashLenderA(), deltaDebt + fee)) revert FailedToApproveAllowance();
-    _flashLoanArgsHash = keccak256(abi.encodePacked(address(this), wETHA(), deltaDebt, data));
-    if (
-      !flashLender().flashLoan(IERC3156FlashBorrowerUpgradeable(this), wETHA(), deltaDebt, data)
-    ) {
-      _flashLoanArgsHash = 0;
-      revert FailedToRunFlashLoan();
+
+    // Approve the flash lender to spend the debt amount plus fee
+    if (!IERC20Upgradeable(_debtToken).approve(flashLenderA(), deltaDebt + fee)) {
+        revert FailedToApproveAllowance();
     }
+
+    // Set a unique hash for the flash loan arguments to prevent reentrancy attacks
+    _flashLoanArgsHash = keccak256(abi.encodePacked(address(this), _debtToken, deltaDebt, data));
+
+    // Execute the flash loan for the calculated debt amount
+    if (!flashLender().flashLoan(IERC3156FlashBorrowerUpgradeable(this), _debtToken, deltaDebt, data)) {
+        _flashLoanArgsHash = 0;
+        revert FailedToRunFlashLoan();
+    }
+
+    // Reset the hash after successful flash loan execution
     _flashLoanArgsHash = 0;
+
+    // Return the total amount adjusted, including the flash loan fee
     deltaAmount = deltaDebt + fee;
-  }
+}
+
 
   /**
    * @dev Harvests the strategy by rebalancing the collateral and debt positions.
@@ -380,50 +446,66 @@ abstract contract StrategyLeverage is
    * @return balanceChange The change in strategy balance as an int256 value.
    */
   function harvest() external override onlyOwner nonReentrant returns (int256 balanceChange) {
-    (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition(
+    // Fetch leverage balances
+    (uint256 totalCollateral, uint256 totalDebt) = getBalances();
+
+    // Convert total collateral to debt value using Oracle
+    uint256 totalCollateralInDebt = _toDebt(
       IOracle.PriceOptions({
         maxAge: settings().getRebalancePriceMaxAge(),
         maxConf: settings().getPriceMaxConf()
-      })
+      }),
+      totalCollateral,
+      false
     );
 
-    if (totalCollateralBaseInEth == 0 || totalDebtBaseInEth == 0) {
+    // Early exit conditions
+    if (totalCollateralInDebt == 0 || totalDebt == 0) {
       return 0;
     }
-    if (totalCollateralBaseInEth <= totalDebtBaseInEth) revert CollateralLowerThanDebt();
-
-    uint256 deltaDebt = 0;
-    // Local Copy to reduce the number of SLOADs
-    uint256 deployedAmount = _deployedAmount;
-    if (deltaDebt >= totalDebtBaseInEth) revert InvalidDeltaDebt();
-
-    uint256 ltv = (totalDebtBaseInEth * PERCENTAGE_PRECISION) / totalCollateralBaseInEth;
-    if (ltv > getMaxLoanToValue() && ltv < PERCENTAGE_PRECISION) {
-      // Pay Debt to rebalance the position
-      deltaDebt = _adjustDebt(totalCollateralBaseInEth, totalDebtBaseInEth);
+    if (totalCollateralInDebt <= totalDebt) {
+      revert CollateralLowerThanDebt();
     }
-    uint256 newDeployedAmount = totalCollateralBaseInEth -
-      deltaDebt -
-      (totalDebtBaseInEth - deltaDebt);
 
-    if (deltaDebt >= totalCollateralBaseInEth) revert InvalidDeltaDebt();
+    uint256 deployedAmount = _deployedAssets;
+    uint256 deltaDebt = 0;
 
+    // Calculate Loan-to-Value ratio
+    uint256 ltv = (totalDebt * PERCENTAGE_PRECISION) / totalCollateralInDebt;
+
+    // Adjust debt if LTV exceeds the maximum allowed
+    if (ltv > getMaxLoanToValue() && ltv < PERCENTAGE_PRECISION) {
+      deltaDebt = _adjustDebt(totalCollateralInDebt, totalDebt);
+    }
+
+    uint256 newDeployedAmount = totalCollateralInDebt - totalDebt;
+
+    // Ensure valid debt adjustment
+    if (deltaDebt >= totalCollateralInDebt) {
+      revert InvalidDeltaDebt();
+    }
+
+    // If no change in deployed amount, return early
     if (newDeployedAmount == deployedAmount) {
       return 0;
     }
 
-    // Log Profit or Loss when there is no debt adjustment
-    if (newDeployedAmount > deployedAmount && deltaDebt == 0) {
-      uint256 profit = newDeployedAmount - deployedAmount;
-      emit StrategyProfit(profit);
-      balanceChange = int256(profit);
-    } else if (newDeployedAmount < deployedAmount && deltaDebt == 0) {
-      uint256 loss = deployedAmount - newDeployedAmount;
-      emit StrategyLoss(loss);
-      balanceChange = -int256(loss);
+    // Log profit or loss based on the new deployed amount
+    if (deltaDebt == 0) {
+      if (newDeployedAmount > deployedAmount) {
+        uint256 profit = newDeployedAmount - deployedAmount;
+        emit StrategyProfit(profit);
+        balanceChange = int256(profit);
+      } else {
+        uint256 loss = deployedAmount - newDeployedAmount;
+        emit StrategyLoss(loss);
+        balanceChange = -int256(loss);
+      }
     }
+
+    // Update deployed assets
+    _deployedAssets = newDeployedAmount;
     emit StrategyAmountUpdate(newDeployedAmount);
-    _deployedAmount = newDeployedAmount;
   }
 
   /**
@@ -432,8 +514,8 @@ abstract contract StrategyLeverage is
    * @return collateralBalance
    * @return debtBalance
    */
-  function _getMMPosition()
-    internal
+  function getBalances()
+    public
     view
     virtual
     returns (uint256 collateralBalance, uint256 debtBalance);
@@ -443,35 +525,27 @@ abstract contract StrategyLeverage is
    * This internal function provides a view into the current collateral and debt positions of the contract
    * by querying the Aave V3 protocol. It calculates the positions in ETH based on the current ETH/USD exchange rate.
    *
-   * @return totalCollateralInEth The total collateral position in ETH.
-   * @return totalDebtInEth The total debt position in ETH.
+   * @return totalCollateralInUSD The total collateral position in ETH.
+   * @return totalDebtInUSD The total debt position in ETH.
    */
   function _getPosition(
     IOracle.PriceOptions memory priceOptions
-  ) internal view returns (uint256 totalCollateralInEth, uint256 totalDebtInEth) {
-    totalCollateralInEth = 0;
-    totalDebtInEth = 0;
+  ) internal view returns (uint256 totalCollateralInUSD, uint256 totalDebtInUSD) {
+    totalCollateralInUSD = 0;
+    totalDebtInUSD = 0;
 
-    (uint256 collateralBalance, uint256 debtBalance) = _getMMPosition();
-    uint256 priceMaxAge = priceOptions.maxAge;
+    (uint256 collateralBalance, uint256 debtBalance) = getBalances();
+    // Convert Collateral Balance to $USD safely
     if (collateralBalance != 0) {
-      IOracle.Price memory ethPrice = priceMaxAge == 0
-        ? _ethUSDOracle.getLatestPrice()
-        : _ethUSDOracle.getSafeLatestPrice(priceOptions);
-      IOracle.Price memory collateralPrice = priceMaxAge == 0
-        ? _collateralOracle.getLatestPrice()
-        : _collateralOracle.getSafeLatestPrice(priceOptions);
-      if (
-        !(priceMaxAge == 0 ||
-          (priceMaxAge > 0 && (ethPrice.lastUpdate > (block.timestamp - priceMaxAge))) ||
-          (priceMaxAge > 0 && (collateralPrice.lastUpdate > (block.timestamp - priceMaxAge))))
-      ) {
-        revert PriceOutdated();
-      }
-      totalCollateralInEth = (collateralBalance * collateralPrice.price) / ethPrice.price;
+      IOracle.Price memory collateralPrice = _collateralOracle.getSafeLatestPrice(priceOptions);
+      totalCollateralInUSD =
+        (collateralBalance * collateralPrice.price) /
+        _collateralOracle.getPrecision();
     }
+    // Convert DebtBalance to $USD safely
     if (debtBalance != 0) {
-      totalDebtInEth = debtBalance;
+      IOracle.Price memory debtPrice = _debtOracle.getSafeLatestPrice(priceOptions);
+      totalDebtInUSD = (debtBalance * debtPrice.price) / _debtOracle.getPrecision();
     }
   }
 
@@ -482,135 +556,160 @@ abstract contract StrategyLeverage is
    * undeployment amount. It then uses a flash loan to perform the required operations, including paying off debt and
    * withdrawing ETH. The resulting undeployed amount is updated, and the contract's deployed amount is adjusted accordingly.
    *
-   * @param amount The amount of ETH to undeploy.
-   * @param receiver The address to receive the undeployed ETH.
-   * @return receivedAmount The actual undeployed amount of ETH.
+   * @param amount The amount of Debt Token to Undeploy.
+   * @param receiver The address to receive the undeployed Debt Token.
+   * @return receivedAmount The actual undeployed amount of Debt Token.
    *
    * Requirements:
    * - The contract must have a collateral margin greater than the debt to initiate undeployment.
    */
-  function _undeploy(uint256 amount, address receiver) private returns (uint256 receivedAmount) {
-    (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition(
-      IOracle.PriceOptions({
+function _undeploy(uint256 amount, address receiver) private returns (uint256 receivedAmount) {
+    // Get price options from settings
+    IOracle.PriceOptions memory options = IOracle.PriceOptions({
         maxAge: settings().getPriceMaxAge(),
         maxConf: settings().getPriceMaxConf()
-      })
-    );
-    // When the position is in liquidation state revert the transaction
-    if (totalCollateralBaseInEth <= totalDebtBaseInEth) revert NoCollateralMarginToScale();
+    });
 
-    uint256 percentageToBurn = (amount * PERCENTAGE_PRECISION) /
-      (totalCollateralBaseInEth - totalDebtBaseInEth);
-    // Calculate how much i need to burn to accomodate the withdraw
-    (uint256 deltaCollateralInETH, uint256 deltaDebtInETH) = _calcDeltaPosition(
-      percentageToBurn,
-      totalCollateralBaseInEth,
-      totalDebtBaseInEth
-    );
+    // Fetch collateral and debt balances
+    (uint256 totalCollateralBalance, uint256 totalDebtBalance) = getBalances();
+    uint256 totalCollateralInDebt = _toDebt(options, totalCollateralBalance, false);
 
-    // Calculate the Flash Loan FEE
-    uint256 fee = flashLender().flashFee(wETHA(), deltaDebtInETH);
-    // Update WETH allowance to pay the debt after the flash loan
-    //uint256 allowance = wETH().allowance(address(this), flashLenderA());
-    if (!wETH().approve(flashLenderA(), deltaDebtInETH + fee)) revert FailedToApproveAllowance();
+    // Ensure the position is not in liquidation state
+    if (totalCollateralInDebt <= totalDebtBalance) revert NoCollateralMarginToScale();
 
-    bytes memory data = abi.encode(
-      deltaCollateralInETH,
-      receiver,
-      FlashLoanAction.PAY_DEBT_WITHDRAW
+    // Calculate percentage to burn to accommodate the withdrawal
+    uint256 percentageToBurn = (amount * PERCENTAGE_PRECISION) / (totalCollateralInDebt - totalDebtBalance);
+
+    // Calculate delta position (collateral and debt)
+    (uint256 deltaCollateralInDebt, uint256 deltaDebt) = _calcDeltaPosition(
+        percentageToBurn,
+        totalCollateralInDebt,
+        totalDebtBalance
     );
-    _flashLoanArgsHash = keccak256(abi.encodePacked(address(this), wETHA(), deltaDebtInETH, data));
-    if (
-      !flashLender().flashLoan(
-        IERC3156FlashBorrowerUpgradeable(this),
-        wETHA(),
-        deltaDebtInETH,
-        data
-      )
-    ) {
-      _flashLoanArgsHash = 0;
-      revert FailedToRunFlashLoan();
+    // Convert deltaCollateralInDebt to deltaCollateralAmount
+    uint256 deltaCollateralAmount = _toCollateral(options, deltaCollateralInDebt, true);
+
+    // Calculate flash loan fee
+    uint256 fee = flashLender().flashFee(_debtToken, deltaDebt);
+
+    // Approve the flash lender to spend the debt amount plus fee
+    if (!IERC20Upgradeable(_debtToken).approve(flashLenderA(), deltaDebt + fee)) {
+        revert FailedToApproveAllowance();
     }
+
+    // Prepare data for flash loan execution
+    bytes memory data = abi.encode(deltaCollateralAmount, receiver, FlashLoanAction.PAY_DEBT_WITHDRAW);
+    _flashLoanArgsHash = keccak256(abi.encodePacked(address(this), _debtToken, deltaDebt, data));
+
+    // Execute flash loan
+    if (!flashLender().flashLoan(IERC3156FlashBorrowerUpgradeable(this), _debtToken, deltaDebt, data)) {
+        _flashLoanArgsHash = 0;
+        revert FailedToRunFlashLoan();
+    }
+    // The amount of Withdrawn minus the repay ampunt
+    emit StrategyUndeploy(msg.sender, deltaCollateralInDebt-deltaDebt);
+
+    // Reset hash after successful flash loan
     _flashLoanArgsHash = 0;
-    // Update the amount of ETH deployed on the contract
+
+    // Update deployed assets after withdrawal
     receivedAmount = _pendingAmount;
-    uint256 undeployedAmount = deltaCollateralInETH - deltaDebtInETH;
-    if (undeployedAmount >= _deployedAmount) {
-      _deployedAmount = 0;
-    } else {
-      _deployedAmount = _deployedAmount - (deltaCollateralInETH - deltaDebtInETH);
-    }
-    emit StrategyAmountUpdate(_deployedAmount);
+    uint256 undeployedAmount = deltaCollateralInDebt - deltaDebt;
+    _deployedAssets = _deployedAssets > undeployedAmount ? _deployedAssets - undeployedAmount : 0;
+
+    // Emit strategy update and reset pending amount
+    emit StrategyAmountUpdate(_deployedAssets);
     // Pending amount is not cleared to save gas
     //_pendingAmount = 0;
-  }
+}
+
 
   /**
    * @dev Repays the debt on AAVEv3 strategy, handling the withdrawal and swap operations.
    *
    * This private function is used internally to repay the debt on the AAVEv3 strategy. It involves repaying
    * the debt on AAVE, obtaining a quote for the required collateral, withdrawing the collateral from AAVE, and
-   * swapping the collateral to obtain the necessary WETH. The leftover WETH after the swap is deposited back
+   * swapping the collateral to obtain the necessary Debt Token. The leftover Debt Token after the swap is deposited back
    * into AAVE if there are any. The function emits the `StrategyUndeploy` event after the debt repayment.
    *
-   * @param debtAmount The amount of debt in WETH to be repaid on AAVE.
-   * @param fee The fee amount in WETH associated with the debt repayment.
+   * @param debtAmount The amount of Debt Token to be repaid on AAVE.
+   * @param fee The fee amount in Debt Token associated with the debt repayment.
    *
    * Requirements:
    * - The AAVEv3 strategy must be properly configured and initialized.
    */
   function _payDebt(uint256 debtAmount, uint256 fee) internal {
-    _repay(wETHA(), debtAmount);
+    // Repay the debt
+    _repay(_debtToken, debtAmount);
 
-    // Convert ETH to WST using the current prices and
-    // calculate the maximum amount in using the max Slippage
-    uint256 wsthETHAmount = _fromWETH(debtAmount, true);
-    uint256 amountInMax = (wsthETHAmount * (PERCENTAGE_PRECISION + getMaxSlippage())) /
-      PERCENTAGE_PRECISION;
+    // Fetch price options from settings
+    IOracle.PriceOptions memory options = IOracle.PriceOptions({
+        maxAge: settings().getPriceMaxAge(),
+        maxConf: settings().getPriceMaxConf()
+    });
 
-    _withdraw(ierc20A(), amountInMax, address(this));
+    // Calculate the equivalent collateral amount for the debt
+    uint256 collateralAmount = _toCollateral(options, debtAmount, true);
 
+    // Calculate maximum collateral required with slippage
+    uint256 amountInMax = collateralAmount * (PERCENTAGE_PRECISION + getMaxSlippage()) / PERCENTAGE_PRECISION;
+
+    // Withdraw the collateral needed for the swap
+    _withdraw(_collateralToken, amountInMax, address(this));
+
+    // Perform the swap to convert collateral into debt token
     (uint256 amountIn, ) = _swap(
-      ISwapHandler.SwapParams(
-        ierc20A(),
-        wETHA(),
-        ISwapHandler.SwapType.EXACT_OUTPUT,
-        amountInMax,
-        debtAmount + fee,
-        _swapFeeTier,
-        bytes("")
-      )
+        ISwapHandler.SwapParams(
+            _collateralToken,
+             _debtToken,
+            ISwapHandler.SwapType.EXACT_OUTPUT,
+            amountInMax,
+            debtAmount + fee,
+            _swapFeeTier,
+            bytes("")
+        )
     );
-    // When there are leftovers from the swap, deposit then back
-    uint256 swapLefts = amountIn < amountInMax ? amountInMax - amountIn : 0;
-    if (swapLefts > 0) {
-      _supply(ierc20A(), swapLefts);
+
+    // If there's leftover collateral after the swap, redeposit it
+    if (amountIn < amountInMax) {
+        uint256 swapLeftover = amountInMax - amountIn;
+        _supply(_collateralToken, swapLeftover);
     }
+
+    // Emit event for strategy undeployment
     emit StrategyUndeploy(msg.sender, debtAmount);
-  }
+}
+
 
   /**
-   * @dev Internal function to convert the specified amount from WETH to the underlying assert cbETH, wstETH, rETH.
+   * @dev Internal function to convert the specified amount from Debt Token to the underlying collateral asset cbETH, wstETH, rETH.
    *
    * This function is virtual and intended to be overridden in derived contracts for customized implementation.
    *
-   * @param amount The amount to convert from WETH.
+   * @param amount The amount to convert from debtToken.
    * @return uint256 The converted amount in the underlying collateral.
    */
-  function _convertFromWETH(uint256 amount) internal virtual returns (uint256) {
+  function _convertToCollateral(uint256 amount) internal virtual returns (uint256) {
     uint256 amountOutMinimum = 0;
 
     if (getMaxSlippage() > 0) {
-      uint256 wsthETHAmount = _fromWETH(amount, false);
+      uint256 wsthETHAmount = _toCollateral(
+        IOracle.PriceOptions({
+          maxAge: settings().getPriceMaxAge(),
+          maxConf: settings().getPriceMaxConf()
+        }),
+        amount,
+        false
+      );
       amountOutMinimum =
         (wsthETHAmount * (PERCENTAGE_PRECISION - getMaxSlippage())) /
         PERCENTAGE_PRECISION;
     }
-    // 1. Swap WETH -> cbETH/wstETH/rETH
+    // 1. Swap Debt Token -> Collateral Token
     (, uint256 amountOut) = _swap(
       ISwapHandler.SwapParams(
-        wETHA(), // Asset In
-        ierc20A(), // Asset Out
+        _debtToken, // Asset In
+        _collateralToken, // Asset Out
         ISwapHandler.SwapType.EXACT_INPUT, // Swap Mode
         amount, // Amount In
         amountOutMinimum, // Amount Out
@@ -622,26 +721,33 @@ abstract contract StrategyLeverage is
   }
 
   /**
-   * @dev Internal function to convert the specified amount to WETH from the underlying collateral.
+   * @dev Internal function to convert the specified amount to Debt Token from the underlying collateral.
    *
    * This function is virtual and intended to be overridden in derived contracts for customized implementation.
    *
-   * @param amount The amount to convert to WETH.
-   * @return uint256 The converted amount in WETH.
+   * @param amount The amount to convert to Debt Token.
+   * @return uint256 The converted amount in Debt Token.
    */
-  function _convertToWETH(uint256 amount) internal virtual returns (uint256) {
+  function _convertToDebt(uint256 amount) internal virtual returns (uint256) {
     uint256 amountOutMinimum = 0;
     if (getMaxSlippage() > 0) {
-      uint256 ethAmount = _toWETH(amount, false);
+      uint256 ethAmount = _toDebt(
+        IOracle.PriceOptions({
+          maxAge: settings().getPriceMaxAge(),
+          maxConf: settings().getPriceMaxConf()
+        }),
+        amount,
+        false
+      );
       amountOutMinimum =
         (ethAmount * (PERCENTAGE_PRECISION - getMaxSlippage())) /
         PERCENTAGE_PRECISION;
     }
-    // 1.Swap cbETH -> WETH/wstETH/rETH
+    // 1.Swap Colalteral -> Debt Token
     (, uint256 amountOut) = _swap(
       ISwapHandler.SwapParams(
-        ierc20A(), // Asset In
-        wETHA(), // Asset Out
+        _collateralToken, // Asset In
+        _debtToken, // Asset Out
         ISwapHandler.SwapType.EXACT_INPUT, // Swap Mode
         amount, // Amount In
         amountOutMinimum, // Amount Out
@@ -653,110 +759,112 @@ abstract contract StrategyLeverage is
   }
 
   /**
-   * @dev Internal function to convert the specified amount in the underlying collateral to WETH.
+   * @dev Internal function to convert the specified amount from Collateral Token to Debt Token.
    *
-   * This function calculates the equivalent amount in WETH based on the latest price from the collateral oracle.
+   * This function calculates the equivalent amount in Debt Tokeb based on the latest price from the collateral oracle.
    *
    * @param amountIn The amount in the underlying collateral.
-   * @return amountOut The equivalent amount in WETH.
+   * @return amountOut The equivalent amount in Debt Token.
    */
-  function _toWETH(uint256 amountIn, bool roundUp) internal view returns (uint256 amountOut) {
-    IOracle.PriceOptions memory priceOptions = IOracle.PriceOptions({
-      maxAge: settings().getPriceMaxAge(),
-      maxConf: settings().getPriceMaxConf()
-    });
+  function _toDebt(
+    IOracle.PriceOptions memory priceOptions,
+    uint256 amountIn,
+    bool roundUp
+  ) internal view returns (uint256 amountOut) {
     amountOut = amountIn.mulDiv(
       _collateralOracle.getSafeLatestPrice(priceOptions).price,
-      _ethUSDOracle.getSafeLatestPrice(priceOptions).price,
+      _debtOracle.getSafeLatestPrice(priceOptions).price,
       roundUp
     );
   }
 
   /**
-   * @dev Internal function to convert the specified amount in WETH to the underlying collateral.
+   * @dev Internal function to convert the specified amount from Debt Token to Collateral Token.
    *
    * This function calculates the equivalent amount in the underlying collateral based on the latest price from the collateral oracle.
    *
-   * @param amountIn The amount in WETH.
+   * @param amountIn The amount in Debt Token to be converted.
    * @return amountOut The equivalent amount in the underlying collateral.
    */
-  function _fromWETH(uint256 amountIn, bool roundUp) internal view returns (uint256 amountOut) {
-    IOracle.PriceOptions memory priceOptions = IOracle.PriceOptions({
-      maxAge: settings().getPriceMaxAge(),
-      maxConf: settings().getPriceMaxConf()
-    });
-    amountOut = amountIn.mulDiv(
-      _ethUSDOracle.getSafeLatestPrice(priceOptions).price,
+  function _toCollateral(
+    IOracle.PriceOptions memory priceOptions,
+    uint256 amountIn,
+    bool roundUp
+  ) internal view returns (uint256 amountOut) {
+    amountOut =amountIn.mulDiv(
+      _debtOracle.getSafeLatestPrice(priceOptions).price,
       _collateralOracle.getSafeLatestPrice(priceOptions).price,
       roundUp
     );
   }
 
   /**
-   * @dev Executes the supply and borrow operations on AAVE, converting assets from WETH.
+   * @dev Executes the supply and borrow operations on AAVE, converting assets from Debt Token.
    *
    * This function is private and is used internally in the AAVEv3 strategy for depositing collateral
-   * and borrowing ETH on the AAVE platform. It involves converting assets from WETH to the respective
+   * and borrowing ETH on the AAVE platform. It involves converting assets from Debt Tokens to the respective
    * tokens, supplying collateral, and borrowing ETH. The strategy owned value is logged on the  `StrategyDeploy` event.
    *
-   * @param amount The amount to be supplied to AAVE (collateral) in WETH.
-   * @param loanAmount The amount to be borrowed from AAVE in WETH.
-   * @param fee The fee amount in WETH associated with the flash loan.
+   * @param amount The amount to be supplied to AAVE (collateral) in Debt Token.
+   * @param loanAmount The amount to be borrowed from AAVE in Debt Token.
+   * @param fee The fee amount in Debt Token associated with the flash loan.
    *
    * Requirements:
    * - The AAVEv3 strategy must be properly configured and initialized.
    */
   function _supplyBorrow(uint256 amount, uint256 loanAmount, uint256 fee) internal {
-    uint256 collateralIn = _convertFromWETH(amount + loanAmount);
-    // Deposit on AAVE Collateral and Borrow ETH
-    _supplyAndBorrow(ierc20A(), collateralIn, wETHA(), loanAmount + fee);
-    uint256 collateralInETH = _toWETH(collateralIn, false);
-    _pendingAmount = collateralInETH - loanAmount - fee;
-    emit StrategyDeploy(msg.sender, _pendingAmount);
+    uint256 collateralIn = _convertToCollateral(amount + loanAmount);
+    // Deposit on AAVE Collateral and Borrow Debt Token
+    _supplyAndBorrow(_collateralToken, collateralIn, _debtToken, loanAmount + fee);
+    uint256 collateralInDebt = _toDebt(
+      IOracle.PriceOptions({
+        maxAge: settings().getRebalancePriceMaxAge(),
+        maxConf: settings().getPriceMaxConf()
+      }),
+      collateralIn,
+      false
+    );
+    uint256 deployedAmount = collateralInDebt - loanAmount - fee;
+    _pendingAmount = deployedAmount;
+    emit StrategyDeploy(msg.sender, deployedAmount);
   }
 
   /**
-   * @dev Repays a specified amount, withdraws collateral, and sends the remaining ETH to the specified receiver.
+   * @dev Repays a specified amount, withdraws collateral, and sends the remaining Debt Token to the specified receiver.
    *
    * This private function is used internally to repay a specified amount on AAVE, withdraw collateral, and send
    * the remaining ETH to the specified receiver. It involves checking the available balance, repaying the debt on
-   * AAVE, withdrawing the specified amount of collateral, converting collateral to WETH, unwrapping WETH, and finally
+   * AAVE, withdrawing the specified amount of collateral, converting collateral to Debt Token, unwrapping Debt Token, and finally
    * sending the remaining ETH to the receiver. The function emits the `StrategyUndeploy` event after the operation.
    *
-   * @param withdrawAmountInETh The amount of collateral to be withdrawn in WETH.
-   * @param repayAmount The amount of debt in WETH to be repaid on AAVE.
-   * @param fee The fee amount in WETH associated with the operation.
-   * @param receiver The address to receive the remaining ETH after debt repayment and withdrawal.
+   * @param withdrawAmount The amount of collateral balance to be withdraw.
+   * @param repayAmount The amount of debt balance be repaid on AAVE.
+   * @param fee The fee amount in debt balance to be paid as feed
+   * @param receiver The address to receive the remaining debt tokens after debt repayment and withdrawal.
    *
    * Requirements:
    * - The AAVEv3 strategy must be properly configured and initialized.
    */
   function _repayAndWithdraw(
-    uint256 withdrawAmountInETh,
+    uint256 withdrawAmount,
     uint256 repayAmount,
     uint256 fee,
     address payable receiver
   ) internal {
-    (uint256 collateralBalance, ) = _getMMPosition();
-    uint256 convertedAmount = _fromWETH(withdrawAmountInETh, true);
-    uint256 withdrawAmount = collateralBalance > convertedAmount
-      ? convertedAmount
-      : collateralBalance;
+    (uint256 collateralBalance, ) = getBalances();
+    uint256 cappedWithdrawAmount = collateralBalance < withdrawAmount ? collateralBalance : withdrawAmount;
 
-    _repay(wETHA(), repayAmount);
+    _repay(_debtToken, repayAmount);
+    _withdraw(_collateralToken, cappedWithdrawAmount, address(this));
 
-    _withdraw(ierc20A(), withdrawAmount, address(this));
+    uint256 withdrawnAmount = _convertToDebt(cappedWithdrawAmount);
+    uint256 debtToWithdraw = withdrawnAmount > repayAmount + fee ? withdrawnAmount - repayAmount - fee : 0;
 
-    // Convert Collateral to WETH
-    uint256 wETHAmount = _convertToWETH(withdrawAmount);
-    // Calculate how much ETH i am able to withdraw
-    uint256 ethToWithdraw = wETHAmount - repayAmount - fee;
+    if (debtToWithdraw > 0) {
+        IERC20Upgradeable(_debtToken).safeTransfer(receiver, debtToWithdraw);
+    }
 
-    wETH().transfer(receiver, ethToWithdraw);
-
-    emit StrategyUndeploy(msg.sender, withdrawAmountInETh - repayAmount);
-
-    _pendingAmount = ethToWithdraw;
+    _pendingAmount = debtToWithdraw;
   }
 
   /**
@@ -807,7 +915,7 @@ abstract contract StrategyLeverage is
   }
 
   function getDebtOracle() public view returns (address oracle) {
-    oracle = address(_ethUSDOracle);
+    oracle = address(_debtOracle);
   }
 
   function setCollateralOracle(IOracle oracle) public onlyGovernor {
@@ -815,12 +923,23 @@ abstract contract StrategyLeverage is
   }
 
   function setDebtOracle(IOracle oracle) public onlyGovernor {
-    _ethUSDOracle = oracle;
+    _debtOracle = oracle;
   }
 
   function asset() public view override returns (address) {
-    return wETHA();
+    return _debtToken;
   }
 
-  uint256[44] private __gap;
+  function getCollateralAsset() external view returns (address) {
+    return _collateralToken;
+  }
+
+  function getDebAsset() external view returns (address) {
+    return _debtToken;
+  }
+  /**
+   * @dev This empty reserved space is put in place to allow future versions to add new
+   * settings without shifting down storage in the inheritance chain.
+   */
+  uint256[25] private __gap;
 }

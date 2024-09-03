@@ -49,8 +49,10 @@ export type NetworkConfig = {
             sharesName: string,
             sharesSymbol: string,
             type:  StrategyType;
-            collateral: string,
-            oracle: OracleRegistryNames,
+            collateralToken: string,
+            debtToken: string,
+            collateralOracle: OracleRegistryNames,
+            debtOracle: OracleRegistryNames,
     }},
     swapFeeTier: number,
     AAVEPool: string, // Validated
@@ -89,16 +91,15 @@ const Config: DeployConfig = {
                 sharesName: "AAVEv3 Bread ETH",
                 sharesSymbol: "AAVEv3brETH",
                 type: "base",
-                collateral: "wstETH",
-                oracle: "wstETH/USD Oracle"
+                collateralToken: "wstETH",
+                debtToken: "WETH",
+                collateralOracle: "wstETH/USD Oracle",
+                debtOracle: "ETH/USD Oracle",
             }
         },
         swapFeeTier: 100,
         AAVEPool: "0xA238Dd80C259a72e81d7e4664a9801593F98d1c5", // Validated
         pyth: "0x8250f4aF4B972684F7b336503E2D6dFeDeB1487a",
-        chainlink: {
-            wstEthToETHRatio: "0xB88BAc61a4Ca37C43a3725912B1f472c9A5bc061",
-        }
     },
     "base_devnet": {
         minTxConfirmations: 0,
@@ -121,8 +122,10 @@ const Config: DeployConfig = {
                 sharesName: "AAVEv3 Bread ETH",
                 sharesSymbol: "AAVEv3brETH",
                 type: "base",
-                collateral: "wstETH",
-                oracle: "wstETH/USD Oracle"
+                collateralToken: "wstETH",
+                debtToken: "WETH",
+                collateralOracle: "wstETH/USD Oracle",
+                debtOracle: "ETH/USD Oracle",
             }
         },
         swapFeeTier: 100,
@@ -155,8 +158,10 @@ const Config: DeployConfig = {
                 sharesName: "AAVEv3 Bread ETH",
                 sharesSymbol: "AAVEv3brETH",
                 type: "base",
-                collateral: "wstETH",
-                oracle: "wstETH/USD Oracle"
+                collateralToken: "wstETH",
+                debtToken: "WETH",
+                collateralOracle: "wstETH/USD Oracle",
+                debtOracle: "ETH/USD Oracle",
             }
         },
         balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Validated
@@ -182,8 +187,10 @@ const Config: DeployConfig = {
                 sharesName: "AAVEv3 Bread ETH",
                 sharesSymbol: "AAVEv3brETH",
                 type: "base",
-                collateral: "wstETH",
-                oracle: "wstETH/USD Oracle"
+                collateralToken: "wstETH",
+                debtToken: "WETH",
+                collateralOracle: "wstETH/USD Oracle",
+                debtOracle: "ETH/USD Oracle",
             }
         },
         AAVEEModeCategory: 2,
@@ -217,8 +224,10 @@ const Config: DeployConfig = {
                 sharesName: "AAVEv3 Bread ETH",
                 sharesSymbol: "AAVEv3brETH",
                 type: "base",
-                collateral: "wstETH",
-                oracle: "wstETH/USD Oracle"
+                collateralToken: "wstETH",
+                debtToken: "WETH",
+                collateralOracle: "wstETH/USD Oracle",
+                debtOracle: "ETH/USD Oracle",
             }
         },
         AAVEEModeCategory: 2,
@@ -249,8 +258,10 @@ const Config: DeployConfig = {
                 sharesName: "AAVEv3 Bread ETH",
                 sharesSymbol: "AAVEv3brETH",
                 type: "base",
-                collateral: "wstETH",
-                oracle: "wstETH/USD Oracle"
+                collateralToken: "wstETH",
+                debtToken: "WETH",
+                collateralOracle: "wstETH/USD Oracle",
+                debtOracle: "ETH/USD Oracle",
             }
         },
         AAVEPool: "",

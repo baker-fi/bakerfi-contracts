@@ -91,6 +91,90 @@ describeif(network.name === 'hardhat')('Math Library', function () {
     ).to.be.revertedWithCustomError(math, 'InvalidDivDenominator');
   });
 
+  it('Convert From 18 to 36 Decimals', async function () {
+    const math = await loadFixture(deployFunction);
+    expect(
+      await math.toDecimals(
+        10n ** 18n,
+        18, // 0.01%
+        36,
+      ),
+    ).to.equal(10n ** 36n);
+  });
+
+  it('Convert From 18 to 6 Decimals', async function () {
+    const math = await loadFixture(deployFunction);
+    expect(
+      await math.toDecimals(
+        10n ** 18n,
+        18, // 0.01%
+        6,
+      ),
+    ).to.equal(10n ** 6n);
+  });
+
+  it('Convert From 18 to 18 - Remains the same', async function () {
+    const math = await loadFixture(deployFunction);
+    expect(
+      await math.toDecimals(
+        10n ** 18n,
+        18, // 0.01%
+        18,
+      ),
+    ).to.equal(10n ** 18n);
+  });
+  it('Convert From 18 to 0 - 18 to 0', async function () {
+    const math = await loadFixture(deployFunction);
+    expect(
+      await math.toDecimals(
+        10n ** 18n,
+        18, // 0.01%
+        0,
+      ),
+    ).to.equal(1n);
+  });
+  it('Convert From 0 to 18 - 18 to 0', async function () {
+    const math = await loadFixture(deployFunction);
+    expect(
+      await math.toDecimals(
+        1,
+        0, // 0.01%
+        6,
+      ),
+    ).to.equal(1000000n);
+  });
+  it('Factor Overflow ', async function () {
+    const math = await loadFixture(deployFunction);
+    await expect(
+      math.toDecimals(
+        10n ** 18n,
+        18, // 0.01%
+        255,
+      ),
+    ).to.be.revertedWithCustomError(math, 'OverflowDetected');
+  });
+
+  it('Result Overflow', async function () {
+    const math = await loadFixture(deployFunction);
+    await expect(
+      math.toDecimals(
+        10n ** 48n,
+        0, // 0.01%
+        62,
+      ),
+    ).to.be.revertedWithCustomError(math, 'OverflowDetected');
+  });
+  it('mulDivDown - Revert when division by 0 ', async function () {
+    const math = await loadFixture(deployFunction);
+    await expect(
+      math.mulDivDown(
+        1000n,
+        500n, // 0.01%
+        0n,
+      ),
+    ).to.be.revertedWithCustomError(math, 'InvalidDivDenominator');
+  });
+
   it('mulDivDown - Modulo 0', async function () {
     const math = await loadFixture(deployFunction);
     expect(
