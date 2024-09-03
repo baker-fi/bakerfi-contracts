@@ -17,7 +17,6 @@ import { UseWETH } from "./hooks/UseWETH.sol";
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import { AddressUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import { MathLibrary } from "../libraries/MathLibrary.sol";
-import { IWETH } from "../interfaces/tokens/IWETH.sol";
 
 /**
  * @title BakerFi Vault 🏦🧑‍🍳
