@@ -82,8 +82,7 @@
   },
   "dependencies": {
     "@taikai/dappkit": "^2.3.3",
-    "ethers-decode-error": "^2.1.2",
-
+    "ethers-decode-error": "^2.1.2"
   },
   "contractSizer": {
     "alphaSort": true,
