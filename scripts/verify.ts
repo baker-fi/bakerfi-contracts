@@ -1,11 +1,11 @@
-import DeployConfig, { BakerDeployConfig } from '../constants/contracts';
-import NetworkDeployConfig from '../constants/network-deploy-config';
+import DeployConfig from '../constants/contracts';
+import NetworkDeployConfig, { StrategyImplementation } from '../constants/network-deploy-config';
 import hre from 'hardhat';
 import { feedIds, PythFeedNameEnum } from '../constants/pyth';
 
 async function main() {
   const networkName = hre.network.name;
-  const deployConfig: BakerDeployConfig = DeployConfig[networkName];
+  const deployConfig = DeployConfig[networkName];
   const networkConfig = NetworkDeployConfig[networkName];
 
   console.log('Verifying Service Registry');
@@ -74,8 +74,8 @@ async function main() {
         deployConfig.serviceRegistry,
         hre.ethers.keccak256(Buffer.from('wstETH')),
         hre.ethers.keccak256(Buffer.from('wstETH/USD Oracle')),
-        networkConfig.swapFeeTier,
-        networkConfig.AAVEEModeCategory,
+        deployConfig[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
+        deployConfig[StrategyImplementation.AAVE_V3_WSTETH_ETH].AAVEEModeCategory,
       ]),
     ],
   });

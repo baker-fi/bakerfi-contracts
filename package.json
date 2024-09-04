@@ -44,6 +44,7 @@
   "license": "ISC",
   "devDependencies": {
     "@aave/core-v3": "^1.18.0",
+    "@morpho-org/morpho-blue": "1.0.0",
     "@ledgerhq/hw-app-eth": "^6.37.0",
     "@ledgerhq/hw-transport-node-hid": "^6.29.0",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.10",

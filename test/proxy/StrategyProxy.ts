@@ -14,7 +14,7 @@ import {
   deployQuoterV2Mock,
 } from '../../scripts/common';
 
-import BaseConfig, { NetworkConfig } from '../../constants/network-deploy-config';
+import BaseConfig, { AAVEv3Market, NetworkConfig, StrategyImplementation } from '../../constants/network-deploy-config';
 
 describeif(network.name === 'hardhat')('Strategy Proxy', function () {
   async function deployFunction() {
@@ -87,8 +87,8 @@ describeif(network.name === 'hardhat')('Strategy Proxy', function () {
         ethers.keccak256(Buffer.from('WETH')),
         ethers.keccak256(Buffer.from('cbETH/USD Oracle')),
         ethers.keccak256(Buffer.from('ETH/USD Oracle')),
-        config.swapFeeTier,
-        config.AAVEEModeCategory,
+        config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
+        (config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH] as AAVEv3Market).AAVEEModeCategory,
       ]),
     );
     await proxyDeployment.waitForDeployment();

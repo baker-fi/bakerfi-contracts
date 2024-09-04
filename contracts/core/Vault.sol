@@ -89,7 +89,7 @@ contract Vault is
    */
   IStrategy private _strategy;
 
-  uint8 private constant VAULT_VERSION = 3;
+  uint8 constant VAULT_VERSION = 3;
 
   /**
    * @dev Modifier to restrict access to addresses that are whitelisted.
@@ -229,6 +229,7 @@ contract Vault is
   function depositNative(
     address receiver
   ) external payable nonReentrant whenNotPaused onlyWhiteListed returns (uint256 shares) {
+
     if (msg.value == 0) revert InvalidDepositAmount();
     if (_strategy.asset() != wETHA()) revert InvalidDepositAsset();
     //  Wrap ETH
@@ -516,7 +517,7 @@ contract Vault is
     uint256 totalAssetsValue = _totalAssets(priceOptions);
 
     if (totalSupply() == 0 || totalAssetsValue == 0) {
-        return _ONE;
+      return _ONE;
     }
 
     return (totalSupply() * _ONE) / totalAssetsValue;

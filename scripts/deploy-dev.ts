@@ -15,7 +15,7 @@ import {
   deployAAVEv3Strategy,
 } from './common';
 
-import BaseConfig, { NetworkConfig, VaultNamesEnum } from '../constants/network-deploy-config';
+import BaseConfig, { AAVEv3Market, NetworkConfig, StrategyImplementation } from '../constants/network-deploy-config';
 import ora from 'ora';
 
 /**
@@ -24,7 +24,6 @@ import ora from 'ora';
 async function main() {
   const networkName = network.name;
   const chainId = network.config.chainId;
-
   const config: NetworkConfig = BaseConfig[networkName];
   console.log('  🧑‍🍳 BakerFi Cooking .... ');
   const result: any[] = [];
@@ -161,8 +160,8 @@ async function main() {
     'WETH',
     'wstETH/USD Oracle',
     'ETH/USD Oracle',
-    config.swapFeeTier,
-    config.AAVEEModeCategory,
+    config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
+    (config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH] as AAVEv3Market).AAVEEModeCategory,
     proxyAdmin,
   );
 
@@ -181,8 +180,8 @@ async function main() {
   // 10. Deploy the Proxiec Vault attached to Leverage Lib
   const { vault, proxy: vaultProxy } = await deployVault(
     owner.address,
-    config.vaults[VaultNamesEnum.AAVE_V3_WSTETH_ETH].sharesName,
-    config.vaults[VaultNamesEnum.AAVE_V3_WSTETH_ETH].sharesSymbol,
+    config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].sharesName,
+    config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].sharesSymbol,
     await serviceRegistry.getAddress(),
     await strategyProxy.getAddress(),
     proxyAdmin,

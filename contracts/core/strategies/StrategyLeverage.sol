@@ -145,7 +145,7 @@ abstract contract StrategyLeverage is
    * - The debt/USD oracle and collateral/USD oracle addresses must be valid.
    * - Approval allowances must be successfully set for debt ERC20 and the collateral ERC20 token for UniSwap.
    */
-  function _initializeStrategyBase(
+  function _initializeStrategyLeverage(
     address initialOwner,
     address initialGovernor,
     ServiceRegistry registry,
@@ -640,7 +640,7 @@ function _undeploy(uint256 amount, address receiver) private returns (uint256 re
    */
   function _payDebt(uint256 debtAmount, uint256 fee) internal {
     // Repay the debt
-    _repay(_debtToken, debtAmount);
+    _repay(debtAmount);
 
     // Fetch price options from settings
     IOracle.PriceOptions memory options = IOracle.PriceOptions({
@@ -655,7 +655,7 @@ function _undeploy(uint256 amount, address receiver) private returns (uint256 re
     uint256 amountInMax = collateralAmount * (PERCENTAGE_PRECISION + getMaxSlippage()) / PERCENTAGE_PRECISION;
 
     // Withdraw the collateral needed for the swap
-    _withdraw(_collateralToken, amountInMax, address(this));
+    _withdraw( amountInMax, address(this));
 
     // Perform the swap to convert collateral into debt token
     (uint256 amountIn, ) = _swap(
@@ -673,7 +673,7 @@ function _undeploy(uint256 amount, address receiver) private returns (uint256 re
     // If there's leftover collateral after the swap, redeposit it
     if (amountIn < amountInMax) {
         uint256 swapLeftover = amountInMax - amountIn;
-        _supply(_collateralToken, swapLeftover);
+        _supply(swapLeftover);
     }
 
     // Emit event for strategy undeployment
@@ -815,7 +815,7 @@ function _undeploy(uint256 amount, address receiver) private returns (uint256 re
   function _supplyBorrow(uint256 amount, uint256 loanAmount, uint256 fee) internal {
     uint256 collateralIn = _convertToCollateral(amount + loanAmount);
     // Deposit on AAVE Collateral and Borrow Debt Token
-    _supplyAndBorrow(_collateralToken, collateralIn, _debtToken, loanAmount + fee);
+    _supplyAndBorrow(collateralIn, loanAmount + fee);
     uint256 collateralInDebt = _toDebt(
       IOracle.PriceOptions({
         maxAge: settings().getRebalancePriceMaxAge(),
@@ -854,11 +854,11 @@ function _undeploy(uint256 amount, address receiver) private returns (uint256 re
     (uint256 collateralBalance, ) = getBalances();
     uint256 cappedWithdrawAmount = collateralBalance < withdrawAmount ? collateralBalance : withdrawAmount;
 
-    _repay(_debtToken, repayAmount);
-    _withdraw(_collateralToken, cappedWithdrawAmount, address(this));
+    _repay(repayAmount);
+    _withdraw(cappedWithdrawAmount, address(this));
 
     uint256 withdrawnAmount = _convertToDebt(cappedWithdrawAmount);
-    uint256 debtToWithdraw = withdrawnAmount > repayAmount + fee ? withdrawnAmount - repayAmount - fee : 0;
+    uint256 debtToWithdraw = withdrawnAmount > (repayAmount + fee) ? withdrawnAmount - (repayAmount + fee) : 0;
 
     if (debtToWithdraw > 0) {
         IERC20Upgradeable(_debtToken).safeTransfer(receiver, debtToWithdraw);
@@ -877,31 +877,28 @@ function _undeploy(uint256 amount, address receiver) private returns (uint256 re
   /**
    *  @dev Deposit an asset assetIn on a money market
    */
-  function _supply(address assetIn, uint256 amountIn) internal virtual;
+  function _supply(uint256 amountIn) internal virtual;
 
   /**
    * @dev Deposit and borrow and asset using the asset deposited as collateral
    */
   function _supplyAndBorrow(
-    address assetIn,
     uint256 amountIn,
-    address assetOut,
     uint256 borrowOut
   ) internal virtual;
 
   /**
    *  @dev Repay any borrow debt
    */
-  function _repay(address assetIn, uint256 amount) internal virtual;
+  function _repay( uint256 amount) internal virtual;
 
   /**
    * @dev  Withdraw a deposited asset from a money market
    *
-   * @param assetOut The asset to withdraw
    * @param amount The amoun to withdraw
    * @param to the account that will receive the asset
    */
-  function _withdraw(address assetOut, uint256 amount, address to) internal virtual;
+  function _withdraw(uint256 amount, address to) internal virtual;
 
   /**
    * @dev

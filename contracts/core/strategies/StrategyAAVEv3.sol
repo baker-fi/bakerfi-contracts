@@ -54,7 +54,7 @@ contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
     uint24 swapFeeTier,
     uint8 eModeCategory
   ) public initializer {
-    _initializeStrategyBase(
+    _initializeStrategyLeverage(
       initialOwner,
       initialGovernor,
       registry,
@@ -93,52 +93,46 @@ contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
     debtBalance = debtBalance.toDecimals(debtDecimals, SYSTEM_DECIMALS);
     collateralBalance = collateralBalance.toDecimals(collateralDecimals, SYSTEM_DECIMALS);
   }
+
   /**
    * Deposit an asset on the AAVEv3 Pool
    *
-   * @param assetIn the asset to deposit
    * @param amountIn the amount to deposit
    */
-  function _supply(address assetIn, uint256 amountIn) internal virtual override {
-    if (!ERC20(assetIn).approve(aaveV3A(), amountIn)) revert FailedToApproveAllowanceForAAVE();
-    aaveV3().supply(assetIn, amountIn, address(this), 0);
+  function _supply(uint256 amountIn) internal virtual override {
+    if (!ERC20(_collateralToken).approve(aaveV3A(), amountIn)) revert FailedToApproveAllowanceForAAVE();
+    aaveV3().supply(_collateralToken, amountIn, address(this), 0);
   }
 
   /**
    * @dev Supplies an asset and borrows another asset from AAVE v3.
-   * @param assetIn The address of the asset to supply.
-   * @param amountIn The amount of the asset to supply.
-   * @param assetOut The address of the asset to borrow.
-   * @param borrowOut The amount of the asset to borrow.
+   * @param collateral The amount of the asset to supply.
+   * @param debt The address of the asset to borrow.
    */
   function _supplyAndBorrow(
-    address assetIn,
-    uint256 amountIn,
-    address assetOut,
-    uint256 borrowOut
+    uint256 collateral,
+    uint256 debt
   ) internal virtual override {
-    _supply(assetIn, amountIn);
-    aaveV3().setUserUseReserveAsCollateral(assetIn, true);
-    aaveV3().borrow(assetOut, borrowOut, 2, 0, address(this));
+    _supply(collateral);
+    aaveV3().setUserUseReserveAsCollateral(_collateralToken, true);
+    aaveV3().borrow(_debtToken, debt, 2, 0, address(this));
   }
 
   /**
    * @dev Repays a borrowed asset on AAVE v3.
-   * @param assetIn The address of the borrowed asset to repay.
    * @param amount The amount of the borrowed asset to repay.
    */
-  function _repay(address assetIn, uint256 amount) internal virtual override {
-    if (!ERC20(assetIn).approve(aaveV3A(), amount)) revert FailedToApproveAllowanceForAAVE();
-    if (aaveV3().repay(assetIn, amount, 2, address(this)) != amount) revert FailedToRepayDebt();
+  function _repay(uint256 amount) internal virtual override {
+    if (!ERC20(_debtToken).approve(aaveV3A(), amount)) revert FailedToApproveAllowanceForAAVE();
+    if (aaveV3().repay(_debtToken, amount, 2, address(this)) != amount) revert FailedToRepayDebt();
   }
 
   /**
    * Withdraw an asset from the AAVE pool
-   * @param assetOut The address of the asset to withdraw.
    * @param amount  The amount of the asset to withdraw.
    * @param to The assets receiver account
    */
-  function _withdraw(address assetOut, uint256 amount, address to) internal virtual override {
-    if (aaveV3().withdraw(assetOut, amount, to) != amount) revert InvalidWithdrawAmount();
+  function _withdraw(uint256 amount, address to) internal virtual override {
+    if (aaveV3().withdraw(_collateralToken, amount, to) != amount) revert InvalidWithdrawAmount();
   }
 }
