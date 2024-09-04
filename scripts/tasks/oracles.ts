@@ -3,7 +3,8 @@ import { task } from 'hardhat/config';
 import DeployConfig from '../../constants/contracts';
 import NetworkDeployConfig from '../../constants/network-deploy-config';
 import { PriceServiceConnection } from '@pythnetwork/price-service-client';
-import { OracleNamesEnum, feedIds } from '../../constants/pyth';
+import { feedIds } from '../../constants/pyth';
+import { OracleNamesEnum } from '../../constants/types';
 import { getClient } from './common';
 
 task('oracles:priceUpdate', 'Update Required Prices').setAction(async ({}, { ethers, network }) => {
