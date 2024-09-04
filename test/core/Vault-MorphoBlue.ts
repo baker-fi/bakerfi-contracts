@@ -27,22 +27,30 @@ describeif(network.name === 'ethereum_devnet' || network.name === 'base_devnet')
         vault.depositNative(deployer.address, {
           value: depositAmount,
         }),
-      )
+      )// @ts-ignore
         .to.emit(strategy, 'StrategyDeploy')
         .emit(strategy, 'StrategyAmountUpdate');
 
       expect(await vault.balanceOf(deployer.address))
+        // @ts-ignore
         .to.greaterThan(ethers.parseUnits('9', 17))
+        // @ts-ignore
         .lessThanOrEqual(ethers.parseUnits('10', 18));
       expect(await vault.totalSupply())
+        // @ts-ignore
         .to.greaterThan(ethers.parseUnits('9', 17))
+        // @ts-ignore
         .lessThanOrEqual(ethers.parseUnits('10', 18));
       expect(await vault.totalAssets())
+        // @ts-ignore
         .to.greaterThan(ethers.parseUnits('9', 17))
+        // @ts-ignore
         .lessThanOrEqual(ethers.parseUnits('11', 17));
 
       expect(await vault.totalAssets())
+        // @ts-ignore
         .to.greaterThan(ethers.parseUnits('9', 17))
+        // @ts-ignore
         .lessThanOrEqual(ethers.parseUnits('11', 17));
     });
 
@@ -57,10 +65,12 @@ describeif(network.name === 'ethereum_devnet' || network.name === 'base_devnet')
       const [collateralBalance, debtBalance] = await strategy.getBalances();
 
       expect(collateralBalance)
+        // @ts-ignore
         .to.greaterThan(ethers.parseUnits('3', 18))
         // @ts-ignore
         .lessThanOrEqual(ethers.parseUnits('5', 18));
       expect(debtBalance)
+        // @ts-ignore
         .to.greaterThan(ethers.parseUnits('3', 18))
         // @ts-ignore
         .lessThanOrEqual(ethers.parseUnits('5', 18));
@@ -90,10 +100,12 @@ describeif(network.name === 'ethereum_devnet' || network.name === 'base_devnet')
       const [collateralBalanceInUSD, debtBalanceInUSD] = await strategy.getPosition([0, 0]);
 
       expect(collateralBalanceInUSD)
+        // @ts-ignore
         .to.greaterThan(ethers.parseUnits('10000', 18))
         // @ts-ignore
         .lessThanOrEqual(ethers.parseUnits('100000', 18));
       expect(debtBalanceInUSD)
+        // @ts-ignore
         .to.greaterThan(ethers.parseUnits('1000', 18))
         // @ts-ignore
         .lessThanOrEqual(ethers.parseUnits('100000', 18));
@@ -110,7 +122,9 @@ describeif(network.name === 'ethereum_devnet' || network.name === 'base_devnet')
       });
 
       expect(await vault.totalAssets())
+        // @ts-ignore
         .to.greaterThan(ethers.parseUnits('9', 17))
+        // @ts-ignore
         .lessThanOrEqual(ethers.parseUnits('11', 17));
     });
   },
