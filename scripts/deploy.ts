@@ -40,12 +40,12 @@ export const RegistryNames = [
   'ETH/USD Oracle',
   'BakerFiProxyAdmin',
   'Pyth',
-
   `${StrategyImplementation.AAVE_V3_WSTETH_ETH} Strategy`,
   `${StrategyImplementation.AAVE_V3_WSTETH_ETH} Vault`,
   `${StrategyImplementation.MORPHO_BLUE_WSTETH_ETH} Strategy`,
   `${StrategyImplementation.MORPHO_BLUE_WSTETH_ETH} Vault`,
 ];
+
 
 type RegistryName = (typeof RegistryNames)[number];
 /****************************************
