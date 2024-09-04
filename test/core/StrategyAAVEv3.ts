@@ -16,11 +16,7 @@ import {
 
 import { describeif } from '../common';
 import BaseConfig from '../../constants/network-deploy-config';
-import {
-  AAVEv3Market,
-  NetworkConfig,
-  StrategyImplementation,
-} from '../../constants/types';
+import { AAVEv3Market, NetworkConfig, StrategyImplementation } from '../../constants/types';
 
 /**
  * StrategyLeverageAAVEv3 Unit Tests
@@ -444,7 +440,10 @@ async function deployFunction() {
     (config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH] as AAVEv3Market).AAVEEModeCategory,
     proxyAdmin,
   );
-  const pStrategy = await ethers.getContractAt('StrategyLeverageAAVEv3', await proxyStrategy.getAddress());
+  const pStrategy = await ethers.getContractAt(
+    'StrategyLeverageAAVEv3',
+    await proxyStrategy.getAddress(),
+  );
 
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from('Strategy')),

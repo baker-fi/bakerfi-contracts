@@ -4,7 +4,7 @@ import { ethers, network } from 'hardhat';
 import { describeif } from '../common';
 
 import { AbiCoder } from 'ethers';
-import {  feedIds } from '../../constants/pyth';
+import { feedIds } from '../../constants/pyth';
 import { OracleNamesEnum } from '../../constants/types';
 
 describeif(network.name === 'hardhat')('Pyth Oracle Tests', function () {
@@ -71,13 +71,7 @@ describeif(network.name === 'hardhat')('Pyth Oracle Tests', function () {
     const { pythOracle } = await loadFixture(deployFunction);
     const updateData = new AbiCoder().encode(
       ['tuple(bytes32, tuple(int64, uint64, int32, uint),  tuple(int64, uint64, int32, uint))'],
-      [
-        [
-          feedIds[OracleNamesEnum.WSTETH_USD],
-          [1200, 10, 2, 1706801584],
-          [1200, 10, 2, 1706801584],
-        ],
-      ],
+      [[feedIds[OracleNamesEnum.WSTETH_USD], [1200, 10, 2, 1706801584], [1200, 10, 2, 1706801584]]],
     );
     await pythOracle.getAndUpdatePrice(updateData, {
       value: 10,
@@ -113,13 +107,7 @@ describeif(network.name === 'hardhat')('Pyth Oracle Tests', function () {
     const { pythMock, pythOracle } = await loadFixture(deployFunction);
     const updateData = new AbiCoder().encode(
       ['tuple(bytes32, tuple(int64, uint64, int32, uint),  tuple(int64, uint64, int32, uint))'],
-      [
-        [
-          feedIds[OracleNamesEnum.WSTETH_USD],
-          [1200, 0, 30, 1706801584],
-          [1200, 0, 30, 1706801584],
-        ],
-      ],
+      [[feedIds[OracleNamesEnum.WSTETH_USD], [1200, 0, 30, 1706801584], [1200, 0, 30, 1706801584]]],
     );
     await pythMock.updatePriceFeeds([updateData], { value: 10 });
     await expect(pythOracle.getSafeLatestPrice([180, 1 * 10 ** 8])).to.be.revertedWithCustomError(

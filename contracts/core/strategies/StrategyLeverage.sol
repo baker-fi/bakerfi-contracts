@@ -353,7 +353,7 @@ abstract contract StrategyLeverage is
     if (data.action == FlashLoanAction.SUPPLY_BORROW) {
       _supplyBorrow(data.originalAmount, amount, fee);
     } else if (data.action == FlashLoanAction.PAY_DEBT_WITHDRAW) {
-        _repayAndWithdraw(data.originalAmount, amount, fee, payable(data.receiver));
+      _repayAndWithdraw(data.originalAmount, amount, fee, payable(data.receiver));
     } else if (data.action == FlashLoanAction.PAY_DEBT) {
       _payDebt(amount, fee);
     } else {
@@ -361,7 +361,7 @@ abstract contract StrategyLeverage is
     }
 
     return _SUCCESS_MESSAGE;
-}
+  }
   /**
    * @dev Initiates the undeployment of a specified amount, sending the resulting ETH to the contract owner.
    *
@@ -426,8 +426,7 @@ abstract contract StrategyLeverage is
 
     // Return the total amount adjusted, including the flash loan fee
     deltaAmount = deltaDebt + fee;
-}
-
+  }
 
   /**
    * @dev Harvests the strategy by rebalancing the collateral and debt positions.
@@ -632,8 +631,7 @@ abstract contract StrategyLeverage is
     emit StrategyAmountUpdate(_deployedAssets);
     // Pending amount is not cleared to save gas
     //_pendingAmount = 0;
-}
-
+  }
 
   /**
    * @dev Repays the debt on AAVEv3 strategy, handling the withdrawal and swap operations.
@@ -690,8 +688,7 @@ abstract contract StrategyLeverage is
 
     // Emit event for strategy undeployment
     emit StrategyUndeploy(msg.sender, debtAmount);
-}
-
+  }
 
   /**
    * @dev Internal function to convert the specified amount from Debt Token to the underlying collateral asset cbETH, wstETH, rETH.

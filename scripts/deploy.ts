@@ -3,10 +3,7 @@ import hre from 'hardhat';
 import { ethers } from 'hardhat';
 import BaseConfig from '../constants/network-deploy-config';
 
-import {
-  NetworkConfig,
-  StrategyImplementation,
-} from '../constants/types';
+import { NetworkConfig, StrategyImplementation } from '../constants/types';
 import ora from 'ora';
 import { ContractClientWallet } from './lib/contract-client-wallet';
 import { STAGING_ACCOUNTS_PKEYS } from '../constants/test-accounts';
@@ -45,7 +42,6 @@ export const RegistryNames = [
   `${StrategyImplementation.MORPHO_BLUE_WSTETH_ETH} Strategy`,
   `${StrategyImplementation.MORPHO_BLUE_WSTETH_ETH} Vault`,
 ];
-
 
 type RegistryName = (typeof RegistryNames)[number];
 /****************************************
@@ -224,17 +220,13 @@ async function deployOracles(
 
     switch (oracle.type) {
       case 'chainlink':
-        oracleReceipt = await client.deploy('ChainLinkOracle', [
-          oracle.aggregator, 0, 0
-        ], {
+        oracleReceipt = await client.deploy('ChainLinkOracle', [oracle.aggregator, 0, 0], {
           chainId,
           minTxConfirmations: config.minTxConfirmations,
         });
         break;
       case 'pyth':
-        oracleReceipt = await client.deploy('PythOracle', [
-          oracle.feedId, config.pyth
-        ], {
+        oracleReceipt = await client.deploy('PythOracle', [oracle.feedId, config.pyth], {
           chainId,
           minTxConfirmations: config.minTxConfirmations,
         });

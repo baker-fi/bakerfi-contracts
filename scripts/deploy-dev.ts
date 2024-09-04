@@ -14,11 +14,7 @@ import {
   deployAAVEv3Strategy,
 } from './common';
 
-import {
-  AAVEv3Market,
-  NetworkConfig,
-  StrategyImplementation,
-} from '../constants/types';
+import { AAVEv3Market, NetworkConfig, StrategyImplementation } from '../constants/types';
 
 import BaseConfig from '../constants/network-deploy-config';
 

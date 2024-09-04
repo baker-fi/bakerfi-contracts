@@ -14,11 +14,7 @@ import {
   deploySettings,
   deployAAVEv3Strategy,
 } from '../../scripts/common';
-import {
-  AAVEv3Market,
-  NetworkConfig,
-  StrategyImplementation,
-} from '../../constants/types';
+import { AAVEv3Market, NetworkConfig, StrategyImplementation } from '../../constants/types';
 import BaseConfig from '../../constants/network-deploy-config';
 import { time } from '@nomicfoundation/hardhat-network-helpers';
 import { anyValue } from '@nomicfoundation/hardhat-chai-matchers/withArgs';
@@ -1283,7 +1279,10 @@ async function deployFunction() {
     proxyAdmin,
   );
 
-  const pStrategy = await ethers.getContractAt('StrategyLeverageAAVEv3', await proxyStrategy.getAddress());
+  const pStrategy = await ethers.getContractAt(
+    'StrategyLeverageAAVEv3',
+    await proxyStrategy.getAddress(),
+  );
 
   const { proxy } = await deployVault(
     owner.address,

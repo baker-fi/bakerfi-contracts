@@ -27,7 +27,7 @@ describeif(network.name === 'ethereum_devnet' || network.name === 'base_devnet')
         vault.depositNative(deployer.address, {
           value: depositAmount,
         }),
-      )// @ts-ignore
+      ) // @ts-ignore
         .to.emit(strategy, 'StrategyDeploy')
         .emit(strategy, 'StrategyAmountUpdate');
 

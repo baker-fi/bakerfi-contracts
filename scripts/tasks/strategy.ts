@@ -12,9 +12,15 @@ task('strategy:setNrLoops', 'Set number of Loopps')
     const spinner = ora(`Settting Nr Of Loops to ${value}`).start();
     try {
       let app = await getClient(ethers);
-      await app?.send('StrategyLeverageAAVEv3', networkConfig.strategyProxy ?? '', 'setNrLoops', [value], {
-        chainId: network.config.chainId,
-      }),
+      await app?.send(
+        'StrategyLeverageAAVEv3',
+        networkConfig.strategyProxy ?? '',
+        'setNrLoops',
+        [value],
+        {
+          chainId: network.config.chainId,
+        },
+      ),
         spinner.succeed(`🧑‍🍳 Nr of Loops Changed to ${value} ✅ `);
     } catch (e) {
       console.log(e);

@@ -6,7 +6,6 @@ import { time } from '@nomicfoundation/hardhat-network-helpers';
 import BaseConfig from '../../constants/network-deploy-config';
 import { NetworkConfig } from '../../constants/types';
 
-
 export async function deploy() {
   const [owner] = await ethers.getSigners();
   const networkName = network.name;

@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { ethers, network } from 'hardhat';
 import { describeif } from '../common';
 import { time } from '@nomicfoundation/hardhat-network-helpers';
-import {  feedIds } from '../../constants/pyth';
+import { feedIds } from '../../constants/pyth';
 import { AbiCoder } from 'ethers';
 import BaseConfig from '../../constants/network-deploy-config';
 import { ClExRateOracle, NetworkConfig, OracleNamesEnum } from '../../constants/types';
@@ -119,7 +119,7 @@ describeif(network.name === 'base_devnet')('Ratio Oracle', function () {
     const pythOracle = await PythOracle.deploy(feedIds[OracleNamesEnum.ETH_USD], config.pyth);
     const ChainLinkExRateOracle = await ethers.getContractFactory('ChainLinkExRateOracle');
 
-    const oracleConfig = config.oracles?.find((pair) => pair.name == "wstETH/USD Oracle");
+    const oracleConfig = config.oracles?.find((pair) => pair.name == 'wstETH/USD Oracle');
     const oracle = await ChainLinkExRateOracle.deploy(
       await pythOracle.getAddress(),
       (oracleConfig as ClExRateOracle).rateAggregator,
