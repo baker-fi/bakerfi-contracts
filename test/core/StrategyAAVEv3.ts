@@ -12,14 +12,14 @@ import {
   deployWETH,
   deploySettings,
   deployAAVEv3Strategy,
-  deployQuoterV2Mock,
 } from '../../scripts/common';
 
 import { describeif } from '../common';
-import BaseConfig, { AAVEv3Market, NetworkConfig, StrategyImplementation } from '../../constants/network-deploy-config';
+import BaseConfig from '../../constants/network-deploy-config';
+import { AAVEv3Market, NetworkConfig, StrategyImplementation } from '../../constants/types';
 
 /**
- * StrategyAAVEv3 Unit Tests
+ * StrategyLeverageAAVEv3 Unit Tests
  */
 describeif(network.name === 'hardhat')('Strategy Leverage AAVEv3', function () {
   it('Test Initialized Strategy', async function () {
@@ -172,7 +172,7 @@ describeif(network.name === 'hardhat')('Strategy Leverage AAVEv3', function () {
       proxyAdmin,
     );
     const pStrategy = await ethers.getContractAt(
-      'StrategyAAVEv3',
+      'StrategyLeverageAAVEv3',
       await proxyStrategy.getAddress(),
     );
 
@@ -213,7 +213,7 @@ describeif(network.name === 'hardhat')('Strategy Leverage AAVEv3', function () {
       proxyAdmin,
     );
     const pStrategy = await ethers.getContractAt(
-      'StrategyAAVEv3',
+      'StrategyLeverageAAVEv3',
       await proxyStrategy.getAddress(),
     );
 
@@ -428,8 +428,6 @@ async function deployFunction() {
   await oracle.setDecimals(18);
   await ethOracle.setDecimals(18);
 
-  await deployQuoterV2Mock(serviceRegistry);
-
   const { proxy: proxyStrategy } = await deployAAVEv3Strategy(
     owner.address,
     owner.address,
@@ -442,7 +440,10 @@ async function deployFunction() {
     (config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH] as AAVEv3Market).AAVEEModeCategory,
     proxyAdmin,
   );
-  const pStrategy = await ethers.getContractAt('StrategyAAVEv3', await proxyStrategy.getAddress());
+  const pStrategy = await ethers.getContractAt(
+    'StrategyLeverageAAVEv3',
+    await proxyStrategy.getAddress(),
+  );
 
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from('Strategy')),

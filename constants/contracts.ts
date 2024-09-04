@@ -2,24 +2,7 @@
  * Deployed Contract Addresses
  */
 
-import { Networks } from "./network-deploy-config";
-
-export type BakerDeployConfig = {
-    proxyAdmin?: string;
-    serviceRegistry: string;
-    flashLender: string;
-    wstETHUSDOracle:string;
-    ethUSDOracle: string;
-    strategy:string;
-    strategyProxy?: string;
-    vault: string;
-    vaultProxy?: string;
-    settings: string;
-    settingsProxy?: string;
-    bkr?: string;
-    wstETHUSDOracleFeedId?: string;
-    ethUSDOracleFeedId?: string;
-}
+import { BakerDeployConfig } from "./types";
 
 export const deployConfigMap : {[key: string]: BakerDeployConfig} =
 {

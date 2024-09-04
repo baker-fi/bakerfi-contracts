@@ -13,7 +13,7 @@ import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
 import { MORPHO_BLUE_CONTRACT } from "../../core/ServiceRegistry.sol";
 import { SYSTEM_DECIMALS } from "../../core/Constants.sol";
 import { MathLibrary } from "../../libraries/MathLibrary.sol";
-import {SharesMathLib} from "@morpho-org/morpho-blue/src/libraries/SharesMathLib.sol";
+import { SharesMathLib } from "@morpho-org/morpho-blue/src/libraries/SharesMathLib.sol";
 
 /**
  * @title Recursive Staking Strategy for Morpho Blue
@@ -40,7 +40,7 @@ import {SharesMathLib} from "@morpho-org/morpho-blue/src/libraries/SharesMathLib
   using MorphoBalancesLib for IMorpho;
   using MarketParamsLib for MarketParams;
   using MathLibrary for uint256;
-  using SharesMathLib  for uint256;
+  using SharesMathLib for uint256;
 
   struct StrategyLeverageMorphoParams {
     bytes32 collateralToken; ///< The token used as collateral in the strategy.
@@ -109,7 +109,7 @@ import {SharesMathLib} from "@morpho-org/morpho-blue/src/libraries/SharesMathLib
     // Verify if the market exists on Morpho
     Id marketId = _marketParams.id();
     MarketParams memory lParams = _morpho.idToMarketParams(marketId);
-    if(lParams.lltv == 0) revert InvalidMorphoBlueMarket();
+    if (lParams.lltv == 0) revert InvalidMorphoBlueMarket();
   }
 
   /**
@@ -144,7 +144,8 @@ import {SharesMathLib} from "@morpho-org/morpho-blue/src/libraries/SharesMathLib
    * @dev This function approves the Morpho contract to spend the asset and then transfers the asset from the user to the contract.
    */
   function _supply(uint256 amountIn) internal virtual override {
-    if (!ERC20(_collateralToken).approve(address(_morpho), amountIn)) revert FailedToApproveAllowance();
+    if (!ERC20(_collateralToken).approve(address(_morpho), amountIn))
+      revert FailedToApproveAllowance();
     address onBehalf = address(this);
     _morpho.supplyCollateral(_marketParams, amountIn, onBehalf, hex"");
   }
@@ -159,7 +160,7 @@ import {SharesMathLib} from "@morpho-org/morpho-blue/src/libraries/SharesMathLib
     uint256 collateralAmount,
     uint256 debtAmount
   ) internal virtual override {
-    _supply( collateralAmount);
+    _supply(collateralAmount);
     uint256 shares;
     address onBehalf = address(this);
     address receiver = address(this);
@@ -179,13 +180,15 @@ import {SharesMathLib} from "@morpho-org/morpho-blue/src/libraries/SharesMathLib
     uint256 shares = 0;
     uint256 amountPaid = 0;
     // Get the Market Balances
-    (,, uint256 totalBorrowAssets, uint256 totalBorrowShares) = _morpho.expectedMarketBalances(_marketParams);
+    (, , uint256 totalBorrowAssets, uint256 totalBorrowShares) = _morpho.expectedMarketBalances(
+      _marketParams
+    );
     // Bound the Max Repay Amount to prevent underflow or overflows
     uint256 borrowShares = _morpho.position(marketId, address(this)).borrowShares;
     uint256 repaidAmount = borrowShares.toAssetsUp(totalBorrowAssets, totalBorrowShares);
     // Use the Shares when we are clearing our position or use the debt amount for other cases
     // This approach follows Morpho Protocol Documentation
-    if ( amount >= repaidAmount ) {
+    if (amount >= repaidAmount) {
       shares = borrowShares;
     } else {
       amountPaid = amount;

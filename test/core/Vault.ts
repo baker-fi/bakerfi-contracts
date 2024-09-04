@@ -12,10 +12,10 @@ import {
   deployWETH,
   deployCbETH,
   deploySettings,
-  deployQuoterV2Mock,
   deployAAVEv3Strategy,
 } from '../../scripts/common';
-import BaseConfig, { AAVEv3Market, NetworkConfig, StrategyImplementation } from '../../constants/network-deploy-config';
+import { AAVEv3Market, NetworkConfig, StrategyImplementation } from '../../constants/types';
+import BaseConfig from '../../constants/network-deploy-config';
 import { time } from '@nomicfoundation/hardhat-network-helpers';
 import { anyValue } from '@nomicfoundation/hardhat-chai-matchers/withArgs';
 
@@ -24,7 +24,6 @@ import { anyValue } from '@nomicfoundation/hardhat-chai-matchers/withArgs';
  */
 
 describeif(network.name === 'hardhat')('BakerFi Vault', function () {
-
   it('Vault Initilization', async function () {
     const { owner, vault, strategy } = await loadFixture(deployFunction);
     expect(await vault.symbol()).to.equal('brETH');
@@ -1266,7 +1265,6 @@ async function deployFunction() {
   await ethOracle.setLatestPrice(ethers.parseUnits('2305', 18));
   await oracle.setDecimals(18);
   await ethOracle.setDecimals(18);
-  await deployQuoterV2Mock(serviceRegistry);
 
   const { proxy: proxyStrategy } = await deployAAVEv3Strategy(
     owner.address,
@@ -1281,7 +1279,10 @@ async function deployFunction() {
     proxyAdmin,
   );
 
-  const pStrategy = await ethers.getContractAt('StrategyAAVEv3', await proxyStrategy.getAddress());
+  const pStrategy = await ethers.getContractAt(
+    'StrategyLeverageAAVEv3',
+    await proxyStrategy.getAddress(),
+  );
 
   const { proxy } = await deployVault(
     owner.address,

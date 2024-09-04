@@ -11,10 +11,10 @@ import {
   deployOracleMock,
   deployWETH,
   deploySettings,
-  deployQuoterV2Mock,
 } from '../../scripts/common';
 
-import BaseConfig, { AAVEv3Market, NetworkConfig, StrategyImplementation } from '../../constants/network-deploy-config';
+import BaseConfig from '../../constants/network-deploy-config';
+import { AAVEv3Market, NetworkConfig, StrategyImplementation } from '../../constants/types';
 
 describeif(network.name === 'hardhat')('Strategy Proxy', function () {
   async function deployFunction() {
@@ -71,15 +71,14 @@ describeif(network.name === 'hardhat')('Strategy Proxy', function () {
     await deployOracleMock(serviceRegistry, 'cbETH/USD Oracle');
     const ethOracle = await deployOracleMock(serviceRegistry, 'ETH/USD Oracle');
     await ethOracle.setLatestPrice(ethers.parseUnits('1', 18));
-    await deployQuoterV2Mock(serviceRegistry);
 
-    const StrategyAAVEv3 = await ethers.getContractFactory('StrategyAAVEv3');
-    const strategyLogic = await StrategyAAVEv3.deploy();
+    const StrategyLeverageAAVEv3 = await ethers.getContractFactory('StrategyLeverageAAVEv3');
+    const strategyLogic = await StrategyLeverageAAVEv3.deploy();
 
     const proxyDeployment = await BakerFiProxy.deploy(
       await strategyLogic.getAddress(),
       await proxyAdmin.getAddress(),
-      StrategyAAVEv3.interface.encodeFunctionData('initialize', [
+      StrategyLeverageAAVEv3.interface.encodeFunctionData('initialize', [
         owner.address,
         owner.address,
         serviceRegistryAddress,
@@ -88,11 +87,12 @@ describeif(network.name === 'hardhat')('Strategy Proxy', function () {
         ethers.keccak256(Buffer.from('cbETH/USD Oracle')),
         ethers.keccak256(Buffer.from('ETH/USD Oracle')),
         config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
-        (config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH] as AAVEv3Market).AAVEEModeCategory,
+        (config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH] as AAVEv3Market)
+          .AAVEEModeCategory,
       ]),
     );
     await proxyDeployment.waitForDeployment();
-    const strategyProxy = await StrategyAAVEv3.attach(await proxyDeployment.getAddress());
+    const strategyProxy = await StrategyLeverageAAVEv3.attach(await proxyDeployment.getAddress());
     return {
       owner,
       otherAccount,

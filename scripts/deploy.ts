@@ -1,11 +1,9 @@
 import 'dotenv/config';
 import hre from 'hardhat';
 import { ethers } from 'hardhat';
-import BaseConfig, {
-  NetworkConfig,
-  OracleRegistryNames,
-  StrategyImplementation,
-} from '../constants/network-deploy-config';
+import BaseConfig from '../constants/network-deploy-config';
+
+import { NetworkConfig, StrategyImplementation } from '../constants/types';
 import ora from 'ora';
 import { ContractClientWallet } from './lib/contract-client-wallet';
 import { STAGING_ACCOUNTS_PKEYS } from '../constants/test-accounts';
@@ -13,13 +11,12 @@ import { ContractClient } from './lib/contract-client';
 import { ContractClientLedger } from './lib/contract-client-ledger';
 import ContractTree from '../src/contract-blob.json';
 import { TransactionReceipt } from 'ethers';
-import { PythFeedNameEnum, feedIds } from '../constants/pyth';
 
 const networkName = hre.network.name;
 const chainId = BigInt(hre.network.config.chainId ?? 0n);
 
 // Script Parameters Section
-const strategy  = process.env.STRATEGY || StrategyImplementation.AAVE_V3_WSTETH_ETH;
+const strategy = process.env.STRATEGY || StrategyImplementation.AAVE_V3_WSTETH_ETH;
 
 type ProxyContracts = keyof typeof ContractTree;
 
@@ -29,7 +26,6 @@ export const RegistryNames = [
   'Pyth',
   'DeploymentRegistry',
   'Uniswap Router',
-  'Uniswap Quoter',
   'WETH',
   'stETH',
   'wstETH',
@@ -46,7 +42,6 @@ export const RegistryNames = [
   `${StrategyImplementation.MORPHO_BLUE_WSTETH_ETH} Strategy`,
   `${StrategyImplementation.MORPHO_BLUE_WSTETH_ETH} Vault`,
 ];
-
 
 type RegistryName = (typeof RegistryNames)[number];
 /****************************************
@@ -81,10 +76,10 @@ async function main() {
   let strategyAddress;
   let strategyConfig;
   let strategyContract;
-  switch(strategy) {
+  switch (strategy) {
     case StrategyImplementation.AAVE_V3_WSTETH_ETH:
       strategyConfig = config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH];
-      strategyContract = 'StrategyAAVEv3';
+      strategyContract = 'StrategyLeverageAAVEv3';
 
       strategyAddress = await deployProxyContract(
         app,
@@ -130,15 +125,15 @@ async function main() {
             strategyConfig.swapFeeTier,
             strategyConfig.oracle,
             strategyConfig.irm,
-            strategyConfig.lltv
-          ]
+            strategyConfig.lltv,
+          ],
         ],
         spinner,
         result,
       );
       break;
     default:
-      throw Error("Unrecognized strategy;");
+      throw Error('Unrecognized strategy;');
   }
 
   ////////////////////////////////////
@@ -213,47 +208,66 @@ async function main() {
 async function deployOracles(
   client: ContractClient<typeof ContractTree>,
   chainId: bigint,
-  config,
+  config: NetworkConfig,
   registryAddress: string,
   spinner,
   result,
 ) {
+  const oracles = {};
   for (const oracle of config.oracles) {
-    spinner.text = `Deploying ${oracle.pair} Oracle`;
-    let feedId;
-    let oracleName: OracleRegistryNames | null = null;
-    switch (oracle.pair) {
-      case 'cbETH/USD':
-        feedId = feedIds[PythFeedNameEnum.CBETH_USD];
-        oracleName = 'cbETH/USD Oracle';
+    spinner.text = `Deploying ${oracle.name} Oracle`;
+    let oracleReceipt;
+
+    switch (oracle.type) {
+      case 'chainlink':
+        oracleReceipt = await client.deploy('ChainLinkOracle', [oracle.aggregator, 0, 0], {
+          chainId,
+          minTxConfirmations: config.minTxConfirmations,
+        });
         break;
-      case 'wstETH/USD':
-        feedId = feedIds[PythFeedNameEnum.WSTETH_USD];
-        oracleName = 'wstETH/USD Oracle';
+      case 'pyth':
+        oracleReceipt = await client.deploy('PythOracle', [oracle.feedId, config.pyth], {
+          chainId,
+          minTxConfirmations: config.minTxConfirmations,
+        });
         break;
-      case 'ETH/USD':
-        feedId = feedIds[PythFeedNameEnum.ETH_USD];
-        oracleName = 'ETH/USD Oracle';
+      case 'clExRate':
+        oracleReceipt = await client.deploy(
+          'ChainLinkExRateOracle',
+          [oracles[oracle.base].contractAddress, oracle.rateAggregator],
+          {
+            chainId,
+            minTxConfirmations: config.minTxConfirmations,
+          },
+        );
+        break;
+      case 'customExRate':
+        oracleReceipt = await client.deploy(
+          'CustomExRateOracle',
+          [oracles[oracle.base].contractAddress, [oracle.target, oracle.callData], 18],
+          {
+            chainId,
+            minTxConfirmations: config.minTxConfirmations,
+          },
+        );
         break;
       default:
-        throw Error('Unknow Oracle type');
+        throw Error('Oracle type unrecognized');
     }
-    const oracleReceipt = await client.deploy('PythOracle', [feedId, config.pyth], {
-      chainId,
-      minTxConfirmations: config.minTxConfirmations,
-    });
-    spinner.text = `Registering ${oracle.pair} Oracle`;
+
+    oracles[oracle.name] = oracleReceipt;
+    spinner.text = `Registering ${oracle.name} Oracle`;
     await client.send(
       'ServiceRegistry',
       registryAddress,
       'registerService',
-      [ethers.keccak256(Buffer.from(oracleName)), oracleReceipt?.contractAddress],
+      [ethers.keccak256(Buffer.from(oracle.name)), oracleReceipt?.contractAddress],
       {
         chainId,
         minTxConfirmations: config.minTxConfirmations,
       },
     );
-    result.push([`${oracle.pair} Oracle`, oracleReceipt?.contractAddress, oracleReceipt?.hash]);
+    result.push([`${oracle.name} Oracle`, oracleReceipt?.contractAddress, oracleReceipt?.hash]);
   }
 }
 
@@ -365,23 +379,13 @@ async function deployInfra(
     spinner,
     result,
   );
-  // Registering Uniswap Quoter
-  await registerName(
-    app,
-    config,
-    registryReceipt,
-    'Uniswap Quoter',
-    config.uniswapQuoter,
-    spinner,
-    result,
-  );
-  // Registering Uniswap Quoter
+  // Registering Pyth
   await registerName(app, config, registryReceipt, 'Pyth', config.pyth, spinner, result);
-  if(config.AAVEPool) {
+  if (config.AAVEPool) {
     await registerName(app, config, registryReceipt, 'AAVEv3', config.AAVEPool, spinner, result);
   }
   // AAVE Vault
-  if(config.morpho) {
+  if (config.morpho) {
     await registerName(app, config, registryReceipt, 'Morpho Blue', config.morpho, spinner, result);
   }
   // Register Balancer Vault

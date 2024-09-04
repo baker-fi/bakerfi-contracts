@@ -11,15 +11,19 @@ import {
   deploySettings,
 } from '../../scripts/common';
 import { PriceServiceConnection } from '@pythnetwork/price-service-client';
-
-import BaseConfig, { AAVEv3Market, MorphoMarket, NetworkConfig, StrategyImplementation } from '../../constants/network-deploy-config';
-import { feedIds, PythFeedNameEnum } from '../../constants/pyth';
-
+import BaseConfig from '../../constants/network-deploy-config';
+import {
+  AAVEv3Market,
+  MorphoMarket,
+  NetworkConfig,
+  OracleNamesEnum,
+  StrategyImplementation,
+} from '../../constants/types';
+import { feedIds } from '../../constants/pyth';
 
 export async function deployMorphoProd() {
   return await deployProd(StrategyImplementation.MORPHO_BLUE_WSTETH_ETH);
 }
-
 
 export async function deployAAVEProd() {
   return await deployProd(StrategyImplementation.AAVE_V3_WSTETH_ETH);
@@ -55,12 +59,12 @@ export async function deployProd(type: StrategyImplementation) {
   // 8. Register wstETH
   await serviceRegistry.registerService(ethers.keccak256(Buffer.from('wstETH')), config.wstETH);
   // 9. Deploy the Oracle
-
-  await deployWSTETHToUSDOracle(serviceRegistry, config.pyth);
   await deployETHOracle(serviceRegistry, config.pyth);
 
+  await deployWSTETHToUSDOracle(serviceRegistry, config.pyth);
+
   await updatePythPrices(
-    [feedIds[PythFeedNameEnum.ETH_USD], feedIds[PythFeedNameEnum.WSTETH_USD]],
+    [feedIds[OracleNamesEnum.ETH_USD], feedIds[OracleNamesEnum.WSTETH_USD]],
     config.pyth,
   );
 
@@ -75,10 +79,13 @@ export async function deployProd(type: StrategyImplementation) {
 
   let strategyProxyDeploy;
   // 12. Deploy the Strategy
-  switch(type) {
+  switch (type) {
     case StrategyImplementation.AAVE_V3_WSTETH_ETH:
-      await serviceRegistry.registerService(ethers.keccak256(Buffer.from('AAVEv3')), config.AAVEPool);
-      const { proxy: aProxy} = await deployAAVEv3Strategy(
+      await serviceRegistry.registerService(
+        ethers.keccak256(Buffer.from('AAVEv3')),
+        config.AAVEPool,
+      );
+      const { proxy: aProxy } = await deployAAVEv3Strategy(
         deployer.address,
         deployer.address,
         await serviceRegistry.getAddress(),
@@ -87,14 +94,18 @@ export async function deployProd(type: StrategyImplementation) {
         'wstETH/USD Oracle',
         'ETH/USD Oracle',
         config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
-        (config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH] as AAVEv3Market).AAVEEModeCategory,
+        (config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH] as AAVEv3Market)
+          .AAVEEModeCategory,
         proxyAdmin,
       );
       strategyProxyDeploy = aProxy;
       break;
 
     case StrategyImplementation.MORPHO_BLUE_WSTETH_ETH:
-      await serviceRegistry.registerService(ethers.keccak256(Buffer.from('Morpho Blue')), config.morpho);
+      await serviceRegistry.registerService(
+        ethers.keccak256(Buffer.from('Morpho Blue')),
+        config.morpho,
+      );
       const { proxy: mProxy } = await deployStrategyLeverageMorphoBlue(
         deployer.address,
         deployer.address,
@@ -112,7 +123,7 @@ export async function deployProd(type: StrategyImplementation) {
       strategyProxyDeploy = mProxy;
       break;
     default:
-        throw "No ";
+      throw 'No ';
   }
 
   await serviceRegistry.registerService(
@@ -131,7 +142,7 @@ export async function deployProd(type: StrategyImplementation) {
   );
 
   const weth = await ethers.getContractAt('IWETH', config.weth);
-  const aave3Pool = await ethers.getContractAt('IPoolV3', config.AAVEPool ?? "");
+  const aave3Pool = await ethers.getContractAt('IPoolV3', config.AAVEPool ?? '');
   const wstETH = await ethers.getContractAt('IERC20', config.wstETH);
 
   const settingsProxy = await ethers.getContractAt(
@@ -140,7 +151,7 @@ export async function deployProd(type: StrategyImplementation) {
   );
 
   const strategyProxy = await ethers.getContractAt(
-    'StrategyAAVEv3',
+    'StrategyLeverageAAVEv3',
     await strategyProxyDeploy.getAddress(),
   );
   const vaultProxy = await ethers.getContractAt('Vault', await vaultProxyDeploy.getAddress());

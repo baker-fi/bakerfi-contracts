@@ -62,7 +62,7 @@ async function main() {
 
   spinner.text = `Deploying new  Strategy Contract`;
 
-  const stratReceipt = await app?.deploy('StrategyAAVEv3', [], {
+  const stratReceipt = await app?.deploy('StrategyLeverageAAVEv3', [], {
     chainId: BigInt(hre.network.config.chainId ?? 0),
     minTxConfirmations: MIN_CONFIRMATIONS,
   });
@@ -73,7 +73,7 @@ async function main() {
     'BakerFiProxyAdmin',
     networkConfig?.proxyAdmin ?? '',
     'upgrade',
-    [networkConfig.strategyProxy,stratReceipt.contractAddress],
+    [networkConfig.strategyProxy, stratReceipt.contractAddress],
     {
       chainId: BigInt(hre.network.config.chainId ?? 0),
       minTxConfirmations: MIN_CONFIRMATIONS,
@@ -111,7 +111,7 @@ async function main() {
   spinner.text = `Setting Collarateral Oracle`;
   // Upgrade ETH/USD and WSTETH/USD ORacles
   await app?.send(
-    'StrategyAAVEv3',
+    'StrategyLeverageAAVEv3',
     networkConfig?.strategyProxy ?? '',
     'setCollateralOracle',
     [networkConfig.wstETHUSDOracle],
@@ -124,7 +124,7 @@ async function main() {
 
   spinner.text = `Setting Debt Oracle`;
   await app?.send(
-    'StrategyAAVEv3',
+    'StrategyLeverageAAVEv3',
     networkConfig?.strategyProxy ?? '',
     'setDebtOracle',
     [networkConfig.ethUSDOracle],

@@ -1,7 +1,8 @@
 import DeployConfig from '../constants/contracts';
-import NetworkDeployConfig, { StrategyImplementation } from '../constants/network-deploy-config';
+import NetworkDeployConfig from '../constants/network-deploy-config';
 import hre from 'hardhat';
-import { feedIds, PythFeedNameEnum } from '../constants/pyth';
+import { feedIds } from '../constants/pyth';
+import { OracleNamesEnum, StrategyImplementation } from '../constants/types';
 
 async function main() {
   const networkName = hre.network.name;
@@ -36,7 +37,7 @@ async function main() {
   // Verifying Proxy Admin
   await hre.run('verify:verify', {
     address: deployConfig.ethUSDOracle,
-    constructorArguments: [feedIds[PythFeedNameEnum.ETH_USD], networkConfig.pyth],
+    constructorArguments: [feedIds[OracleNamesEnum.ETH_USD], networkConfig.pyth],
   });
   console.log('Verifying Settings');
   await hre.run('verify:verify', {
@@ -61,7 +62,7 @@ async function main() {
     constructorArguments: [],
   });
   console.log('Verifying Strategy Proxy');
-  const strategyFactory = await hre.ethers.getContractFactory('StrategyAAVEv3');
+  const strategyFactory = await hre.ethers.getContractFactory('StrategyLeverageAAVEv3');
   await hre.run('verify:verify', {
     address: deployConfig.strategyProxy,
     contract: 'contracts/proxy/BakerFiProxy.sol:BakerFiProxy',

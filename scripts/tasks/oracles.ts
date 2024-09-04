@@ -3,7 +3,8 @@ import { task } from 'hardhat/config';
 import DeployConfig from '../../constants/contracts';
 import NetworkDeployConfig from '../../constants/network-deploy-config';
 import { PriceServiceConnection } from '@pythnetwork/price-service-client';
-import { PythFeedNameEnum, feedIds } from '../../constants/pyth';
+import { feedIds } from '../../constants/pyth';
+import { OracleNamesEnum } from '../../constants/types';
 import { getClient } from './common';
 
 task('oracles:priceUpdate', 'Update Required Prices').setAction(async ({}, { ethers, network }) => {
@@ -22,9 +23,9 @@ task('oracles:priceUpdate', 'Update Required Prices').setAction(async ({}, { eth
     const priceIds = [
       // You can find the ids of prices at https://pyth.network/developers/price-feed-ids
       //  pythFeedIds.CBETH_USD_FEED_ID, // BTC/USD price id
-      feedIds[PythFeedNameEnum.CBETH_USD], // BTC/USD price id
-      feedIds[PythFeedNameEnum.ETH_USD],
-      feedIds[PythFeedNameEnum.WSTETH_USD], // ETH/USD price id
+      feedIds[OracleNamesEnum.CBETH_USD], // BTC/USD price id
+      feedIds[OracleNamesEnum.ETH_USD],
+      feedIds[OracleNamesEnum.WSTETH_USD], // ETH/USD price id
     ];
     // Get the latest values of the price feeds as json objects.
     // If you set `binary: true` above, then this method also returns signed price updates for the on-chain Pyth contract.

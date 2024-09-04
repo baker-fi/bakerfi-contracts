@@ -4,7 +4,6 @@ import {
   deployFlashLender,
   deployServiceRegistry,
   deployStEth,
-  deployQuoterV2Mock,
   deployWSTETHToUSDOracle,
   deployVault,
   deployWETH,
@@ -15,7 +14,10 @@ import {
   deployAAVEv3Strategy,
 } from './common';
 
-import BaseConfig, { AAVEv3Market, NetworkConfig, StrategyImplementation } from '../constants/network-deploy-config';
+import { AAVEv3Market, NetworkConfig, StrategyImplementation } from '../constants/types';
+
+import BaseConfig from '../constants/network-deploy-config';
+
 import ora from 'ora';
 
 /**
@@ -137,11 +139,6 @@ async function main() {
   await pythMock.waitForDeployment();
   result.push(['PythMock', await pythMock.getAddress()]);
 
-  // 9. Deploy wstETH/ETH Oracle
-  spinner.text = 'Deploying Uniswap Quoter';
-  const uniQuoter = await deployQuoterV2Mock(serviceRegistry);
-  result.push(['Uniswap Quoter', await uniQuoter.getAddress()]);
-
   spinner.text = 'Deploying wstETH/USD Oracle';
   const oracle = await deployWSTETHToUSDOracle(serviceRegistry, await pythMock.getAddress());
   result.push(['wstETH/USD Oracle', await oracle.getAddress()]);
@@ -151,7 +148,7 @@ async function main() {
   result.push(['ETH/USD Oracle', await ethOracle.getAddress()]);
 
   // Deploying Proxied Strategy
-  spinner.text = 'Deploying StrategyAAVEv3WstETH';
+  spinner.text = 'Deploying StrategyLeverageAAVEv3WstETH';
   const { strategy, proxy: strategyProxy } = await deployAAVEv3Strategy(
     owner.address,
     owner.address,
@@ -191,7 +188,7 @@ async function main() {
 
   spinner.text = 'Transferring Vault Ownership';
   const strategyProxied = await ethers.getContractAt(
-    'StrategyAAVEv3',
+    'StrategyLeverageAAVEv3',
     await (strategyProxy as any).getAddress(),
   );
   await strategyProxied.transferOwnership(vaultProxy);

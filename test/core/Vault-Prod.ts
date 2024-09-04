@@ -86,7 +86,7 @@ describeif(
       .emit(strategy, 'StrategyUndeploy')
       // @ts-ignore
       .emit(strategy, 'StrategyAmountUpdate')
-        .withArgs(anyValue)
+      .withArgs(anyValue);
 
     expect(await vault.balanceOf(deployer.address))
       // @ts-ignore
@@ -212,7 +212,7 @@ describeif(
   });
 
   it('Withdraw - Burn all brETH', async function () {
-    const {  deployer, vault, strategy } = await loadFixture(deployAAVEProd);
+    const { deployer, vault, strategy } = await loadFixture(deployAAVEProd);
     await vault.depositNative(deployer.address, {
       value: ethers.parseUnits('10', 18),
     });
@@ -224,5 +224,4 @@ describeif(
     expect((await strategy.getPosition([0, 0]))[0]).to.equal(0);
     expect((await strategy.getPosition([0, 0]))[1]).to.equal(0);
   });
-
 });

@@ -1,6 +1,14 @@
 import { ethers, Transaction, TransactionReceipt } from 'ethers';
 import { ContractClient, ContractTreeType, TxOptions } from './contract-client';
 
+/**
+ * Abstract base class for contract clients.
+ *
+ * Provides core functionality for interacting with Ethereum smart contracts,
+ * including deployment, transaction sending, and function calls.
+ *
+ * @template ContractTree - A type extending ContractTreeType, representing the structure of contract ABIs and bytecode.
+ */
 export abstract class ContractClientBase<ContractTree extends ContractTreeType>
   implements ContractClient<ContractTree>
 {
