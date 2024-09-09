@@ -53,7 +53,6 @@ contract PythOracle is IOracle {
   function _getPriceInternal(
     PriceOptions memory priceOptions
   ) private view returns (IOracle.Price memory outPrice) {
-
     PythStructs.Price memory price = priceOptions.maxAge == 0
       ? _pyth.getPriceUnsafe(_priceID)
       : _pyth.getPriceNoOlderThan(_priceID, priceOptions.maxAge);
