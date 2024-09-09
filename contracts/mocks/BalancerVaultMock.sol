@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.26;
 import { IFlashLoanRecipient } from "../interfaces/balancer/IFlashLoan.sol";
 import { IProtocolFeesCollector } from "../interfaces/balancer/IProtocolFeesCollector.sol";
 import { IVault } from "../interfaces/balancer/IVault.sol";
