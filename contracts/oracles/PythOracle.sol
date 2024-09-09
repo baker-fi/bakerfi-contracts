@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.26;
 
 import { IPyth } from "../interfaces/pyth/IPyth.sol";
 import { PythStructs } from "../interfaces/pyth/PythStructs.sol";
@@ -53,6 +53,7 @@ contract PythOracle is IOracle {
   function _getPriceInternal(
     PriceOptions memory priceOptions
   ) private view returns (IOracle.Price memory outPrice) {
+
     PythStructs.Price memory price = priceOptions.maxAge == 0
       ? _pyth.getPriceUnsafe(_priceID)
       : _pyth.getPriceNoOlderThan(_priceID, priceOptions.maxAge);
