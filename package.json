@@ -49,6 +49,8 @@
     "@morpho-org/morpho-blue": "1.0.0",
     "@nomicfoundation/hardhat-network-helpers": "^1.0.11",
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.10",
+    "@nomiclabs/hardhat-solhint": "^4.0.1",
     "@openzeppelin/contracts": "^4.9.2",
     "@openzeppelin/contracts-upgradeable": "^4.9.2",
     "@pythnetwork/price-service-client": "^1.9.0",

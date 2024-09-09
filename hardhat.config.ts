@@ -15,7 +15,7 @@ import "hardhat-tracer";
 import 'solidity-docgen';
 import "./scripts/tasks/";
 import "hardhat-storage-layout-changes";
-
+import "@nomiclabs/hardhat-solhint";
 
 const devAccounts: HardhatNetworkAccountUserConfig[] =  STAGING_ACCOUNTS_PKEYS.map(
   key=>  { return {privateKey: key, balance: "1000000000000000000000000"}});
