@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.24;
 import { IPyth } from "../interfaces/pyth/IPyth.sol";
 import "../interfaces/pyth/PythStructs.sol";
 

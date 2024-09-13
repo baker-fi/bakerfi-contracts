@@ -135,7 +135,7 @@ const config: HardhatUserConfig = {
         },
       },
       {
-        version: '0.8.26',
+        version: '0.8.24',
         settings: {
           evmVersion: "cancun",
           optimizer: {
