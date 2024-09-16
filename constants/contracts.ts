@@ -28,7 +28,7 @@ export const deployConfigMap : {[key: string]: BakerDeployConfig} =
         ethUSDOracle: "0xE5873ea8B9BBcd7ed61A0feAC3f5e2c94b0086a4",
         strategy: "0x0D01EdB9af465d8518999d2a9547526D0A887842",
         strategyProxy: "0x065Db5690D8aa165d73C03150e91E1E4C0898533",
-        vault: "0xa5cAc66dF7f33cbA29b08976519636BA448438e4",
+        vault: "0x2F41b021A0c0A25DF6D47125B3546cf13E0f9763",
         vaultProxy: "0x4c6d58749126FEBb1D28E8B8FdE97DC3107996d3",
         settings: "0x777d272404f5629e372deD32CEf606AAEBC144Fb",
         settingsProxy: "0x130aedd5A36F2D4D21D353C5e593Eab7Ed2eF8d6",

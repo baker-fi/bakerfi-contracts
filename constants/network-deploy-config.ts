@@ -182,8 +182,8 @@ const Config: DeployConfig = {
         }
     },
     "arbitrum": {
-        minTxConfirmations: 6,
-        owner: "",
+        minTxConfirmations: 3,
+        owner: "0xdD1945499B695F21f5472f10B67Aa8Dafb1b1c7c",
         uniswapRouter02: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", // Validated
         uniswapQuoter: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e", // Validated
         balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Validated
@@ -216,6 +216,11 @@ const Config: DeployConfig = {
         },
         AAVEPool: "0x794a61358D6845594F94dc1DB02A252b5b4814aD", // Validated
         pyth: "0xff1a0f4744e8582df1ae09d5611b887b6a12925c",
+        chainlink: {
+            wstEthToETH: "0xB1552C5e96B312d0Bf8b554186F846C40614a540",
+            ethToUSD: "0x639Fe6ab55C921f74e7fac1ee960C0B6293ba612",
+            cbETHToETH: "0xa668682974E3f121185a3cD94f00322beC674275",
+        }
     },
     hardhat: {
         minTxConfirmations: 0,

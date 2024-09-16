@@ -103,6 +103,7 @@ task('deploy:upgrade:vault', 'Upgrade the settings Contract').setAction(
       let app = await getClient(ethers);
       const vaultReceipt = await app?.deploy('Vault', [], {
         chainId: BigInt(network.config.chainId ?? 0),
+        minTxConfirmations: 6
       });
       await app?.send(
         'BakerFiProxyAdmin',
@@ -111,6 +112,7 @@ task('deploy:upgrade:vault', 'Upgrade the settings Contract').setAction(
         [networkConfig.vaultProxy, vaultReceipt?.contractAddress],
         {
           chainId: BigInt(network.config.chainId ?? 0),
+          minTxConfirmations: 6
         },
       );
       spinner.succeed(`New Vault Contract is ${vaultReceipt?.contractAddress}`);
