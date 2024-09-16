@@ -42,7 +42,7 @@ export abstract class ContractClientBase<ContractTree extends ContractTreeType>
       ...(options?.value ? { value: options.value } : {}),
       nonce: await this._provider.getTransactionCount(this.getAddress()),
       chainId: options?.chainId ?? 1,
-      ...(await this.buildGasOptions(options)),
+      ...(await this.buildFeeOptions(options)),
       gasLimit: options?.gasLimit ?? estimatedGas * 2n,
     });
     const signedTx = await this.sign(tx);
@@ -54,7 +54,7 @@ export abstract class ContractClientBase<ContractTree extends ContractTreeType>
     return txReceipt;
   }
 
-  private async buildGasOptions(options: TxOptions | undefined) {
+  private async buildFeeOptions(options: TxOptions | undefined) {
     const feeData = await this._provider.getFeeData();
     const gasOptions = {
       maxFeePerGas: options?.maxFeePerGas ?? feeData?.maxFeePerGas ?? 0,
@@ -81,7 +81,7 @@ export abstract class ContractClientBase<ContractTree extends ContractTreeType>
       ...(options?.value ? { value: options.value } : {}),
       nonce: await this._provider.getTransactionCount(this.getAddress()),
       chainId: options?.chainId ?? 1,
-      ...(await this.buildGasOptions(options)),
+      ...(await this.buildFeeOptions(options)),
     });
     const estimatedGas = await this._provider.estimateGas({
       ...baseTx.toJSON(),

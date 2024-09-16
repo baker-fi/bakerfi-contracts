@@ -203,8 +203,8 @@ const Config: DeployConfig = {
         }],
         markets: {
             [StrategyImplementation.AAVE_V3_WSTETH_ETH]: {
-                sharesName: "AAVEv3 Bread ETH",
-                sharesSymbol: "AAVEv3brETH",
+                sharesName: "Arbitrum AAVEv3 Bread ETH",
+                sharesSymbol: "arbAAVEv3brETH",
                 type: "aavev3",
                 collateralToken: "wstETH",
                 debtToken: "WETH",
