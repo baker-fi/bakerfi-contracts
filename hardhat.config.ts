@@ -137,7 +137,6 @@ const config: HardhatUserConfig = {
       {
         version: '0.8.24',
         settings: {
-          evmVersion: "cancun",
           optimizer: {
             enabled: true,
             runs: 200,
@@ -182,6 +181,7 @@ const config: HardhatUserConfig = {
   etherscan: {
     apiKey: {
       base: process.env.BASESCAN_API_KEY || "",
+      arbitrumOne: process.env.ARBSCAN_API_KEY || "",
     },
   } ,
 
