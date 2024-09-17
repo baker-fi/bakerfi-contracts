@@ -51,54 +51,71 @@ task('oracles:priceUpdate', 'Update Required Prices').setAction(async ({}, { eth
   }
 });
 
-task('oracles:getWSTETHPrice', 'Get WSTETH/USD').setAction(async ({}, { ethers, network }) => {
-  const networkName = network.name;
-  const networkConfig = DeployConfig[networkName];
-  const spinner = ora(`Geeting  WSTETH/USD balance`).start();
-  try {
-    const oracle = await ethers.getContractAt('PythOracle', networkConfig.wstETHUSDOracle ?? '');
-    const { price, lastUpdate } = await oracle.getSafeLatestPrice([360, 0]);
-    spinner.succeed(`🧑‍🍳 WSTETH/USD = ${price} updatedAt ${lastUpdate}`);
-  } catch (e) {
-    console.log(e);
-    spinner.fail('Failed 💥');
-  }
-});
+task('oracles:getWSTETHPrice', 'Get WSTETH/USD')
+  .addParam('strategy', 'Strategy Type', 'AAVE_V3_WSTETH_ETH')
+  .setAction(async ({ strategy }, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Geeting  WSTETH/USD balance`).start();
+    try {
+      const oracle = await ethers.getContractAt(
+        'PythOracle',
+        networkConfig[strategy]?.collateralOracle ?? '',
+      );
+      const { price, lastUpdate } = await oracle.getSafeLatestPrice([360, 0]);
+      spinner.succeed(`🧑‍🍳 WSTETH/USD = ${price} updatedAt ${lastUpdate}`);
+    } catch (e) {
+      console.log(e);
+      spinner.fail('Failed 💥');
+    }
+  });
 
-task('oracles:getETHPrice', 'Get ETH/USD').setAction(async ({}, { ethers, network }) => {
-  const networkName = network.name;
-  const networkConfig = DeployConfig[networkName];
-  const spinner = ora(`Geeting  ETH/USD balance`).start();
-  try {
-    const oracle = await ethers.getContractAt('PythOracle', networkConfig.ethUSDOracle ?? '');
-    const { price, lastUpdate } = await oracle.getSafeLatestPrice([360, 0]);
-    spinner.succeed(`🧑‍🍳 ETH/USD = ${price} updatedAt ${lastUpdate}`);
-  } catch (e) {
-    console.log(e);
-    spinner.fail('Failed 💥');
-  }
-});
+task('oracles:getETHPrice', 'Get ETH/USD')
+  .addParam('strategy', 'Strategy Type', 'AAVE_V3_WSTETH_ETH')
+  .setAction(async ({ strategy }, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const spinner = ora(`Geeting  ETH/USD balance`).start();
+    try {
+      const oracle = await ethers.getContractAt(
+        'PythOracle',
+        networkConfig[strategy]?.debtOracle ?? '',
+      );
+      const { price, lastUpdate } = await oracle.getSafeLatestPrice([360, 0]);
+      spinner.succeed(`🧑‍🍳 ETH/USD = ${price} updatedAt ${lastUpdate}`);
+    } catch (e) {
+      console.log(e);
+      spinner.fail('Failed 💥');
+    }
+  });
 
-task('oracles:prices', 'Generate an artifact tree').setAction(async ({}, { run }) => {
-  await run('oracles:getETHPrice');
-  await run('oracles:getWSTETHPrice');
-});
+task('oracles:prices', 'Generate an artifact tree')
+  .addParam('strategy', 'Strategy Type', 'AAVE_V3_WSTETH_ETH')
+  .setAction(async ({ strategy }, { run }) => {
+    await run('oracles:getETHPrice', { strategy });
+    await run('oracles:getWSTETHPrice', { strategy });
+  });
 
-task('oracles:compare', 'Generate an artifact tree').setAction(async ({}, { ethers, network }) => {
-  const networkName = network.name;
-  const networkConfig = DeployConfig[networkName];
+task('oracles:compare', 'Generate an artifact tree')
+  .addParam('strategy', 'Strategy Type', 'AAVE_V3_WSTETH_ETH')
+  .setAction(async ({ strategy }, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
 
-  try {
-    const ethUSDOracle = await ethers.getContractAt('PythOracle', networkConfig.ethUSDOracle ?? '');
-    const wstETHUSDOracle = await ethers.getContractAt(
-      'PythOracle',
-      networkConfig.wstETHUSDOracle ?? '',
-    );
-    const priceETHUSD = (await ethUSDOracle.getLatestPrice()).price;
-    const priceWSTETHUSD = (await wstETHUSDOracle.getLatestPrice()).price;
-    const ratio = (priceWSTETHUSD * 10000n) / priceETHUSD;
-    console.log(`${priceETHUSD}, ${priceWSTETHUSD}, ${ratio}`);
-  } catch (e) {
-    console.log(e);
-  }
-});
+    try {
+      const ethUSDOracle = await ethers.getContractAt(
+        'PythOracle',
+        networkConfig[strategy]?.debtOracle ?? '',
+      );
+      const wstETHUSDOracle = await ethers.getContractAt(
+        'PythOracle',
+        networkConfig[strategy]?.collateralOracle ?? '',
+      );
+      const priceETHUSD = (await ethUSDOracle.getLatestPrice()).price;
+      const priceWSTETHUSD = (await wstETHUSDOracle.getLatestPrice()).price;
+      const ratio = (priceWSTETHUSD * 10000n) / priceETHUSD;
+      console.log(`${priceETHUSD}, ${priceWSTETHUSD}, ${ratio}`);
+    } catch (e) {
+      console.log(e);
+    }
+  });

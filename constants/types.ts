@@ -18,8 +18,8 @@ export type BakerDeployConfig = {
     proxyAdmin?: string;
     serviceRegistry: string;
     flashLender: string;
-    wstETHUSDOracle:string;
-    ethUSDOracle: string;
+    collateralOracle:string;
+    debtOracle: string;
     strategy:string;
     strategyProxy?: string;
     vault: string;
@@ -37,16 +37,27 @@ export const pythFeeds  = {
     WSETHUSDFeedId: "0x6df640f3b8963d8f8358f791f352b8364513f6ab1cca5ed3f1f7b5448980e784"
 };
 
-export type Networks =
-  | "ethereum_devnet"
-  | "base"
-  | "base_devnet"
-  | "optimism_devnet"
-  | "local"
-  | "hardhat"
-  | "arbitrum_devnet"
-  | "arbitrum";
 
+export enum NetworkEnum  {
+   ETHEREUM_DEVNET =  "ethereum_devnet",
+   BASE = "base",
+   BASE_DEVNET = "base_devnet",
+   OPTIMISM_DEVNET = "optimism_devnet",
+   LOCAL = "local",
+   HARDHAT = "hardhat",
+   ARBITRUM_DEVNET = "arbitrum_devnet",
+   ARBITRUM = "arbitrum"
+}
+
+export type Networks =
+  | NetworkEnum.ETHEREUM_DEVNET
+  | NetworkEnum.BASE
+  | NetworkEnum.BASE_DEVNET
+  | NetworkEnum.OPTIMISM_DEVNET
+  | NetworkEnum.LOCAL
+  | NetworkEnum.HARDHAT
+  | NetworkEnum.ARBITRUM_DEVNET
+  | NetworkEnum.ARBITRUM;
 
 export type OracleType = "chainlink" | "pyth" | "clExRate" | "customExRate";
 
@@ -54,6 +65,10 @@ export enum StrategyImplementation {
     AAVE_V3_WSTETH_ETH = "AAVEv3 wstETH/ETH",
     MORPHO_BLUE_WSTETH_ETH = "Morpho Blue wstETH/ETH",
 };
+
+export type StrategyImplementationType =
+    StrategyImplementation.AAVE_V3_WSTETH_ETH |
+    StrategyImplementation.MORPHO_BLUE_WSTETH_ETH;
 
 
 export type MarketBase<T extends string, U extends Record<string, any> = {}> = {
@@ -120,6 +135,10 @@ export type NetworkConfig = {
     },
 };
 
+
 export type DeployConfig = {
     [key in Networks]?: NetworkConfig;
 };
+
+
+export type StrategyMap = Partial<Record<StrategyImplementation, DeployConfig>>;

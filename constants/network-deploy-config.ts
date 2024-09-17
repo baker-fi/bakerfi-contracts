@@ -1,8 +1,12 @@
 import { feedIds } from "./pyth";
 import { DeployConfig, OracleNamesEnum, StrategyImplementation } from "./types";
 
+
+
+import { NetworkEnum } from "./types";
+
 const Config: DeployConfig = {
-    "base": {
+    [NetworkEnum.BASE]: {
         minTxConfirmations: 6,
         owner: "0xdD1945499B695F21f5472f10B67Aa8Dafb1b1c7c",
         uniswapRouter02: "0x2626664c2603336E57B271c5C0b26F421741e481", // Validated
@@ -53,7 +57,7 @@ const Config: DeployConfig = {
         pyth: "0x8250f4aF4B972684F7b336503E2D6dFeDeB1487a",
         morpho: "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb",
     },
-    "base_devnet": {
+    [NetworkEnum.BASE_DEVNET]: {
         minTxConfirmations: 0,
         owner: "0xdD1945499B695F21f5472f10B67Aa8Dafb1b1c7c",
         uniswapRouter02: "0x2626664c2603336E57B271c5C0b26F421741e481", // Validated
@@ -104,7 +108,7 @@ const Config: DeployConfig = {
         pyth: "0x8250f4aF4B972684F7b336503E2D6dFeDeB1487a",
         morpho: "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb"
     },
-    "local": {
+    [NetworkEnum.LOCAL]: {
         minTxConfirmations: 0,
         owner: "0xf15CC0ccBdDA041e2508B829541917823222F364",
         uniswapRouter02: "0xB7d0add4df75aa719bE464e860C8c40bb7FA2122",
@@ -140,7 +144,7 @@ const Config: DeployConfig = {
         balancerVault: "0xBA12222222228d8Ba445958a75a0704d566BF2C8", // Validated
         AAVEPool: "0xF8D0e82B1EE3EEc7AEcDAa4E1c94E29fe3Db712E",
     },
-    "arbitrum_devnet": {
+    [NetworkEnum.ARBITRUM_DEVNET]: {
         minTxConfirmations: 0,
         owner: "",
         uniswapRouter02: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", // Validated
@@ -181,7 +185,7 @@ const Config: DeployConfig = {
             cbETHToETH: "0xa668682974E3f121185a3cD94f00322beC674275",
         }
     },
-    "arbitrum": {
+    [NetworkEnum.ARBITRUM]: {
         minTxConfirmations: 3,
         owner: "0xdD1945499B695F21f5472f10B67Aa8Dafb1b1c7c",
         uniswapRouter02: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45", // Validated
@@ -222,7 +226,7 @@ const Config: DeployConfig = {
             cbETHToETH: "0xa668682974E3f121185a3cD94f00322beC674275",
         }
     },
-    hardhat: {
+    [NetworkEnum.HARDHAT]: {
         minTxConfirmations: 0,
         owner: "0xf15CC0ccBdDA041e2508B829541917823222F364",
         uniswapRouter02: "",
@@ -248,7 +252,7 @@ const Config: DeployConfig = {
         AAVEPool: "",
         pyth: "",
     },
-    "ethereum_devnet": {
+    [NetworkEnum.ETHEREUM_DEVNET]: {
         minTxConfirmations: 0,
         owner: "",
         uniswapRouter02: "0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45",
