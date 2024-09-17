@@ -6,9 +6,10 @@ import { BakerDeployConfig, StrategyImplementation, StrategyImplementationType }
 
 export type BakerDeploy = Partial<Record<StrategyImplementationType, BakerDeployConfig>>
 
-export const deployConfigMap: { [key: string]: BakerDeploy } =
-{
-    "local": {
+import { NetworkEnum } from "./types";
+
+export const deployConfigMap: { [key in NetworkEnum]?: BakerDeploy } = {
+    [NetworkEnum.LOCAL]: {
         [StrategyImplementation.AAVE_V3_WSTETH_ETH]: {
             proxyAdmin: "0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e",
             serviceRegistry: "0x5bC13d5ce928Ae6e414A831D173E86fD040deBb9",
@@ -24,7 +25,7 @@ export const deployConfigMap: { [key: string]: BakerDeploy } =
             bkr: "0x9F5c44Edc6AD6F2036aA4ADFA4DA92C78EE1A101",
         }
     },
-    "arbitrum": {
+    [NetworkEnum.ARBITRUM]: {
         [StrategyImplementation.AAVE_V3_WSTETH_ETH]: {
             proxyAdmin: "0xB94Fc2d1DC579d93d145E01A1AD8b29C2B4B23Cb",
             serviceRegistry: "0xcF9B92716438a62047Fd701E6653dF80Bbb497E3",
@@ -40,7 +41,7 @@ export const deployConfigMap: { [key: string]: BakerDeploy } =
             bkr: "0x17f498e79c166abc68ea1cB1a3b5E540279682D8",
         }
     },
-    "base": {
+    [NetworkEnum.BASE]: {
         [StrategyImplementation.AAVE_V3_WSTETH_ETH]: {
             proxyAdmin: "0x796Eb52Bd29D28D6950673F3Fe41aD2025D3d327",
             serviceRegistry: "0x3E2fe09C271B5dbB35C71a13357E5fD924469a68",
@@ -54,10 +55,9 @@ export const deployConfigMap: { [key: string]: BakerDeploy } =
             settings: "0x395Fb82F6c2538bAf7c1943fd72F060829ffA86F",
             settingsProxy: "0x16CbE59e142DeAd78eeB2AeD6d550771d3Af5d17",
             bkr: "",
-
         }
     },
-    "base_devnet": {
+    [NetworkEnum.BASE_DEVNET]: {
         [StrategyImplementation.AAVE_V3_WSTETH_ETH]: {
             proxyAdmin: "0x796Eb52Bd29D28D6950673F3Fe41aD2025D3d327",
             serviceRegistry: "0x3E2fe09C271B5dbB35C71a13357E5fD924469a68",
@@ -73,6 +73,6 @@ export const deployConfigMap: { [key: string]: BakerDeploy } =
             bkr: "",
         }
     }
-}
+};
 
 export default deployConfigMap;
