@@ -37,7 +37,7 @@ const config: HardhatUserConfig = {
         auto: true,
         interval: 2000,
       },
-      hardfork: 'cancun',
+      hardfork: 'shanghai',
       gas: 'auto',
     },
     local: {
