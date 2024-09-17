@@ -1,12 +1,12 @@
-## BakerFi Tasks 
+## BakerFi Tasks
 
-## Ethereum Balance 
+## Ethereum Balance
 
 ```
-npx hardhat --network arbitrum balance --account 0xfF432D4E9B4Cd848a32294EFE01157AF0660B1F9 
+npx hardhat --network arbitrum balance --account 0xfF432D4E9B4Cd848a32294EFE01157AF0660B1F9
 ```
 
-## Vault Tasks 
+## Vault Tasks
 
 ### Deposit
 ```
@@ -20,22 +20,22 @@ npx hardhat --network arbitrum vault:withdraw --account 0xfF432D4E9B4Cd848a32294
 
 ### Rebalance Vault
 ```
-npx hardhat --network arbitrum vault:rebalance 
+npx hardhat --network arbitrum vault:rebalance
 ```
 
-### Balance 
+### Balance
 ```
 npx hardhat --network arbitrum vault:balance --account 0xfF432D4E9B4Cd848a32294EFE01157AF0660B1F9
 ```
 
-### Assets 
+### Assets
 ```
-npx hardhat --network arbitrum vault:assets 
+npx hardhat --network arbitrum vault:assets
 ```
 
-### Shares/ETH Ratio 
+### Shares/ETH Ratio
 ```
-npx hardhat --network arbitrum vault:tokenPerAsset 
+npx hardhat --network arbitrum vault:tokenPerAsset
 ```
 
 ## Settings
@@ -43,7 +43,7 @@ npx hardhat --network arbitrum vault:tokenPerAsset
 ### Enable/Disable an Account
 ```
 npx hardhat --network arbitrum settings:enableAccount --account 0xfF432D4E9B4Cd848a32294EFE01157AF0660B1F9 --enabled true
-# Disable 
+# Disable
 npx hardhat --network arbitrum settings:enableAccount --account 0xfF432D4E9B4Cd848a32294EFE01157AF0660B1F9 --enabled true
 
 ```
@@ -54,7 +54,7 @@ npx hardhat --network arbitrum settings:enableAccount --account 0xfF432D4E9B4Cd8
 npx hardhat --network arbitrum settings:isAccountEnabled --account 0xEcFd04634a13E1f449c8436EBF489BE02C57FeA2
 ```
 
-### Fee Receiver Account 
+### Fee Receiver Account
 ```
 npx hardhat --network local settings:getFeeReceiver
 npx hardhat --network local settings:setFeeReceiver --account 0x508893f4E26412fe4Bbeb4895335882b655Bcf65
@@ -94,6 +94,10 @@ npx hardhat --network local strategy:getNrLoops
 npx hardhat --network local strategy:getNrLoops --value 810000000
 ```
 
+## Smart Contract Storage Analyss
 
-
-## 
+```
+npx hardhat storage-layout --update
+# Check if the contract is storage compatible
+npx hardhat storage-layout --check
+```

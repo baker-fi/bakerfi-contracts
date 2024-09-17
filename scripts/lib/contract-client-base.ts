@@ -1,6 +1,14 @@
 import { ethers, Transaction, TransactionReceipt } from 'ethers';
 import { ContractClient, ContractTreeType, TxOptions } from './contract-client';
 
+/**
+ * Abstract base class for contract clients.
+ *
+ * Provides core functionality for interacting with Ethereum smart contracts,
+ * including deployment, transaction sending, and function calls.
+ *
+ * @template ContractTree - A type extending ContractTreeType, representing the structure of contract ABIs and bytecode.
+ */
 export abstract class ContractClientBase<ContractTree extends ContractTreeType>
   implements ContractClient<ContractTree>
 {
@@ -34,7 +42,7 @@ export abstract class ContractClientBase<ContractTree extends ContractTreeType>
       ...(options?.value ? { value: options.value } : {}),
       nonce: await this._provider.getTransactionCount(this.getAddress()),
       chainId: options?.chainId ?? 1,
-      ...(await this.buildGasOptions(options)),
+      ...(await this.buildFeeOptions(options)),
       gasLimit: options?.gasLimit ?? estimatedGas * 2n,
     });
     const signedTx = await this.sign(tx);
@@ -46,11 +54,9 @@ export abstract class ContractClientBase<ContractTree extends ContractTreeType>
     return txReceipt;
   }
 
-  private async buildGasOptions(options: TxOptions | undefined) {
+  private async buildFeeOptions(options: TxOptions | undefined) {
     const feeData = await this._provider.getFeeData();
-    const block = await this._provider.getBlock('latest');
     const gasOptions = {
-      gasLimit: block?.gasLimit ?? 300000000n,
       maxFeePerGas: options?.maxFeePerGas ?? feeData?.maxFeePerGas ?? 0,
       maxPriorityFeePerGas: options?.maxPriorityFeePerGas ?? feeData.maxPriorityFeePerGas,
     };
@@ -75,7 +81,7 @@ export abstract class ContractClientBase<ContractTree extends ContractTreeType>
       ...(options?.value ? { value: options.value } : {}),
       nonce: await this._provider.getTransactionCount(this.getAddress()),
       chainId: options?.chainId ?? 1,
-      ...(await this.buildGasOptions(options)),
+      ...(await this.buildFeeOptions(options)),
     });
     const estimatedGas = await this._provider.estimateGas({
       ...baseTx.toJSON(),

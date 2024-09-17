@@ -1,11 +1,12 @@
-import DeployConfig, { BakerDeployConfig } from '../constants/contracts';
+import DeployConfig from '../constants/contracts';
 import NetworkDeployConfig from '../constants/network-deploy-config';
 import hre from 'hardhat';
-import { feedIds, PythFeedNameEnum } from '../constants/pyth';
+import { feedIds } from '../constants/pyth';
+import { OracleNamesEnum, StrategyImplementation } from '../constants/types';
 
 async function main() {
   const networkName = hre.network.name;
-  const deployConfig: BakerDeployConfig = DeployConfig[networkName];
+  const deployConfig = DeployConfig[networkName];
   const networkConfig = NetworkDeployConfig[networkName];
 
   console.log('Verifying Service Registry');
@@ -30,13 +31,13 @@ async function main() {
   // Verifying Proxy Admin
   await hre.run('verify:verify', {
     address: deployConfig.wstETHUSDOracle,
-    constructorArguments: [deployConfig.ethUSDOracle, networkConfig.wstETHToETHExRatio],
+    constructorArguments: [deployConfig.ethUSDOracle, networkConfig.chainlink.wstEthToETH],
   });
   console.log('Verifying ETH/USD Oracle ');
   // Verifying Proxy Admin
   await hre.run('verify:verify', {
     address: deployConfig.ethUSDOracle,
-    constructorArguments: [feedIds[PythFeedNameEnum.ETH_USD], networkConfig.pyth],
+    constructorArguments: [feedIds[OracleNamesEnum.ETH_USD], networkConfig.pyth],
   });
   console.log('Verifying Settings');
   await hre.run('verify:verify', {
@@ -60,8 +61,9 @@ async function main() {
     address: deployConfig.strategy,
     constructorArguments: [],
   });
+
   console.log('Verifying Strategy Proxy');
-  const strategyFactory = await hre.ethers.getContractFactory('StrategyAAVEv3');
+  const strategyFactory = await hre.ethers.getContractFactory('StrategyLeverageAAVEv3');
   await hre.run('verify:verify', {
     address: deployConfig.strategyProxy,
     contract: 'contracts/proxy/BakerFiProxy.sol:BakerFiProxy',
@@ -73,17 +75,21 @@ async function main() {
         networkConfig.owner,
         deployConfig.serviceRegistry,
         hre.ethers.keccak256(Buffer.from('wstETH')),
+        hre.ethers.keccak256(Buffer.from('WETH')),
         hre.ethers.keccak256(Buffer.from('wstETH/USD Oracle')),
-        networkConfig.swapFeeTier,
-        networkConfig.AAVEEModeCategory,
+        hre.ethers.keccak256(Buffer.from('ETH/USD Oracle')),
+        networkConfig.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
+        networkConfig.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].AAVEEModeCategory,
       ]),
     ],
   });
-  console.log('Verifying Strategy');
+
+  console.log('Verifying Vault');
   await hre.run('verify:verify', {
     address: deployConfig.vault,
     constructorArguments: [],
   });
+
   console.log('Verifying Vault Proxy');
   const vaultFactory = await hre.ethers.getContractFactory('Vault');
   await hre.run('verify:verify', {
@@ -94,14 +100,13 @@ async function main() {
       deployConfig.proxyAdmin,
       vaultFactory.interface.encodeFunctionData('initialize', [
         networkConfig.owner,
-        'AAVEv3 Bread ETH',
-        'AAVEv3brETH',
+        networkConfig.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].sharesName,
+        networkConfig.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].sharesSymbol,
         deployConfig.serviceRegistry,
         deployConfig.strategyProxy,
       ]),
     ],
   });
-
   console.log('Done ✅');
   process.exit(0);
 }

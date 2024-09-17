@@ -2,24 +2,7 @@
  * Deployed Contract Addresses
  */
 
-import { Networks } from "./network-deploy-config";
-
-export type BakerDeployConfig = {
-    proxyAdmin?: string;
-    serviceRegistry: string;
-    flashLender: string;
-    wstETHUSDOracle:string;
-    ethUSDOracle: string;
-    strategy:string;
-    strategyProxy?: string;
-    vault: string;
-    vaultProxy?: string;
-    settings: string;
-    settingsProxy?: string;
-    bkr?: string;
-    wstETHUSDOracleFeedId?: string;
-    ethUSDOracleFeedId?: string;
-}
+import { BakerDeployConfig } from "./types";
 
 export const deployConfigMap : {[key: string]: BakerDeployConfig} =
 {
@@ -38,17 +21,17 @@ export const deployConfigMap : {[key: string]: BakerDeployConfig} =
         bkr: "0x9F5c44Edc6AD6F2036aA4ADFA4DA92C78EE1A101",
     },
     "arbitrum": {
-        proxyAdmin: "0xa641256b225e215c559cdC58F8757ad7140A2723",
-        serviceRegistry: "0x82405993C4473A4364DF9D0C09E1A81Ecef9CA25",
-        flashLender: "0x2db37f9DcD838B06a40Dc1aB171a8eBB474ef44C",
-        wstETHUSDOracle: "0x63121b44680C502FDeDC725cd7CBcD37E0967d88",
-        ethUSDOracle: "0xd0fDAfd2cf24fC4D8B57ffC001d3DC10422d3623",
-        strategy: "0x8Fb35FEf7c2fcdfE09b6985f894905b875111a72",
-        strategyProxy: "0x40aB23988835bdA372deA30690CCCC3419580548",
-        vault: "0x3a6f7a481ad94eb03d229b846002561dc2742449",
-        vaultProxy: "0x5c1b2312FaE6c0d61B6A15A8093842E9fE5b1e44",
-        settings: "0xb0bbF58c8199F3CA383F0535b6a58A6E5Bbd587B",
-        settingsProxy: "0xBd7f910A074D9d35789a47FF0962b5706D7855dF",
+        proxyAdmin: "0xB94Fc2d1DC579d93d145E01A1AD8b29C2B4B23Cb",
+        serviceRegistry: "0xcF9B92716438a62047Fd701E6653dF80Bbb497E3",
+        flashLender: "0xF9D7292762C64e9A33DFb3CDc5cEC72C706Ee4Fb",
+        wstETHUSDOracle: "0xbbdc137c52891E65A46473bc5FbA500AF2214ca9",
+        ethUSDOracle: "0xE5873ea8B9BBcd7ed61A0feAC3f5e2c94b0086a4",
+        strategy: "0x0D01EdB9af465d8518999d2a9547526D0A887842",
+        strategyProxy: "0x065Db5690D8aa165d73C03150e91E1E4C0898533",
+        vault: "0x2F41b021A0c0A25DF6D47125B3546cf13E0f9763",
+        vaultProxy: "0x4c6d58749126FEBb1D28E8B8FdE97DC3107996d3",
+        settings: "0x777d272404f5629e372deD32CEf606AAEBC144Fb",
+        settingsProxy: "0x130aedd5A36F2D4D21D353C5e593Eab7Ed2eF8d6",
         bkr: "0x17f498e79c166abc68ea1cB1a3b5E540279682D8",
     },
     // Use from Block //16398833

@@ -12,9 +12,15 @@ task('strategy:setNrLoops', 'Set number of Loopps')
     const spinner = ora(`Settting Nr Of Loops to ${value}`).start();
     try {
       let app = await getClient(ethers);
-      await app?.send('StrategyAAVEv3', networkConfig.strategyProxy ?? '', 'setNrLoops', [value], {
-        chainId: network.config.chainId,
-      }),
+      await app?.send(
+        'StrategyLeverageAAVEv3',
+        networkConfig.strategyProxy ?? '',
+        'setNrLoops',
+        [value],
+        {
+          chainId: network.config.chainId,
+        },
+      ),
         spinner.succeed(`🧑‍🍳 Nr of Loops Changed to ${value} ✅ `);
     } catch (e) {
       console.log(e);
@@ -31,7 +37,7 @@ task('strategy:setMaxSlippage', 'Set Strategy Max Slippage')
     try {
       let app = await getClient(ethers);
       await app?.send(
-        'StrategyAAVEv3',
+        'StrategyLeverageAAVEv3',
         networkConfig.strategyProxy ?? '',
         'setMaxSlippage',
         [value],
@@ -55,7 +61,7 @@ task('strategy:getPosition', 'Set number of Loopps').setAction(
     try {
       let app = await getClient(ethers);
       const [totalCollateralInEth, totalDebtInEth, loanToValue] = await app?.call(
-        'StrategyAAVEv3',
+        'StrategyLeverageAAVEv3',
         networkConfig.strategyProxy ?? '',
         'getPosition',
         [[0, 0]],
@@ -81,7 +87,7 @@ task('strategy:getMaxSlippage', 'Gets the Strategy Max Slippage').setAction(
     try {
       let app = await getClient(ethers);
       const value = await app?.call(
-        'StrategyAAVEv3',
+        'StrategyLeverageAAVEv3',
         networkConfig.strategyProxy ?? '',
         'getMaxSlippage',
         [],
@@ -103,7 +109,7 @@ task('strategy:position', 'Position ').setAction(async ({}, { ethers, network })
   const spinner = ora(`Geeting  ETH/USD balance`).start();
   try {
     const strategy = await ethers.getContractAt(
-      'StrategyAAVEv3',
+      'StrategyLeverageAAVEv3',
       networkConfig.strategyProxy ?? '',
     );
     const { totalCollateralInEth, totalDebtInEth } = await strategy.getPosition([360, 0]);
@@ -127,7 +133,7 @@ task('strategy:getMaxLoanToValue', 'Get Max Target Loan To value').setAction(
     try {
       let app = await getClient(ethers);
       const value = await app?.call(
-        'StrategyAAVEv3',
+        'StrategyLeverageAAVEv3',
         networkConfig.strategyProxy ?? '',
         'getMaxLoanToValue',
         [],
@@ -151,7 +157,7 @@ task('strategy:getLoanToValue', 'Set Target Loan To value').setAction(
     try {
       let app = await getClient(ethers);
       const value = await app?.call(
-        'StrategyAAVEv3',
+        'StrategyLeverageAAVEv3',
         networkConfig.strategyProxy ?? '',
         'getLoanToValue',
         [],
@@ -176,7 +182,7 @@ task('strategy:setMaxLoanToValue', 'Set Max Target Loan To value')
     try {
       let app = await getClient(ethers);
       await app?.send(
-        'StrategyAAVEv3',
+        'StrategyLeverageAAVEv3',
         networkConfig.strategyProxy ?? '',
         'setMaxLoanToValue',
         [value],
@@ -199,7 +205,7 @@ task('strategy:setLoanToValue', 'Set Target Loan To value')
     try {
       let app = await getClient(ethers);
       await app?.send(
-        'StrategyAAVEv3',
+        'StrategyLeverageAAVEv3',
         networkConfig.strategyProxy ?? '',
         'setLoanToValue',
         [value],
@@ -221,7 +227,7 @@ task('strategy:getNrLoops', 'Get Recursive Number of Loops').setAction(
     try {
       let app = await getClient(ethers);
       const value = await app?.call(
-        'StrategyAAVEv3',
+        'StrategyLeverageAAVEv3',
         networkConfig.strategyProxy ?? '',
         'getNrLoops',
         [],

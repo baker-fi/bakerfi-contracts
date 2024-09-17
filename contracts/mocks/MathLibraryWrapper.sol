@@ -7,6 +7,14 @@ contract MathLibraryWrapper {
     return MathLibrary.mulDivUp(x, y, denominator);
   }
 
+  function toDecimals(
+    uint256 value,
+    uint8 from,
+    uint8 to
+  ) external pure returns (uint256 converted) {
+    return MathLibrary.toDecimals(value, from, to);
+  }
+
   function mulDivDown(uint256 x, uint256 y, uint256 denominator) external pure returns (uint256) {
     return MathLibrary.mulDivDown(x, y, denominator);
   }

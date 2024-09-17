@@ -11,10 +11,10 @@ import {
   deployOracleMock,
   deployWETH,
   deploySettings,
-  deployQuoterV2Mock,
 } from '../../scripts/common';
 
-import BaseConfig, { NetworkConfig } from '../../constants/network-deploy-config';
+import BaseConfig from '../../constants/network-deploy-config';
+import { AAVEv3Market, NetworkConfig, StrategyImplementation } from '../../constants/types';
 
 describeif(network.name === 'hardhat')('Strategy Proxy', function () {
   async function deployFunction() {
@@ -68,29 +68,31 @@ describeif(network.name === 'hardhat')('Strategy Proxy', function () {
     // Deploy AAVEv3 Mock Pool
     await deployAaveV3(cbETH, weth, serviceRegistry, AAVE_DEPOSIT);
     // Deploy cbETH/ETH Oracle
-    await deployOracleMock(serviceRegistry, 'cbETH/ETH Oracle');
+    await deployOracleMock(serviceRegistry, 'cbETH/USD Oracle');
     const ethOracle = await deployOracleMock(serviceRegistry, 'ETH/USD Oracle');
     await ethOracle.setLatestPrice(ethers.parseUnits('1', 18));
-    await deployQuoterV2Mock(serviceRegistry);
 
-    const StrategyAAVEv3 = await ethers.getContractFactory('StrategyAAVEv3');
-    const strategyLogic = await StrategyAAVEv3.deploy();
+    const StrategyLeverageAAVEv3 = await ethers.getContractFactory('StrategyLeverageAAVEv3');
+    const strategyLogic = await StrategyLeverageAAVEv3.deploy();
 
     const proxyDeployment = await BakerFiProxy.deploy(
       await strategyLogic.getAddress(),
       await proxyAdmin.getAddress(),
-      StrategyAAVEv3.interface.encodeFunctionData('initialize', [
+      StrategyLeverageAAVEv3.interface.encodeFunctionData('initialize', [
         owner.address,
         owner.address,
         serviceRegistryAddress,
         ethers.keccak256(Buffer.from('cbETH')),
-        ethers.keccak256(Buffer.from('cbETH/ETH Oracle')),
-        config.swapFeeTier,
-        config.AAVEEModeCategory,
+        ethers.keccak256(Buffer.from('WETH')),
+        ethers.keccak256(Buffer.from('cbETH/USD Oracle')),
+        ethers.keccak256(Buffer.from('ETH/USD Oracle')),
+        config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
+        (config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH] as AAVEv3Market)
+          .AAVEEModeCategory,
       ]),
     );
     await proxyDeployment.waitForDeployment();
-    const strategyProxy = await StrategyAAVEv3.attach(await proxyDeployment.getAddress());
+    const strategyProxy = await StrategyLeverageAAVEv3.attach(await proxyDeployment.getAddress());
     return {
       owner,
       otherAccount,
@@ -102,6 +104,6 @@ describeif(network.name === 'hardhat')('Strategy Proxy', function () {
   it('Strategy Initialization', async function () {
     const { strategyProxy } = await loadFixture(deployFunction);
     expect(await strategyProxy.getPosition([0, 0])).to.deep.equal([0n, 0n, 0n]);
-    expect(await strategyProxy.deployed([0, 0])).to.equal(0);
+    expect(await strategyProxy.totalAssets([0, 0])).to.equal(0);
   });
 });

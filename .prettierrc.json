@@ -18,6 +18,7 @@
     {
       "files": "*.sol",
       "options": {
+        "parser": "solidity-parse",
         "printWidth": 100,
         "endOfLine": "auto",
         "trailingComma": "all",
@@ -25,7 +26,7 @@
         "useTabs": false,
         "singleQuote": false,
         "bracketSpacing": true,
-        "bracketSameLine": false,
+        "bracketSameLine": true,
         "semi": true
       }
     }

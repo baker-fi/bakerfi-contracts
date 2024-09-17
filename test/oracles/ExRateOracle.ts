@@ -3,11 +3,10 @@ import { expect } from 'chai';
 import { ethers, network } from 'hardhat';
 import { describeif } from '../common';
 import { time } from '@nomicfoundation/hardhat-network-helpers';
-import { PythFeedNameEnum, feedIds } from '../../constants/pyth';
+import { feedIds } from '../../constants/pyth';
 import { AbiCoder } from 'ethers';
-import BaseConfig, { NetworkConfig } from '../../constants/network-deploy-config';
-
-import DeployConfig from '../../constants/contracts';
+import BaseConfig from '../../constants/network-deploy-config';
+import { ClExRateOracle, NetworkConfig, OracleNamesEnum } from '../../constants/types';
 
 describeif(network.name === 'hardhat')('Ratio Oracle', function () {
   async function deployFunction() {
@@ -25,13 +24,13 @@ describeif(network.name === 'hardhat')('Ratio Oracle', function () {
 
     const PythOracle = await ethers.getContractFactory('PythOracle');
     const pythOracle = await PythOracle.deploy(
-      feedIds[PythFeedNameEnum.ETH_USD],
+      feedIds[OracleNamesEnum.ETH_USD],
       await pyth.getAddress(),
     );
     await pythOracle.waitForDeployment();
 
-    const RatioOracle = await ethers.getContractFactory('RatioOracle');
-    const oracle = await RatioOracle.deploy(
+    const ChainLinkExRateOracle = await ethers.getContractFactory('ChainLinkExRateOracle');
+    const oracle = await ChainLinkExRateOracle.deploy(
       await pythOracle.getAddress(),
       await ratioOracleCL.getAddress(),
     );
@@ -40,7 +39,7 @@ describeif(network.name === 'hardhat')('Ratio Oracle', function () {
       ['tuple(bytes32, tuple(int64, uint64, int32, uint),  tuple(int64, uint64, int32, uint))'],
       [
         [
-          feedIds[PythFeedNameEnum.ETH_USD],
+          feedIds[OracleNamesEnum.ETH_USD],
           [335300, 0, -2, 1706801584],
           [335300, 0, -2, 1706801584],
         ],
@@ -87,8 +86,8 @@ describeif(network.name === 'hardhat')('Ratio Oracle', function () {
     await ratioOracleCL.setLatestPrice(1174056n);
     await ratioOracleCL.setDecimals(6);
 
-    const RatioOracle = await ethers.getContractFactory('RatioOracle');
-    const oracle = await RatioOracle.deploy(
+    const ChainLinkExRateOracle = await ethers.getContractFactory('ChainLinkExRateOracle');
+    const oracle = await ChainLinkExRateOracle.deploy(
       await pythOracle.getAddress(),
       await ratioOracleCL.getAddress(),
     );
@@ -103,8 +102,8 @@ describeif(network.name === 'hardhat')('Ratio Oracle', function () {
     const oracleMock = await OracleMock.deploy();
     await oracleMock.waitForDeployment();
 
-    const RatioOracle = await ethers.getContractFactory('RatioOracle');
-    const oracle = await RatioOracle.deploy(
+    const ChainLinkExRateOracle = await ethers.getContractFactory('ChainLinkExRateOracle');
+    const oracle = await ChainLinkExRateOracle.deploy(
       await oracleMock.getAddress(),
       await ratioOracleCL.getAddress(),
     );
@@ -117,11 +116,13 @@ describeif(network.name === 'base_devnet')('Ratio Oracle', function () {
   async function deployFunction() {
     const config: NetworkConfig = BaseConfig[network.name];
     const PythOracle = await ethers.getContractFactory('PythOracle');
-    const pythOracle = await PythOracle.deploy(feedIds[PythFeedNameEnum.ETH_USD], config.pyth);
-    const RatioOracle = await ethers.getContractFactory('RatioOracle');
-    const oracle = await RatioOracle.deploy(
+    const pythOracle = await PythOracle.deploy(feedIds[OracleNamesEnum.ETH_USD], config.pyth);
+    const ChainLinkExRateOracle = await ethers.getContractFactory('ChainLinkExRateOracle');
+
+    const oracleConfig = config.oracles?.find((pair) => pair.name == 'wstETH/USD Oracle');
+    const oracle = await ChainLinkExRateOracle.deploy(
       await pythOracle.getAddress(),
-      config.chainlink?.wstEthToETHRatio,
+      (oracleConfig as ClExRateOracle).rateAggregator,
     );
     return { oracle };
   }
@@ -131,8 +132,8 @@ describeif(network.name === 'base_devnet')('Ratio Oracle', function () {
     const { oracle } = await loadFixture(deployFunction);
 
     const [price] = await oracle.getLatestPrice();
-    expect(price).to
-      .greaterThan(Number(3003618594496755974593n))
+    expect(price)
+      .to.greaterThan(Number(3003618594496755974593n))
       .lessThan(Number(5003618594496755974593n));
   });
 });

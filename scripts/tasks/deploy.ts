@@ -3,7 +3,6 @@ import { task } from 'hardhat/config';
 import DeployConfig from '../../constants/contracts';
 import NetworkConfig from '../../constants/network-deploy-config';
 import { getClient } from './common';
-import { feedIds, PythFeedNameEnum } from '../../constants/pyth';
 
 task('deploy:oracle:wstEthToUsdRatio', 'Deploy an oracle with Exchange Ratio').setAction(
   async ({}, { ethers, network, run }) => {
@@ -14,7 +13,7 @@ task('deploy:oracle:wstEthToUsdRatio', 'Deploy an oracle with Exchange Ratio').s
     try {
       let app = await getClient(ethers);
       const oracle = await app?.deploy(
-        'RatioOracle',
+        'ChainLinkExRateOracle',
         [deployConfig.ethUSDOracle, networkConfig.chainlink?.wstEthToETHRatio],
         {
           chainId: BigInt(network.config.chainId ?? 0),
@@ -22,7 +21,7 @@ task('deploy:oracle:wstEthToUsdRatio', 'Deploy an oracle with Exchange Ratio').s
         },
       );
       await app?.send(
-        'StrategyAAVEv3',
+        'StrategyLeverageAAVEv3',
         deployConfig.strategyProxy,
         'setCollateralOracle',
         [oracle.contractAddress],
@@ -30,7 +29,7 @@ task('deploy:oracle:wstEthToUsdRatio', 'Deploy an oracle with Exchange Ratio').s
           chainId: BigInt(network.config.chainId ?? 0),
         },
       );
-      spinner.succeed(`Exchange Ratio Oracle is ${"0xcc9b1371216a9c50c3f09434a1ce180fd55c0e48"}`);
+      spinner.succeed(`Exchange Ratio Oracle is ${'0xcc9b1371216a9c50c3f09434a1ce180fd55c0e48'}`);
     } catch (e) {
       console.log(e);
       spinner.fail('Failed 💥');
@@ -75,7 +74,7 @@ task('deploy:upgrade:strategy', 'Upgrade the settings Contract').setAction(
     const spinner = ora(`Upgrading strategy Contract`).start();
     try {
       let app = await getClient(ethers);
-      const stratReceipt = await app?.deploy('StrategyAAVEv3', [], {
+      const stratReceipt = await app?.deploy('StrategyLeverageAAVEv3', [], {
         chainId: BigInt(network.config.chainId ?? 0),
       });
       await app?.send(
@@ -104,6 +103,7 @@ task('deploy:upgrade:vault', 'Upgrade the settings Contract').setAction(
       let app = await getClient(ethers);
       const vaultReceipt = await app?.deploy('Vault', [], {
         chainId: BigInt(network.config.chainId ?? 0),
+        minTxConfirmations: 6
       });
       await app?.send(
         'BakerFiProxyAdmin',
@@ -112,6 +112,7 @@ task('deploy:upgrade:vault', 'Upgrade the settings Contract').setAction(
         [networkConfig.vaultProxy, vaultReceipt?.contractAddress],
         {
           chainId: BigInt(network.config.chainId ?? 0),
+          minTxConfirmations: 6
         },
       );
       spinner.succeed(`New Vault Contract is ${vaultReceipt?.contractAddress}`);

@@ -2,7 +2,6 @@ import "dotenv/config";
 import "hardhat-flat-exporter";
 import "hardhat-contract-sizer";
 import "solidity-coverage";
-import "@nomiclabs/hardhat-solhint";
 import "hardhat-gas-reporter";
 import '@nomicfoundation/hardhat-ethers'
 import '@nomicfoundation/hardhat-chai-matchers'
@@ -12,21 +11,21 @@ import { HardhatUserConfig } from "hardhat/config";
 import { STAGING_ACCOUNTS_PKEYS} from "./constants/test-accounts";
 import {HardhatNetworkAccountUserConfig} from "hardhat/types/config";
 import "@nomicfoundation/hardhat-verify";
-
+//import "hardhat-tracer";
 import 'solidity-docgen';
 import "./scripts/tasks/";
 import "hardhat-storage-layout-changes";
-
+import "@nomiclabs/hardhat-solhint";
 
 const devAccounts: HardhatNetworkAccountUserConfig[] =  STAGING_ACCOUNTS_PKEYS.map(
-  key=>  { return {privateKey: key, balance: "1000000000000000000000000"}}); 
+  key=>  { return {privateKey: key, balance: "1000000000000000000000000"}});
 
 const config: HardhatUserConfig = {
   gasReporter: {
     enabled: process.env.REPORT_GAS === "true",
     currency: 'USDC',
     gasPrice: 10
-  },  
+  },
   mocha: {
     timeout: 100000000
   },
@@ -38,43 +37,43 @@ const config: HardhatUserConfig = {
         auto: true,
         interval: 2000,
       },
-      hardfork: 'shanghai',
+      hardfork: 'cancun',
       gas: 'auto',
     },
     local: {
       chainId: 1337,
       hardfork: 'shanghai',
-      url: process.env.WEB3_RPC_LOCAL_URL || 'http://127.0.0.1:8545',    
+      url: process.env.WEB3_RPC_LOCAL_URL || 'http://127.0.0.1:8545',
       gasPrice: 20 * 1000000000,
-      accounts: STAGING_ACCOUNTS_PKEYS,      
+      accounts: STAGING_ACCOUNTS_PKEYS,
     },
     ethereum: {
-      url: process.env.WEB3_RPC_ETH_MAIN_NET_URL || 
+      url: process.env.WEB3_RPC_ETH_MAIN_NET_URL ||
         `https://rpc.ankr.com/eth/${process.env.ANKR_API_KEY}`,
       gasPrice: 120 * 1000000000,
       chainId: 1,
     },
     arbitrum: {
-      url: 
-        process.env.WEB3_RPC_ARBITRUM_URL || 
+      url:
+        process.env.WEB3_RPC_ARBITRUM_URL ||
           `https://rpc.ankr.com/arbitrum/${process.env.ANKR_API_KEY}`,
       chainId: 42161,
       blockGasLimit: 900000,
-      ...process.env.BAKERFI_PRIVATE_KEY ? { 
+      ...process.env.BAKERFI_PRIVATE_KEY ? {
         accounts: [`${process.env.BAKERFI_PRIVATE_KEY}`]
       }: {},
     },
     optimism: {
-      url: process.env.WEB3_RPC_OPTIMISM_URL || 
+      url: process.env.WEB3_RPC_OPTIMISM_URL ||
         `https://rpc.ankr.com/optimism/${process.env.ANKR_API_KEY}`,
       hardfork: 'shanghai',
-      chainId: 10,            
+      chainId: 10,
     },
     base: {
-      url: process.env.WEB3_RPC_BASE_URL || 
+      url: process.env.WEB3_RPC_BASE_URL ||
         `https://rpc.ankr.com/base/${process.env.ANKR_API_KEY}`,
-      chainId: 8453,        
-      ...process.env.BAKERFI_PRIVATE_KEY ? { 
+      chainId: 8453,
+      ...process.env.BAKERFI_PRIVATE_KEY ? {
         accounts: [`${process.env.BAKERFI_PRIVATE_KEY}`]
       }: {},
     },
@@ -87,7 +86,7 @@ const config: HardhatUserConfig = {
     arbitrum_devnet: {
       url: `${process.env.TENDERLY_DEV_NET_RPC}`,
       chainId: 42161,
-      gasMultiplier: 4,
+      gasMultiplier:  4,
       accounts: STAGING_ACCOUNTS_PKEYS
     },
     optimism_devnet: {
@@ -166,12 +165,12 @@ const config: HardhatUserConfig = {
     disambiguatePaths: false,
     runOnCompile: false,
     strict: true
-  }, 
+  },
   docgen: {
     outputDir: "doc",
     pages: "files",
     exclude: [
-      "mocks", 
+      "mocks",
       "tests",
       "interfaces/lido",
       "interfaces/tokens",
@@ -182,11 +181,12 @@ const config: HardhatUserConfig = {
   etherscan: {
     apiKey: {
       base: process.env.BASESCAN_API_KEY || "",
+      arbitrumOne: process.env.ARBSCAN_API_KEY || "",
     },
   } ,
 
   storageLayoutChanges: {
-    contracts: ["Vault", "Settings", "StrategyAAVEv3"],
+    contracts: ["Vault", "Settings", "StrategyLeverageAAVEv3"],
     fullPath: false
   }
 

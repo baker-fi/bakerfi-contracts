@@ -4,18 +4,20 @@ import {
   deployFlashLender,
   deployServiceRegistry,
   deployStEth,
-  deployQuoterV2Mock,
   deployWSTETHToUSDOracle,
   deployVault,
   deployWETH,
   deployETHOracle,
   deployWStEth,
-  deployStrategyAAVEv3WstETH,
   deploySettings,
   deployBKR,
+  deployAAVEv3Strategy,
 } from './common';
 
-import BaseConfig, { NetworkConfig, VaultNamesEnum } from '../constants/network-deploy-config';
+import { AAVEv3Market, NetworkConfig, StrategyImplementation } from '../constants/types';
+
+import BaseConfig from '../constants/network-deploy-config';
+
 import ora from 'ora';
 
 /**
@@ -24,7 +26,6 @@ import ora from 'ora';
 async function main() {
   const networkName = network.name;
   const chainId = network.config.chainId;
-
   const config: NetworkConfig = BaseConfig[networkName];
   console.log('  🧑‍🍳 BakerFi Cooking .... ');
   const result: any[] = [];
@@ -138,11 +139,6 @@ async function main() {
   await pythMock.waitForDeployment();
   result.push(['PythMock', await pythMock.getAddress()]);
 
-  // 9. Deploy wstETH/ETH Oracle
-  spinner.text = 'Deploying Uniswap Quoter';
-  const uniQuoter = await deployQuoterV2Mock(serviceRegistry);
-  result.push(['Uniswap Quoter', await uniQuoter.getAddress()]);
-
   spinner.text = 'Deploying wstETH/USD Oracle';
   const oracle = await deployWSTETHToUSDOracle(serviceRegistry, await pythMock.getAddress());
   result.push(['wstETH/USD Oracle', await oracle.getAddress()]);
@@ -152,13 +148,17 @@ async function main() {
   result.push(['ETH/USD Oracle', await ethOracle.getAddress()]);
 
   // Deploying Proxied Strategy
-  spinner.text = 'Deploying StrategyAAVEv3WstETH';
-  const { strategy, proxy: strategyProxy } = await deployStrategyAAVEv3WstETH(
+  spinner.text = 'Deploying StrategyLeverageAAVEv3WstETH';
+  const { strategy, proxy: strategyProxy } = await deployAAVEv3Strategy(
     owner.address,
     owner.address,
     await serviceRegistry.getAddress(),
-    config.swapFeeTier,
-    config.AAVEEModeCategory,
+    'wstETH',
+    'WETH',
+    'wstETH/USD Oracle',
+    'ETH/USD Oracle',
+    config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
+    (config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH] as AAVEv3Market).AAVEEModeCategory,
     proxyAdmin,
   );
 
@@ -177,8 +177,8 @@ async function main() {
   // 10. Deploy the Proxiec Vault attached to Leverage Lib
   const { vault, proxy: vaultProxy } = await deployVault(
     owner.address,
-    config.vaults[VaultNamesEnum.AAVE_V3_WSTETH_ETH].sharesName,
-    config.vaults[VaultNamesEnum.AAVE_V3_WSTETH_ETH].sharesSymbol,
+    config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].sharesName,
+    config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].sharesSymbol,
     await serviceRegistry.getAddress(),
     await strategyProxy.getAddress(),
     proxyAdmin,
@@ -188,7 +188,7 @@ async function main() {
 
   spinner.text = 'Transferring Vault Ownership';
   const strategyProxied = await ethers.getContractAt(
-    'StrategyAAVEv3WstETH',
+    'StrategyLeverageAAVEv3',
     await (strategyProxy as any).getAddress(),
   );
   await strategyProxied.transferOwnership(vaultProxy);

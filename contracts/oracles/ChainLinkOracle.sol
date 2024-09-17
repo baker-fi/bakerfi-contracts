@@ -5,19 +5,22 @@ import { IOracle } from "../interfaces/core/IOracle.sol";
 import { IChainlinkAggregator } from "../interfaces/chainlink/IChainlinkAggregator.sol";
 
 /**
- * Oracle that uses ChainLink feeds to provide up to date prices 
- * for further use on the protocol 
- 
+ * Oracle that uses ChainLink feeds to provide up to date prices
+ * for further use on the protocol
+
  * @title Generic Chainlink Oracle Service
  *
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz> * Chainlink General Oracle using chainlink data feeds
- * 
+ *
  */
 contract ChainLinkOracle is IOracle {
   IChainlinkAggregator private immutable _priceFeed;
+
   uint8 private immutable _extPriceDecimals;
+
   uint8 private constant _PRICE_DECIMALS = 18;
+
   uint256 private constant _PRECISION = 10 ** _PRICE_DECIMALS;
 
   // Price Circuit Breaker to prevent staled and prices from the aggreagator

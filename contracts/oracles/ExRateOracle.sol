@@ -2,7 +2,6 @@
 pragma solidity ^0.8.24;
 
 import { IOracle } from "../interfaces/core/IOracle.sol";
-import { IChainlinkAggregator } from "../interfaces/chainlink/IChainlinkAggregator.sol";
 
 /**
  * @title Ratio Oracle to create a price based on ETH/USD and WSTETH/STETH Ratio
@@ -14,22 +13,19 @@ import { IChainlinkAggregator } from "../interfaces/chainlink/IChainlinkAggregat
  *
  * @notice This contract provide safe and unsafe price retrieval functions
  */
-contract RatioOracle is IOracle {
+abstract contract ExRateOracle is IOracle {
+  // Oracle to get the base Price
   IOracle private immutable _baseOracle;
   uint256 private immutable _basePrecision;
-  IChainlinkAggregator private immutable _ratioFeed;
-  uint8 private immutable _ratioPriceDecimals;
 
-  uint256 private constant _PRECISION = 1e18;
-  uint256 private constant _DECIMALS = 18;
+  uint256 internal constant _PRECISION = 1e18;
+  uint8 internal constant _DECIMALS = 18;
 
   error InvalidPriceFromOracle();
   error InvalidPriceUpdatedAt();
 
-  constructor(IOracle baseOracle, IChainlinkAggregator ratioFeed) {
+  constructor(IOracle baseOracle) {
     _baseOracle = baseOracle;
-    _ratioFeed = IChainlinkAggregator(ratioFeed);
-    _ratioPriceDecimals = _ratioFeed.decimals();
     _basePrecision = _baseOracle.getPrecision();
   }
 
@@ -72,15 +68,7 @@ contract RatioOracle is IOracle {
    * to show prices on the frontend
    *
    * */
-  function getRatio() public view returns (IOracle.Price memory ratio) {
-    (, int256 answer, uint256 startedAt, uint256 updatedAt, ) = _ratioFeed.latestRoundData();
-
-    if (answer <= 0) revert InvalidPriceFromOracle();
-    if (startedAt == 0 || updatedAt == 0) revert InvalidPriceUpdatedAt();
-
-    ratio.price = uint256(answer) * (10 ** (_DECIMALS - _ratioPriceDecimals));
-    ratio.lastUpdate = updatedAt;
-  }
+  function getRatio() public view virtual returns (IOracle.Price memory ratio);
 
   /**
    * Get the Latest Price from the Pyth Feed

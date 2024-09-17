@@ -3,6 +3,38 @@ pragma solidity ^0.8.24;
 
 library MathLibrary {
   error InvalidDivDenominator();
+  error OverflowDetected();
+
+  uint256 private constant MAX_DIFFERENCE_DECIMALS = 64;
+
+  /**
+   * @notice Converts a value from one decimal precision to another.
+   * @dev This function converts a `value` from a `from` decimal precision to a `to` decimal precision.
+   *      It checks for overflow and reverts if the conversion would cause an overflow.
+   * @param value The numerical value to convert.
+   * @param from The current decimal precision of the `value`.
+   * @param to The target decimal precision to convert to.
+   * @return converted The value converted to the target decimal precision.
+   * @custom:throws OverflowDetected if the difference between `from` and `to` is greater than or equal to `MAX_DIFFERENCE_DECIMALS`.
+   * @custom:throws OverflowDetected if the multiplication required to increase precision would cause an overflow.
+   */
+  function toDecimals(
+    uint256 value,
+    uint8 from,
+    uint8 to
+  ) internal pure returns (uint256 converted) {
+    if (from > to) {
+      if (from - to >= MAX_DIFFERENCE_DECIMALS) revert OverflowDetected();
+      converted = value / (10 ** (from - to));
+    } else if (to > from) {
+      if (to - from >= MAX_DIFFERENCE_DECIMALS) revert OverflowDetected();
+      uint256 factor = 10 ** (to - from);
+      if (value > type(uint256).max / factor) revert OverflowDetected();
+      converted = value * factor;
+    } else {
+      converted = value;
+    }
+  }
 
   /**
    * @dev Multiplies two unsigned integers `x` and `y`, then divides the result by `denominator`
