@@ -11,7 +11,7 @@ import { HardhatUserConfig } from "hardhat/config";
 import { STAGING_ACCOUNTS_PKEYS} from "./constants/test-accounts";
 import {HardhatNetworkAccountUserConfig} from "hardhat/types/config";
 import "@nomicfoundation/hardhat-verify";
-import "hardhat-tracer";
+//import "hardhat-tracer";
 import 'solidity-docgen';
 import "./scripts/tasks/";
 import "hardhat-storage-layout-changes";
@@ -37,7 +37,7 @@ const config: HardhatUserConfig = {
         auto: true,
         interval: 2000,
       },
-      hardfork: 'shanghai',
+      hardfork: 'cancun',
       gas: 'auto',
     },
     local: {
