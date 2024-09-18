@@ -116,6 +116,7 @@ async function main(strategy: string) {
         networkConfig.owner,
         networkConfig.owner,
         deployConfig[strategyImplementation]?.serviceRegistry,
+        hre.ethers.keccak256(Buffer.from('AAVEv3')),
         hre.ethers.keccak256(Buffer.from('wstETH')),
         hre.ethers.keccak256(Buffer.from('WETH')),
         hre.ethers.keccak256(Buffer.from('wstETH/USD Oracle')),

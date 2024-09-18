@@ -72,7 +72,41 @@ export const deployConfigMap: { [key in NetworkEnum]?: BakerDeploy } = {
             settingsProxy: "0x16CbE59e142DeAd78eeB2AeD6d550771d3Af5d17",
             bkr: "",
         }
-    }
+    },
+    // TODO: Add  Deploy Contracts for Ethereum
+    [NetworkEnum.ETHEREUM]: {
+        [StrategyImplementation.AAVE_V3_WSTETH_ETH]: {
+            proxyAdmin: "",
+            serviceRegistry: "",
+            flashLender: "",
+            collateralOracle: "",
+            debtOracle: "",
+            strategy: "",
+            strategyProxy: "",
+            vault: "",
+            vaultProxy: "",
+            settings: "",
+            settingsProxy: "",
+            bkr: "",
+        }
+    },
+     // TODO: Add  Deploy Contracts for Ethereum
+     [NetworkEnum.OPTIMISM]: {
+        [StrategyImplementation.AAVE_V3_WSTETH_ETH]: {
+            proxyAdmin: "",
+            serviceRegistry: "",
+            flashLender: "",
+            collateralOracle: "",
+            debtOracle: "",
+            strategy: "",
+            strategyProxy: "",
+            vault: "",
+            vaultProxy: "",
+            settings: "",
+            settingsProxy: "",
+            bkr: "",
+        }
+    },
 };
 
 export default deployConfigMap;

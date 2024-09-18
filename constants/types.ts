@@ -40,9 +40,11 @@ export const pythFeeds  = {
 
 export enum NetworkEnum  {
    ETHEREUM_DEVNET =  "ethereum_devnet",
+   ETHEREUM = "ethereum",
    BASE = "base",
    BASE_DEVNET = "base_devnet",
    OPTIMISM_DEVNET = "optimism_devnet",
+   OPTIMISM = "optimism",
    LOCAL = "local",
    HARDHAT = "hardhat",
    ARBITRUM_DEVNET = "arbitrum_devnet",
@@ -51,24 +53,36 @@ export enum NetworkEnum  {
 
 export type Networks =
   | NetworkEnum.ETHEREUM_DEVNET
+  | NetworkEnum.ETHEREUM
   | NetworkEnum.BASE
   | NetworkEnum.BASE_DEVNET
   | NetworkEnum.OPTIMISM_DEVNET
+  | NetworkEnum.OPTIMISM
   | NetworkEnum.LOCAL
   | NetworkEnum.HARDHAT
   | NetworkEnum.ARBITRUM_DEVNET
   | NetworkEnum.ARBITRUM;
 
+export enum AAVEv3MarketNames  {
+    AAVE_V3 = "AAVEv3",
+    AAVE_V3_LIDO_MARKET = "AAVEv3 Lido Market",
+};
+
+export type AAVEv3MarketNamesType =
+    AAVEv3MarketNames.AAVE_V3 |
+    AAVEv3MarketNames.AAVE_V3_LIDO_MARKET;
+
 export type OracleType = "chainlink" | "pyth" | "clExRate" | "customExRate";
 
 export enum StrategyImplementation {
     AAVE_V3_WSTETH_ETH = "AAVEv3 wstETH/ETH",
+    AAVE_V3_WSTETH_ETH_LIDO = "AAVEv3 Lido wstETH/ETH",
     MORPHO_BLUE_WSTETH_ETH = "Morpho Blue wstETH/ETH",
 };
 
 export type StrategyImplementationType =
     StrategyImplementation.AAVE_V3_WSTETH_ETH |
-    StrategyImplementation.MORPHO_BLUE_WSTETH_ETH;
+    StrategyImplementation.MORPHO_BLUE_WSTETH_ETH
 
 
 export type MarketBase<T extends string, U extends Record<string, any> = {}> = {
@@ -90,6 +104,7 @@ export type MorphoMarket = MarketBase<"morpho", {
 
 export type AAVEv3Market = MarketBase<"aavev3", {
     AAVEEModeCategory: number;
+    aavev3MarketName: string;
 }>;
 
 export type Market = MorphoMarket | AAVEv3Market;
@@ -125,7 +140,10 @@ export type NetworkConfig = {
         [key: string]: MorphoMarket | AAVEv3Market
     },
     morpho?: string;
-    AAVEPool?: string,
+    aavev3?: {
+        // Market Name => address
+        [key in AAVEv3MarketNamesType]?: string;
+    },
     pyth: string,
     chainlink?: {
         wstEthToETH?: string,

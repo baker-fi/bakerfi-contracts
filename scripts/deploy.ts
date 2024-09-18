@@ -3,7 +3,7 @@ import hre from 'hardhat';
 import { ethers } from 'hardhat';
 import BaseConfig from '../constants/network-deploy-config';
 
-import { NetworkConfig, StrategyImplementation } from '../constants/types';
+import { AAVEv3MarketNames, NetworkConfig, StrategyImplementation } from '../constants/types';
 import ora from 'ora';
 import { ContractClientWallet } from './lib/contract-client-wallet';
 import { STAGING_ACCOUNTS_PKEYS } from '../constants/test-accounts';
@@ -15,10 +15,34 @@ import { TransactionReceipt } from 'ethers';
 const networkName = hre.network.name;
 const chainId = BigInt(hre.network.config.chainId ?? 0n);
 
-// Script Parameters Section
-const strategy = process.env.STRATEGY || StrategyImplementation.AAVE_V3_WSTETH_ETH;
-
 type ProxyContracts = keyof typeof ContractTree;
+
+/**
+ * Run this Hardhat script to deploy BakerFi contracts
+ *
+ * Usage:
+ * npx hardhat run scripts/deploy.ts --network <network_name> [<strategy_type> [<aavev3_market>]]
+ *
+ * Parameters:
+ * - <network_name>: The network to deploy to (e.g., mainnet, goerli, sepolia)
+ * - <strategy_type>: (Optional) The type of strategy to deploy. Defaults to AAVE_V3_WSTETH_ETH if not provided.
+ * - <aavev3_market>: (Optional) The AAVE v3 market to use. Defaults to AAVE_V3 if not provided.
+ *
+ * Examples:
+ * npx hardhat run scripts/deploy.ts --network ethereum
+ * npx hardhat run scripts/deploy.ts --network base -- "AAVEv3 wstETH/ETH"
+ * npx hardhat run scripts/deploy.ts --network ethereum -- "AAVEv3 wstETH/ETH" "AAVEv3 Lido Market"
+ * npx hardhat run scripts/deploy.ts --network ethereum -- "Morpho Blue wstETH/ETH"
+ *
+ * Note: Make sure to set up your .env file with the necessary environment variables before running this script.
+ */
+
+// We recommend this pattern to be able to use async/await everywhere
+// and properly handle errors.
+main(process.argv[2], process.argv[3]).catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
 
 export const RegistryNames = [
   'FlashLender',
@@ -49,7 +73,12 @@ type RegistryName = (typeof RegistryNames)[number];
  * Deploy BakerFi Vaults and support Ledger Support
  *
  ****************************************/
-async function main() {
+async function main(strategyType: string, aavev3Market?: string) {
+  // Script Parameters Section
+  const strategy = (strategyType ||
+    StrategyImplementation.AAVE_V3_WSTETH_ETH) as StrategyImplementation;
+  const loanMarket = (aavev3Market || AAVEv3MarketNames.AAVE_V3) as AAVEv3MarketNames;
+
   const [signerPKey] = STAGING_ACCOUNTS_PKEYS;
   let app;
   const result: any[] = [];
@@ -70,7 +99,14 @@ async function main() {
   const config: NetworkConfig = BaseConfig[networkName];
 
   // Deploy Settings, ProxyAdmin, Registry,....
-  const { registryReceipt, proxyAdminReceipt } = await deployInfra(app, config, spinner, result);
+  const { registryReceipt, proxyAdminReceipt } = await deployInfra(
+    app,
+    config,
+    strategy,
+    loanMarket,
+    spinner,
+    result,
+  );
 
   // Deploy Strategy
   let strategyAddress;
@@ -78,9 +114,9 @@ async function main() {
   let strategyContract;
   switch (strategy) {
     case StrategyImplementation.AAVE_V3_WSTETH_ETH:
+    case StrategyImplementation.AAVE_V3_WSTETH_ETH_LIDO:
       strategyConfig = config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH];
       strategyContract = 'StrategyLeverageAAVEv3';
-
       strategyAddress = await deployProxyContract(
         app,
         config,
@@ -92,6 +128,7 @@ async function main() {
           app.getAddress(),
           app.getAddress(),
           registryReceipt?.contractAddress,
+          ethers.keccak256(Buffer.from(strategyConfig.aavev3MarketName)),
           ethers.keccak256(Buffer.from(strategyConfig.collateralToken)),
           ethers.keccak256(Buffer.from(strategyConfig.debtToken)),
           ethers.keccak256(Buffer.from(strategyConfig.collateralOracle)),
@@ -271,13 +308,6 @@ async function deployOracles(
   }
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
-
 /**
  *
  * @param spinner
@@ -346,6 +376,8 @@ type receiptKeyNames = 'registryReceipt' | 'proxyAdminReceipt';
 async function deployInfra(
   app: ContractClient<typeof ContractTree>,
   config: NetworkConfig,
+  strategy: StrategyImplementation,
+  loanMarket: AAVEv3MarketNames,
   spinner: ora.Ora,
   result: any[],
 ): Promise<{
@@ -381,12 +413,32 @@ async function deployInfra(
   );
   // Registering Pyth
   await registerName(app, config, registryReceipt, 'Pyth', config.pyth, spinner, result);
-  if (config.AAVEPool) {
-    await registerName(app, config, registryReceipt, 'AAVEv3', config.AAVEPool, spinner, result);
-  }
-  // AAVE Vault
-  if (config.morpho) {
-    await registerName(app, config, registryReceipt, 'Morpho Blue', config.morpho, spinner, result);
+  switch (strategy) {
+    case StrategyImplementation.AAVE_V3_WSTETH_ETH:
+    case StrategyImplementation.AAVE_V3_WSTETH_ETH_LIDO:
+      const aaveMarketAddress = config.aavev3?.[loanMarket] ?? '';
+      await registerName(
+        app,
+        config,
+        registryReceipt,
+        'AAVEv3',
+        aaveMarketAddress,
+        spinner,
+        result,
+      );
+      break;
+    case StrategyImplementation.MORPHO_BLUE_WSTETH_ETH:
+      const morphoMarketAddress = config.morpho ?? '';
+      await registerName(
+        app,
+        config,
+        registryReceipt,
+        'Morpho Blue',
+        morphoMarketAddress,
+        spinner,
+        result,
+      );
+      break;
   }
   // Register Balancer Vault
   await registerName(

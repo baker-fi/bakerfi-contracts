@@ -14,6 +14,7 @@ bytes32 constant ST_ETH_CONTRACT = keccak256(bytes("stETH"));
 bytes32 constant WST_ETH_CONTRACT = keccak256(bytes("wstETH"));
 bytes32 constant BKR_CONTRACT = keccak256(bytes("BKR"));
 bytes32 constant AAVE_V3_CONTRACT = keccak256(bytes("AAVEv3"));
+bytes32 constant AAVE_V3_CONTRACT_LIDO = keccak256(bytes("AAVEv3 Lido Market"));
 bytes32 constant WSTETH_USD_ORACLE_CONTRACT = keccak256(bytes("wstETH/USD Oracle"));
 bytes32 constant CBETH_USD_ORACLE_CONTRACT = keccak256(bytes("cbETH/USD Oracle"));
 bytes32 constant ETH_USD_ORACLE_CONTRACT = keccak256(bytes("ETH/USD Oracle"));

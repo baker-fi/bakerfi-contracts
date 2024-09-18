@@ -3,6 +3,7 @@ import { task } from 'hardhat/config';
 import DeployConfig from '../../constants/contracts';
 import { getClient } from './common';
 import NetworkDeployConfig from '../../constants/network-deploy-config';
+import { AAVEv3MarketNames } from '../../constants/types';
 
 task('strategy:setNrLoops', 'Set number of Loopps')
   .addParam('value', 'loop coount')
@@ -99,33 +100,6 @@ task('strategy:getMaxSlippage', 'Gets the Strategy Max Slippage')
         },
       );
       spinner.succeed(`🧑‍🍳 Getting the Max Slippage = ${value} `);
-    } catch (e) {
-      console.log(e);
-      spinner.fail('Failed 💥');
-    }
-  });
-
-task('strategy:position', 'Position ')
-  .addParam('strategy', 'Strategy Type', 'AAVE_V3_WSTETH_ETH')
-  .setAction(async ({ strategy }, { ethers, network }) => {
-    const networkName = network.name;
-    const networkConfig = DeployConfig[networkName];
-    const spinner = ora(`Geeting  ETH/USD balance`).start();
-    try {
-      const strategyContract = await ethers.getContractAt(
-        'StrategyLeverageAAVEv3',
-        networkConfig[strategy]?.strategyProxy ?? '',
-      );
-      const { totalCollateralInEth, totalDebtInEth } = await strategyContract.getPosition([360, 0]);
-      const oracle = await ethers.getContractAt(
-        'PythOracle',
-        networkConfig[strategy]?.debtOracle ?? '',
-      );
-      const { price, lastUpdate } = await oracle.getLatestPrice();
-      const pos = totalCollateralInEth - totalDebtInEth;
-      spinner.succeed(
-        `Position -> totalCollateralInEth = ${totalCollateralInEth} totalDebtInEth = ${totalDebtInEth} pos = ${pos}`,
-      );
     } catch (e) {
       console.log(e);
       spinner.fail('Failed 💥');
@@ -252,14 +226,15 @@ task('strategy:getNrLoops', 'Get Recursive Number of Loops')
     }
   });
 
-task('strategy:position', 'AAVE Position Resume')
+task('strategy:position', 'Position Resume')
   .addParam('strategy', 'Strategy Type', 'AAVE_V3_WSTETH_ETH')
-  .setAction(async ({ strategy }, { ethers, network }) => {
+  .addParam('aaveMarket', 'AAVEv3 Market', AAVEv3MarketNames.AAVE_V3)
+  .setAction(async ({ strategy, aaveMarket }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const deployConfig = NetworkDeployConfig[networkName];
     try {
-      const aavePool = await ethers.getContractAt('IPoolV3', deployConfig.AAVEPool);
+      const aavePool = await ethers.getContractAt('IPoolV3', deployConfig.aaveMarket[aaveMarket]);
       const vault = await ethers.getContractAt('Vault', networkConfig[strategy]?.vaultProxy ?? '');
       const ethReserveData = await aavePool.getReserveData(deployConfig.weth);
       const wstETHReserveData = await aavePool.getReserveData(deployConfig.wstETH);
