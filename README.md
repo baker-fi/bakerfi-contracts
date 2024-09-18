@@ -180,6 +180,7 @@ Please make sure to update tests as appropriate.
 ## Documentation
 
 * [Tasks](TASKS.md)
+* [Markets](MARKETS.md)
 * [License](LICENSE)
 * [Hardhat Tasks Documentation](TASKS.md)
 * [Software License](LICENSE)
