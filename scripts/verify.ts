@@ -4,76 +4,119 @@ import hre from 'hardhat';
 import { feedIds } from '../constants/pyth';
 import { OracleNamesEnum, StrategyImplementation } from '../constants/types';
 
-async function main() {
+/**
+ * @description This script verifies the deployed contracts on the specified network for a given strategy.
+ * It uses Hardhat's built-in verification tool to verify the contracts on Etherscan or similar block explorers.
+ *
+ * @param {string} strategy - The strategy implementation to verify. Should be a value from the StrategyImplementation enum.
+ *
+ * Usage:
+ * ```
+ * npx hardhat run scripts/verify.ts --network <network_name> -- <strategy>
+ * ```
+ *
+ * Example:
+ * ```
+ * npx hardhat run scripts/verify.ts --network base -- AAVE_V3_WSTETH_ETH
+ * ```
+ *
+ * @note Make sure to have the correct API keys set in your environment variables for the block explorer of the network you're verifying on.
+ */
+
+import { HardhatRuntimeEnvironment } from 'hardhat/types';
+
+// This function is not used in the current script but could be useful for future modifications
+async function verifyContract(
+  hre: HardhatRuntimeEnvironment,
+  address: string,
+  constructorArguments: any[],
+) {
+  try {
+    await hre.run('verify:verify', {
+      address,
+      constructorArguments,
+    });
+  } catch (error) {
+    console.error(`Verification failed for ${address}:`, error);
+  }
+}
+
+async function main(strategy: string) {
+  const strategyImplementation =
+    (strategy as StrategyImplementation) || StrategyImplementation.AAVE_V3_WSTETH_ETH;
   const networkName = hre.network.name;
   const deployConfig = DeployConfig[networkName];
   const networkConfig = NetworkDeployConfig[networkName];
 
   console.log('Verifying Service Registry');
   await hre.run('verify:verify', {
-    address: deployConfig.serviceRegistry,
+    address: deployConfig[strategyImplementation]?.serviceRegistry,
     constructorArguments: [networkConfig.owner],
   });
   console.log('Verifying Proxy Admin');
   // Verifying Proxy Admin
   await hre.run('verify:verify', {
     contract: 'contracts/proxy/BakerFiProxyAdmin.sol:BakerFiProxyAdmin',
-    address: deployConfig.proxyAdmin,
+    address: deployConfig[strategyImplementation]?.proxyAdmin,
     constructorArguments: [networkConfig.owner],
   });
   console.log('Verifying Flash Lender');
   // Verifying Proxy Admin
   await hre.run('verify:verify', {
-    address: deployConfig.flashLender,
-    constructorArguments: [deployConfig.serviceRegistry],
+    address: deployConfig[strategyImplementation]?.flashLender,
+    constructorArguments: [deployConfig[strategyImplementation]?.serviceRegistry],
   });
   console.log('Verifying wstETH/USD Oracle ');
   // Verifying Proxy Admin
   await hre.run('verify:verify', {
-    address: deployConfig.wstETHUSDOracle,
-    constructorArguments: [deployConfig.ethUSDOracle, networkConfig.chainlink.wstEthToETH],
+    address: deployConfig[strategyImplementation]?.collateralOracle,
+    constructorArguments: [
+      deployConfig[strategyImplementation]?.debtOracle,
+      networkConfig.chainlink.wstEthToETH,
+    ],
   });
   console.log('Verifying ETH/USD Oracle ');
   // Verifying Proxy Admin
   await hre.run('verify:verify', {
-    address: deployConfig.ethUSDOracle,
+    address: deployConfig[strategyImplementation]?.debtOracle,
     constructorArguments: [feedIds[OracleNamesEnum.ETH_USD], networkConfig.pyth],
   });
   console.log('Verifying Settings');
   await hre.run('verify:verify', {
-    address: deployConfig.settings,
+    address: deployConfig[strategyImplementation]?.settings,
     constructorArguments: [],
   });
 
   console.log('Verifying Settings Proxy');
   const settingsFactory = await hre.ethers.getContractFactory('Settings');
   await hre.run('verify:verify', {
-    address: deployConfig.settingsProxy,
+    address: deployConfig[strategyImplementation]?.settingsProxy,
     contract: 'contracts/proxy/BakerFiProxy.sol:BakerFiProxy',
     constructorArguments: [
-      deployConfig.settings,
-      deployConfig.proxyAdmin,
+      deployConfig[strategyImplementation]?.settings,
+      deployConfig[strategyImplementation]?.proxyAdmin,
       settingsFactory.interface.encodeFunctionData('initialize', [networkConfig.owner]),
     ],
   });
   console.log('Verifying Strategy');
   await hre.run('verify:verify', {
-    address: deployConfig.strategy,
+    address: deployConfig[strategyImplementation]?.strategy,
     constructorArguments: [],
   });
 
   console.log('Verifying Strategy Proxy');
   const strategyFactory = await hre.ethers.getContractFactory('StrategyLeverageAAVEv3');
   await hre.run('verify:verify', {
-    address: deployConfig.strategyProxy,
+    address: deployConfig[strategyImplementation]?.strategyProxy,
     contract: 'contracts/proxy/BakerFiProxy.sol:BakerFiProxy',
     constructorArguments: [
-      deployConfig.settings,
-      deployConfig.proxyAdmin,
+      deployConfig[strategyImplementation]?.settings,
+      deployConfig[strategyImplementation]?.proxyAdmin,
       strategyFactory.interface.encodeFunctionData('initialize', [
         networkConfig.owner,
         networkConfig.owner,
-        deployConfig.serviceRegistry,
+        deployConfig[strategyImplementation]?.serviceRegistry,
+        hre.ethers.keccak256(Buffer.from('AAVEv3')),
         hre.ethers.keccak256(Buffer.from('wstETH')),
         hre.ethers.keccak256(Buffer.from('WETH')),
         hre.ethers.keccak256(Buffer.from('wstETH/USD Oracle')),
@@ -86,24 +129,24 @@ async function main() {
 
   console.log('Verifying Vault');
   await hre.run('verify:verify', {
-    address: deployConfig.vault,
+    address: deployConfig[strategyImplementation]?.vault,
     constructorArguments: [],
   });
 
   console.log('Verifying Vault Proxy');
   const vaultFactory = await hre.ethers.getContractFactory('Vault');
   await hre.run('verify:verify', {
-    address: deployConfig.vaultProxy,
+    address: deployConfig[strategyImplementation]?.vaultProxy,
     contract: 'contracts/proxy/BakerFiProxy.sol:BakerFiProxy',
     constructorArguments: [
-      deployConfig.vault,
-      deployConfig.proxyAdmin,
+      deployConfig[strategyImplementation]?.vault,
+      deployConfig[strategyImplementation]?.proxyAdmin,
       vaultFactory.interface.encodeFunctionData('initialize', [
         networkConfig.owner,
         networkConfig.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].sharesName,
         networkConfig.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].sharesSymbol,
-        deployConfig.serviceRegistry,
-        deployConfig.strategyProxy,
+        deployConfig[strategyImplementation]?.serviceRegistry,
+        deployConfig[strategyImplementation]?.strategyProxy,
       ]),
     ],
   });
@@ -111,9 +154,8 @@ async function main() {
   process.exit(0);
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
-main().catch((error) => {
+// Add strategy argument to the main function
+main(process.argv[2]).catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });

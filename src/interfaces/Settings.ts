@@ -1,8 +1,7 @@
-import {ContractSendMethod} from 'web3-eth-contract';
-import {ContractCallMethod} from '@taikai/dappkit';
+import { ContractSendMethod } from 'web3-eth-contract';
+import { ContractCallMethod } from '@taikai/dappkit';
 
 export interface SettingsMethods {
-
   getFeeReceiver(): ContractCallMethod<string>;
 
   getPerformanceFee(): ContractCallMethod<number>;
@@ -13,17 +12,17 @@ export interface SettingsMethods {
 
   owner(): ContractCallMethod<string>;
 
-  renounceOwnership(): ContractSendMethod
+  renounceOwnership(): ContractSendMethod;
 
-  setFeeReceiver(receiver: string): ContractSendMethod
+  setFeeReceiver(receiver: string): ContractSendMethod;
 
-  setPerformanceFee(fee: number): ContractSendMethod
+  setPerformanceFee(fee: number): ContractSendMethod;
 
-  setWithdrawalFee(fee: number): ContractSendMethod
+  setWithdrawalFee(fee: number): ContractSendMethod;
 
-  enableAccount(account: string, enabled: boolean): ContractSendMethod
+  enableAccount(account: string, enabled: boolean): ContractSendMethod;
 
-  transferOwnership(newOwner: string): ContractSendMethod
+  transferOwnership(newOwner: string): ContractSendMethod;
 
   getMaxDepositInETH(): ContractCallMethod<number>;
 
@@ -40,5 +39,4 @@ export interface SettingsMethods {
   setPriceMaxConf(confPerc: number): ContractSendMethod;
 
   getPriceMaxConf(): ContractCallMethod<number>;
-
 }

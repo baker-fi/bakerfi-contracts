@@ -1,0 +1,10 @@
+artifacts
+audits/*
+doc/*
+dist/*
+node_modules/*
+typechain-types
+cache/*
+.storage-layouts
+mappings.json
+package.json

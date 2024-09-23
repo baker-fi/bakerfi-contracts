@@ -31,8 +31,7 @@ export class StrategyLeverageMorphoBlue
     swapFeeTier: number,
     morphoOracle: string,
     irm: string,
-    lltv: bigint
-
+    lltv: bigint,
   ) {
     const deployOptions = {
       data: StrategyLeverageMorphoBlueJson.bytecode,
@@ -49,7 +48,7 @@ export class StrategyLeverageMorphoBlue
           morphoOracle,
           irm,
           lltv,
-        ]
+        ],
       ],
     };
     return this.deploy(deployOptions, this.connection.Account);

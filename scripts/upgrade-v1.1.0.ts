@@ -7,6 +7,7 @@ import { STAGING_ACCOUNTS_PKEYS } from '../constants/test-accounts';
 import { ContractClientLedger } from './lib/contract-client-ledger';
 import ContractTree from '../src/contract-blob.json';
 import DeployConfig from '../constants/contracts';
+import { StrategyImplementation } from '../constants/types';
 
 const networkName = hre.network.name;
 const chainId = BigInt(hre.network.config.chainId ?? 0n);
@@ -47,9 +48,12 @@ async function main() {
 
   await app?.send(
     'BakerFiProxyAdmin',
-    networkConfig?.proxyAdmin ?? '',
+    networkConfig[StrategyImplementation.AAVE_V3_WSTETH_ETH]?.proxyAdmin ?? '',
     'upgrade',
-    [networkConfig.settingsProxy, settingsReceipt.contractAddress],
+    [
+      networkConfig[StrategyImplementation.AAVE_V3_WSTETH_ETH]?.settingsProxy,
+      settingsReceipt.contractAddress,
+    ],
     {
       chainId: BigInt(hre.network.config.chainId ?? 0),
       minTxConfirmations: MIN_CONFIRMATIONS,
@@ -71,9 +75,12 @@ async function main() {
 
   await app?.send(
     'BakerFiProxyAdmin',
-    networkConfig?.proxyAdmin ?? '',
+    networkConfig[StrategyImplementation.AAVE_V3_WSTETH_ETH]?.proxyAdmin ?? '',
     'upgrade',
-    [networkConfig.strategyProxy, stratReceipt.contractAddress],
+    [
+      networkConfig[StrategyImplementation.AAVE_V3_WSTETH_ETH]?.strategyProxy,
+      stratReceipt.contractAddress,
+    ],
     {
       chainId: BigInt(hre.network.config.chainId ?? 0),
       minTxConfirmations: MIN_CONFIRMATIONS,
@@ -94,12 +101,14 @@ async function main() {
   const contractFactory = await ethers.getContractFactory('Vault');
   await app?.send(
     'BakerFiProxyAdmin',
-    networkConfig?.proxyAdmin ?? '',
+    networkConfig[StrategyImplementation.AAVE_V3_WSTETH_ETH]?.proxyAdmin ?? '',
     'upgradeAndCall',
     [
-      networkConfig.vaultProxy,
+      networkConfig[StrategyImplementation.AAVE_V3_WSTETH_ETH]?.vaultProxy,
       vaultReceipt?.contractAddress,
-      contractFactory.interface.encodeFunctionData('initializeV2', [networkConfig.serviceRegistry]),
+      contractFactory.interface.encodeFunctionData('initializeV2', [
+        networkConfig[StrategyImplementation.AAVE_V3_WSTETH_ETH]?.serviceRegistry,
+      ]),
     ],
     {
       chainId: BigInt(hre.network.config.chainId ?? 0),
@@ -112,28 +121,34 @@ async function main() {
   // Upgrade ETH/USD and WSTETH/USD ORacles
   await app?.send(
     'StrategyLeverageAAVEv3',
-    networkConfig?.strategyProxy ?? '',
+    networkConfig[StrategyImplementation.AAVE_V3_WSTETH_ETH]?.strategyProxy ?? '',
     'setCollateralOracle',
-    [networkConfig.wstETHUSDOracle],
+    [networkConfig[StrategyImplementation.AAVE_V3_WSTETH_ETH]?.collateralOracle],
     {
       chainId: BigInt(hre.network.config.chainId ?? 0),
       minTxConfirmations: MIN_CONFIRMATIONS,
     },
   );
-  result.push(['Collateral Oracle', networkConfig.wstETHUSDOracle]);
+  result.push([
+    'Collateral Oracle',
+    networkConfig[StrategyImplementation.AAVE_V3_WSTETH_ETH]?.collateralOracle,
+  ]);
 
   spinner.text = `Setting Debt Oracle`;
   await app?.send(
     'StrategyLeverageAAVEv3',
-    networkConfig?.strategyProxy ?? '',
+    networkConfig[StrategyImplementation.AAVE_V3_WSTETH_ETH]?.strategyProxy ?? '',
     'setDebtOracle',
-    [networkConfig.ethUSDOracle],
+    [networkConfig[StrategyImplementation.AAVE_V3_WSTETH_ETH]?.debtOracle],
     {
       chainId: BigInt(hre.network.config.chainId ?? 0),
       minTxConfirmations: MIN_CONFIRMATIONS,
     },
   );
-  result.push(['Debt Oracle', networkConfig.ethUSDOracle]);
+  result.push([
+    'Debt Oracle',
+    networkConfig[StrategyImplementation.AAVE_V3_WSTETH_ETH]?.debtOracle,
+  ]);
   spinner.succeed('🧑‍🍳 BakerFi Served 🍰 ');
   console.table(result);
   process.exit(0);
