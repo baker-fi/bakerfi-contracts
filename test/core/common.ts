@@ -148,7 +148,7 @@ export async function deployProd(
   );
 
   const weth = await ethers.getContractAt('IWETH', config.weth);
-  const aave3Pool = await ethers.getContractAt('IPoolV3', config.AAVEPool ?? '');
+  const aave3Pool = await ethers.getContractAt('IPoolV3', config.aavev3?.[aavev3Market] ?? '');
   const wstETH = await ethers.getContractAt('IERC20', config.wstETH);
 
   const settingsProxy = await ethers.getContractAt(
