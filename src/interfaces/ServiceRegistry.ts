@@ -1,10 +1,8 @@
-import {ContractSendMethod} from 'web3-eth-contract';
-import {ContractCallMethod} from '@taikai/dappkit';
+import { ContractSendMethod } from 'web3-eth-contract';
+import { ContractCallMethod } from '@taikai/dappkit';
 
 export interface ServiceRegistryMethods {
-
-
-    getService(serviceName: string): ContractCallMethod<string>;
+  getService(serviceName: string): ContractCallMethod<string>;
 
   getServiceFromHash(serviceHash: string): ContractCallMethod<string>;
 
@@ -12,12 +10,11 @@ export interface ServiceRegistryMethods {
 
   owner(): ContractCallMethod<string>;
 
-  registerService(serviceNameHash: string, serviceAddress: string): ContractSendMethod
+  registerService(serviceNameHash: string, serviceAddress: string): ContractSendMethod;
 
-  renounceOwnership(): ContractSendMethod
+  renounceOwnership(): ContractSendMethod;
 
-  transferOwnership(newOwner: string): ContractSendMethod
+  transferOwnership(newOwner: string): ContractSendMethod;
 
-  unregisterService(serviceNameHash: string): ContractSendMethod
-
+  unregisterService(serviceNameHash: string): ContractSendMethod;
 }

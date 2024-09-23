@@ -1,8 +1,7 @@
-import { ContractCallMethod } from "@taikai/dappkit";
-import { ContractSendMethod } from "web3-eth-contract";
+import { ContractCallMethod } from '@taikai/dappkit';
+import { ContractSendMethod } from 'web3-eth-contract';
 
 export interface VaultMethods {
-
   DOMAIN_SEPARATOR(): ContractCallMethod<string>;
 
   allowance(owner: string, spender: string): ContractCallMethod<number>;
@@ -17,10 +16,7 @@ export interface VaultMethods {
 
   decimals(): ContractCallMethod<number>;
 
-  decreaseAllowance(
-    spender: string,
-    subtractedValue: number
-  ): ContractSendMethod;
+  decreaseAllowance(spender: string, subtractedValue: number): ContractSendMethod;
 
   depositNative(receiver: string): ContractSendMethod;
 
@@ -55,7 +51,7 @@ export interface VaultMethods {
     deadline: number,
     v: number,
     r: string,
-    s: string
+    s: string,
   ): ContractSendMethod;
 
   rebalance(): ContractSendMethod;
@@ -81,16 +77,16 @@ export interface VaultMethods {
   maxDeposit(receiver: string): ContractCallMethod<number>;
 
   previewDeposit(assets: number): ContractCallMethod<number>;
-  
-  deposit(assets:number, receiver: string): ContractSendMethod;
+
+  deposit(assets: number, receiver: string): ContractSendMethod;
 
   maxMint(receiver: string): ContractCallMethod<number>;
 
   previewMint(shares: number): ContractCallMethod<number>;
 
-  mint( shares: number,  receiver: string): ContractSendMethod;
+  mint(shares: number, receiver: string): ContractSendMethod;
 
-  maxWithdraw( owner: string): ContractCallMethod<number>;
+  maxWithdraw(owner: string): ContractCallMethod<number>;
 
   previewWithdraw(assets: number): ContractCallMethod<number>;
 
@@ -103,5 +99,4 @@ export interface VaultMethods {
   redeem(shares: number, receiver: string, owner: string): ContractCallMethod<number>;
 
   asset(): ContractCallMethod<number>;
-
 }

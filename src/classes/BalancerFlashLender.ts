@@ -4,25 +4,15 @@ import {
   Web3ConnectionOptions,
   Deployable,
   XPromiseEvent,
-} from "@taikai/dappkit";
+} from '@taikai/dappkit';
 
-import BalancerFlashLenderJson from "../../artifacts/contracts/core/flashloan/BalancerFlashLender.sol/BalancerFlashLender.json";
-import { BalancerFlashLenderMethods } from "@interfaces/BalancerFlashLender";
-import { AbiItem } from "web3-utils";
+import BalancerFlashLenderJson from '../../artifacts/contracts/core/flashloan/BalancerFlashLender.sol/BalancerFlashLender.json';
+import { BalancerFlashLenderMethods } from '@interfaces/BalancerFlashLender';
+import { AbiItem } from 'web3-utils';
 
-export class BalancerFlashLender
-  extends Model<BalancerFlashLenderMethods>
-  implements Deployable
-{
-  constructor(
-    web3Connection: Web3Connection | Web3ConnectionOptions,
-    contractAddress?: string
-  ) {
-    super(
-      web3Connection,
-      BalancerFlashLenderJson.abi as AbiItem[],
-      contractAddress
-    );
+export class BalancerFlashLender extends Model<BalancerFlashLenderMethods> implements Deployable {
+  constructor(web3Connection: Web3Connection | Web3ConnectionOptions, contractAddress?: string) {
+    super(web3Connection, BalancerFlashLenderJson.abi as AbiItem[], contractAddress);
   }
 
   async deployJsonAbi(registry: string) {
@@ -41,15 +31,8 @@ export class BalancerFlashLender
     return this.callTx(this.contract.methods.flashFee(arg1, arg2));
   }
 
-  async flashLoan(
-    borrower: string,
-    token: string,
-    amount: number,
-    data: string
-  ) {
-    return this.sendTx(
-      this.contract.methods.flashLoan(borrower, token, amount, data)
-    );
+  async flashLoan(borrower: string, token: string, amount: number, data: string) {
+    return this.sendTx(this.contract.methods.flashLoan(borrower, token, amount, data));
   }
 
   async maxFlashLoan(token: string) {
@@ -60,15 +43,10 @@ export class BalancerFlashLender
     tokens: string[],
     amounts: number[],
     feeAmounts: number[],
-    userData: string
+    userData: string,
   ) {
     return this.sendTx(
-      this.contract.methods.receiveFlashLoan(
-        tokens,
-        amounts,
-        feeAmounts,
-        userData
-      )
+      this.contract.methods.receiveFlashLoan(tokens, amounts, feeAmounts, userData),
     );
   }
 }

@@ -1,35 +1,36 @@
-import "dotenv/config";
-import "hardhat-flat-exporter";
-import "hardhat-contract-sizer";
-import "solidity-coverage";
-import "hardhat-gas-reporter";
-import '@nomicfoundation/hardhat-ethers'
-import '@nomicfoundation/hardhat-chai-matchers'
-import "@nomicfoundation/hardhat-toolbox";
-import "hardhat-contract-sizer";
-import { HardhatUserConfig } from "hardhat/config";
-import { STAGING_ACCOUNTS_PKEYS} from "./constants/test-accounts";
-import {HardhatNetworkAccountUserConfig} from "hardhat/types/config";
-import "@nomicfoundation/hardhat-verify";
+import 'dotenv/config';
+import 'hardhat-flat-exporter';
+import 'hardhat-contract-sizer';
+import 'solidity-coverage';
+import 'hardhat-gas-reporter';
+import '@nomicfoundation/hardhat-ethers';
+import '@nomicfoundation/hardhat-chai-matchers';
+import '@nomicfoundation/hardhat-toolbox';
+import 'hardhat-contract-sizer';
+import { HardhatUserConfig } from 'hardhat/config';
+import { STAGING_ACCOUNTS_PKEYS } from './constants/test-accounts';
+import { HardhatNetworkAccountUserConfig } from 'hardhat/types/config';
+import '@nomicfoundation/hardhat-verify';
 //import "hardhat-tracer";
 import 'solidity-docgen';
-import "./scripts/tasks/";
-import "hardhat-storage-layout-changes";
-import "@nomiclabs/hardhat-solhint";
+import './scripts/tasks/';
+import 'hardhat-storage-layout-changes';
+import '@nomiclabs/hardhat-solhint';
 
-const devAccounts: HardhatNetworkAccountUserConfig[] =  STAGING_ACCOUNTS_PKEYS.map(
-  key=>  { return {privateKey: key, balance: "1000000000000000000000000"}});
+const devAccounts: HardhatNetworkAccountUserConfig[] = STAGING_ACCOUNTS_PKEYS.map((key) => {
+  return { privateKey: key, balance: '1000000000000000000000000' };
+});
 
 const config: HardhatUserConfig = {
   gasReporter: {
-    enabled: process.env.REPORT_GAS === "true",
+    enabled: process.env.REPORT_GAS === 'true',
     currency: 'USDC',
-    gasPrice: 10
+    gasPrice: 10,
   },
   mocha: {
-    timeout: 100000000
+    timeout: 100000000,
   },
-  defaultNetwork: "hardhat",
+  defaultNetwork: 'hardhat',
   networks: {
     hardhat: {
       accounts: devAccounts,
@@ -48,7 +49,8 @@ const config: HardhatUserConfig = {
       accounts: STAGING_ACCOUNTS_PKEYS,
     },
     ethereum: {
-      url: process.env.WEB3_RPC_ETH_MAIN_NET_URL ||
+      url:
+        process.env.WEB3_RPC_ETH_MAIN_NET_URL ||
         `https://rpc.ankr.com/eth/${process.env.ANKR_API_KEY}`,
       gasPrice: 120 * 1000000000,
       chainId: 1,
@@ -56,54 +58,58 @@ const config: HardhatUserConfig = {
     arbitrum: {
       url:
         process.env.WEB3_RPC_ARBITRUM_URL ||
-          `https://rpc.ankr.com/arbitrum/${process.env.ANKR_API_KEY}`,
+        `https://rpc.ankr.com/arbitrum/${process.env.ANKR_API_KEY}`,
       chainId: 42161,
       blockGasLimit: 900000,
-      ...process.env.BAKERFI_PRIVATE_KEY ? {
-        accounts: [`${process.env.BAKERFI_PRIVATE_KEY}`]
-      }: {},
+      ...(process.env.BAKERFI_PRIVATE_KEY
+        ? {
+            accounts: [`${process.env.BAKERFI_PRIVATE_KEY}`],
+          }
+        : {}),
     },
     optimism: {
-      url: process.env.WEB3_RPC_OPTIMISM_URL ||
+      url:
+        process.env.WEB3_RPC_OPTIMISM_URL ||
         `https://rpc.ankr.com/optimism/${process.env.ANKR_API_KEY}`,
       hardfork: 'shanghai',
       chainId: 10,
     },
     base: {
-      url: process.env.WEB3_RPC_BASE_URL ||
-        `https://rpc.ankr.com/base/${process.env.ANKR_API_KEY}`,
+      url: process.env.WEB3_RPC_BASE_URL || `https://rpc.ankr.com/base/${process.env.ANKR_API_KEY}`,
       chainId: 8453,
-      ...process.env.BAKERFI_PRIVATE_KEY ? {
-        accounts: [`${process.env.BAKERFI_PRIVATE_KEY}`]
-      }: {},
+      ...(process.env.BAKERFI_PRIVATE_KEY
+        ? {
+            accounts: [`${process.env.BAKERFI_PRIVATE_KEY}`],
+          }
+        : {}),
     },
     ethereum_devnet: {
       url: `${process.env.TENDERLY_DEV_NET_RPC}`,
       chainId: 1,
       gasMultiplier: 4,
-      accounts: STAGING_ACCOUNTS_PKEYS
+      accounts: STAGING_ACCOUNTS_PKEYS,
     },
     arbitrum_devnet: {
       url: `${process.env.TENDERLY_DEV_NET_RPC}`,
       chainId: 42161,
-      gasMultiplier:  4,
-      accounts: STAGING_ACCOUNTS_PKEYS
+      gasMultiplier: 4,
+      accounts: STAGING_ACCOUNTS_PKEYS,
     },
     optimism_devnet: {
       url: `${process.env.TENDERLY_DEV_NET_RPC}`,
       chainId: 10,
       gasMultiplier: 4,
-      accounts: STAGING_ACCOUNTS_PKEYS
+      accounts: STAGING_ACCOUNTS_PKEYS,
     },
     base_devnet: {
       url: `${process.env.TENDERLY_DEV_NET_RPC}`,
       chainId: 8453,
       gasMultiplier: 4,
-      accounts: STAGING_ACCOUNTS_PKEYS
+      accounts: STAGING_ACCOUNTS_PKEYS,
     },
   },
   paths: {
-    storageLayouts: ".storage-layouts",
+    storageLayouts: '.storage-layouts',
   },
   solidity: {
     compilers: [
@@ -142,8 +148,8 @@ const config: HardhatUserConfig = {
             runs: 200,
           },
           outputSelection: {
-            "*": {
-              "*": ["storageLayout"],
+            '*': {
+              '*': ['storageLayout'],
             },
           },
         },
@@ -155,7 +161,6 @@ const config: HardhatUserConfig = {
             enabled: true,
             runs: 200,
           },
-
         },
       },
     ],
@@ -164,32 +169,25 @@ const config: HardhatUserConfig = {
     alphaSort: true,
     disambiguatePaths: false,
     runOnCompile: false,
-    strict: true
+    strict: true,
   },
   docgen: {
-    outputDir: "doc",
-    pages: "files",
-    exclude: [
-      "mocks",
-      "tests",
-      "interfaces/lido",
-      "interfaces/tokens",
-      "libraries/tokens/WETH.md",
-    ],
-    collapseNewlines: true
+    outputDir: 'doc',
+    pages: 'files',
+    exclude: ['mocks', 'tests', 'interfaces/lido', 'interfaces/tokens', 'libraries/tokens/WETH.md'],
+    collapseNewlines: true,
   },
   etherscan: {
     apiKey: {
-      base: process.env.BASESCAN_API_KEY || "",
-      arbitrumOne: process.env.ARBSCAN_API_KEY || "",
+      base: process.env.BASESCAN_API_KEY || '',
+      arbitrumOne: process.env.ARBSCAN_API_KEY || '',
     },
-  } ,
+  },
 
   storageLayoutChanges: {
-    contracts: ["Vault", "Settings", "StrategyLeverageAAVEv3"],
-    fullPath: false
-  }
-
+    contracts: ['Vault', 'Settings', 'StrategyLeverageAAVEv3'],
+    fullPath: false,
+  },
 };
 
 export default config;
