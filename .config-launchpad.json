@@ -1,21 +1,21 @@
 {
-  "paths": {                            
-    "base": "@taikai/dappkit/dist/src/base",                    
-    "abi": "@taikai/dappkit/dist/build/contracts",                      
-    "interfaces": "@interfaces",        
-    "methods": "@methods",              
-    "events": "@events"                 
+  "paths": {
+    "base": "@taikai/dappkit/dist/src/base",
+    "abi": "@taikai/dappkit/dist/build/contracts",
+    "interfaces": "@interfaces",
+    "methods": "@methods",
+    "events": "@events"
   },
-  "output": {                           
+  "output": {
     "interfaceDir": "src/interfaces",
     "classDir": "src/classes",
     "eventsDir": "src/events"
   },
-  "overwrite": {                        
+  "overwrite": {
     "interface": true,
     "class": true,
     "events": true
   },
   "asPackage": true,
-  "templatesDir": "./node_modules/@taikai/dappkit-launchpad/src/templates/" 
+  "templatesDir": "./node_modules/@taikai/dappkit-launchpad/src/templates/"
 }

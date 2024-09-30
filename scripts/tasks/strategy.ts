@@ -3,10 +3,12 @@ import { task } from 'hardhat/config';
 import DeployConfig from '../../constants/contracts';
 import { getClient } from './common';
 import NetworkDeployConfig from '../../constants/network-deploy-config';
+import { AAVEv3MarketNames } from '../../constants/types';
 
 task('strategy:setNrLoops', 'Set number of Loopps')
   .addParam('value', 'loop coount')
-  .setAction(async ({ value }, { ethers, network }) => {
+  .addParam('strategy', 'loop coount', 'AAVE_V3_WSTETH_ETH')
+  .setAction(async ({ value, strategy }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Settting Nr Of Loops to ${value}`).start();
@@ -14,7 +16,7 @@ task('strategy:setNrLoops', 'Set number of Loopps')
       let app = await getClient(ethers);
       await app?.send(
         'StrategyLeverageAAVEv3',
-        networkConfig.strategyProxy ?? '',
+        networkConfig[strategy]?.strategyProxy ?? '',
         'setNrLoops',
         [value],
         {
@@ -30,7 +32,8 @@ task('strategy:setNrLoops', 'Set number of Loopps')
 
 task('strategy:setMaxSlippage', 'Set Strategy Max Slippage')
   .addParam('value', 'The new strategy max slippage')
-  .setAction(async ({ value }, { ethers, network }) => {
+  .addParam('strategy', 'loop coount', 'AAVE_V3_WSTETH_ETH')
+  .setAction(async ({ value, strategy }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Settting Strategy Max Slipage to ${value}`).start();
@@ -38,7 +41,7 @@ task('strategy:setMaxSlippage', 'Set Strategy Max Slippage')
       let app = await getClient(ethers);
       await app?.send(
         'StrategyLeverageAAVEv3',
-        networkConfig.strategyProxy ?? '',
+        networkConfig[strategy]?.strategyProxy ?? '',
         'setMaxSlippage',
         [value],
         {
@@ -52,8 +55,9 @@ task('strategy:setMaxSlippage', 'Set Strategy Max Slippage')
     }
   });
 
-task('strategy:getPosition', 'Set number of Loopps').setAction(
-  async ({ value }, { ethers, network }) => {
+task('strategy:getPosition', 'Set number of Loopps')
+  .addParam('strategy', 'Strategy Type', 'AAVE_V3_WSTETH_ETH')
+  .setAction(async ({ value, strategy }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Settting Rebalance Max Age ${value}`).start();
@@ -62,7 +66,7 @@ task('strategy:getPosition', 'Set number of Loopps').setAction(
       let app = await getClient(ethers);
       const [totalCollateralInEth, totalDebtInEth, loanToValue] = await app?.call(
         'StrategyLeverageAAVEv3',
-        networkConfig.strategyProxy ?? '',
+        networkConfig[strategy]?.strategyProxy ?? '',
         'getPosition',
         [[0, 0]],
         {
@@ -76,11 +80,11 @@ task('strategy:getPosition', 'Set number of Loopps').setAction(
       console.log(e);
       spinner.fail('Failed 💥');
     }
-  },
-);
+  });
 
-task('strategy:getMaxSlippage', 'Gets the Strategy Max Slippage').setAction(
-  async ({}, { ethers, network }) => {
+task('strategy:getMaxSlippage', 'Gets the Strategy Max Slippage')
+  .addParam('strategy', 'Strategy Type', 'AAVE_V3_WSTETH_ETH')
+  .setAction(async ({ strategy }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Gettting Strategy Max Slippage`).start();
@@ -88,7 +92,7 @@ task('strategy:getMaxSlippage', 'Gets the Strategy Max Slippage').setAction(
       let app = await getClient(ethers);
       const value = await app?.call(
         'StrategyLeverageAAVEv3',
-        networkConfig.strategyProxy ?? '',
+        networkConfig[strategy]?.strategyProxy ?? '',
         'getMaxSlippage',
         [],
         {
@@ -100,33 +104,11 @@ task('strategy:getMaxSlippage', 'Gets the Strategy Max Slippage').setAction(
       console.log(e);
       spinner.fail('Failed 💥');
     }
-  },
-);
+  });
 
-task('strategy:position', 'Position ').setAction(async ({}, { ethers, network }) => {
-  const networkName = network.name;
-  const networkConfig = DeployConfig[networkName];
-  const spinner = ora(`Geeting  ETH/USD balance`).start();
-  try {
-    const strategy = await ethers.getContractAt(
-      'StrategyLeverageAAVEv3',
-      networkConfig.strategyProxy ?? '',
-    );
-    const { totalCollateralInEth, totalDebtInEth } = await strategy.getPosition([360, 0]);
-    const oracle = await ethers.getContractAt('PythOracle', networkConfig.ethUSDOracle ?? '');
-    const { price, lastUpdate } = await oracle.getLatestPrice();
-    const pos = totalCollateralInEth - totalDebtInEth;
-    spinner.succeed(
-      `Position -> totalCollateralInEth = ${totalCollateralInEth} totalDebtInEth = ${totalDebtInEth} pos = ${pos}`,
-    );
-  } catch (e) {
-    console.log(e);
-    spinner.fail('Failed 💥');
-  }
-});
-
-task('strategy:getMaxLoanToValue', 'Get Max Target Loan To value').setAction(
-  async ({}, { ethers, network }) => {
+task('strategy:getMaxLoanToValue', 'Get Max Target Loan To value')
+  .addParam('strategy', 'Strategy Type', 'AAVE_V3_WSTETH_ETH')
+  .setAction(async ({ strategy }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Getting Max Target LTV`).start();
@@ -134,7 +116,7 @@ task('strategy:getMaxLoanToValue', 'Get Max Target Loan To value').setAction(
       let app = await getClient(ethers);
       const value = await app?.call(
         'StrategyLeverageAAVEv3',
-        networkConfig.strategyProxy ?? '',
+        networkConfig[strategy]?.strategyProxy ?? '',
         'getMaxLoanToValue',
         [],
         {
@@ -146,11 +128,11 @@ task('strategy:getMaxLoanToValue', 'Get Max Target Loan To value').setAction(
       console.log(e);
       spinner.fail('Failed 💥');
     }
-  },
-);
+  });
 
-task('strategy:getLoanToValue', 'Set Target Loan To value').setAction(
-  async ({ value }, { ethers, network }) => {
+task('strategy:getLoanToValue', 'Set Target Loan To value')
+  .addParam('strategy', 'Strategy Type', 'AAVE_V3_WSTETH_ETH')
+  .setAction(async ({ value, strategy }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Getting Target LTV `).start();
@@ -158,7 +140,7 @@ task('strategy:getLoanToValue', 'Set Target Loan To value').setAction(
       let app = await getClient(ethers);
       const value = await app?.call(
         'StrategyLeverageAAVEv3',
-        networkConfig.strategyProxy ?? '',
+        networkConfig[strategy]?.strategyProxy ?? '',
         'getLoanToValue',
         [],
         {
@@ -170,12 +152,12 @@ task('strategy:getLoanToValue', 'Set Target Loan To value').setAction(
       console.log(e);
       spinner.fail('Failed 💥');
     }
-  },
-);
+  });
 
 task('strategy:setMaxLoanToValue', 'Set Max Target Loan To value')
   .addParam('value', 'The new max LTV')
-  .setAction(async ({ value }, { ethers, network }) => {
+  .addParam('strategy', 'Strategy Type', 'AAVE_V3_WSTETH_ETH')
+  .setAction(async ({ value, strategy }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Settting Max Target LTV ${value}`).start();
@@ -183,7 +165,7 @@ task('strategy:setMaxLoanToValue', 'Set Max Target Loan To value')
       let app = await getClient(ethers);
       await app?.send(
         'StrategyLeverageAAVEv3',
-        networkConfig.strategyProxy ?? '',
+        networkConfig[strategy]?.strategyProxy ?? '',
         'setMaxLoanToValue',
         [value],
         {
@@ -197,8 +179,9 @@ task('strategy:setMaxLoanToValue', 'Set Max Target Loan To value')
     }
   });
 task('strategy:setLoanToValue', 'Set Target Loan To value')
+  .addParam('strategy', 'Strategy Type', 'AAVE_V3_WSTETH_ETH')
   .addParam('value', 'The new target LTV')
-  .setAction(async ({ value }, { ethers, network }) => {
+  .setAction(async ({ value, strategy }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Settting Target LTV ${value}`).start();
@@ -206,7 +189,7 @@ task('strategy:setLoanToValue', 'Set Target Loan To value')
       let app = await getClient(ethers);
       await app?.send(
         'StrategyLeverageAAVEv3',
-        networkConfig.strategyProxy ?? '',
+        networkConfig[strategy]?.strategyProxy ?? '',
         'setLoanToValue',
         [value],
         {
@@ -219,16 +202,17 @@ task('strategy:setLoanToValue', 'Set Target Loan To value')
       spinner.fail('Failed 💥');
     }
   });
-task('strategy:getNrLoops', 'Get Recursive Number of Loops').setAction(
-  async ({}, { ethers, network }) => {
+task('strategy:getNrLoops', 'Get Recursive Number of Loops')
+  .addParam('strategy', 'Strategy Type', 'AAVE_V3_WSTETH_ETH')
+  .setAction(async ({ strategy }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
-    const spinner = ora(`Gettting Nr Loop ${networkConfig.settings}`).start();
+    const spinner = ora(`Gettting Nr Loop ${networkConfig[strategy]?.settings}`).start();
     try {
       let app = await getClient(ethers);
       const value = await app?.call(
         'StrategyLeverageAAVEv3',
-        networkConfig.strategyProxy ?? '',
+        networkConfig[strategy]?.strategyProxy ?? '',
         'getNrLoops',
         [],
         {
@@ -240,44 +224,54 @@ task('strategy:getNrLoops', 'Get Recursive Number of Loops').setAction(
       console.log(e);
       spinner.fail('Failed 💥');
     }
-  },
-);
+  });
 
-task('strategy:position', 'AAVE Position Resume').setAction(async ({}, { ethers, network }) => {
-  const networkName = network.name;
-  const networkConfig = DeployConfig[networkName];
-  const deployConfig = NetworkDeployConfig[networkName];
-  try {
-    const aavePool = await ethers.getContractAt('IPoolV3', deployConfig.AAVEPool);
-    const vault = await ethers.getContractAt('Vault', networkConfig.vaultProxy ?? '');
-    const ethReserveData = await aavePool.getReserveData(deployConfig.weth);
-    const wstETHReserveData = await aavePool.getReserveData(deployConfig.wstETH);
-    const awethToken = await ethers.getContractAt('ERC20', ethReserveData.variableDebtTokenAddress);
-    const awstETH = await ethers.getContractAt('ERC20', wstETHReserveData.aTokenAddress);
-    const collateralBalance = await awstETH.balanceOf(networkConfig.strategyProxy);
-    const debtBalance = await awethToken.balanceOf(networkConfig.strategyProxy);
+task('strategy:position', 'Position Resume')
+  .addParam('strategy', 'Strategy Type', 'AAVE_V3_WSTETH_ETH')
+  .addParam('aaveMarket', 'AAVEv3 Market', AAVEv3MarketNames.AAVE_V3)
+  .setAction(async ({ strategy, aaveMarket }, { ethers, network }) => {
+    const networkName = network.name;
+    const networkConfig = DeployConfig[networkName];
+    const deployConfig = NetworkDeployConfig[networkName];
+    try {
+      const aavePool = await ethers.getContractAt('IPoolV3', deployConfig.aaveMarket[aaveMarket]);
+      const vault = await ethers.getContractAt('Vault', networkConfig[strategy]?.vaultProxy ?? '');
+      const ethReserveData = await aavePool.getReserveData(deployConfig.weth);
+      const wstETHReserveData = await aavePool.getReserveData(deployConfig.wstETH);
+      const awethToken = await ethers.getContractAt(
+        'ERC20',
+        ethReserveData.variableDebtTokenAddress,
+      );
+      const awstETH = await ethers.getContractAt('ERC20', wstETHReserveData.aTokenAddress);
+      const collateralBalance = await awstETH.balanceOf(
+        networkConfig[strategy]?.strategyProxy ?? '',
+      );
+      const debtBalance = await awethToken.balanceOf(networkConfig[strategy]?.strategyProxy ?? '');
 
-    const collateralOracle = await ethers.getContractAt(
-      'PythOracle',
-      networkConfig.wstETHUSDOracle ?? '',
-    );
-    const debtOracle = await ethers.getContractAt('PythOracle', networkConfig.ethUSDOracle ?? '');
-    const collateralPrice = await collateralOracle.getLatestPrice();
-    const ethPrice = await debtOracle.getLatestPrice();
-    const totalAssets = await vault.totalAssets();
-    const colleralInUSD = BigInt(collateralBalance * collateralPrice.price) / 10n ** 18n;
-    const debtInUSD = BigInt(debtBalance * ethPrice.price) / 10n ** 18n;
+      const collateralOracle = await ethers.getContractAt(
+        'PythOracle',
+        networkConfig[strategy]?.collateralOracle ?? '',
+      );
+      const debtOracle = await ethers.getContractAt(
+        'PythOracle',
+        networkConfig[strategy]?.debtOracle ?? '',
+      );
+      const collateralPrice = await collateralOracle.getLatestPrice();
+      const ethPrice = await debtOracle.getLatestPrice();
+      const totalAssets = await vault.totalAssets();
+      const colleralInUSD = BigInt(collateralBalance * collateralPrice.price) / 10n ** 18n;
+      const debtInUSD = BigInt(debtBalance * ethPrice.price) / 10n ** 18n;
 
-    console.log(
-      `${new Date().toLocaleString()} ` +
-        `TVL = ${ethers.formatUnits(totalAssets)} USD ` +
-        `Collateral=${ethers.formatUnits(colleralInUSD)} ETH ` +
-        `Debt=${ethers.formatUnits(debtBalance)} ETH ` +
-        `LTV=${BigInt(debtInUSD * 10000n) / BigInt(colleralInUSD)} %, ` +
-        `wstETH/USD =${ethers.formatUnits(collateralPrice.price)} ` +
-        `ETH/USD ${ethers.formatUnits(ethPrice.price)} `,
-    );
-  } catch (e) {
-    console.log(e);
-  }
-});
+      console.log(
+        `${new Date().toLocaleString()} ` +
+          `TVL = ${ethers.formatUnits(totalAssets)} USD ` +
+          `Collateral=${ethers.formatUnits(colleralInUSD)} ETH ` +
+          `Debt=${ethers.formatUnits(debtBalance)} ETH ` +
+          `LTV=${BigInt(debtInUSD * 10000n) / BigInt(colleralInUSD)} %, ` +
+          `wstETH/USD =${ethers.formatUnits(collateralPrice.price)} ` +
+          `ETH/USD ${ethers.formatUnits(ethPrice.price)} `,
+      );
+    } catch (e) {
+      console.log(e);
+    }
+  });

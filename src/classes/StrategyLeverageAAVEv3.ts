@@ -4,27 +4,17 @@ import {
   Web3ConnectionOptions,
   Deployable,
   XPromiseEvent,
-} from "@taikai/dappkit";
+} from '@taikai/dappkit';
 
-import AAVEv3StrategyAnyJson from "../../artifacts/contracts/core/strategies/StrategyLeverageAAVEv3.sol/StrategyLeverageAAVEv3.json";
-import { AAVEv3StrategyAnyMethods } from "src/interfaces/StrategyLeverageAAVEv3";
-import * as Events from "@events/StrategyLeverageAAVEv3";
-import { PastEventOptions } from "web3-eth-contract";
-import { AbiItem } from "web3-utils";
+import AAVEv3StrategyAnyJson from '../../artifacts/contracts/core/strategies/StrategyLeverageAAVEv3.sol/StrategyLeverageAAVEv3.json';
+import { AAVEv3StrategyAnyMethods } from 'src/interfaces/StrategyLeverageAAVEv3';
+import * as Events from '@events/StrategyLeverageAAVEv3';
+import { PastEventOptions } from 'web3-eth-contract';
+import { AbiItem } from 'web3-utils';
 
-export class StrategyLeverageAAVEv3
-  extends Model<AAVEv3StrategyAnyMethods>
-  implements Deployable
-{
-  constructor(
-    web3Connection: Web3Connection | Web3ConnectionOptions,
-    contractAddress?: string
-  ) {
-    super(
-      web3Connection,
-      AAVEv3StrategyAnyJson.abi as AbiItem[],
-      contractAddress
-    );
+export class StrategyLeverageAAVEv3 extends Model<AAVEv3StrategyAnyMethods> implements Deployable {
+  constructor(web3Connection: Web3Connection | Web3ConnectionOptions, contractAddress?: string) {
+    super(web3Connection, AAVEv3StrategyAnyJson.abi as AbiItem[], contractAddress);
   }
 
   async deployJsonAbi(
@@ -33,26 +23,16 @@ export class StrategyLeverageAAVEv3
     collateral: string,
     oracle: string,
     swapFeeTier: number,
-    eModeCategory: number
+    eModeCategory: number,
   ) {
     const deployOptions = {
       data: AAVEv3StrategyAnyJson.bytecode,
-      arguments: [
-        initialOwner,
-        registry,
-        collateral,
-        oracle,
-        swapFeeTier,
-        eModeCategory,
-      ],
+      arguments: [initialOwner, registry, collateral, oracle, swapFeeTier, eModeCategory],
     };
     return this.deploy(deployOptions, this.connection.Account);
   }
 
-  async getPosition(priceOptions: {
-    maxAge: number;
-    maxConf: number;
-  }) {
+  async getPosition(priceOptions: { maxAge: number; maxConf: number }) {
     return this.callTx(this.contract.methods.getPosition(priceOptions));
   }
 
@@ -72,10 +52,7 @@ export class StrategyLeverageAAVEv3
     return this.sendTx(this.contract.methods.renounceOwnership());
   }
 
-  async totalAssets(priceOptions: {
-    maxAge: number;
-    maxConf: number;
-  }) {
+  async totalAssets(priceOptions: { maxAge: number; maxConf: number }) {
     return this.callTx(this.contract.methods.totalAssets(priceOptions));
   }
 
@@ -86,7 +63,6 @@ export class StrategyLeverageAAVEv3
   async undeploy(amount: number) {
     return this.sendTx(this.contract.methods.undeploy(amount));
   }
-
 
   async getLoanToValue() {
     return this.callTx(this.contract.methods.getLoanToValue());
@@ -137,57 +113,58 @@ export class StrategyLeverageAAVEv3
   }
 
   async getOwnershipTransferredEvents(
-    filter: PastEventOptions
+    filter: PastEventOptions,
   ): XPromiseEvent<Events.OwnershipTransferredEvent> {
-    return this.contract.self.getPastEvents("OwnershipTransferred", filter);
+    return this.contract.self.getPastEvents('OwnershipTransferred', filter);
   }
 
   async getStrategyAmountUpdateEvents(
-    filter: PastEventOptions
+    filter: PastEventOptions,
   ): XPromiseEvent<Events.StrategyAmountUpdateEvent> {
-    return this.contract.self.getPastEvents("StrategyAmountUpdate", filter);
+    return this.contract.self.getPastEvents('StrategyAmountUpdate', filter);
   }
 
-  async getStrategyLossEvents(
-    filter: PastEventOptions
-  ): XPromiseEvent<Events.StrategyLossEvent> {
-    return this.contract.self.getPastEvents("StrategyLoss", filter);
+  async getStrategyLossEvents(filter: PastEventOptions): XPromiseEvent<Events.StrategyLossEvent> {
+    return this.contract.self.getPastEvents('StrategyLoss', filter);
   }
 
   async getStrategyProfitEvents(
-    filter: PastEventOptions
+    filter: PastEventOptions,
   ): XPromiseEvent<Events.StrategyProfitEvent> {
-    return this.contract.self.getPastEvents("StrategyProfit", filter);
+    return this.contract.self.getPastEvents('StrategyProfit', filter);
   }
 
-  async getSwapEvents(
-    filter: PastEventOptions
-  ): XPromiseEvent<Events.SwapEvent> {
-    return this.contract.self.getPastEvents("Swap", filter);
+  async getSwapEvents(filter: PastEventOptions): XPromiseEvent<Events.SwapEvent> {
+    return this.contract.self.getPastEvents('Swap', filter);
   }
 
   async getStrategyDeployEvents(
-    filter: PastEventOptions
+    filter: PastEventOptions,
   ): XPromiseEvent<Events.StrategyDeployEvent> {
-    return this.contract.self.getPastEvents("StrategyDeploy", filter);
+    return this.contract.self.getPastEvents('StrategyDeploy', filter);
   }
 
   async getStrategyUndeployEvents(
-    filter: PastEventOptions
+    filter: PastEventOptions,
   ): XPromiseEvent<Events.StrategyUndeployEvent> {
-    return this.contract.self.getPastEvents("StrategyUndeploy", filter);
+    return this.contract.self.getPastEvents('StrategyUndeploy', filter);
   }
 
-  async getLoanToValueChangedEvents(filter: PastEventOptions): XPromiseEvent<Events.LoanToValueChangedEvent> {
+  async getLoanToValueChangedEvents(
+    filter: PastEventOptions,
+  ): XPromiseEvent<Events.LoanToValueChangedEvent> {
     return this.contract.self.getPastEvents('LoanToValueChanged', filter);
   }
 
-  async getNrLoopsChangedEvents(filter: PastEventOptions): XPromiseEvent<Events.NrLoopsChangedEvent> {
+  async getNrLoopsChangedEvents(
+    filter: PastEventOptions,
+  ): XPromiseEvent<Events.NrLoopsChangedEvent> {
     return this.contract.self.getPastEvents('NrLoopsChanged', filter);
   }
 
-  async getSetMaxLoanToValueChangedEvents(filter: PastEventOptions): XPromiseEvent<Events.SetMaxLoanToValueChangedEvent> {
+  async getSetMaxLoanToValueChangedEvents(
+    filter: PastEventOptions,
+  ): XPromiseEvent<Events.SetMaxLoanToValueChangedEvent> {
     return this.contract.self.getPastEvents('SetMaxLoanToValueChanged', filter);
   }
-
 }

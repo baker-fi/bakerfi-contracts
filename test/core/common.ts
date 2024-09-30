@@ -14,6 +14,8 @@ import { PriceServiceConnection } from '@pythnetwork/price-service-client';
 import BaseConfig from '../../constants/network-deploy-config';
 import {
   AAVEv3Market,
+  AAVEv3MarketNames,
+  AAVEv3MarketNamesType,
   MorphoMarket,
   NetworkConfig,
   OracleNamesEnum,
@@ -26,10 +28,13 @@ export async function deployMorphoProd() {
 }
 
 export async function deployAAVEProd() {
-  return await deployProd(StrategyImplementation.AAVE_V3_WSTETH_ETH);
+  return await deployProd(StrategyImplementation.AAVE_V3_WSTETH_ETH, AAVEv3MarketNames.AAVE_V3);
 }
 
-export async function deployProd(type: StrategyImplementation) {
+export async function deployProd(
+  type: StrategyImplementation,
+  aavev3MarketName?: AAVEv3MarketNamesType,
+) {
   const [deployer, otherAccount] = await ethers.getSigners();
   const networkName = network.name;
   const config: NetworkConfig = BaseConfig[networkName];
@@ -79,11 +84,12 @@ export async function deployProd(type: StrategyImplementation) {
 
   let strategyProxyDeploy;
   // 12. Deploy the Strategy
+  const aavev3Market = aavev3MarketName ?? AAVEv3MarketNames.AAVE_V3;
   switch (type) {
     case StrategyImplementation.AAVE_V3_WSTETH_ETH:
       await serviceRegistry.registerService(
-        ethers.keccak256(Buffer.from('AAVEv3')),
-        config.AAVEPool,
+        ethers.keccak256(Buffer.from(aavev3Market)),
+        config.aavev3?.[aavev3Market],
       );
       const { proxy: aProxy } = await deployAAVEv3Strategy(
         deployer.address,
@@ -142,7 +148,7 @@ export async function deployProd(type: StrategyImplementation) {
   );
 
   const weth = await ethers.getContractAt('IWETH', config.weth);
-  const aave3Pool = await ethers.getContractAt('IPoolV3', config.AAVEPool ?? '');
+  const aave3Pool = await ethers.getContractAt('IPoolV3', config.aavev3?.[aavev3Market] ?? '');
   const wstETH = await ethers.getContractAt('IERC20', config.wstETH);
 
   const settingsProxy = await ethers.getContractAt(

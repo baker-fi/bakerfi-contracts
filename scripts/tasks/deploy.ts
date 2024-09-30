@@ -4,8 +4,9 @@ import DeployConfig from '../../constants/contracts';
 import NetworkConfig from '../../constants/network-deploy-config';
 import { getClient } from './common';
 
-task('deploy:oracle:wstEthToUsdRatio', 'Deploy an oracle with Exchange Ratio').setAction(
-  async ({}, { ethers, network, run }) => {
+task('deploy:oracle:wstEthToUsdRatio', 'Deploy an oracle with Exchange Ratio')
+  .addParam('strategy', 'Strategy Type', 'AAVE_V3_WSTETH_ETH')
+  .setAction(async ({ strategy }, { ethers, network, run }) => {
     const networkName = network.name;
     const deployConfig = DeployConfig[networkName];
     const networkConfig = NetworkConfig[networkName];
@@ -14,7 +15,7 @@ task('deploy:oracle:wstEthToUsdRatio', 'Deploy an oracle with Exchange Ratio').s
       let app = await getClient(ethers);
       const oracle = await app?.deploy(
         'ChainLinkExRateOracle',
-        [deployConfig.ethUSDOracle, networkConfig.chainlink?.wstEthToETHRatio],
+        [deployConfig[strategy]?.debtOracle, networkConfig.chainlink?.wstEthToETHRatio],
         {
           chainId: BigInt(network.config.chainId ?? 0),
           minTxConfirmations: 3,
@@ -22,7 +23,7 @@ task('deploy:oracle:wstEthToUsdRatio', 'Deploy an oracle with Exchange Ratio').s
       );
       await app?.send(
         'StrategyLeverageAAVEv3',
-        deployConfig.strategyProxy,
+        deployConfig[strategy]?.strategyProxy,
         'setCollateralOracle',
         [oracle.contractAddress],
         {
@@ -34,11 +35,11 @@ task('deploy:oracle:wstEthToUsdRatio', 'Deploy an oracle with Exchange Ratio').s
       console.log(e);
       spinner.fail('Failed 💥');
     }
-  },
-);
+  });
 
-task('deploy:upgrade:settings', 'Upgrade the settings Contract').setAction(
-  async ({}, { ethers, network }) => {
+task('deploy:upgrade:settings', 'Upgrade the settings Contract')
+  .addParam('strategy', 'Strategy Type', 'AAVE_V3_WSTETH_ETH')
+  .setAction(async ({ strategy }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
 
@@ -52,9 +53,9 @@ task('deploy:upgrade:settings', 'Upgrade the settings Contract').setAction(
 
       await app?.send(
         'BakerFiProxyAdmin',
-        networkConfig?.proxyAdmin ?? '',
+        networkConfig[strategy]?.proxyAdmin ?? '',
         'upgrade',
-        [networkConfig.settingsProxy, settingsReceipt?.contractAddress],
+        [networkConfig[strategy]?.settingsProxy, settingsReceipt?.contractAddress],
         {
           chainId: BigInt(network.config.chainId ?? 0),
         },
@@ -64,11 +65,11 @@ task('deploy:upgrade:settings', 'Upgrade the settings Contract').setAction(
       console.log(e);
       spinner.fail('Failed 💥');
     }
-  },
-);
+  });
 
-task('deploy:upgrade:strategy', 'Upgrade the settings Contract').setAction(
-  async ({}, { ethers, network }) => {
+task('deploy:upgrade:strategy', 'Upgrade the settings Contract')
+  .addParam('strategy', 'Strategy Type', 'AAVE_V3_WSTETH_ETH')
+  .setAction(async ({ strategy }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Upgrading strategy Contract`).start();
@@ -79,9 +80,9 @@ task('deploy:upgrade:strategy', 'Upgrade the settings Contract').setAction(
       });
       await app?.send(
         'BakerFiProxyAdmin',
-        networkConfig?.proxyAdmin ?? '',
+        networkConfig[strategy]?.proxyAdmin ?? '',
         'upgrade',
-        [networkConfig.strategyProxy, stratReceipt?.contractAddress],
+        [networkConfig[strategy]?.strategyProxy, stratReceipt?.contractAddress],
         {
           chainId: BigInt(network.config.chainId ?? 0),
         },
@@ -91,11 +92,11 @@ task('deploy:upgrade:strategy', 'Upgrade the settings Contract').setAction(
       console.log(e);
       spinner.fail('Failed 💥');
     }
-  },
-);
+  });
 
-task('deploy:upgrade:vault', 'Upgrade the settings Contract').setAction(
-  async ({}, { ethers, network }) => {
+task('deploy:upgrade:vault', 'Upgrade the settings Contract')
+  .addParam('strategy', 'Strategy Type', 'AAVE_V3_WSTETH_ETH')
+  .setAction(async ({ strategy }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Upgrading Vault Contract`).start();
@@ -103,16 +104,16 @@ task('deploy:upgrade:vault', 'Upgrade the settings Contract').setAction(
       let app = await getClient(ethers);
       const vaultReceipt = await app?.deploy('Vault', [], {
         chainId: BigInt(network.config.chainId ?? 0),
-        minTxConfirmations: 6
+        minTxConfirmations: 6,
       });
       await app?.send(
         'BakerFiProxyAdmin',
-        networkConfig?.proxyAdmin ?? '',
+        networkConfig[strategy]?.proxyAdmin ?? '',
         'upgrade',
-        [networkConfig.vaultProxy, vaultReceipt?.contractAddress],
+        [networkConfig[strategy]?.vaultProxy, vaultReceipt?.contractAddress],
         {
           chainId: BigInt(network.config.chainId ?? 0),
-          minTxConfirmations: 6
+          minTxConfirmations: 6,
         },
       );
       spinner.succeed(`New Vault Contract is ${vaultReceipt?.contractAddress}`);
@@ -120,5 +121,4 @@ task('deploy:upgrade:vault', 'Upgrade the settings Contract').setAction(
       console.log(e);
       spinner.fail('Failed 💥');
     }
-  },
-);
+  });
