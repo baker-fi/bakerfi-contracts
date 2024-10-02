@@ -48,9 +48,7 @@ export abstract class ContractClientBase<ContractTree extends ContractTreeType>
 
   private async buildGasOptions(options: TxOptions | undefined) {
     const feeData = await this._provider.getFeeData();
-    const block = await this._provider.getBlock('latest');
     const gasOptions = {
-      gasLimit: block?.gasLimit ?? 300000000n,
       maxFeePerGas: options?.maxFeePerGas ?? feeData?.maxFeePerGas ?? 0,
       maxPriorityFeePerGas: options?.maxPriorityFeePerGas ?? feeData.maxPriorityFeePerGas,
     };
