@@ -489,22 +489,25 @@ abstract contract StrategyLeverage is
    * - The contract must have a collateral margin greater than the debt to initiate undeployment.
    */
   function _undeploy(uint256 amount, address receiver) private returns (uint256 receivedAmount) {
-    (uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) = _getPosition(
-      IOracle.PriceOptions({
-        maxAge: settings().getPriceMaxAge(),
-        maxConf: settings().getPriceMaxConf()
-      })
-    );
+    // Get price options from settings
+    IOracle.PriceOptions memory options = IOracle.PriceOptions({
+      maxAge: settings().getPriceMaxAge(),
+      maxConf: settings().getPriceMaxConf()
+    });
+
+    // Fetch collateral and debt balances
+    (uint256 totalCollateralBalance, uint256 totalDebtBalance) = getBalances();
+    uint256 totalCollateralInDebt = _toWETH(options, totalCollateralBalance, false);
     // When the position is in liquidation state revert the transaction
-    if (totalCollateralBaseInEth <= totalDebtBaseInEth) revert NoCollateralMarginToScale();
+    if (totalCollateralInDebt <= totalDebtBalance) revert NoCollateralMarginToScale();
 
     uint256 percentageToBurn = (amount * PERCENTAGE_PRECISION) /
-      (totalCollateralBaseInEth - totalDebtBaseInEth);
+      (totalCollateralInDebt - totalDebtBalance);
     // Calculate how much i need to burn to accomodate the withdraw
     (uint256 deltaCollateralInETH, uint256 deltaDebtInETH) = _calcDeltaPosition(
       percentageToBurn,
-      totalCollateralBaseInEth,
-      totalDebtBaseInEth
+      totalCollateralInDebt,
+      totalDebtBalance
     );
 
     // Calculate the Flash Loan FEE
@@ -534,11 +537,8 @@ abstract contract StrategyLeverage is
     // Update the amount of ETH deployed on the contract
     receivedAmount = _pendingAmount;
     uint256 undeployedAmount = deltaCollateralInETH - deltaDebtInETH;
-    if (undeployedAmount >= _deployedAmount) {
-      _deployedAmount = 0;
-    } else {
-      _deployedAmount = _deployedAmount - (deltaCollateralInETH - deltaDebtInETH);
-    }
+    _deployedAmount = _deployedAmount > undeployedAmount ? _deployedAmount - undeployedAmount : 0;
+
     emit StrategyAmountUpdate(_deployedAmount);
     // Pending amount is not cleared to save gas
     //_pendingAmount = 0;

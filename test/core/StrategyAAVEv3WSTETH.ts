@@ -40,8 +40,8 @@ describeif(network.name === 'hardhat')('Strategy Mainnet wstETH/ETH', function (
     ).to.changeEtherBalances([owner.address], [ethers.parseUnits('10', 18)]);
 
     expect(await strategy.getPosition([0, 0])).to.deep.equal([
-      45702851552764668112n,
-      35740737736704000000n,
+      105345072829122560000000n,
+      82382400483102720000000n,
       782024239n,
     ]);
     expect(await strategy.deployed([0, 0])).to.equal(9962113816060668112n);
@@ -65,8 +65,8 @@ describeif(network.name === 'hardhat')('Strategy Mainnet wstETH/ETH', function (
       .to.emit(strategy, 'StrategyProfit')
       .withArgs(4969613303000000000n);
     expect(await strategy.getPosition([0, 0])).to.deep.equal([
-      50273136708041134924n,
-      35740737736704000000n,
+      115879580112034816000000n,
+      82382400483102720000000n,
       710931126n,
     ]);
     expect(await strategy.deployed([0, 0])).to.equal(14532398971337134924n);
@@ -83,8 +83,8 @@ describeif(network.name === 'hardhat')('Strategy Mainnet wstETH/ETH', function (
     await strategy.deploy(amount);
 
     expect(await strategy.getPosition([0, 0])).to.deep.equal([
-      45702851552764668112n,
-      35740737736704000000n,
+      105345072829122560000000n,
+      82382400483102720000000n,
       782024239n,
     ]);
 
@@ -99,8 +99,8 @@ describeif(network.name === 'hardhat')('Strategy Mainnet wstETH/ETH', function (
       .withArgs(927802249567403037n);
 
     expect(await strategy.getPosition([0, 0])).to.deep.equal([
-      44775049303197265075n,
-      35740737736704000000n,
+      103206488643869696000000n,
+      82382400483102720000000n,
       798228886n,
     ]);
 
@@ -122,8 +122,8 @@ describeif(network.name === 'hardhat')('Strategy Mainnet wstETH/ETH', function (
     await strategy.setMaxLoanToValue(800 * 1e6);
 
     expect(await strategy.getPosition([0, 0])).to.deep.equal([
-      41132566397488201301n,
-      35740737736704000000n,
+      94810565546210304000000n,
+      82382400483102720000000n,
       868915821n,
     ]);
 
@@ -133,8 +133,8 @@ describeif(network.name === 'hardhat')('Strategy Mainnet wstETH/ETH', function (
       .withArgs(5391828660784201301n);
 
     expect(await strategy.getPosition([0, 0])).to.deep.equal([
-      28364338891302690959n,
-      21567314643136805200n,
+      65379801144452702660802n,
+      49712660252430335986000n,
       760367259n,
     ]);
 
@@ -217,7 +217,8 @@ async function deployFunction() {
 
   await oracle.setLatestPrice(ethers.parseUnits('2660', 18));
   await ethOracle.setLatestPrice(ethers.parseUnits('2305', 18));
-
+  await oracle.setDecimals(18);
+  await ethOracle.setDecimals(18);
   const { proxy: proxyStrategy } = await deployStrategyAAVEv3WstETH(
     owner.address,
     owner.address,

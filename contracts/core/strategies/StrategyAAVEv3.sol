@@ -3,12 +3,15 @@ pragma solidity ^0.8.24;
 
 import { StrategyLeverage } from "./StrategyLeverage.sol";
 import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import { UseAAVEv3 } from "../hooks/UseAAVEv3.sol";
 import { DataTypes } from "../../interfaces/aave/v3/IPoolV3.sol";
 import { AddressUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
+import { SYSTEM_DECIMALS } from "../../core/Constants.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import { MathLibrary } from "../../libraries/MathLibrary.sol";
 /**
  * @title  AAVE v3 Recursive Staking Strategy for anyETH/WETH
  *
@@ -24,9 +27,10 @@ import { AddressUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/Ad
  * on Optimism, Arbitrum , Base and Ethereum.
  */
 contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
-  using SafeERC20 for IERC20;
+  using SafeERC20 for ERC20;
   using AddressUpgradeable for address;
   using AddressUpgradeable for address payable;
+  using MathLibrary for uint256;
 
   error FailedToApproveAllowanceForAAVE();
   error InvalidAAVEEMode();
@@ -69,7 +73,7 @@ contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
    * @param amountIn the amount to deposit
    */
   function _supply(address assetIn, uint256 amountIn) internal virtual override {
-    if (!IERC20(assetIn).approve(aaveV3A(), amountIn)) revert FailedToApproveAllowanceForAAVE();
+    if (!ERC20(assetIn).approve(aaveV3A(), amountIn)) revert FailedToApproveAllowanceForAAVE();
     aaveV3().supply(assetIn, amountIn, address(this), 0);
   }
 
@@ -82,8 +86,13 @@ contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
   {
     DataTypes.ReserveData memory wethReserve = (aaveV3().getReserveData(wETHA()));
     DataTypes.ReserveData memory colleteralReserve = (aaveV3().getReserveData(ierc20A()));
-    debtBalance = IERC20(wethReserve.variableDebtTokenAddress).balanceOf(address(this));
-    collateralBalance = IERC20(colleteralReserve.aTokenAddress).balanceOf(address(this));
+    debtBalance = ERC20(wethReserve.variableDebtTokenAddress).balanceOf(address(this));
+    collateralBalance = ERC20(colleteralReserve.aTokenAddress).balanceOf(address(this));
+    uint8 debtDecimals = ERC20(wethReserve.variableDebtTokenAddress).decimals();
+    uint8 collateralDecimals = ERC20(colleteralReserve.aTokenAddress).decimals();
+    collateralBalance = ERC20(colleteralReserve.aTokenAddress).balanceOf(address(this));
+    debtBalance = debtBalance.toDecimals(debtDecimals, SYSTEM_DECIMALS);
+    collateralBalance = collateralBalance.toDecimals(collateralDecimals, SYSTEM_DECIMALS);
   }
   /**
    * @dev Supplies an asset and borrows another asset from AAVE v3.
@@ -109,7 +118,7 @@ contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
    * @param amount The amount of the borrowed asset to repay.
    */
   function _repay(address assetIn, uint256 amount) internal virtual override {
-    if (!IERC20(assetIn).approve(aaveV3A(), amount)) revert FailedToApproveAllowanceForAAVE();
+    if (!ERC20(assetIn).approve(aaveV3A(), amount)) revert FailedToApproveAllowanceForAAVE();
     if (aaveV3().repay(assetIn, amount, 2, address(this)) != amount) revert FailedToRepayDebt();
   }
 
