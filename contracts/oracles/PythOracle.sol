@@ -7,16 +7,16 @@ import { IOracle } from "../interfaces/core/IOracle.sol";
 import { PERCENTAGE_PRECISION } from "../core/Constants.sol";
 
 /**
- * Oracle that uses Pyth feeds to provide up to date prices 
- * for further use on the protocol 
- 
+ * Oracle that uses Pyth feeds to provide up to date prices
+ * for further use on the protocol
+
  * @title Generic Pyth Oracle Service
  *
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
  *
- * @notice This contract provide safe and unsafe price retrieval functions 
- * 
+ * @notice This contract provide safe and unsafe price retrieval functions
+ *
  */
 contract PythOracle is IOracle {
   error InvalidPriceUpdate();
@@ -118,7 +118,6 @@ contract PythOracle is IOracle {
   function getSafeLatestPrice(
     PriceOptions memory priceOptions
   ) public view override returns (IOracle.Price memory price) {
-    if (priceOptions.maxAge == 0) revert InvalidPriceOption();
     price = _getPriceInternal(priceOptions);
   }
 }

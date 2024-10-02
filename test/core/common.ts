@@ -230,7 +230,8 @@ export async function deployEthereum() {
   await settingsProxy.setLoanToValue(ethers.parseUnits('800', 6));
   await settingsProxy.setPriceMaxAge(360);
   await strategyProxy.transferOwnership(await vaultProxy.getAddress());
-
+  await settingsProxy.setRebalancePriceMaxAge(360);
+  await settingsProxy.setPriceMaxConf(0);
   return {
     serviceRegistry,
     weth,
