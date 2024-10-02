@@ -58,7 +58,7 @@ export const deployConfigMap : {[key: string]: BakerDeployConfig} =
         flashLender: "0xdbDA5026367237Def645C17108586BAE80d3173B",
         wstETHUSDOracle: "0x2072d46a8c1a85e56b60cff0b473f5599d8407f2",
         ethUSDOracle: "0x2857da78834c426e2c7ae740b274b65f6485a2fd",
-        strategy: "0x9d6df3F3d508870dFc80b7e11b6b38798d98C809",
+        strategy: "0x6d6e00c12dd14ec7eb8e98d7059e9481950bdc5b",
         strategyProxy: "0xaf01884b2c52b05252642F7AF5eFa642aF7C36D0",
         vault: "0xa8C8216e586D89703ed2D3Fb589a7A7cCb6F207F",
         vaultProxy: "0x37327c99bBc522e677a97d01021dB20227faF60A",
