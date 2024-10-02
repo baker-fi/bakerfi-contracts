@@ -61,24 +61,7 @@ contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
     if (aaveV3().getUserEMode(address(this)) != eModeCategory) revert InvalidAAVEEMode();
   }
 
-  /**
-   * Get the Current Position on AAVE v3 Money Market
-   *
-   * @return collateralBalance  The Collateral Balance Amount
-   * @return debtBalance  -  The Debt Token Balance Amount
-   */
-  function _getMMPosition()
-    internal
-    view
-    virtual
-    override
-    returns (uint256 collateralBalance, uint256 debtBalance)
-  {
-    DataTypes.ReserveData memory wethReserve = (aaveV3().getReserveData(wETHA()));
-    DataTypes.ReserveData memory colleteralReserve = (aaveV3().getReserveData(ierc20A()));
-    debtBalance = IERC20(wethReserve.variableDebtTokenAddress).balanceOf(address(this));
-    collateralBalance = IERC20(colleteralReserve.aTokenAddress).balanceOf(address(this));
-  }
+
   /**
    * Deposit an asset on the AAVEv3 Pool
    *
@@ -90,6 +73,18 @@ contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
     aaveV3().supply(assetIn, amountIn, address(this), 0);
   }
 
+  function getBalances()
+    public
+    view
+    virtual
+    override
+    returns (uint256 collateralBalance, uint256 debtBalance)
+  {
+    DataTypes.ReserveData memory wethReserve = (aaveV3().getReserveData(wETHA()));
+    DataTypes.ReserveData memory colleteralReserve = (aaveV3().getReserveData(ierc20A()));
+    debtBalance = IERC20(wethReserve.variableDebtTokenAddress).balanceOf(address(this));
+    collateralBalance = IERC20(colleteralReserve.aTokenAddress).balanceOf(address(this));
+  }
   /**
    * @dev Supplies an asset and borrows another asset from AAVE v3.
    * @param assetIn The address of the asset to supply.
