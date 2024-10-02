@@ -87,10 +87,14 @@ contract StrategyAAVEv3WstETH is Initializable, StrategyAAVEv3, UseWstETH, UseSt
   function _convertToWETH(uint256 amount) internal virtual override returns (uint256) {
     uint256 amountOutMinimum = 0;
     if (getMaxSlippage() > 0) {
-      uint256 wethAmount = _toWETH(IOracle.PriceOptions({
-        maxAge: settings().getRebalancePriceMaxAge(),
-        maxConf: settings().getPriceMaxConf()
-      }), amount, false);
+      uint256 wethAmount = _toWETH(
+        IOracle.PriceOptions({
+          maxAge: settings().getRebalancePriceMaxAge(),
+          maxConf: settings().getPriceMaxConf()
+        }),
+        amount,
+        false
+      );
       amountOutMinimum =
         (wethAmount * (PERCENTAGE_PRECISION - getMaxSlippage())) /
         PERCENTAGE_PRECISION;

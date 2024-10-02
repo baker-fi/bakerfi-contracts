@@ -73,7 +73,7 @@ async function main() {
     'BakerFiProxyAdmin',
     networkConfig?.proxyAdmin ?? '',
     'upgrade',
-    [networkConfig.strategyProxy,stratReceipt.contractAddress],
+    [networkConfig.strategyProxy, stratReceipt.contractAddress],
     {
       chainId: BigInt(hre.network.config.chainId ?? 0),
       minTxConfirmations: MIN_CONFIRMATIONS,

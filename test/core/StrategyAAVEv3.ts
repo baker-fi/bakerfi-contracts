@@ -326,7 +326,6 @@ async function deployFunction() {
   await oracle.setDecimals(18);
   await ethOracle.setDecimals(18);
 
-
   await deployQuoterV2Mock(serviceRegistry);
 
   const { proxy: proxyStrategy } = await deployAAVEv3StrategyAny(

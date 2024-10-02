@@ -30,7 +30,7 @@ task('deploy:oracle:wstEthToUsdRatio', 'Deploy an oracle with Exchange Ratio').s
           chainId: BigInt(network.config.chainId ?? 0),
         },
       );
-      spinner.succeed(`Exchange Ratio Oracle is ${"0xcc9b1371216a9c50c3f09434a1ce180fd55c0e48"}`);
+      spinner.succeed(`Exchange Ratio Oracle is ${'0xcc9b1371216a9c50c3f09434a1ce180fd55c0e48'}`);
     } catch (e) {
       console.log(e);
       spinner.fail('Failed 💥');

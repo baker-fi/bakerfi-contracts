@@ -223,9 +223,7 @@ abstract contract StrategyLeverage is
   ) public view returns (uint256 totalOwnedAssets) {
     (uint256 totalCollateral, uint256 totalDebt) = getBalances();
     uint256 totalCollateralInDebt = _toWETH(priceOptions, totalCollateral, false);
-    totalOwnedAssets = totalCollateralInDebt > totalDebt
-      ? (totalCollateralInDebt - totalDebt)
-      : 0;
+    totalOwnedAssets = totalCollateralInDebt > totalDebt ? (totalCollateralInDebt - totalDebt) : 0;
   }
 
   /**
@@ -408,9 +406,7 @@ abstract contract StrategyLeverage is
       // Pay Debt to rebalance the position
       deltaDebt = _adjustDebt(totalCollateralInDebt, totalDebt);
     }
-    uint256 newDeployedAmount = totalCollateralInDebt -
-      deltaDebt -
-      (totalDebt - deltaDebt);
+    uint256 newDeployedAmount = totalCollateralInDebt - deltaDebt - (totalDebt - deltaDebt);
 
     if (deltaDebt >= totalCollateralInDebt) revert InvalidDeltaDebt();
 
@@ -604,10 +600,14 @@ abstract contract StrategyLeverage is
     uint256 amountOutMinimum = 0;
 
     if (getMaxSlippage() > 0) {
-      uint256 wsthETHAmount = _fromWETH(IOracle.PriceOptions({
+      uint256 wsthETHAmount = _fromWETH(
+        IOracle.PriceOptions({
           maxAge: settings().getPriceMaxAge(),
           maxConf: settings().getPriceMaxConf()
-        }), amount, false);
+        }),
+        amount,
+        false
+      );
       amountOutMinimum =
         (wsthETHAmount * (PERCENTAGE_PRECISION - getMaxSlippage())) /
         PERCENTAGE_PRECISION;
@@ -638,10 +638,14 @@ abstract contract StrategyLeverage is
   function _convertToWETH(uint256 amount) internal virtual returns (uint256) {
     uint256 amountOutMinimum = 0;
     if (getMaxSlippage() > 0) {
-      uint256 ethAmount = _toWETH(IOracle.PriceOptions({
+      uint256 ethAmount = _toWETH(
+        IOracle.PriceOptions({
           maxAge: settings().getPriceMaxAge(),
           maxConf: settings().getPriceMaxConf()
-        }),amount, false);
+        }),
+        amount,
+        false
+      );
       amountOutMinimum =
         (ethAmount * (PERCENTAGE_PRECISION - getMaxSlippage())) /
         PERCENTAGE_PRECISION;
@@ -669,7 +673,11 @@ abstract contract StrategyLeverage is
    * @param amountIn The amount in the underlying collateral.
    * @return amountOut The equivalent amount in WETH.
    */
-  function _toWETH(IOracle.PriceOptions memory priceOptions, uint256 amountIn, bool roundUp) internal view returns (uint256 amountOut) {
+  function _toWETH(
+    IOracle.PriceOptions memory priceOptions,
+    uint256 amountIn,
+    bool roundUp
+  ) internal view returns (uint256 amountOut) {
     amountOut = amountIn.mulDiv(
       _collateralOracle.getSafeLatestPrice(priceOptions).price,
       _ethUSDOracle.getSafeLatestPrice(priceOptions).price,
@@ -685,7 +693,11 @@ abstract contract StrategyLeverage is
    * @param amountIn The amount in WETH.
    * @return amountOut The equivalent amount in the underlying collateral.
    */
-  function _fromWETH(IOracle.PriceOptions memory priceOptions, uint256 amountIn, bool roundUp) internal view returns (uint256 amountOut) {
+  function _fromWETH(
+    IOracle.PriceOptions memory priceOptions,
+    uint256 amountIn,
+    bool roundUp
+  ) internal view returns (uint256 amountOut) {
     amountOut = amountIn.mulDiv(
       _ethUSDOracle.getSafeLatestPrice(priceOptions).price,
       _collateralOracle.getSafeLatestPrice(priceOptions).price,
@@ -711,10 +723,14 @@ abstract contract StrategyLeverage is
     uint256 collateralIn = _convertFromWETH(amount + loanAmount);
     // Deposit on AAVE Collateral and Borrow ETH
     _supplyAndBorrow(ierc20A(), collateralIn, wETHA(), loanAmount + fee);
-    uint256 collateralInETH = _toWETH(IOracle.PriceOptions({
+    uint256 collateralInETH = _toWETH(
+      IOracle.PriceOptions({
         maxAge: settings().getRebalancePriceMaxAge(),
         maxConf: settings().getPriceMaxConf()
-      }),collateralIn, false);
+      }),
+      collateralIn,
+      false
+    );
     _pendingAmount = collateralInETH - loanAmount - fee;
     emit StrategyDeploy(msg.sender, _pendingAmount);
   }
@@ -742,10 +758,14 @@ abstract contract StrategyLeverage is
     address payable receiver
   ) internal {
     (uint256 collateralBalance, ) = getBalances();
-    uint256 convertedAmount = _fromWETH(IOracle.PriceOptions({
+    uint256 convertedAmount = _fromWETH(
+      IOracle.PriceOptions({
         maxAge: settings().getRebalancePriceMaxAge(),
         maxConf: settings().getPriceMaxConf()
-      }), withdrawAmountInETh, true);
+      }),
+      withdrawAmountInETh,
+      true
+    );
     uint256 withdrawAmount = collateralBalance > convertedAmount
       ? convertedAmount
       : collateralBalance;

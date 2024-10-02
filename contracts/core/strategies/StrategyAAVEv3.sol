@@ -65,7 +65,6 @@ contract StrategyAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
     if (aaveV3().getUserEMode(address(this)) != eModeCategory) revert InvalidAAVEEMode();
   }
 
-
   /**
    * Deposit an asset on the AAVEv3 Pool
    *
