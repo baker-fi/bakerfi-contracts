@@ -35,8 +35,8 @@ describeif(network.name === 'hardhat')('Strategy AAVE v3 L2', function () {
       // @ts-ignore
     ).to.changeEtherBalances([owner.address], [ethers.parseUnits('10', 18)]);
     expect(await strategy.getPosition([0, 0])).to.deep.equal([
-      45702851552764668112n,
-      35740737736704000000n,
+      105345072829122560000000n,
+      82382400483102720000000n,
       782024239n,
     ]);
     expect(await strategy.deployed([0, 0])).to.equal(9962113816060668112n);
@@ -53,8 +53,8 @@ describeif(network.name === 'hardhat')('Strategy AAVE v3 L2', function () {
     await strategy.deploy(amount);
 
     expect(await strategy.getPosition([0, 0])).to.deep.equal([
-      45702851552764668112n,
-      35740737736704000000n,
+      105345072829122560000000n,
+      82382400483102720000000n,
       782024239n,
     ]);
     expect(await strategy.deployed([0, 0])).to.equal(9962113816060668112n);
@@ -323,6 +323,8 @@ async function deployFunction() {
 
   await oracle.setLatestPrice(ethers.parseUnits('2660', 18));
   await ethOracle.setLatestPrice(ethers.parseUnits('2305', 18));
+  await oracle.setDecimals(18);
+  await ethOracle.setDecimals(18);
 
   await deployQuoterV2Mock(serviceRegistry);
 

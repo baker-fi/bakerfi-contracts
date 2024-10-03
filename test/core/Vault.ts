@@ -815,7 +815,8 @@ async function deployFunction() {
 
   const { proxy: settingsProxy } = await deploySettings(owner.address, serviceRegistry, proxyAdmin);
   const pSettings = await ethers.getContractAt('Settings', await settingsProxy.getAddress());
-
+  await pSettings.setPriceMaxAge(0);
+  await pSettings.setRebalancePriceMaxAge(0);
   // 5. Deploy AAVEv3 Mock Pool
   const aave3Pool = await deployAaveV3(cbETH, weth, serviceRegistry, AAVE_DEPOSIT);
 

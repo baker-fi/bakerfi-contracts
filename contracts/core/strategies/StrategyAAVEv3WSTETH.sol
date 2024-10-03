@@ -12,7 +12,7 @@ import { ISwapHandler } from "../../interfaces/core/ISwapHandler.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import { WST_ETH_CONTRACT, WSTETH_USD_ORACLE_CONTRACT } from "../ServiceRegistry.sol";
 import { PERCENTAGE_PRECISION } from "../Constants.sol";
-
+import { IOracle } from "../../interfaces/core/IOracle.sol";
 /**
  * @title  AAVE v3 Recursive Staking Strategy for awstETH/WETH on EThereum
  *
@@ -87,7 +87,14 @@ contract StrategyAAVEv3WstETH is Initializable, StrategyAAVEv3, UseWstETH, UseSt
   function _convertToWETH(uint256 amount) internal virtual override returns (uint256) {
     uint256 amountOutMinimum = 0;
     if (getMaxSlippage() > 0) {
-      uint256 wethAmount = _toWETH(amount, false);
+      uint256 wethAmount = _toWETH(
+        IOracle.PriceOptions({
+          maxAge: settings().getRebalancePriceMaxAge(),
+          maxConf: settings().getPriceMaxConf()
+        }),
+        amount,
+        false
+      );
       amountOutMinimum =
         (wethAmount * (PERCENTAGE_PRECISION - getMaxSlippage())) /
         PERCENTAGE_PRECISION;

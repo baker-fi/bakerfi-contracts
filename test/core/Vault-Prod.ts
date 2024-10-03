@@ -36,14 +36,14 @@ describeif(
       .lessThanOrEqual(ethers.parseUnits('11', 17));
     expect((await strategy.getPosition([0, 0]))[0])
       // @ts-ignore
-      .to.greaterThan(ethers.parseUnits('40', 17))
+      .to.greaterThan(ethers.parseUnits('10000', 18))
       // @ts-ignore
-      .lessThanOrEqual(ethers.parseUnits('46', 17));
+      .lessThanOrEqual(ethers.parseUnits('30000', 18));
     expect((await strategy.getPosition([0, 0]))[1])
       // @ts-ignore
-      .to.greaterThan(ethers.parseUnits('33', 17))
+      .to.greaterThan(ethers.parseUnits('5500', 18))
       // @ts-ignore
-      .lessThanOrEqual(ethers.parseUnits('37', 17));
+      .lessThanOrEqual(ethers.parseUnits('20000', 18));
     expect(await vault.totalAssets())
       // @ts-ignore
       .to.greaterThan(ethers.parseUnits('9', 17))
@@ -87,14 +87,14 @@ describeif(
       .lessThanOrEqual(ethers.parseUnits('6', 18));
     expect((await strategy.getPosition([0, 0]))[0])
       // @ts-ignore
-      .to.greaterThan(ethers.parseUnits('9', 18))
+      .to.greaterThan(ethers.parseUnits('10000', 18))
       // @ts-ignore
-      .lessThanOrEqual(ethers.parseUnits('11', 18));
+      .lessThanOrEqual(ethers.parseUnits('40000', 18));
     expect((await strategy.getPosition([0, 0]))[1])
       // @ts-ignore
-      .to.greaterThan(ethers.parseUnits('4', 18))
+      .to.greaterThan(ethers.parseUnits('5000', 18))
       // @ts-ignore
-      .lessThanOrEqual(ethers.parseUnits('6', 18));
+      .lessThanOrEqual(ethers.parseUnits('40000', 18));
     expect(await vault.totalAssets())
       // @ts-ignore
       .to.greaterThan(ethers.parseUnits('4', 18))
@@ -170,8 +170,6 @@ describeif(
       value: ethers.parseUnits('10', 18),
     });
     const balanceBefore = await ethers.provider.getBalance(feeReceiver);
-
-    await vault.aprove(vault.getAddress(), ethers.parseUnits('5', 18));
     await vault.redeemNative(ethers.parseUnits('5', 18));
 
     const provider = ethers.provider;
@@ -193,11 +191,11 @@ describeif(
     });
     const balanceOf = await vault.balanceOf(deployer.address);
     const withrawing = balanceOf;
-    await vault.aprove(vault.getAddress(), withrawing);
     await vault.redeemNative(withrawing);
+
     expect(await vault.balanceOf(deployer.address)).to.equal(0n);
     expect(await vault.totalSupply()).to.equal(0n);
-    expect((await strategy.getPosition([0, 0]))[0]).to.equal(1n);
+    expect((await strategy.getPosition([0, 0]))[0]).to.equal(0n);
     expect((await strategy.getPosition([0, 0]))[1]).to.equal(0n);
     expect((await strategy.getPosition([0, 0]))[2]).to.equal(0n);
     expect(await vault.tokenPerAsset()).to.equal(ethers.parseUnits('1', 18));
