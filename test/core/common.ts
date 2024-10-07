@@ -7,7 +7,8 @@ import {
   deployAAVEv3Strategy,
   deployStrategyLeverageMorphoBlue,
   deployETHOracle,
-  deployWSTETHToUSDOracle,
+  deployWSTETHToUSDPythOracle,
+  deployWSTETHToUSDCustomOracle,
   deploySettings,
 } from '../../scripts/common';
 import { PriceServiceConnection } from '@pythnetwork/price-service-client';
@@ -29,6 +30,9 @@ export async function deployMorphoProd() {
 
 export async function deployAAVEProd() {
   return await deployProd(StrategyImplementation.AAVE_V3_WSTETH_ETH, AAVEv3MarketNames.AAVE_V3);
+}
+export async function deployAAVELidoProd() {
+  return await deployProd(StrategyImplementation.AAVE_V3_WSTETH_ETH, AAVEv3MarketNames.AAVE_V3_LIDO_MARKET);
 }
 
 export async function deployProd(
@@ -64,9 +68,14 @@ export async function deployProd(
   // 8. Register wstETH
   await serviceRegistry.registerService(ethers.keccak256(Buffer.from('wstETH')), config.wstETH);
   // 9. Deploy the Oracle
-  await deployETHOracle(serviceRegistry, config.pyth);
+  const ethOracle = await deployETHOracle(serviceRegistry, config.pyth);
 
-  await deployWSTETHToUSDOracle(serviceRegistry, config.pyth);
+  if (networkName === 'ethereum' || networkName === 'ethereum_devnet') {
+
+    await deployWSTETHToUSDCustomOracle(serviceRegistry,await ethOracle.getAddress(), config.wstETH);
+  } else {
+    await deployWSTETHToUSDPythOracle(serviceRegistry, config.pyth);
+  }
 
   await updatePythPrices(
     [feedIds[OracleNamesEnum.ETH_USD], feedIds[OracleNamesEnum.WSTETH_USD]],
@@ -87,8 +96,9 @@ export async function deployProd(
   const aavev3Market = aavev3MarketName ?? AAVEv3MarketNames.AAVE_V3;
   switch (type) {
     case StrategyImplementation.AAVE_V3_WSTETH_ETH:
+    case StrategyImplementation.AAVE_V3_WSTETH_ETH_LIDO:
       await serviceRegistry.registerService(
-        ethers.keccak256(Buffer.from(aavev3Market)),
+        ethers.keccak256(Buffer.from("AAVEv3")),
         config.aavev3?.[aavev3Market],
       );
       const { proxy: aProxy } = await deployAAVEv3Strategy(
@@ -99,14 +109,12 @@ export async function deployProd(
         'WETH',
         'wstETH/USD Oracle',
         'ETH/USD Oracle',
-        config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
-        (config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH] as AAVEv3Market)
-          .AAVEEModeCategory,
+        config.markets[type].swapFeeTier,
+        (config.markets[type] as AAVEv3Market).AAVEEModeCategory,
         proxyAdmin,
       );
       strategyProxyDeploy = aProxy;
       break;
-
     case StrategyImplementation.MORPHO_BLUE_WSTETH_ETH:
       await serviceRegistry.registerService(
         ethers.keccak256(Buffer.from('Morpho Blue')),
@@ -136,7 +144,6 @@ export async function deployProd(
     ethers.keccak256(Buffer.from('Strategy')),
     await strategyProxyDeploy.getAddress(),
   );
-
   // 13. Deploy the Vault
   const { proxy: vaultProxyDeploy } = await deployVault(
     deployer.address,
