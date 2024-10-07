@@ -39,7 +39,7 @@ type ProxyContracts = keyof typeof ContractTree;
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
-main(process.argv[2], process.argv[3]).catch((error) => {
+main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
@@ -75,11 +75,11 @@ type RegistryName = (typeof RegistryNames)[number];
  * Deploy BakerFi Vaults and support Ledger Support
  *
  ****************************************/
-async function main(strategyType: string, aavev3Market?: string) {
+async function main() {
   // Script Parameters Section
-  const strategy = (strategyType ||
+  const strategy = (process.env.STRATEGY ||
     StrategyImplementation.AAVE_V3_WSTETH_ETH) as StrategyImplementation;
-  const loanMarket = (aavev3Market || AAVEv3MarketNames.AAVE_V3) as AAVEv3MarketNames;
+  const loanMarket = (process.env.AAVE_MARKET || AAVEv3MarketNames.AAVE_V3) as AAVEv3MarketNames;
 
   const [signerPKey] = STAGING_ACCOUNTS_PKEYS;
   let app;
@@ -100,8 +100,9 @@ async function main(strategyType: string, aavev3Market?: string) {
   result.push(['Owner', app.getAddress()]);
   const config: NetworkConfig = BaseConfig[networkName];
 
-  // Deploy Settings, ProxyAdmin, Registry,....
-  const { registryReceipt, proxyAdminReceipt } = await deployInfra(
+  try {
+    // Deploy Settings, ProxyAdmin, Registry,....
+    const { registryReceipt, proxyAdminReceipt } = await deployInfra(
     app,
     config,
     strategy,
@@ -238,8 +239,13 @@ async function main(strategyType: string, aavev3Market?: string) {
       },
     );
     registerDump.push([registerName, address]);
+    }
+  } catch (error) {
+    console.table(result);
+    console.error(error);
+    process.exit(1);
   }
-  console.table(registerDump);
+  console.table(result);
   process.exit(0);
 }
 
@@ -253,7 +259,7 @@ async function deployOracles(
 ) {
   const oracles = {};
   for (const oracle of config.oracles) {
-    spinner.text = `Deploying ${oracle.name} Oracle`;
+    spinner.text = `Deploying ${oracle.name} ${oracle.type} Oracle`;
     let oracleReceipt;
 
     switch (oracle.type) {
