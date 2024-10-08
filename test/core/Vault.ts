@@ -1212,7 +1212,6 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
     expect(await vault.hasRole(vault.PAUSER_ROLE(), owner.address)).to.be.true;
   });
 
-
   it('Pause - Vault should be able to be paused by the governor', async () => {
     const { owner, vault } = await loadFixture(deployFunction);
     await vault.pause();
@@ -1232,23 +1231,26 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
     expect(await vault.hasRole(vault.PAUSER_ROLE(), anotherAccount.address)).to.be.true;
   });
 
-  it('Grant Pause Role - Non-Pauser account cannot upause vault', async () => {
+  it('Grant Pause Role - Non-Pauser account cannot pause vault', async () => {
     const { vault, anotherAccount } = await loadFixture(deployFunction);
-    await expect(vault.connect(anotherAccount).pause())
-      .to.be.revertedWith(/AccessControl: account .* is missing role .*/);
+    await expect(vault.connect(anotherAccount).pause()).to.be.revertedWith(
+      /AccessControl: account .* is missing role .*/,
+    );
   });
 
   it('Grant Pause Role - Non-Pauser account cannot unpause vault', async () => {
     const { vault, anotherAccount } = await loadFixture(deployFunction);
     await vault.pause();
-    await expect(vault.connect(anotherAccount).unpause())
-      .to.be.revertedWith(/AccessControl: account .* is missing role .*/);
+    await expect(vault.connect(anotherAccount).unpause()).to.be.revertedWith(
+      /AccessControl: account .* is missing role .*/,
+    );
   });
 
   it('Grant Pause Role - Non-governor cannot grant pause role', async () => {
     const { vault, anotherAccount } = await loadFixture(deployFunction);
-    await expect(vault.connect(anotherAccount).grantRole(vault.PAUSER_ROLE(), anotherAccount.address))
-      .to.be.revertedWith(/AccessControl: account .* is missing role .*/);
+    await expect(
+      vault.connect(anotherAccount).grantRole(vault.PAUSER_ROLE(), anotherAccount.address),
+    ).to.be.revertedWith(/AccessControl: account .* is missing role .*/);
   });
 
   it('Grant Pause Role - Governor can revoke pause role', async () => {
@@ -1257,7 +1259,6 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
     await vault.revokeRole(vault.PAUSER_ROLE(), anotherAccount.address);
     expect(await vault.hasRole(vault.PAUSER_ROLE(), anotherAccount.address)).to.be.false;
   });
-
 });
 
 /**
