@@ -14,61 +14,59 @@ import { IERC4626 } from "@openzeppelin/contracts/interfaces/IERC4626.sol";
  * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
  */
 interface IVaultZap {
+  /**
+   * @notice Converts an input asset to the target asset and deposits it into an ERC-4626 vault.
+   * @param vault The address of the ERC-4626 vault.
+   * @param inputAsset The address of the asset to be converted.
+   * @param inputAmount The amount of the input asset to convert and deposit.
+   * @param receiver The address that will receive the vault shares.
+   * @return shares The amount of ERC-4626 vault shares minted to the receiver.
+   */
+  function zapIn(
+    IERC4626 vault,
+    IERC20 inputAsset,
+    uint256 inputAmount,
+    address receiver
+  ) external payable returns (uint256 shares);
 
-    /**
-     * @notice Converts an input asset to the target asset and deposits it into an ERC-4626 vault.
-     * @param vault The address of the ERC-4626 vault.
-     * @param inputAsset The address of the asset to be converted.
-     * @param inputAmount The amount of the input asset to convert and deposit.
-     * @param receiver The address that will receive the vault shares.
-     * @return shares The amount of ERC-4626 vault shares minted to the receiver.
-     */
-    function zapIn(
-        IERC4626 vault,
-        IERC20 inputAsset,
-        uint256 inputAmount,
-        address receiver
-    ) external payable returns (uint256 shares);
+  /**
+   * @notice Estimates the number of vault shares that would be minted for a given input amount of the input asset.
+   * @param vault The address of the ERC-4626 vault.
+   * @param inputAsset The address of the asset to convert.
+   * @param inputAmount The amount of the input asset.
+   * @return estimatedShares The estimated amount of ERC-4626 vault shares.
+   */
+  function estimateZapInShares(
+    IERC4626 vault,
+    IERC20 inputAsset,
+    uint256 inputAmount
+  ) external returns (uint256 estimatedShares);
 
-    /**
-     * @notice Estimates the number of vault shares that would be minted for a given input amount of the input asset.
-     * @param vault The address of the ERC-4626 vault.
-     * @param inputAsset The address of the asset to convert.
-     * @param inputAmount The amount of the input asset.
-     * @return estimatedShares The estimated amount of ERC-4626 vault shares.
-     */
-    function estimateZapInShares(
-        IERC4626 vault,
-        IERC20 inputAsset,
-        uint256 inputAmount
-    ) external view returns (uint256 estimatedShares);
+  /**
+   * @notice Zap out function to withdraw assets from the vault
+   * @param vault The ERC4626 Vault Address
+   * @param vaultShares The Vault Shares
+   * @param targetAsset The Output Asset Address
+   * @param receiver The Receiver of the output amount
+   * @return outputAmount The output amount
+   */
+  function zapOut(
+    IERC4626 vault,
+    uint256 vaultShares,
+    IERC20 targetAsset,
+    address receiver
+  ) external returns (uint256 outputAmount);
 
-
-    /**
-     * @notice Zap out function to withdraw assets from the vault
-     * @param vault The ERC4626 Vault Address
-     * @param vaultShares The Vault Shares
-     * @param outputAsset The Output Asset Address
-     * @param receiver The Receiver of the output amount
-     * @return outputAmount The output amount
-     */
-    function zapOut(
-        IERC4626 vault,
-        uint256 vaultShares,
-        IERC20 outputAsset,
-        address receiver
-    ) external returns (uint256 outputAmount);
-
-    /**
-     * @notice Estimates the output amount after withdrawing from the ERC-4626 vault and converting the target asset to the output asset.
-     * @param vault The address of the ERC-4626 vault.
-     * @param vaultShares The number of vault shares to redeem.
-     * @param outputAsset The address of the asset to be sent to the receiver.
-     * @return estimatedOutput The estimated output amount after conversion.
-     */
-    function estimateZapOutAmount(
-        address vault,
-        uint256 vaultShares,
-        address outputAsset
-    ) external view returns (uint256 estimatedOutput);
+  /**
+   * @notice Estimates the output amount after withdrawing from the ERC-4626 vault and converting the target asset to the output asset.
+   * @param vault The address of the ERC-4626 vault.
+   * @param vaultShares The number of vault shares to redeem.
+   * @param outputAsset The address of the asset to be sent to the receiver.
+   * @return estimatedOutput The estimated output amount after conversion.
+   */
+  function estimateZapOutAmount(
+    IERC4626 vault,
+    uint256 vaultShares,
+    IERC20 outputAsset
+  ) external returns (uint256 estimatedOutput);
 }

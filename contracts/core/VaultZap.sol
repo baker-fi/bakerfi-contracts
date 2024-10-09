@@ -9,9 +9,20 @@ import { UseSwapper } from "./hooks/UseSwapper.sol";
 import { ServiceRegistry } from "./ServiceRegistry.sol";
 import { ISwapHandler } from "../interfaces/core/ISwapHandler.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import { IV3SwapRouter } from "../interfaces/uniswap/v3/IV3SwapRouter.sol";
+import { IQuoterV2 } from "../interfaces/uniswap/v3/IQuoterV2.sol";
+import { UseUniQuoter } from "./hooks/UseUniQuoter.sol";
 
-contract VaultZap is IVaultZap , UseSwapper, Ownable2StepUpgradeable  {
+/**
+ * @title Vault Zap
 
+ * @author Chef Kenji <chef.kenji@bakerfi.xyz>
+ * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
+ *
+ * @notice This contract provides functions to perform zaps in and out of an ERC-4626 vault.
+ * It supports swapping between assets using Uniswap V3 and estimating amounts for zaps.
+ */
+contract VaultZap is IVaultZap, UseSwapper, UseUniQuoter, Ownable2StepUpgradeable {
   using SafeERC20 for IERC20;
   error VaultZap__CannotZap();
 
@@ -20,22 +31,27 @@ contract VaultZap is IVaultZap , UseSwapper, Ownable2StepUpgradeable  {
   }
 
   /**
-   * @notice Mapping to verify if a token can be used as input or output on a zap and the Uniswap fee tier used.
+   * @notice Mapping to verify if a token can be used as input or output on a zap a
+   * nd the Uniswap fee tier used.
    * Key is vault The address of the ERC-4626 vault.
    * A token The address of the token to be used as input and output.
    * feeTier The Uniswap fee tier used for the token.
    */
   mapping(IERC4626 => mapping(IERC20 => ZapInfo)) private _zaps;
 
-
   constructor() {
     _disableInitializers();
   }
 
-  function initialize(address initialOwner, ServiceRegistry registry) public initializer {
+  function initialize(
+    address initialOwner,
+    IV3SwapRouter router,
+    IQuoterV2 quoter
+  ) public initializer {
     __Ownable2Step_init();
     _transferOwnership(initialOwner);
-    _initUseSwapper(registry);
+    _initUseSwapper(router);
+    _initUseUniQuoter(quoter);
   }
 
   /**
@@ -77,7 +93,6 @@ contract VaultZap is IVaultZap , UseSwapper, Ownable2StepUpgradeable  {
     return _zaps[vault][token].univ3FeeTier != 0;
   }
 
-
   /**
    * @notice Converts an input asset to the target asset and deposits it into an ERC-4626 vault.
    * @param vault The address of the ERC-4626 vault.
@@ -85,101 +100,147 @@ contract VaultZap is IVaultZap , UseSwapper, Ownable2StepUpgradeable  {
    * @param inputAmount The amount of the input asset to convert and deposit.
    * @param receiver The address that will receive the vault shares.
    * @return shares The amount of ERC-4626 vault shares minted to the receiver.
+   *
+   * @dev !!!The user have to approve the Zap contract to pull the input asset!!!
    */
   function zapIn(
-        IERC4626 vault,
-        IERC20 inputAsset,
-        uint256 inputAmount,
-        address receiver
-    ) external payable returns (uint256 shares) {
+    IERC4626 vault,
+    IERC20 inputAsset,
+    uint256 inputAmount,
+    address receiver
+  ) external payable returns (uint256 shares) {
+    if (!canZap(vault, inputAsset)) revert VaultZap__CannotZap();
 
-        if(!canZap(vault, inputAsset)) revert VaultZap__CannotZap();
+    // Transfer the input asset from the caller to the contract
+    IERC20(inputAsset).safeTransferFrom(msg.sender, address(this), inputAmount);
 
-        // Transfer the input asset from the caller to the contract
-        IERC20(inputAsset).safeTransferFrom(msg.sender, address(this), inputAmount);
-
-        // Convert input asset to target asset if necessary
-        IERC20 targetAsset = IERC20(IERC4626(vault).asset());
-        uint256 targetAmount = 0;
-        if (inputAsset != targetAsset) {
-            ( , targetAmount) = _swap(ISwapHandler.SwapParams({
-                underlyingIn: address(inputAsset),
-                underlyingOut: address(targetAsset),
-                mode: ISwapHandler.SwapType.EXACT_INPUT,
-                amountIn: inputAmount,
-                amountOut: 0,
-                feeTier: _zaps[vault][targetAsset].univ3FeeTier,
-                payload: bytes("")
-            }));
-        }
-
-        // Approve the vault to pull target asset for deposit
-        IERC20(targetAsset).safeApprove(address(vault), targetAmount);
-
-        // Deposit target asset into ERC-4626 vault
-        shares = IERC4626(vault).deposit(targetAmount, receiver);
+    // Convert input asset to target asset if necessary
+    IERC20 targetAsset = IERC20(IERC4626(vault).asset());
+    uint256 targetAmount = 0;
+    if (inputAsset != targetAsset) {
+      (, targetAmount) = _swap(
+        ISwapHandler.SwapParams({
+          underlyingIn: address(inputAsset),
+          underlyingOut: address(targetAsset),
+          mode: ISwapHandler.SwapType.EXACT_INPUT,
+          amountIn: inputAmount,
+          amountOut: 0,
+          feeTier: _zaps[vault][targetAsset].univ3FeeTier,
+          payload: bytes("")
+        })
+      );
     }
 
-    function estimateZapInShares(
-        IERC4626 vault,
-        IERC20 inputAsset,
-        uint256 inputAmount
-    ) external view returns (uint256 estimatedShares){
-        return 0;
+    // Approve the vault to pull target asset for deposit
+    IERC20(targetAsset).safeApprove(address(vault), targetAmount);
+
+    // Deposit target asset into ERC-4626 vault
+    shares = IERC4626(vault).deposit(targetAmount, receiver);
+  }
+
+  function estimateZapInShares(
+    IERC4626 vault,
+    IERC20 inputAsset,
+    uint256 inputAmount
+  ) external returns (uint256 estimatedShares) {
+    if (!canZap(vault, inputAsset)) revert VaultZap__CannotZap();
+
+    IERC20 targetAsset = IERC20(IERC4626(vault).asset());
+    uint256 targetAmount = 0;
+    if (inputAsset != targetAsset) {
+      (targetAmount, , , ) = uniQuoter().quoteExactInputSingle(
+        IQuoterV2.QuoteExactInputSingleParams({
+          tokenIn: address(inputAsset),
+          tokenOut: address(targetAsset),
+          fee: _zaps[vault][inputAsset].univ3FeeTier,
+          amountIn: inputAmount,
+          sqrtPriceLimitX96: 0
+        })
+      );
     }
+    // Estimate shares from ERC-4626 vault
+    estimatedShares = IERC4626(vault).previewDeposit(targetAmount);
+  }
 
-    /**
-     * @notice Withdraws assets from the ERC-4626 vault and converts the target asset to the output asset.
-     * @param vault The address of the ERC-4626 vault.
-     * @param vaultShares The number of vault shares to redeem.
-     * @param outputAsset The address of the asset to be sent to the receiver.
-     * @param receiver The address that will receive the output asset.
-     * @return outputAmount The amount of output asset received.
-     */
-     function zapOut(
-        IERC4626 vault,
-        uint256 vaultShares,
-        IERC20 targetAsset,
-        address receiver
-    ) external returns (uint256 outputAmount) {
-        // Verify if zap is possible
-        if(!canZap(vault, targetAsset)) revert VaultZap__CannotZap();
+  /**
+   * @notice Withdraws assets from the ERC-4626 vault and converts the
+   * target asset to the output asset.
+   * @param vault The address of the ERC-4626 vault.
+   * @param vaultShares The number of vault shares to redeem.
+   * @param targetAsset The address of the asset to be sent to the receiver.
+   * @param receiver The address that will receive the output asset.
+   * @return outputAmount The amount of target asset received.
+   *
+   * @dev !!!The user have to approve the Zap contract to pull the vault shares!!!
+   */
+  function zapOut(
+    IERC4626 vault,
+    uint256 vaultShares,
+    IERC20 targetAsset,
+    address receiver
+  ) external returns (uint256 outputAmount) {
+    // Verify if zap is possible
+    if (!canZap(vault, targetAsset)) revert VaultZap__CannotZap();
 
-        // Get the output asset
-        IERC20 outputAsset = IERC20(IERC4626(vault).asset());
+    // Get the output asset
+    IERC20 outputAsset = IERC20(IERC4626(vault).asset());
 
-        // Withdraw target asset from ERC-4626 vault
-        uint256 reddemedAssets = IERC4626(vault).redeem(vaultShares, address(this), msg.sender);
+    // Withdraw target asset from ERC-4626 vault
+    uint256 reddemedAssets = IERC4626(vault).redeem(vaultShares, address(this), msg.sender);
 
-        // Convert target asset to output asset if necessary
-        if (targetAsset != outputAsset) {
-           ( , outputAmount) = _swap(ISwapHandler.SwapParams({
-                underlyingIn: address(outputAsset),
-                underlyingOut: address(targetAsset),
-                mode: ISwapHandler.SwapType.EXACT_INPUT,
-                amountIn: reddemedAssets,
-                amountOut: 0,
-                feeTier: _zaps[vault][targetAsset].univ3FeeTier,
-                payload: bytes("")
-            }));
-        } else {
-            outputAmount = reddemedAssets;
-        }
-        // Transfer output asset to the receiver
-        IERC20(outputAsset).safeTransfer(receiver, outputAmount);
+    // Convert target asset to output asset if necessary
+    if (targetAsset != outputAsset) {
+      (, outputAmount) = _swap(
+        ISwapHandler.SwapParams({
+          underlyingIn: address(outputAsset),
+          underlyingOut: address(targetAsset),
+          mode: ISwapHandler.SwapType.EXACT_INPUT,
+          amountIn: reddemedAssets,
+          amountOut: 0,
+          feeTier: _zaps[vault][targetAsset].univ3FeeTier,
+          payload: bytes("")
+        })
+      );
+    } else {
+      outputAmount = reddemedAssets;
     }
+    // Transfer output asset to the receiver
+    IERC20(outputAsset).safeTransfer(receiver, outputAmount);
+  }
 
+  /**
+   * @notice Estimates the amount of target asset that would be received for a
+   * given number of vault shares.
+   * @param vault The address of the ERC-4626 vault.
+   * @param vaultShares The number of vault shares to redeem.
+   * @param targetAsset The address of the asset to be sent to the receiver.
+   * @return estimatedOutput The estimated amount of target asset that would be received.
+   */
+  function estimateZapOutAmount(
+    IERC4626 vault,
+    uint256 vaultShares,
+    IERC20 targetAsset
+  ) external returns (uint256 estimatedOutput) {
+    if (!canZap(vault, targetAsset)) revert VaultZap__CannotZap();
 
- function estimateZapOutAmount(
-        address vault,
-        uint256 vaultShares,
-        address outputAsset
-    ) external view returns (uint256 estimatedOutput){
-        return 0;
+    uint256 targetAmount = IERC4626(vault).previewRedeem(vaultShares);
+    // Get the output asset
+    IERC20 outputAsset = IERC20(IERC4626(vault).asset());
+
+    if (targetAsset != outputAsset) {
+      (estimatedOutput, , , ) = uniQuoter().quoteExactInputSingle(
+        IQuoterV2.QuoteExactInputSingleParams({
+          tokenIn: address(outputAsset),
+          tokenOut: address(targetAsset),
+          fee: _zaps[vault][targetAsset].univ3FeeTier,
+          amountIn: targetAmount,
+          sqrtPriceLimitX96: 0
+        })
+      );
+    } else {
+      estimatedOutput = targetAmount;
     }
-
-
-
+  }
 
   uint256[50] private __gap;
 }

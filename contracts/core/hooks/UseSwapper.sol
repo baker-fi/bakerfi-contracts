@@ -41,8 +41,9 @@ abstract contract UseSwapper is ISwapHandler, Initializable {
 
   IV3SwapRouter private _uniRouter;
 
-  function _initUseSwapper(ServiceRegistry registry) internal onlyInitializing {
-    _uniRouter = IV3SwapRouter(registry.getServiceFromHash(UNISWAP_ROUTER_CONTRACT));
+  function _initUseSwapper(IV3SwapRouter router) internal onlyInitializing {
+    //    _uniRouter = IV3SwapRouter(registry.getServiceFromHash(UNISWAP_ROUTER_CONTRACT));
+    _uniRouter = router;
     if (address(_uniRouter) == address(0)) revert InvalidUniRouterContract();
   }
 
