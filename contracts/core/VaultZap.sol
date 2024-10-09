@@ -15,15 +15,18 @@ import { UseUniQuoter } from "./hooks/UseUniQuoter.sol";
 
 /**
  * @title Vault Zap
-
- * @author Chef Kenji <chef.kenji@bakerfi.xyz>
- * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
  *
  * @notice This contract provides functions to perform zaps in and out of an ERC-4626 vault.
  * It supports swapping between assets using Uniswap V3 and estimating amounts for zaps.
+ *
+ * @author Chef Kenji <chef.kenji@bakerfi.xyz>
+ * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
+ *
  */
 contract VaultZap is IVaultZap, UseSwapper, UseUniQuoter, Ownable2StepUpgradeable {
+
   using SafeERC20 for IERC20;
+
   error VaultZap__CannotZap();
 
   struct ZapInfo {
@@ -39,10 +42,17 @@ contract VaultZap is IVaultZap, UseSwapper, UseUniQuoter, Ownable2StepUpgradeabl
    */
   mapping(IERC4626 => mapping(IERC20 => ZapInfo)) private _zaps;
 
+  /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
     _disableInitializers();
   }
 
+  /**
+   * @notice Initializes the VaultZap contract.
+   * @param initialOwner The address of the initial owner.
+   * @param router The address of the Uniswap V3 router.
+   * @param quoter The address of the Uniswap V3 quoter.
+   */
   function initialize(
     address initialOwner,
     IV3SwapRouter router,
@@ -138,6 +148,15 @@ contract VaultZap is IVaultZap, UseSwapper, UseUniQuoter, Ownable2StepUpgradeabl
     shares = IERC4626(vault).deposit(targetAmount, receiver);
   }
 
+  /**
+   * @notice Estimates the number of vault shares that would be minted for a
+   *         given input amount of the input asset.
+   *
+   * @param vault The address of the ERC-4626 vault.
+   * @param inputAsset The address of the asset to convert.
+   * @param inputAmount The amount of the input asset.
+   * @return estimatedShares The estimated amount of ERC-4626 vault shares.
+   */
   function estimateZapInShares(
     IERC4626 vault,
     IERC20 inputAsset,
@@ -242,5 +261,9 @@ contract VaultZap is IVaultZap, UseSwapper, UseUniQuoter, Ownable2StepUpgradeabl
     }
   }
 
+  /**
+   * @dev This empty reserved space is put in place to allow future versions to add new
+   * variables without shifting down storage in the inheritance chain.
+   */
   uint256[50] private __gap;
 }
