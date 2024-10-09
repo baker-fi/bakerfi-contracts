@@ -17,6 +17,7 @@ import { UseWETH } from "./hooks/UseWETH.sol";
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import { AddressUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import { MathLibrary } from "../libraries/MathLibrary.sol";
+import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
 /**
  * @title BakerFi Vault 🏦🧑‍🍳
@@ -56,6 +57,7 @@ contract Vault is
   ERC20PermitUpgradeable,
   UseSettings,
   UseWETH,
+  AccessControlUpgradeable,
   IVault
 {
   using RebaseLibrary for Rebase;
@@ -78,6 +80,7 @@ contract Vault is
   error InvalidReceiver();
   error NoAllowance();
 
+  bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
   uint256 private constant _MINIMUM_SHARE_BALANCE = 1000;
   uint256 private constant _ONE = 1e18;
 
@@ -134,8 +137,11 @@ contract Vault is
     __ERC20Permit_init(tokenName);
     __ERC20_init(tokenName, tokenSymbol);
     _initUseWETH(registry);
+    __AccessControl_init();
     if (initialOwner == address(0)) revert InvalidOwner();
     _transferOwnership(initialOwner);
+    _grantRole(DEFAULT_ADMIN_ROLE, initialOwner);
+    _grantRole(PAUSER_ROLE, initialOwner);
     _initUseSettings(registry);
     _strategy = strategy;
   }
@@ -535,7 +541,7 @@ contract Vault is
    * a revert
    *
    */
-  function pause() external onlyOwner {
+  function pause() external onlyRole(PAUSER_ROLE) {
     _pause();
   }
 
@@ -545,7 +551,7 @@ contract Vault is
      * Only the Owner is ablet to unpause the vault.
      *
      */
-  function unpause() external onlyOwner {
+  function unpause() external onlyRole(PAUSER_ROLE) {
     _unpause();
   }
 
