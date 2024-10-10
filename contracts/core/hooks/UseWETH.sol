@@ -61,6 +61,6 @@ abstract contract UseWETH is Initializable {
   function _wrapWETH() public payable {
     if (msg.value == 0) revert InvalidWETHAmount();
 
-    wETH().deposit{value: msg.value}();
+    wETH().deposit{ value: msg.value }();
   }
 }

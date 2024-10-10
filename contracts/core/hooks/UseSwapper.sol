@@ -8,7 +8,7 @@ import { ISwapHandler } from "../../interfaces/core/ISwapHandler.sol";
 import { IV3SwapRouter } from "../../interfaces/uniswap/v3/IV3SwapRouter.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-
+import "hardhat/console.sol";
 /**
  * @title UseSwapper
  *
@@ -62,7 +62,6 @@ abstract contract UseSwapper is ISwapHandler, Initializable {
     if (params.underlyingOut == address(0)) revert InvalidOutputToken();
     uint24 fee = params.feeTier;
     if (fee == 0) revert InvalidFeeTier();
-
     // Exact Input
     if (params.mode == ISwapHandler.SwapType.EXACT_INPUT) {
       amountIn = params.amountIn;

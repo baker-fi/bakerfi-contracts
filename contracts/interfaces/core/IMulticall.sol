@@ -2,11 +2,11 @@
 pragma solidity ^0.8.24;
 
 interface IMulticall {
-    /**
-     * @notice Executes multiple functions within the current contract and returns the data from all of them if they all succeed.
-     * @dev The `msg.value` should not be trusted for any method callable from multicall.
-     * @param data The encoded function data for each of the calls to make to this contract.
-     * @return results The results from each of the calls passed in via data.
-     */
-    function multicall(bytes[] calldata data) external payable returns (bytes[] memory results);
+  /**
+   * @notice Executes multiple functions within the current contract and returns the data from all of them if they all succeed.
+   * @dev The `msg.value` should not be trusted for any method callable from multicall.
+   * @param data The encoded function data for each of the calls to make to this contract.
+   * @return results The results from each of the calls passed in via data.
+   */
+  function multicall(bytes[] calldata data) external payable returns (bytes[] memory results);
 }

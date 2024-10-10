@@ -366,7 +366,6 @@ export async function deployTestLeverage() {
   return levarage;
 }
 
-
 export async function deployQuoterV2Mock() {
   const QuoterMock = await ethers.getContractFactory('QuoterV2Mock');
   const quoter = await QuoterMock.deploy();
@@ -374,7 +373,12 @@ export async function deployQuoterV2Mock() {
   return quoter;
 }
 
-export async function deployVaultZap(owner: string, uniRouter: string, quoter: string, proxyAdmin?: any) {
+export async function deployVaultZap(
+  owner: string,
+  uniRouter: string,
+  quoter: string,
+  proxyAdmin?: any,
+) {
   const VaultZap = await ethers.getContractFactory('VaultZap');
   //owner, uniRouter, quoter, proxyAdmin
   const vaultZap = await VaultZap.deploy();
@@ -383,12 +387,28 @@ export async function deployVaultZap(owner: string, uniRouter: string, quoter: s
   const proxy = await BakerFiProxy.deploy(
     await vaultZap.getAddress(),
     await proxyAdmin.getAddress(),
-    VaultZap.interface.encodeFunctionData('initialize', [
-      owner,
-      uniRouter,
-      quoter,
-    ]),
+    VaultZap.interface.encodeFunctionData('initialize', [owner, uniRouter, quoter]),
   );
   await proxy.waitForDeployment();
   return { vaultZap, proxy };
+}
+
+export async function deployVaultRouter(
+  owner: string,
+  uniRouter: string,
+  weth: string,
+  proxyAdmin?: any,
+) {
+  const VaultRouter = await ethers.getContractFactory('VaultRouter');
+  //owner, uniRouter, quoter, proxyAdmin
+  const vaultRouter = await VaultRouter.deploy();
+  await vaultRouter.waitForDeployment();
+  const BakerFiProxy = await ethers.getContractFactory('BakerFiProxy');
+  const proxy = await BakerFiProxy.deploy(
+    await vaultRouter.getAddress(),
+    await proxyAdmin.getAddress(),
+    VaultRouter.interface.encodeFunctionData('initialize', [owner, uniRouter, weth]),
+  );
+  await proxy.waitForDeployment();
+  return { vaultRouter, proxy };
 }

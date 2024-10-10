@@ -4,7 +4,6 @@ pragma solidity ^0.8.24;
 import { IQuoterV2 } from "../interfaces/uniswap/v3/IQuoterV2.sol";
 
 contract QuoterV2Mock is IQuoterV2 {
-
   uint256 RATIO_PRECISION = 1e9;
   uint256 private _ratio = 1e9;
 

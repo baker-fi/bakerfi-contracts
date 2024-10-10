@@ -12,11 +12,17 @@ import { UseMulticall } from "./hooks/UseMulticall.sol";
 import { UseWETH } from "./hooks/UseWETH.sol";
 import { UseIERC4626 } from "./hooks/UseIERC4626.sol";
 import { IWETH } from "../interfaces/tokens/IWETH.sol";
+import { ISwapHandler } from "../interfaces/core/ISwapHandler.sol";
+import { UseTokenActions } from "./hooks/UseTokenActions.sol";
 /**
  * @title Vault Router inspired by Uniswap V3 Router
+ *
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
- * @notice This contract provides a router for vaults that allows for swapping between assets using Uniswap V3.
+ *
+ * @notice This contract provides a router for vaults that allows for
+ *   swapping between assets using Uniswap V3, migrate liquidity between
+ *   protocols and deposit/withdraw from ERC4626 vaults.
  *
  * It also allows for multicall to execute multiple actions in a single call.
  *
@@ -26,7 +32,7 @@ import { IWETH } from "../interfaces/tokens/IWETH.sol";
  * - Token transfers.
  * - ERC4626 vaults operations
  */
-contract VaultRouter is UseSwapper, UseIERC4626, UseWETH, UseMulticall, Ownable2StepUpgradeable {
+contract VaultRouter is UseSwapper, UseTokenActions, UseIERC4626, UseWETH, UseMulticall, Ownable2StepUpgradeable {
 
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
@@ -38,5 +44,15 @@ contract VaultRouter is UseSwapper, UseIERC4626, UseWETH, UseMulticall, Ownable2
     _transferOwnership(initialOwner);
     _initUseSwapper(router);
     _initUseWETH(address(weth));
+  }
+
+  function swap(
+    ISwapHandler.SwapParams memory params
+  ) external returns (uint256 amountIn, uint256 amountOut) {
+    (amountIn, amountOut) = _swap(params);
+  }
+
+  function approveSpender(IERC20 token, address spender, uint256 amount) external onlyOwner(){
+    token.approve(spender, amount);
   }
 }

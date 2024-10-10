@@ -26,7 +26,6 @@ import { UseUniQuoter } from "./hooks/UseUniQuoter.sol";
  *
  */
 contract VaultZap is IVaultZap, UseSwapper, UseUniQuoter, Ownable2StepUpgradeable {
-
   using SafeERC20 for IERC20;
 
   error VaultZap__CannotZap();
