@@ -4,17 +4,10 @@ import { describeif } from '../common';
 import { expect } from 'chai';
 import {
     deployServiceRegistry,
-    deployVault,
-    deployAaveV3,
-    deployFlashLender,
-    deployOracleMock,
     deployWETH,
     deployCbETH,
-    deploySettings,
-    deployAAVEv3Strategy,
     deployQuoterV2Mock,
     deployVaultZap,
-    deployStEth,
   } from '../../scripts/common';
 import { AAVEv3Market, NetworkConfig, StrategyImplementation } from '../../constants/types';
 import BaseConfig from '../../constants/network-deploy-config';
@@ -22,12 +15,12 @@ import BaseConfig from '../../constants/network-deploy-config';
 //describeif(network.name === 'hardhat'
 describe.only('Vault Zap', function () {
 
-    it('Can Zap in stETH', async function () {
+    it('Can Zap in cbETH', async function () {
         const { vault, zap, cbETH } = await deployFunction();
         expect(await zap.canZap(await vault.getAddress(), await cbETH.getAddress())).to.be.true;
     });
 
-    it('Owner can remove Zap for stETH', async function () {
+    it('Owner can remove Zap for cbETH', async function () {
         const { zap, vault, cbETH } = await deployFunction();
         await zap.removeZap(await vault.getAddress(), await cbETH.getAddress());
         expect(await zap.canZap(await vault.getAddress(), await cbETH.getAddress())).to.be.false;
@@ -61,12 +54,10 @@ describe.only('Vault Zap', function () {
  * Deploy Test Function
  */
 async function deployFunction() {
-    const [owner, otherAccount, anotherAccount] = await ethers.getSigners();
+    const [owner, otherAccount] = await ethers.getSigners();
     const CBETH_MAX_SUPPLY = ethers.parseUnits('1000000000', 18);
 
     const serviceRegistry = await deployServiceRegistry(owner.address);
-    const serviceRegistryAddress = await serviceRegistry.getAddress();
-
     const weth = await deployWETH(serviceRegistry);
     const cbETH = await deployCbETH(serviceRegistry, owner, CBETH_MAX_SUPPLY);
 
@@ -91,7 +82,9 @@ async function deployFunction() {
 
     // Deploy ERC4626VaultMock
     const ERC4626VaultMock = await ethers.getContractFactory('ERC4626VaultMock');
-    const vault = await ERC4626VaultMock.deploy();
+    const vault = await ERC4626VaultMock.deploy(
+        await weth.getAddress()
+    );
     await vault.waitForDeployment();
 
     const { proxy: proxyZap } = await deployVaultZap(
@@ -102,7 +95,8 @@ async function deployFunction() {
       );
 
     const pZap = await ethers.getContractAt('VaultZap', await proxyZap.getAddress());
-    await pZap.addZap(await proxyZap.getAddress(), await cbETH.getAddress(), [100]);
+
+    await pZap.addZap(await vault.getAddress(), await cbETH.getAddress(), [100]);
 
     return {
       cbETH,

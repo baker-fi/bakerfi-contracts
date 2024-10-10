@@ -5,6 +5,13 @@ pragma solidity ^0.8.24;
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import { IERC4626 } from "@openzeppelin/contracts/interfaces/IERC4626.sol";
 
+/**
+ * @title UseIERC4626
+ * @author Chef Kenji <chef.kenji@bakerfi.xyz>
+ * @author Chef Kal-El <chef.kal-el@bakerfi.xyz>
+ *
+ * @dev Abstract contract to integrate the use of ERC4626 vaults.
+ */
 contract UseIERC4626 is Initializable {
 
     /**
