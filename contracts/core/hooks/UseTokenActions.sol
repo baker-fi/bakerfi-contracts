@@ -4,7 +4,7 @@ pragma solidity ^0.8.24;
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { console } from "hardhat/console.sol";
+
 /**
  * @title UseTokenActions
  *
@@ -22,12 +22,13 @@ contract UseTokenActions is Initializable {
    * @dev Error thrown when an invalid token address is provided.
    */
   error InvalidToken();
-
   /**
    * @dev Error thrown when an invalid recipient address is provided.
    */
   error InvalidRecipient();
-
+  /**
+   * @dev Error thrown when the allowance is not enough.
+   */
   error NotEnoughAllowance();
 
   /**
