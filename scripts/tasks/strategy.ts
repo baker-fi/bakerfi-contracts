@@ -3,11 +3,11 @@ import { task } from 'hardhat/config';
 import DeployConfig from '../../constants/contracts';
 import { getClient } from './common';
 import NetworkDeployConfig from '../../constants/network-deploy-config';
-import { AAVEv3MarketNames } from '../../constants/types';
+import { AAVEv3MarketNames, StrategyImplementation } from '../../constants/types';
 
 task('strategy:setNrLoops', 'Set number of Loopps')
   .addParam('value', 'loop coount')
-  .addParam('strategy', 'loop coount', 'AAVE_V3_WSTETH_ETH')
+  .addParam('strategy', 'loop coount', StrategyImplementation.AAVE_V3_WSTETH_ETH)
   .setAction(async ({ value, strategy }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
@@ -32,7 +32,7 @@ task('strategy:setNrLoops', 'Set number of Loopps')
 
 task('strategy:setMaxSlippage', 'Set Strategy Max Slippage')
   .addParam('value', 'The new strategy max slippage')
-  .addParam('strategy', 'loop coount', 'AAVE_V3_WSTETH_ETH')
+  .addParam('strategy', 'loop coount', StrategyImplementation.AAVE_V3_WSTETH_ETH)
   .setAction(async ({ value, strategy }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
@@ -56,7 +56,7 @@ task('strategy:setMaxSlippage', 'Set Strategy Max Slippage')
   });
 
 task('strategy:getPosition', 'Set number of Loopps')
-  .addParam('strategy', 'Strategy Type', 'AAVE_V3_WSTETH_ETH')
+  .addParam('strategy', 'Strategy Type', StrategyImplementation.AAVE_V3_WSTETH_ETH)
   .setAction(async ({ value, strategy }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
@@ -83,7 +83,7 @@ task('strategy:getPosition', 'Set number of Loopps')
   });
 
 task('strategy:getMaxSlippage', 'Gets the Strategy Max Slippage')
-  .addParam('strategy', 'Strategy Type', 'AAVE_V3_WSTETH_ETH')
+  .addParam('strategy', 'Strategy Type', StrategyImplementation.AAVE_V3_WSTETH_ETH)
   .setAction(async ({ strategy }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
@@ -107,7 +107,7 @@ task('strategy:getMaxSlippage', 'Gets the Strategy Max Slippage')
   });
 
 task('strategy:getMaxLoanToValue', 'Get Max Target Loan To value')
-  .addParam('strategy', 'Strategy Type', 'AAVE_V3_WSTETH_ETH')
+  .addParam('strategy', 'Strategy Type', StrategyImplementation.AAVE_V3_WSTETH_ETH)
   .setAction(async ({ strategy }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
@@ -131,7 +131,7 @@ task('strategy:getMaxLoanToValue', 'Get Max Target Loan To value')
   });
 
 task('strategy:getLoanToValue', 'Set Target Loan To value')
-  .addParam('strategy', 'Strategy Type', 'AAVE_V3_WSTETH_ETH')
+  .addParam('strategy', 'Strategy Type', StrategyImplementation.AAVE_V3_WSTETH_ETH)
   .setAction(async ({ value, strategy }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
@@ -156,7 +156,7 @@ task('strategy:getLoanToValue', 'Set Target Loan To value')
 
 task('strategy:setMaxLoanToValue', 'Set Max Target Loan To value')
   .addParam('value', 'The new max LTV')
-  .addParam('strategy', 'Strategy Type', 'AAVE_V3_WSTETH_ETH')
+  .addParam('strategy', 'Strategy Type', StrategyImplementation.AAVE_V3_WSTETH_ETH)
   .setAction(async ({ value, strategy }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
@@ -179,7 +179,7 @@ task('strategy:setMaxLoanToValue', 'Set Max Target Loan To value')
     }
   });
 task('strategy:setLoanToValue', 'Set Target Loan To value')
-  .addParam('strategy', 'Strategy Type', 'AAVE_V3_WSTETH_ETH')
+  .addParam('strategy', 'Strategy Type', StrategyImplementation.AAVE_V3_WSTETH_ETH)
   .addParam('value', 'The new target LTV')
   .setAction(async ({ value, strategy }, { ethers, network }) => {
     const networkName = network.name;
@@ -203,7 +203,7 @@ task('strategy:setLoanToValue', 'Set Target Loan To value')
     }
   });
 task('strategy:getNrLoops', 'Get Recursive Number of Loops')
-  .addParam('strategy', 'Strategy Type', 'AAVE_V3_WSTETH_ETH')
+  .addParam('strategy', 'Strategy Type', StrategyImplementation.AAVE_V3_WSTETH_ETH)
   .setAction(async ({ strategy }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
@@ -227,7 +227,7 @@ task('strategy:getNrLoops', 'Get Recursive Number of Loops')
   });
 
 task('strategy:position', 'Position Resume')
-  .addParam('strategy', 'Strategy Type', 'AAVE_V3_WSTETH_ETH')
+  .addParam('strategy', 'Strategy Type', StrategyImplementation.AAVE_V3_WSTETH_ETH)
   .addParam('aaveMarket', 'AAVEv3 Market', AAVEv3MarketNames.AAVE_V3)
   .setAction(async ({ strategy, aaveMarket }, { ethers, network }) => {
     const networkName = network.name;

@@ -2,9 +2,12 @@ import ora from 'ora';
 import { task } from 'hardhat/config';
 import DeployConfig from '../../constants/contracts';
 import { getClient } from './common';
+import { StrategyImplementation } from '../../constants/types';
 
-task('settings:getFeeReceiver', 'Get Fee Receiver Account').setAction(
-  async ({}, { ethers, network }) => {
+task('settings:getFeeReceiver', 'Get Fee Receiver Account')
+.addParam('strategy', 'Strategy Type', StrategyImplementation.AAVE_V3_WSTETH_ETH)
+.setAction(
+  async ({strategy}, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Gettting Fee Revceiver`).start();
@@ -12,7 +15,7 @@ task('settings:getFeeReceiver', 'Get Fee Receiver Account').setAction(
       let app = await getClient(ethers);
       const value = await app?.call(
         'Settings',
-        networkConfig.settingsProxy ?? '',
+       networkConfig[strategy]?.settingsProxy ?? '',
         'getFeeReceiver',
         [],
         {
@@ -29,8 +32,9 @@ task('settings:getFeeReceiver', 'Get Fee Receiver Account').setAction(
 
 task('settings:enableAccount', 'Enable an account on the whitelist')
   .addParam('account', 'Accoun to enable')
+  .addParam('strategy', 'Strategy Type', StrategyImplementation.AAVE_V3_WSTETH_ETH)
   .addParam('enabled', 'enabled')
-  .setAction(async ({ account, enabled }, { ethers, network }) => {
+  .setAction(async ({ account, strategy, enabled }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Setting ${account} has ${enabled}`).start();
@@ -38,7 +42,7 @@ task('settings:enableAccount', 'Enable an account on the whitelist')
       let app = await getClient(ethers);
       await app?.send(
         'Settings',
-        networkConfig.settingsProxy ?? '',
+       networkConfig[strategy]?.settingsProxy ?? '',
         'enableAccount',
         [account, enabled == 'true'],
         {
@@ -54,7 +58,8 @@ task('settings:enableAccount', 'Enable an account on the whitelist')
 
 task('settings:isAccountEnabled', 'Enable an account on the whitelist')
   .addParam('account', 'Accoun to enable')
-  .setAction(async ({ account }, { ethers, network }) => {
+  .addParam('strategy', 'Strategy Type', StrategyImplementation.AAVE_V3_WSTETH_ETH)
+  .setAction(async ({ strategy, account }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Checking Whitelist for ${account}`).start();
@@ -62,7 +67,7 @@ task('settings:isAccountEnabled', 'Enable an account on the whitelist')
       let app = await getClient(ethers);
       const res = await app?.call(
         'Settings',
-        networkConfig.settingsProxy ?? '',
+       networkConfig[strategy]?.settingsProxy ?? '',
         'isAccountEnabled',
         [account],
         {
@@ -78,7 +83,8 @@ task('settings:isAccountEnabled', 'Enable an account on the whitelist')
 
 task('settings:setMaxDeposit', 'Set Max Deposit')
   .addParam('value', 'Max Deposit')
-  .setAction(async ({ value }, { ethers, network }) => {
+  .addParam('strategy', 'Strategy Type', StrategyImplementation.AAVE_V3_WSTETH_ETH)
+  .setAction(async ({   strategy, value }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Settting Max Deposit in ETH ${value}`).start();
@@ -86,7 +92,7 @@ task('settings:setMaxDeposit', 'Set Max Deposit')
       let app = await getClient(ethers);
       await app?.send(
         'Settings',
-        networkConfig.settingsProxy ?? '',
+       networkConfig[strategy]?.settingsProxy ?? '',
         'setMaxDepositInETH',
         [value],
         {
@@ -100,16 +106,18 @@ task('settings:setMaxDeposit', 'Set Max Deposit')
     }
   });
 
-task('settings:getMaxDeposit', 'Get Max Deposit in ETH').setAction(
-  async ({}, { ethers, network }) => {
-    const networkName = network.name;
+task('settings:getMaxDeposit', 'Get Max Deposit in ETH')
+  .addParam('strategy', 'Strategy Type', StrategyImplementation.AAVE_V3_WSTETH_ETH)
+  .setAction(
+    async ({strategy}, { ethers, network }) => {
+      const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Gettting Max Deposit in ETH`).start();
     try {
       let app = await getClient(ethers);
       const value = await app?.call(
         'Settings',
-        networkConfig.settingsProxy ?? '',
+       networkConfig[strategy]?.settingsProxy ?? '',
         'getMaxDepositInETH',
         [],
         {
@@ -124,7 +132,9 @@ task('settings:getMaxDeposit', 'Get Max Deposit in ETH').setAction(
   },
 );
 
-task('settings:getPriceMaxAge', 'Get Max Price Age').setAction(async ({}, { ethers, network }) => {
+task('settings:getPriceMaxAge', 'Get Max Price Age')
+.addParam('strategy', 'Strategy Type', StrategyImplementation.AAVE_V3_WSTETH_ETH)
+.setAction(async ({strategy}, { ethers, network }) => {
   let app = await getClient(ethers);
   const networkName = network.name;
   const networkConfig = DeployConfig[networkName];
@@ -132,7 +142,7 @@ task('settings:getPriceMaxAge', 'Get Max Price Age').setAction(async ({}, { ethe
   try {
     const value = await app?.call(
       'Settings',
-      networkConfig.settingsProxy ?? '',
+     networkConfig[strategy]?.settingsProxy ?? '',
       'getPriceMaxAge',
       [],
       {
@@ -148,14 +158,15 @@ task('settings:getPriceMaxAge', 'Get Max Price Age').setAction(async ({}, { ethe
 
 task('settings:setPriceMaxAge', 'Set the price max age')
   .addParam('value', 'max Age')
-  .setAction(async ({ value }, { ethers, network }) => {
+  .addParam('strategy', 'Strategy Type', StrategyImplementation.AAVE_V3_WSTETH_ETH)
+  .setAction(async ({ value, strategy}, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Settting Nr Of Loops to ${value}`).start();
 
     try {
       let app = await getClient(ethers);
-      await app?.send('Settings', networkConfig.settingsProxy ?? '', 'setPriceMaxAge', [value], {
+      await app?.send('Settings',networkConfig[strategy]?.settingsProxy ?? '', 'setPriceMaxAge', [value], {
         chainId: network.config.chainId,
       });
       spinner.succeed(`🧑‍🍳 Price Max Age Changed to ${value} ✅ `);
@@ -167,7 +178,8 @@ task('settings:setPriceMaxAge', 'Set the price max age')
 
 task('settings:setRebalancePriceMaxAge', 'Set number of Loopps')
   .addParam('value', 'loop coount')
-  .setAction(async ({ value }, { ethers, network }) => {
+  .addParam('strategy', 'Strategy Type', StrategyImplementation.AAVE_V3_WSTETH_ETH)
+  .setAction(async ({ value, strategy}, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Settting Rebalance Max Age ${value}`).start();
@@ -176,7 +188,7 @@ task('settings:setRebalancePriceMaxAge', 'Set number of Loopps')
       let app = await getClient(ethers);
       await app?.send(
         'Settings',
-        networkConfig.settingsProxy ?? '',
+       networkConfig[strategy]?.settingsProxy ?? '',
         'setRebalancePriceMaxAge',
         [value],
         {
@@ -192,13 +204,14 @@ task('settings:setRebalancePriceMaxAge', 'Set number of Loopps')
 
 task('settings:setPriceMaxConfidence', 'Set Price Max Confidencce')
   .addParam('value', 'The new Max confidence')
-  .setAction(async ({ value }, { ethers, network }) => {
+  .addParam('strategy', 'Strategy Type', StrategyImplementation.AAVE_V3_WSTETH_ETH)
+  .setAction(async ({ value, strategy }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Settting Price Max Confidence to ${value}`).start();
     try {
       let app = await getClient(ethers);
-      await app?.send('Settings', networkConfig.settingsProxy ?? '', 'setPriceMaxConf', [value], {
+      await app?.send('Settings',networkConfig[strategy]?.settingsProxy ?? '', 'setPriceMaxConf', [value], {
         chainId: network.config.chainId,
       });
       spinner.succeed(`🧑‍🍳 Price Max Confidence Changed to ${value} ✅ `);
@@ -208,16 +221,18 @@ task('settings:setPriceMaxConfidence', 'Set Price Max Confidencce')
     }
   });
 
-task('settings:getPriceMaxConfidence', 'Get Price Max Confidence').setAction(
-  async ({}, { ethers, network }) => {
-    const networkName = network.name;
+task('settings:getPriceMaxConfidence', 'Get Price Max Confidence')
+  .addParam('strategy', 'Strategy Type', StrategyImplementation.AAVE_V3_WSTETH_ETH)
+  .setAction(
+    async ({strategy}, { ethers, network }) => {
+      const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Gettting Price Max Confidence`).start();
     try {
       let app = await getClient(ethers);
       const value = await app?.call(
         'Settings',
-        networkConfig.settingsProxy ?? '',
+       networkConfig[strategy]?.settingsProxy ?? '',
         'getPriceMaxConf',
         [],
         {
@@ -232,8 +247,10 @@ task('settings:getPriceMaxConfidence', 'Get Price Max Confidence').setAction(
   },
 );
 
-task('settings:getWithdrawalFee', 'get Withdrawal Fee').setAction(
-  async ({}, { ethers, network }) => {
+task('settings:getWithdrawalFee', 'get Withdrawal Fee')
+.addParam('strategy', 'Strategy Type', StrategyImplementation.AAVE_V3_WSTETH_ETH)
+.setAction(
+  async ({strategy}, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Getting Withdrawal Fee`).start();
@@ -241,7 +258,7 @@ task('settings:getWithdrawalFee', 'get Withdrawal Fee').setAction(
       let app = await getClient(ethers);
       const value = await app?.call(
         'Settings',
-        networkConfig.settingsProxy ?? '',
+       networkConfig[strategy]?.settingsProxy ?? '',
         'getWithdrawalFee',
         [],
         {
@@ -258,13 +275,14 @@ task('settings:getWithdrawalFee', 'get Withdrawal Fee').setAction(
 
 task('settings:setPerformanceFee', 'Set Performance Fee')
   .addParam('value', 'The new performance fee')
-  .setAction(async ({ value }, { ethers, network }) => {
+  .addParam('strategy', 'Strategy Type', StrategyImplementation.AAVE_V3_WSTETH_ETH)
+  .setAction(async ({ value, strategy }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Settting Performance Fee to ${value}`).start();
     try {
       let app = await getClient(ethers);
-      await app?.send('Settings', networkConfig.settingsProxy ?? '', 'setPerformanceFee', [value], {
+      await app?.send('Settings',networkConfig[strategy]?.settingsProxy ?? '', 'setPerformanceFee', [value], {
         chainId: network.config.chainId,
       });
       spinner.succeed(`🧑‍🍳 Performance Fee Changed to ${value} ✅ `);
@@ -274,16 +292,18 @@ task('settings:setPerformanceFee', 'Set Performance Fee')
     }
   });
 
-task('settings:getPerformanceFee', 'Get Performance Fee').setAction(
-  async ({}, { ethers, network }) => {
+task('settings:getPerformanceFee', 'Get Performance Fee')
+.addParam('strategy', 'Strategy Type', StrategyImplementation.AAVE_V3_WSTETH_ETH)
+.setAction(
+  async ({strategy}, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
-    const spinner = ora(`Gettting Performance Fee`).start();
+    const spinner = ora(`Gettting Performance Fee ${networkConfig[strategy]?.settingsProxy}`).start();
     try {
       let app = await getClient(ethers);
       const value = await app?.call(
         'Settings',
-        networkConfig.settingsProxy ?? '',
+       networkConfig[strategy]?.settingsProxy ?? '',
         'getPerformanceFee',
         [],
         {
@@ -299,14 +319,15 @@ task('settings:getPerformanceFee', 'Get Performance Fee').setAction(
 );
 
 task('settings:setFeeReceiver', 'Set Fee Receiver Accoutn')
+  .addParam('strategy', 'Strategy Type', StrategyImplementation.AAVE_V3_WSTETH_ETH)
   .addParam('account', 'The feee receiver account')
-  .setAction(async ({ account }, { ethers, network }) => {
+  .setAction(async ({ strategy, account }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Settting Fee Revceiver to ${account}`).start();
     try {
       let app = await getClient(ethers);
-      await app?.send('Settings', networkConfig.settingsProxy ?? '', 'setFeeReceiver', [account], {
+      await app?.send('Settings',networkConfig[strategy]?.settingsProxy ?? '', 'setFeeReceiver', [account], {
         chainId: network.config.chainId,
       });
       spinner.succeed(`🧑‍🍳 Fee Receiver Account Changed to ${account} ✅ `);
@@ -318,13 +339,14 @@ task('settings:setFeeReceiver', 'Set Fee Receiver Accoutn')
 
 task('settings:setWithdrawalFee', 'Set Withdrawal Fee')
   .addParam('value', 'Withdrawal Fee')
-  .setAction(async ({ value }, { ethers, network }) => {
+  .addParam('strategy', 'Strategy Type', StrategyImplementation.AAVE_V3_WSTETH_ETH)
+  .setAction(async ({ strategy, value }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Settting Withdrawal Fee to ${value}`).start();
     try {
       let app = await getClient(ethers);
-      await app?.send('Settings', networkConfig.settingsProxy ?? '', 'setWithdrawalFee', [value], {
+      await app?.send('Settings',networkConfig[strategy]?.settingsProxy ?? '', 'setWithdrawalFee', [value], {
         chainId: network.config.chainId,
       });
       spinner.succeed(`🧑‍🍳 Withdrawal Fee Changed to ${value} ✅ `);
@@ -334,8 +356,10 @@ task('settings:setWithdrawalFee', 'Set Withdrawal Fee')
     }
   });
 
-task('settings:getRebalancePriceMaxAge', 'Get Fee Rebalance Max Age').setAction(
-  async ({}, { ethers, network }) => {
+task('settings:getRebalancePriceMaxAge', 'Get Fee Rebalance Max Age')
+.addParam('strategy', 'Strategy Type', StrategyImplementation.AAVE_V3_WSTETH_ETH)
+.setAction(
+  async ({strategy}, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
     const spinner = ora(`Getttin Rebalance Price MaxAge`).start();
@@ -343,7 +367,7 @@ task('settings:getRebalancePriceMaxAge', 'Get Fee Rebalance Max Age').setAction(
       let app = await getClient(ethers);
       const value = await app?.call(
         'Settings',
-        networkConfig.settingsProxy ?? '',
+       networkConfig[strategy]?.settingsProxy ?? '',
         'getRebalancePriceMaxAge',
         [],
         {
