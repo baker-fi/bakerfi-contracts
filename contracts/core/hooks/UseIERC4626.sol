@@ -3,7 +3,8 @@ pragma solidity ^0.8.24;
 
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import { IERC4626 } from "@openzeppelin/contracts/interfaces/IERC4626.sol";
-
+import { IERC20 } from "@openzeppelin/contracts/interfaces/IERC20.sol";
+import { Ownable2StepUpgradeable } from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 /**
  * @title UseIERC4626
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
@@ -11,11 +12,32 @@ import { IERC4626 } from "@openzeppelin/contracts/interfaces/IERC4626.sol";
  *
  * @dev Abstract contract to integrate the use of ERC4626 vaults.
  */
-contract UseIERC4626 is Initializable {
+abstract contract UseIERC4626 is Ownable2StepUpgradeable {
   /**
    * @dev Error thrown when an invalid vault address is provided.
    */
   error InvalidVaultAddress();
+
+  mapping(IERC4626 => mapping(IERC20 => bool)) private _approvedVaults;
+
+  function initializeUseIERC4626(address initialOwner) internal onlyInitializing {
+    __Ownable2Step_init();
+    _transferOwnership(initialOwner);
+  }
+
+  function approveTokenForVault(IERC4626 vault, IERC20 token) public onlyOwner {
+    _approvedVaults[vault][token] = true;
+    IERC20(token).approve(address(vault), 2 ** 256 - 1);
+  }
+
+  function isTokenApprovedForVault(IERC4626 vault, IERC20 token) internal view returns (bool) {
+    return _approvedVaults[vault][token];
+  }
+
+  function unapproveTokenForVault(IERC4626 vault, IERC20 token) public onlyOwner {
+    _approvedVaults[vault][token] = false;
+    IERC20(token).approve(address(vault), 0);
+  }
 
   /**
    * @dev Converts a specified amount of shares to assets within a vault.

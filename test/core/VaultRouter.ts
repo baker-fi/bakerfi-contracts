@@ -9,9 +9,7 @@ import {
   deployVaultRouter,
 } from '../../scripts/common';
 
-//describeif(network.name === 'hardhat'
-describe.only('Vault Router', function () {
-
+describeif(network.name === 'hardhat')('Vault Router', function () {
   it('Deposit 1 WETH to Vault', async function () {
     const { vaultRouter, weth, vault, owner } = await deployFunction();
 
@@ -36,87 +34,82 @@ describe.only('Vault Router', function () {
     const { vaultRouter, cbETH, weth, vault, owner } = await deployFunction();
     await cbETH.approve(await vaultRouter.getAddress(), ethers.parseUnits('100', 18));
 
-    await expect(vaultRouter.multicall([
-      vaultRouter.interface.encodeFunctionData('pullToken', [
-        await cbETH.getAddress(),
-        ethers.parseUnits('1', 18),
-      ]),
-      vaultRouter.interface.encodeFunctionData('swap', [
-        [
-          await cbETH.getAddress(), //underlyingIn
-          await weth.getAddress(), //underlyingOut
-          0, //mode
-          ethers.parseUnits('1', 18), //amountIn
-          0, //amountOut
-          10, //feeTier
-          "0x", //payload
-        ]
-      ]),
-      vaultRouter.interface.encodeFunctionData('depositVault', [
-        await vault.getAddress(),
-        ethers.parseUnits('1', 18),
-        owner.address,
-      ]),
-    ])).to.changeTokenBalances(
-        cbETH, [owner.address], [ethers.parseUnits('-1', 18)]
-    );
-
-    expect(await vault.balanceOf(owner.address)).to.equal(ethers.parseUnits('1', 18));
-    expect(await vault.totalAssets()).to.equal(ethers.parseUnits('1', 18));
-
-  });
-
-
-  it.only('Withdraw 1 WETH from Vault', async function () {
-    const { vaultRouter, weth, cbETH, vault, owner } = await deployFunction();
-    await weth.approve(await vaultRouter.getAddress(), ethers.parseUnits('10000', 18));
-    // 1. Deposit 1 WETH to Vault
-    await vaultRouter.multicall([
+    await expect(
+      vaultRouter.multicall([
         vaultRouter.interface.encodeFunctionData('pullToken', [
-          await weth.getAddress(),
+          await cbETH.getAddress(),
           ethers.parseUnits('1', 18),
+        ]),
+        vaultRouter.interface.encodeFunctionData('swap', [
+          [
+            await cbETH.getAddress(), //underlyingIn
+            await weth.getAddress(), //underlyingOut
+            0, //mode
+            ethers.parseUnits('1', 18), //amountIn
+            0, //amountOut
+            10, //feeTier
+            '0x', //payload
+          ],
         ]),
         vaultRouter.interface.encodeFunctionData('depositVault', [
           await vault.getAddress(),
           ethers.parseUnits('1', 18),
           owner.address,
         ]),
+      ]),
+    ).to.changeTokenBalances(cbETH, [owner.address], [ethers.parseUnits('-1', 18)]);
+
+    expect(await vault.balanceOf(owner.address)).to.equal(ethers.parseUnits('1', 18));
+    expect(await vault.totalAssets()).to.equal(ethers.parseUnits('1', 18));
+  });
+
+  it('Withdraw 1 WETH from Vault', async function () {
+    const { vaultRouter, weth, cbETH, vault, owner } = await deployFunction();
+    await weth.approve(await vaultRouter.getAddress(), ethers.parseUnits('10000', 18));
+    // 1. Deposit 1 WETH to Vault
+    await vaultRouter.multicall([
+      vaultRouter.interface.encodeFunctionData('pullToken', [
+        await weth.getAddress(),
+        ethers.parseUnits('1', 18),
+      ]),
+      vaultRouter.interface.encodeFunctionData('depositVault', [
+        await vault.getAddress(),
+        ethers.parseUnits('1', 18),
+        owner.address,
+      ]),
     ]);
     // Approve the VaultRouter to pull the shares from msg.sender
     await vault.approve(await vaultRouter.getAddress(), ethers.parseUnits('1000', 18));
     // 2. Withdraw 1 WETH from Vault
-    await expect(vaultRouter.multicall([
-      vaultRouter.interface.encodeFunctionData('redeemVault', [
-        await vault.getAddress(),
-        ethers.parseUnits('5', 17),
-        await vaultRouter.getAddress(),
-        owner.address,
+    await expect(
+      vaultRouter.multicall([
+        vaultRouter.interface.encodeFunctionData('redeemVault', [
+          await vault.getAddress(),
+          ethers.parseUnits('5', 17),
+          await vaultRouter.getAddress(),
+          owner.address,
+        ]),
+        vaultRouter.interface.encodeFunctionData('swap', [
+          [
+            await weth.getAddress(), //underlyingOut
+            await cbETH.getAddress(), //underlyingIn
+            0, //mode
+            ethers.parseUnits('5', 17), //amountIn
+            0, //amountOut
+            10, //feeTier
+            '0x', //payload
+          ],
+        ]),
+        vaultRouter.interface.encodeFunctionData('pushToken', [
+          await cbETH.getAddress(),
+          owner.address,
+          ethers.parseUnits('5', 17),
+        ]),
       ]),
-      vaultRouter.interface.encodeFunctionData('swap', [
-        [
-          await weth.getAddress(), //underlyingOut
-          await cbETH.getAddress(), //underlyingIn
-          0, //mode
-          ethers.parseUnits('5', 17), //amountIn
-          0, //amountOut
-          10, //feeTier
-          "0x", //payload
-        ]
-      ]),
-      vaultRouter.interface.encodeFunctionData('pushToken', [
-        await cbETH.getAddress(),
-        owner.address,
-        ethers.parseUnits('5', 17),
-      ]),
-    ],
-    )).to.changeTokenBalances(
-        cbETH, [owner.address], [ethers.parseUnits('5', 17)]
-    );;
+    ).to.changeTokenBalances(cbETH, [owner.address], [ethers.parseUnits('5', 17)]);
 
     expect(await vault.balanceOf(owner.address)).to.equal(ethers.parseUnits('5', 17));
-
   });
-
 });
 
 /**
@@ -164,12 +157,22 @@ async function deployFunction() {
 
   const pRouter = await ethers.getContractAt('VaultRouter', await proxyRouter.getAddress());
 
-  await pRouter.approveSpender(await weth.getAddress(), await vault.getAddress(), ethers.parseUnits('10000', 18));
-  await pRouter.approveSpender(await cbETH.getAddress(), await vault.getAddress(), ethers.parseUnits('10000', 18));
-  await pRouter.approveSpender(await cbETH.getAddress(), await router.getAddress(), ethers.parseUnits('10000', 18));
-  await pRouter.approveSpender(await weth.getAddress(), await router.getAddress(), ethers.parseUnits('10000', 18));
+  await pRouter.approveTokenForVault(
+    await vault.getAddress(),
+    await weth.getAddress(),
+  );
+  await pRouter.approveTokenForVault(
+    await vault.getAddress(),
+    await cbETH.getAddress(),
 
-  console.log("Deployed", await cbETH.getAddress(), await weth.getAddress());
+  );
+  await pRouter.approveTokenToSwap(
+    await cbETH.getAddress(),
+  );
+  await pRouter.approveTokenToSwap(
+    await weth.getAddress(),
+  );
+
   return {
     cbETH,
     weth,

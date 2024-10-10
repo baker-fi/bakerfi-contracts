@@ -39,7 +39,7 @@ contract UseTokenActions is Initializable {
     // Check if the token address is valid
     if (address(token) == address(0)) revert InvalidToken();
 
-    if (token.allowance(msg.sender,  address(this)) < amount) revert NotEnoughAllowance();
+    if (token.allowance(msg.sender, address(this)) < amount) revert NotEnoughAllowance();
     // Use SafeERC20 to transfer tokens from the message sender to this contract
     IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
   }
@@ -54,7 +54,7 @@ contract UseTokenActions is Initializable {
     // Check if the token address is valid
     if (address(token) == address(0)) revert InvalidToken();
 
-    if (token.allowance(from,  address(this)) < amount) revert NotEnoughAllowance();
+    if (token.allowance(from, address(this)) < amount) revert NotEnoughAllowance();
     // Use SafeERC20 to transfer tokens from the specified address to this contract
     IERC20(token).safeTransferFrom(from, address(this), amount);
   }
@@ -86,6 +86,8 @@ contract UseTokenActions is Initializable {
     if (address(token) == address(0)) revert InvalidToken();
     // Check if the recipient address is valid
     if (address(to) == address(0)) revert InvalidRecipient();
+
+    if (token.allowance(from, to) < amount) revert NotEnoughAllowance();
     // Use SafeERC20 to transfer tokens from the specified address to another specified address
     IERC20(token).safeTransferFrom(from, to, amount);
   }

@@ -32,7 +32,10 @@ import { UseTokenActions } from "./hooks/UseTokenActions.sol";
  * - Token transfers.
  * - ERC4626 vaults operations
  */
-contract VaultRouter is UseSwapper, UseTokenActions, UseIERC4626, UseWETH, UseMulticall, Ownable2StepUpgradeable {
+contract VaultRouter is UseSwapper, UseTokenActions, UseIERC4626, UseWETH, UseMulticall  {
+
+
+    mapping(IERC20 => bool) private _approvedSwapTokens;
 
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
@@ -40,8 +43,7 @@ contract VaultRouter is UseSwapper, UseTokenActions, UseIERC4626, UseWETH, UseMu
   }
 
   function initialize(address initialOwner, IV3SwapRouter router, IWETH weth) public initializer {
-    __Ownable2Step_init();
-    _transferOwnership(initialOwner);
+    initializeUseIERC4626(initialOwner);
     _initUseSwapper(router);
     _initUseWETH(address(weth));
   }
@@ -52,7 +54,18 @@ contract VaultRouter is UseSwapper, UseTokenActions, UseIERC4626, UseWETH, UseMu
     (amountIn, amountOut) = _swap(params);
   }
 
-  function approveSpender(IERC20 token, address spender, uint256 amount) external onlyOwner(){
-    token.approve(spender, amount);
+   function approveTokenToSwap(IERC20 token) public onlyOwner {
+    _approvedSwapTokens[token] = true;
+    IERC20(token).approve(uniRouterA(), 2 ** 256 - 1);
   }
+
+  function isTokenApprovedToSwap(IERC20 token) internal view returns (bool) {
+    return _approvedSwapTokens[token];
+  }
+
+  function unapproveTokenToSwap(IERC20 token) public onlyOwner {
+    _approvedSwapTokens[token] = false;
+    IERC20(token).approve(uniRouterA(), 0);
+  }
+
 }
