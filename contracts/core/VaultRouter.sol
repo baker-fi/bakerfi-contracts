@@ -14,6 +14,7 @@ import { UseIERC4626 } from "./hooks/UseIERC4626.sol";
 import { IWETH } from "../interfaces/tokens/IWETH.sol";
 import { ISwapHandler } from "../interfaces/core/ISwapHandler.sol";
 import { UseTokenActions } from "./hooks/UseTokenActions.sol";
+
 /**
  * @title Vault Router inspired by Uniswap V3 Router
  *
@@ -32,10 +33,8 @@ import { UseTokenActions } from "./hooks/UseTokenActions.sol";
  * - Token transfers.
  * - ERC4626 vaults operations
  */
-contract VaultRouter is UseSwapper, UseTokenActions, UseIERC4626, UseWETH, UseMulticall  {
-
-
-    mapping(IERC20 => bool) private _approvedSwapTokens;
+contract VaultRouter is UseSwapper, UseTokenActions, UseIERC4626, UseWETH, UseMulticall {
+  mapping(IERC20 => bool) private _approvedSwapTokens;
 
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
@@ -54,7 +53,7 @@ contract VaultRouter is UseSwapper, UseTokenActions, UseIERC4626, UseWETH, UseMu
     (amountIn, amountOut) = _swap(params);
   }
 
-   function approveTokenToSwap(IERC20 token) public onlyOwner {
+  function approveTokenToSwap(IERC20 token) public onlyOwner {
     _approvedSwapTokens[token] = true;
     IERC20(token).approve(uniRouterA(), 2 ** 256 - 1);
   }
@@ -67,5 +66,4 @@ contract VaultRouter is UseSwapper, UseTokenActions, UseIERC4626, UseWETH, UseMu
     _approvedSwapTokens[token] = false;
     IERC20(token).approve(uniRouterA(), 0);
   }
-
 }

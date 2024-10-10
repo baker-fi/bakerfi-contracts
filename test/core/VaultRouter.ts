@@ -157,21 +157,10 @@ async function deployFunction() {
 
   const pRouter = await ethers.getContractAt('VaultRouter', await proxyRouter.getAddress());
 
-  await pRouter.approveTokenForVault(
-    await vault.getAddress(),
-    await weth.getAddress(),
-  );
-  await pRouter.approveTokenForVault(
-    await vault.getAddress(),
-    await cbETH.getAddress(),
-
-  );
-  await pRouter.approveTokenToSwap(
-    await cbETH.getAddress(),
-  );
-  await pRouter.approveTokenToSwap(
-    await weth.getAddress(),
-  );
+  await pRouter.approveTokenForVault(await vault.getAddress(), await weth.getAddress());
+  await pRouter.approveTokenForVault(await vault.getAddress(), await cbETH.getAddress());
+  await pRouter.approveTokenToSwap(await cbETH.getAddress());
+  await pRouter.approveTokenToSwap(await weth.getAddress());
 
   return {
     cbETH,
