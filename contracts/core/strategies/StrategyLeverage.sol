@@ -2,10 +2,10 @@
 pragma solidity ^0.8.24;
 
 import { IERC3156FlashBorrowerUpgradeable } from "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashBorrowerUpgradeable.sol";
-import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
+import { ServiceRegistry, UNISWAP_ROUTER_CONTRACT } from "../../core/ServiceRegistry.sol";
 import { IERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
-
 import { PERCENTAGE_PRECISION } from "../Constants.sol";
 import { IOracle } from "../../interfaces/core/IOracle.sol";
 import { ISwapHandler } from "../../interfaces/core/ISwapHandler.sol";
@@ -18,6 +18,7 @@ import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/
 import { AddressUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import { StrategyLeverageSettings } from "./StrategyLeverageSettings.sol";
 import { MathLibrary } from "../../libraries/MathLibrary.sol";
+import { IV3SwapRouter } from "../../interfaces/uniswap/v3/IV3SwapRouter.sol";
 
 /**
  * @title Base Recursive Staking Strategy
@@ -104,7 +105,6 @@ abstract contract StrategyLeverage is
   error PriceOutdated();
   error NoCollateralMarginToScale();
   error ETHTransferNotAllowed(address sender);
-  error FailedToApproveAllowance();
   error FailedToAuthenticateArgs();
   error InvalidFlashLoanAction();
 
@@ -159,8 +159,8 @@ abstract contract StrategyLeverage is
     if (initialOwner == address(0)) revert InvalidOwner();
 
     _initLeverageSettings(initialOwner, initialGovernor);
-
-    _initUseSwapper(registry);
+    IV3SwapRouter uniRouter = IV3SwapRouter(registry.getServiceFromHash(UNISWAP_ROUTER_CONTRACT));
+    _initUseSwapper(uniRouter);
     _initUseFlashLender(registry);
     _initUseSettings(registry);
 
@@ -180,10 +180,10 @@ abstract contract StrategyLeverage is
     if (address(_collateralOracle) == address(0)) revert InvalidCollateralOracle();
     if (address(_debtOracle) == address(0)) revert InvalidDebtOracle();
 
-    if (!IERC20Upgradeable(_collateralToken).approve(uniRouterA(), 2 ** 256 - 1))
-      revert FailedToApproveAllowance();
-    if (!IERC20Upgradeable(_debtToken).approve(uniRouterA(), 2 ** 256 - 1))
-      revert FailedToApproveAllowance();
+    // Allow the router to spend Collateral tokens on swaps
+    _allowRouterSpend(IERC20(_collateralToken), 2 ** 256 - 1);
+    // Allow the router to spend Debt tokens on swaps
+    _allowRouterSpend(IERC20(_debtToken), 2 ** 256 - 1);
   }
 
   /**

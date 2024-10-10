@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 pragma experimental ABIEncoderV2;
 
-import { ServiceRegistry, UNISWAP_ROUTER_CONTRACT } from "../ServiceRegistry.sol";
+import { ServiceRegistry } from "../ServiceRegistry.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { ISwapHandler } from "../../interfaces/core/ISwapHandler.sol";
 import { IV3SwapRouter } from "../../interfaces/uniswap/v3/IV3SwapRouter.sol";
@@ -20,6 +20,8 @@ import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/I
  *      During the contract initialization it sets the uniswap router address from the
  *      service registry
  *
+ *      🚨 To make Swaps parent contract must approve the router to spend the tokens on its behalf
+ *
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-El <chef.kal-el@bakerfi.xyz>
  */
@@ -30,6 +32,7 @@ abstract contract UseSwapper is ISwapHandler, Initializable {
   error InvalidInputToken();
   error InvalidOutputToken();
   error InvalidFeeTier();
+  error FailedToApproveAllowance();
 
   event Swap(
     address indexed assetIn,
@@ -41,11 +44,14 @@ abstract contract UseSwapper is ISwapHandler, Initializable {
 
   IV3SwapRouter private _uniRouter;
 
-  function _initUseSwapper(ServiceRegistry registry) internal onlyInitializing {
-    _uniRouter = IV3SwapRouter(registry.getServiceFromHash(UNISWAP_ROUTER_CONTRACT));
+  function _initUseSwapper(IV3SwapRouter router) internal onlyInitializing {
+    _uniRouter = router;
     if (address(_uniRouter) == address(0)) revert InvalidUniRouterContract();
   }
 
+  function _allowRouterSpend(IERC20 token, uint256 amount) internal {
+    if (!IERC20(token).approve(uniRouterA(), amount)) revert FailedToApproveAllowance();
+  }
   function uniRouter() internal view returns (IV3SwapRouter) {
     return _uniRouter;
   }
@@ -61,7 +67,6 @@ abstract contract UseSwapper is ISwapHandler, Initializable {
     if (params.underlyingOut == address(0)) revert InvalidOutputToken();
     uint24 fee = params.feeTier;
     if (fee == 0) revert InvalidFeeTier();
-
     // Exact Input
     if (params.mode == ISwapHandler.SwapType.EXACT_INPUT) {
       amountIn = params.amountIn;

@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.24;
 
+import { console } from "hardhat/console.sol";
+
 contract WETH {
   string public constant name = "Wrapped Ether";
   string public constant symbol = "WETH";
