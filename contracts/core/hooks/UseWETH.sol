@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.24;
-pragma experimental ABIEncoderV2;
 
-import { ServiceRegistry, WETH_CONTRACT } from "../ServiceRegistry.sol";
+import { ServiceRegistry } from "../ServiceRegistry.sol";
 import { IWETH } from "../../interfaces/tokens/IWETH.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -23,13 +22,13 @@ abstract contract UseWETH is Initializable {
 
   error InvalidWETHContract();
   error FailedAllowance();
-
+  error InvalidWETHAmount();
   /**
    * @dev Initializes the UseWETH contract.
    * @param registry The address of the ServiceRegistry contract for accessing WETH.
    */
-  function _initUseWETH(ServiceRegistry registry) internal onlyInitializing {
-    _wETH = registry.getServiceFromHash(WETH_CONTRACT);
+  function _initUseWETH(address weth) internal onlyInitializing {
+    _wETH = weth;
     if (_wETH == address(0)) revert InvalidWETHContract();
   }
 
@@ -56,5 +55,11 @@ abstract contract UseWETH is Initializable {
   function _unwrapWETH(uint256 wETHAmount) internal {
     if (!IERC20(address(_wETH)).approve(address(_wETH), wETHAmount)) revert FailedAllowance();
     wETH().withdraw(wETHAmount);
+  }
+
+  function _wrapWETH() public payable {
+    if (msg.value == 0) revert InvalidWETHAmount();
+
+    wETH().deposit{value: msg.value}();
   }
 }

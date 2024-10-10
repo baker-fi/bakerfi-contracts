@@ -5,7 +5,7 @@ import { Ownable2StepUpgradeable } from "@openzeppelin/contracts-upgradeable/acc
 import { PausableUpgradeable } from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import { Rebase, RebaseLibrary } from "../libraries/RebaseLibrary.sol";
 import { IERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import { ServiceRegistry } from "../core/ServiceRegistry.sol";
+import { ServiceRegistry, WETH_CONTRACT } from "../core/ServiceRegistry.sol";
 import { IVault } from "../interfaces/core/IVault.sol";
 import { IOracle } from "../interfaces/core/IOracle.sol";
 import { IStrategy } from "../interfaces/core/IStrategy.sol";
@@ -133,7 +133,7 @@ contract Vault is
   ) public initializer {
     __ERC20Permit_init(tokenName);
     __ERC20_init(tokenName, tokenSymbol);
-    _initUseWETH(registry);
+    _initUseWETH(registry.getServiceFromHash(WETH_CONTRACT));
     if (initialOwner == address(0)) revert InvalidOwner();
     _transferOwnership(initialOwner);
     _initUseSettings(registry);

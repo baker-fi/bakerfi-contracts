@@ -22,6 +22,8 @@ import { UseUniQuoter } from "./hooks/UseUniQuoter.sol";
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
  *
+ * TODO: Add the slippage protection to the zapIn and zapOut functions.
+ *
  */
 contract VaultZap is IVaultZap, UseSwapper, UseUniQuoter, Ownable2StepUpgradeable {
 
@@ -70,7 +72,7 @@ contract VaultZap is IVaultZap, UseSwapper, UseUniQuoter, Ownable2StepUpgradeabl
    * @param token The address of the token to be used as input and output.
    * @param info The ZapInfo struct containing the Uniswap fee tier for the token.
    */
-  function addZapp(IERC4626 vault, IERC20 token, ZapInfo memory info) external onlyOwner {
+  function addZap(IERC4626 vault, IERC20 token, ZapInfo memory info) external onlyOwner {
     _zaps[vault][token] = info;
   }
 
