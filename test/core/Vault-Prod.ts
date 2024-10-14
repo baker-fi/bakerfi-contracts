@@ -66,7 +66,7 @@ describeif(
       .lessThanOrEqual(ethers.parseUnits('11', 17));
   });
 
-  it.only('Deposit 1 ETH Lido Market', async function () {
+  it('Deposit 1 ETH Lido Market', async function () {
     const { vault, deployer, strategy } = await loadFixture(deployAAVELidoProd);
 
     const depositAmount = ethers.parseUnits('1', 18);
