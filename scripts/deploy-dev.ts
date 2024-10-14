@@ -4,7 +4,7 @@ import {
   deployFlashLender,
   deployServiceRegistry,
   deployStEth,
-  deployWSTETHToUSDOracle,
+  deployWSTETHToUSDPythOracle,
   deployVault,
   deployWETH,
   deployETHOracle,
@@ -140,7 +140,7 @@ async function main() {
   result.push(['PythMock', await pythMock.getAddress()]);
 
   spinner.text = 'Deploying wstETH/USD Oracle';
-  const oracle = await deployWSTETHToUSDOracle(serviceRegistry, await pythMock.getAddress());
+  const oracle = await deployWSTETHToUSDPythOracle(serviceRegistry, await pythMock.getAddress());
   result.push(['wstETH/USD Oracle', await oracle.getAddress()]);
 
   spinner.text = 'Deploying ETH/USD Oracle ';

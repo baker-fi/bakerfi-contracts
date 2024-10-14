@@ -1,5 +1,5 @@
 import '@nomicfoundation/hardhat-ethers';
-import { ethers } from 'hardhat';
+import { config, ethers } from 'hardhat';
 import { pythFeeds } from '../constants/types';
 
 export async function deployFlashLender(serviceRegistry, weth, depositedAmount) {
@@ -263,16 +263,35 @@ export async function deployCbETHToUSDOracle(serviceRegistry, pyth) {
   return oracle;
 }
 
-export async function deployWSTETHToUSDOracle(serviceRegistry, pyth) {
+export async function deployWSTETHToUSDPythOracle(serviceRegistry, pyth) {
   const WSETHToETH = await ethers.getContractFactory('PythOracle');
   const oracle = await WSETHToETH.deploy(pythFeeds.WSETHUSDFeedId, pyth);
   await oracle.waitForDeployment();
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from('wstETH/USD Oracle')),
     await oracle.getAddress(),
-  );
+    );
+
   return oracle;
 }
+
+
+export async function deployWSTETHToUSDCustomOracle(serviceRegistry, baseOracle, wsETH) {
+  const WSETHToETH = await ethers.getContractFactory('CustomExRateOracle');
+  const oracle = await WSETHToETH.deploy(
+    baseOracle,
+    [wsETH, '0x035faf82'],
+    18
+  );
+  await oracle.waitForDeployment();
+  await serviceRegistry.registerService(
+    ethers.keccak256(Buffer.from('wstETH/USD Oracle')),
+    await oracle.getAddress(),
+    );
+  return oracle;
+}
+
+
 
 export async function deploySettings(owner: string, serviceRegistry, proxyAdmin?: any) {
   const Settings = await ethers.getContractFactory('Settings');

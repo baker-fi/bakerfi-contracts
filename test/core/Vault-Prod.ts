@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { ethers, network } from 'hardhat';
 import { describeif } from '../common';
 import { anyValue } from '@nomicfoundation/hardhat-chai-matchers/withArgs';
-import { deployAAVEProd } from './common';
+import { deployAAVEProd, deployAAVELidoProd} from './common';
 
 describeif(
   network.name === 'ethereum_devnet' ||
@@ -24,6 +24,50 @@ describeif(
 
   it('Deposit 1 ETH', async function () {
     const { vault, deployer, strategy } = await loadFixture(deployAAVEProd);
+
+    const depositAmount = ethers.parseUnits('1', 18);
+    await vault.depositNative(deployer.address, {
+      value: depositAmount,
+    });
+    expect(await vault.balanceOf(deployer.address))
+      // @ts-ignore
+      .to.greaterThan(ethers.parseUnits('9', 17))
+      // @ts-ignore
+      .lessThanOrEqual(ethers.parseUnits('11', 17));
+    expect((await strategy.getPosition([0, 0]))[0])
+      // @ts-ignore
+      .to.greaterThan(ethers.parseUnits('10000', 18))
+      // @ts-ignore
+      .lessThanOrEqual(ethers.parseUnits('30000', 18));
+    expect((await strategy.getPosition([0, 0]))[1])
+      // @ts-ignore
+      .to.greaterThan(ethers.parseUnits('5500', 18))
+      // @ts-ignore
+      .lessThanOrEqual(ethers.parseUnits('20000', 18));
+    expect(await vault.totalAssets())
+      // @ts-ignore
+      .to.greaterThan(ethers.parseUnits('9', 17))
+      // @ts-ignore
+      .lessThanOrEqual(ethers.parseUnits('11', 17));
+    expect((await strategy.getPosition([0, 0]))[2])
+      // @ts-ignore
+      .to.greaterThan(700000000n)
+      // @ts-ignore
+      .lessThanOrEqual(810000000n);
+    expect(await vault.totalSupply())
+      // @ts-ignore
+      .to.greaterThan(ethers.parseUnits('9', 17))
+      // @ts-ignore
+      .lessThanOrEqual(ethers.parseUnits('11', 17));
+    expect(await vault.tokenPerAsset())
+      // @ts-ignore
+      .to.greaterThan(ethers.parseUnits('9', 17))
+      // @ts-ignore
+      .lessThanOrEqual(ethers.parseUnits('11', 17));
+  });
+
+  it.only('Deposit 1 ETH Lido Market', async function () {
+    const { vault, deployer, strategy } = await loadFixture(deployAAVELidoProd);
 
     const depositAmount = ethers.parseUnits('1', 18);
     await vault.depositNative(deployer.address, {
