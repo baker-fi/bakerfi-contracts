@@ -281,6 +281,76 @@ const Config: DeployConfig = {
   },
   [NetworkEnum.ETHEREUM]: {
     minTxConfirmations: 3,
+    owner: '0xdD1945499B695F21f5472f10B67Aa8Dafb1b1c7c',
+    uniswapRouter02: '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45',
+    balancerVault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
+    weth: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+    wstETH: '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0',
+    morpho: '0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb',
+    oracles: [
+      {
+        name: 'ETH/USD Oracle',
+        type: 'chainlink',
+        aggregator: '0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419',
+        address: '', // Deploy Adress
+      },
+      {
+        name: 'wstETH/USD Oracle',
+        type: 'customExRate',
+        base: 'ETH/USD Oracle',
+        target: '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0', // wstETH Contract
+        callData: '0x035faf82', // stEthPerToken Selector,
+        address: '',
+      },
+    ],
+    markets: {
+      [StrategyImplementation.AAVE_V3_WSTETH_ETH]: {
+        sharesName: 'AAVEv3 Bread ETH',
+        sharesSymbol: 'AAVEv3ETH',
+        type: 'aavev3',
+        collateralToken: 'wstETH',
+        debtToken: 'WETH',
+        collateralOracle: 'wstETH/USD Oracle',
+        AAVEEModeCategory: 1,
+        debtOracle: 'ETH/USD Oracle',
+        swapFeeTier: 100,
+        aavev3MarketName: 'AAVEv3',
+      },
+      [StrategyImplementation.MORPHO_BLUE_WSTETH_ETH]: {
+        sharesName: 'Morpho Bread ETH',
+        sharesSymbol: 'MorphobrETH',
+        collateralToken: 'wstETH',
+        debtToken: 'WETH',
+        collateralOracle: 'wstETH/USD Oracle',
+        debtOracle: 'ETH/USD Oracle',
+        type: 'morpho',
+        oracle: '0xbD60A6770b27E084E8617335ddE769241B0e71D8',
+        irm: '0x870aC11D48B15DB9a138Cf899d20F13F79Ba00BC',
+        lltv: 945000000000000000n,
+        swapFeeTier: 100,
+      },
+      [StrategyImplementation.AAVE_V3_WSTETH_ETH_LIDO]: {
+        sharesName: 'AAVEv3 LIDO Bread ETH',
+        sharesSymbol: 'AAVEv3LIDObrETH',
+        collateralToken: 'wstETH',
+        type: 'aavev3',
+        debtToken: 'WETH',
+        collateralOracle: 'wstETH/USD Oracle',
+        AAVEEModeCategory: 1,
+        debtOracle: 'ETH/USD Oracle',
+        aavev3MarketName: 'AAVEv3 Lido Market',
+        swapFeeTier: 100,
+      },
+    },
+    aavev3: {
+      [AAVEv3MarketNames.AAVE_V3]: '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2',
+      [AAVEv3MarketNames.AAVE_V3_LIDO_MARKET]: '0x4e033931ad43597d96d6bcc25c280717730b58b1',
+    },
+
+    pyth: '0x4305FB66699C3B2702D4d05CF36551390A4c69C6',
+  },
+  [NetworkEnum.ETHEREUM_DEVNET]: {
+    minTxConfirmations: 0,
     owner: '',
     uniswapRouter02: '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45',
     balancerVault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
@@ -344,7 +414,7 @@ const Config: DeployConfig = {
     },
     aavev3: {
       [AAVEv3MarketNames.AAVE_V3]: '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2',
-      [AAVEv3MarketNames.AAVE_V3_LIDO_MARKET]: '​​0x4e033931ad43597d96D6bcc25c280717730B58B1',
+      [AAVEv3MarketNames.AAVE_V3_LIDO_MARKET]: '0x4e033931ad43597d96d6bcc25c280717730b58b1',
     },
 
     pyth: '0x4305FB66699C3B2702D4d05CF36551390A4c69C6',

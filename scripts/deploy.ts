@@ -21,25 +21,24 @@ type ProxyContracts = keyof typeof ContractTree;
  * Run this Hardhat script to deploy BakerFi contracts
  *
  * Usage:
- * npx hardhat run scripts/deploy.ts --network <network_name> [<strategy_type> [<aavev3_market>]]
- *
+ *  STRATEGY="<strategy_type>" AAVE_MARKET="<aavev3_market>" npx hardhat run --network <network_name> scripts/deploy.ts
  * Parameters:
  * - <network_name>: The network to deploy to (e.g., mainnet, goerli, sepolia)
  * - <strategy_type>: (Optional) The type of strategy to deploy. Defaults to AAVE_V3_WSTETH_ETH if not provided.
  * - <aavev3_market>: (Optional) The AAVE v3 market to use. Defaults to AAVE_V3 if not provided.
  *
  * Examples:
- * npx hardhat run scripts/deploy.ts --network ethereum
- * npx hardhat run scripts/deploy.ts --network base -- "AAVEv3 wstETH/ETH"
- * npx hardhat run scripts/deploy.ts --network ethereum -- "AAVEv3 wstETH/ETH" "AAVEv3 Lido Market"
- * npx hardhat run scripts/deploy.ts --network ethereum -- "Morpho Blue wstETH/ETH"
+ * npx hardhat --network ethereum run scripts/deploy.ts
+ * npx hardhat --network base run scripts/deploy.ts
+ * STRATEGY="wstETH/ETH" AAVE_MARKET="AAVEv3 Lido Market" npx hardhat --network ethereum run scripts/deploy.ts
+ * STRATEGY="Morpho Blue wstETH/ETH" npx hardhat --network ethereum run scripts/deploy.ts
  *
  * Note: Make sure to set up your .env file with the necessary environment variables before running this script.
  */
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
-main(process.argv[2], process.argv[3]).catch((error) => {
+main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
@@ -59,6 +58,8 @@ export const RegistryNames = [
   'wstETH/USD Oracle',
   'cbETH/USD Oracle',
   'ETH/USD Oracle',
+  'ChainLinkExRateOracle',
+  'CustomExRateOracle',
   'BakerFiProxyAdmin',
   'Pyth',
   `${StrategyImplementation.AAVE_V3_WSTETH_ETH} Strategy`,
@@ -73,11 +74,11 @@ type RegistryName = (typeof RegistryNames)[number];
  * Deploy BakerFi Vaults and support Ledger Support
  *
  ****************************************/
-async function main(strategyType: string, aavev3Market?: string) {
-  // Script Parameters Section
-  const strategy = (strategyType ||
+async function main() {
+  // Environment Parameters Section
+  const strategy = (process.env.STRATEGY ||
     StrategyImplementation.AAVE_V3_WSTETH_ETH) as StrategyImplementation;
-  const loanMarket = (aavev3Market || AAVEv3MarketNames.AAVE_V3) as AAVEv3MarketNames;
+  const loanMarket = (process.env.AAVE_MARKET || AAVEv3MarketNames.AAVE_V3) as AAVEv3MarketNames;
 
   const [signerPKey] = STAGING_ACCOUNTS_PKEYS;
   let app;
@@ -98,147 +99,152 @@ async function main(strategyType: string, aavev3Market?: string) {
   result.push(['Owner', app.getAddress()]);
   const config: NetworkConfig = BaseConfig[networkName];
 
-  // Deploy Settings, ProxyAdmin, Registry,....
-  const { registryReceipt, proxyAdminReceipt } = await deployInfra(
-    app,
-    config,
-    strategy,
-    loanMarket,
-    spinner,
-    result,
-  );
+  try {
+    // Deploy Settings, ProxyAdmin, Registry,....
+    const { registryReceipt, proxyAdminReceipt } = await deployInfra(
+      app,
+      config,
+      strategy,
+      loanMarket,
+      spinner,
+      result,
+    );
 
-  // Deploy Strategy
-  let strategyAddress;
-  let strategyConfig;
-  let strategyContract;
-  switch (strategy) {
-    case StrategyImplementation.AAVE_V3_WSTETH_ETH:
-    case StrategyImplementation.AAVE_V3_WSTETH_ETH_LIDO:
-      strategyConfig = config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH];
-      strategyContract = 'StrategyLeverageAAVEv3';
-      strategyAddress = await deployProxyContract(
-        app,
-        config,
-        strategyContract,
-        `${strategy} Strategy`,
-        proxyAdminReceipt?.contractAddress,
-        registryReceipt?.contractAddress,
-        [
-          app.getAddress(),
-          app.getAddress(),
-          registryReceipt?.contractAddress,
-          ethers.keccak256(Buffer.from(strategyConfig.aavev3MarketName)),
-          ethers.keccak256(Buffer.from(strategyConfig.collateralToken)),
-          ethers.keccak256(Buffer.from(strategyConfig.debtToken)),
-          ethers.keccak256(Buffer.from(strategyConfig.collateralOracle)),
-          ethers.keccak256(Buffer.from(strategyConfig.debtOracle)),
-          strategyConfig.swapFeeTier,
-          strategyConfig.AAVEEModeCategory,
-        ],
-        spinner,
-        result,
-      );
-      break;
-    case StrategyImplementation.MORPHO_BLUE_WSTETH_ETH:
-      strategyConfig = config.markets[StrategyImplementation.MORPHO_BLUE_WSTETH_ETH];
-      strategyContract = 'StrategyLeverageMorphoBlue';
-      strategyAddress = await deployProxyContract(
-        app,
-        config,
-        strategyContract,
-        `${strategy} Strategy`,
-        proxyAdminReceipt?.contractAddress,
-        registryReceipt?.contractAddress,
-        [
-          app.getAddress(),
-          app.getAddress(),
+    // Deploy Strategy
+    let strategyAddress;
+    let strategyConfig;
+    let strategyContract;
+    switch (strategy) {
+      case StrategyImplementation.AAVE_V3_WSTETH_ETH:
+      case StrategyImplementation.AAVE_V3_WSTETH_ETH_LIDO:
+        strategyConfig = config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH];
+        strategyContract = 'StrategyLeverageAAVEv3';
+        strategyAddress = await deployProxyContract(
+          app,
+          config,
+          strategyContract,
+          `${strategy} Strategy`,
+          proxyAdminReceipt?.contractAddress,
           registryReceipt?.contractAddress,
           [
+            app.getAddress(),
+            app.getAddress(),
+            registryReceipt?.contractAddress,
             ethers.keccak256(Buffer.from(strategyConfig.collateralToken)),
             ethers.keccak256(Buffer.from(strategyConfig.debtToken)),
             ethers.keccak256(Buffer.from(strategyConfig.collateralOracle)),
             ethers.keccak256(Buffer.from(strategyConfig.debtOracle)),
             strategyConfig.swapFeeTier,
-            strategyConfig.oracle,
-            strategyConfig.irm,
-            strategyConfig.lltv,
+            strategyConfig.AAVEEModeCategory,
           ],
-        ],
-        spinner,
-        result,
-      );
-      break;
-    default:
-      throw Error('Unrecognized strategy;');
-  }
+          spinner,
+          result,
+        );
+        break;
+      case StrategyImplementation.MORPHO_BLUE_WSTETH_ETH:
+        strategyConfig = config.markets[StrategyImplementation.MORPHO_BLUE_WSTETH_ETH];
+        strategyContract = 'StrategyLeverageMorphoBlue';
+        strategyAddress = await deployProxyContract(
+          app,
+          config,
+          strategyContract,
+          `${strategy} Strategy`,
+          proxyAdminReceipt?.contractAddress,
+          registryReceipt?.contractAddress,
+          [
+            app.getAddress(),
+            app.getAddress(),
+            registryReceipt?.contractAddress,
+            [
+              ethers.keccak256(Buffer.from(strategyConfig.collateralToken)),
+              ethers.keccak256(Buffer.from(strategyConfig.debtToken)),
+              ethers.keccak256(Buffer.from(strategyConfig.collateralOracle)),
+              ethers.keccak256(Buffer.from(strategyConfig.debtOracle)),
+              strategyConfig.swapFeeTier,
+              strategyConfig.oracle,
+              strategyConfig.irm,
+              strategyConfig.lltv,
+            ],
+          ],
+          spinner,
+          result,
+        );
+        break;
+      default:
+        throw Error('Unrecognized strategy;');
+    }
 
-  ////////////////////////////////////
-  // Deploy Vault
-  ////////////////////////////////////
-  const vaultAdress = await deployProxyContract(
-    app,
-    config,
-    'Vault',
-    `${StrategyImplementation.AAVE_V3_WSTETH_ETH} Vault`,
-    proxyAdminReceipt?.contractAddress,
-    registryReceipt?.contractAddress,
-    [
-      app.getAddress(),
-      strategyConfig.sharesName,
-      strategyConfig.sharesSymbol,
+    ////////////////////////////////////
+    // Deploy Vault
+    ////////////////////////////////////
+    const vaultAdress = await deployProxyContract(
+      app,
+      config,
+      'Vault',
+      `${StrategyImplementation.AAVE_V3_WSTETH_ETH} Vault`,
+      proxyAdminReceipt?.contractAddress,
       registryReceipt?.contractAddress,
-      strategyAddress,
-    ],
-    spinner,
-    result,
-  );
-  ////////////////////////////////////
-  // Update the Strategy Default Settings
-  ////////////////////////////////////
-  spinner.text = 'Transferring Ownership ...';
-  const changeOwnerReceipt = await app.send(
-    strategyContract,
-    strategyAddress ?? '',
-    'transferOwnership',
-    [vaultAdress],
-    {
-      chainId,
-      minTxConfirmations: config.minTxConfirmations,
-    },
-  );
-  result.push(['Strategy Owner', vaultAdress, changeOwnerReceipt?.hash]);
-
-  spinner.text = 'Changing LTV ...';
-  const ltvChangeReceipt = await app.send(
-    strategyContract,
-    strategyAddress ?? '',
-    'setLoanToValue',
-    [ethers.parseUnits('800', 6)],
-    {
-      chainId,
-      minTxConfirmations: config.minTxConfirmations,
-    },
-  );
-  result.push(['Strategy LTV', ethers.parseUnits('800', 6), ltvChangeReceipt?.hash]);
-  spinner.succeed('🧑‍🍳 BakerFi Served 🍰 ');
-  console.table(result);
-  console.log('Deployment Registry:');
-  const registerDump: any[] = [];
-  for (const registerName of RegistryNames) {
-    const address = await app.call(
-      'ServiceRegistry',
-      registryReceipt?.contractAddress ?? '',
-      'getService',
-      [registerName],
+      [
+        app.getAddress(),
+        strategyConfig.sharesName,
+        strategyConfig.sharesSymbol,
+        registryReceipt?.contractAddress,
+        strategyAddress,
+      ],
+      spinner,
+      result,
+    );
+    ////////////////////////////////////
+    // Update the Strategy Default Settings
+    ////////////////////////////////////
+    spinner.text = 'Transferring Ownership ...';
+    const changeOwnerReceipt = await app.send(
+      strategyContract,
+      strategyAddress ?? '',
+      'transferOwnership',
+      [vaultAdress],
       {
         chainId,
         minTxConfirmations: config.minTxConfirmations,
       },
     );
-    registerDump.push([registerName, address]);
+    result.push(['Strategy Owner', vaultAdress, changeOwnerReceipt?.hash]);
+
+    spinner.text = 'Changing LTV ...';
+    const ltvChangeReceipt = await app.send(
+      strategyContract,
+      strategyAddress ?? '',
+      'setLoanToValue',
+      [ethers.parseUnits('800', 6)],
+      {
+        chainId,
+        minTxConfirmations: config.minTxConfirmations,
+      },
+    );
+    result.push(['Strategy LTV', ethers.parseUnits('800', 6), ltvChangeReceipt?.hash]);
+    spinner.succeed('🧑‍🍳 BakerFi Served 🍰 ');
+    console.table(result);
+    console.log('Deployment Registry:');
+    const registerDump: any[] = [];
+    for (const registerName of RegistryNames) {
+      const address = await app.call(
+        'ServiceRegistry',
+        registryReceipt?.contractAddress ?? '',
+        'getService',
+        [registerName],
+        {
+          chainId,
+          minTxConfirmations: config.minTxConfirmations,
+        },
+      );
+      registerDump.push([registerName, address]);
+    }
+  } catch (error) {
+    console.table(result);
+    console.error(error);
+    process.exit(1);
   }
-  console.table(registerDump);
+  console.table(result);
   process.exit(0);
 }
 
@@ -252,7 +258,7 @@ async function deployOracles(
 ) {
   const oracles = {};
   for (const oracle of config.oracles) {
-    spinner.text = `Deploying ${oracle.name} Oracle`;
+    spinner.text = `Deploying ${oracle.name} ${oracle.type} Oracle`;
     let oracleReceipt;
 
     switch (oracle.type) {

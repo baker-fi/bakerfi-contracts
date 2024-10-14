@@ -11,7 +11,6 @@ import { HardhatUserConfig } from 'hardhat/config';
 import { STAGING_ACCOUNTS_PKEYS } from './constants/test-accounts';
 import { HardhatNetworkAccountUserConfig } from 'hardhat/types/config';
 import '@nomicfoundation/hardhat-verify';
-//import "hardhat-tracer";
 import 'solidity-docgen';
 import './scripts/tasks/';
 import 'hardhat-storage-layout-changes';
@@ -179,6 +178,7 @@ const config: HardhatUserConfig = {
   },
   etherscan: {
     apiKey: {
+      mainnet: process.env.ETHERSCAN_API_KEY || '',
       base: process.env.BASESCAN_API_KEY || '',
       arbitrumOne: process.env.ARBSCAN_API_KEY || '',
     },
