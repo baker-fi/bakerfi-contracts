@@ -351,7 +351,7 @@ const Config: DeployConfig = {
   },
   [NetworkEnum.ETHEREUM_DEVNET]: {
     minTxConfirmations: 0,
-    owner: '',
+    owner: '0xdD1945499B695F21f5472f10B67Aa8Dafb1b1c7c',
     uniswapRouter02: '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45',
     balancerVault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
     weth: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
