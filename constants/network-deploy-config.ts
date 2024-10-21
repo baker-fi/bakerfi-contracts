@@ -17,14 +17,14 @@ const Config: DeployConfig = {
         name: 'ETH/USD Oracle',
         type: 'pyth',
         feedId: feedIds[OracleNamesEnum.ETH_USD],
-        address: '0x501F860caE70FA5058f1D33458F6066fdB62A591',
+        address: '0xEA62C6dE7ecBbAB2c43DC7031237ac79E83e3e25',
       },
       {
         type: 'clExRate',
         name: 'wstETH/USD Oracle',
         rateAggregator: '0xB88BAc61a4Ca37C43a3725912B1f472c9A5bc061',
         base: 'ETH/USD Oracle',
-        address: '0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4',
+        address: '0x596F76F8583ABA8BD87f0513282145B8Bc4EEce3',
       },
     ],
     markets: {
@@ -73,14 +73,14 @@ const Config: DeployConfig = {
         name: 'ETH/USD Oracle',
         type: 'pyth',
         feedId: feedIds[OracleNamesEnum.ETH_USD],
-        address: '0x501F860caE70FA5058f1D33458F6066fdB62A591',
+        address: '0xEA62C6dE7ecBbAB2c43DC7031237ac79E83e3e25',
       },
       {
         type: 'clExRate',
         name: 'wstETH/USD Oracle',
         rateAggregator: '0xB88BAc61a4Ca37C43a3725912B1f472c9A5bc061',
         base: 'ETH/USD Oracle',
-        address: '0x5B4C2dF0182946e8b31a9caF9807Dc837BA3F5c4',
+        address: '0x596F76F8583ABA8BD87f0513282145B8Bc4EEce3',
       },
     ],
     markets: {
