@@ -13,7 +13,7 @@
   "scripts": {
     "clean": "rm -rf cache/* && rm -rf artifacts/*  && rm -rf dist/*",
     "compile": "npx hardhat compile",
-    "postcompile": "npx hardhat build:artifactTree",
+    "postcompile": "npx hardhat build:artifactTree && npx hardhat build:calculateSelectors",
     "build": "npm run compile && npx tsc && npx tsc-alias",
     "test": "npx hardhat test",
     "solhint:check": "npx solhint  'contracts/**/*.sol'",

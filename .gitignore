@@ -15,3 +15,4 @@ crytic-export
 .DS_Store
 src/contract-blob.json
 .storage-layouts/
+src/contract-selectors.json
