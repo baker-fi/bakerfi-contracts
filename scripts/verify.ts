@@ -41,9 +41,9 @@ async function verifyContract(
   }
 }
 
-async function main(strategy: string) {
-  const strategyImplementation =
-    (strategy as StrategyImplementation) || StrategyImplementation.AAVE_V3_WSTETH_ETH;
+async function main() {
+  const strategyImplementation = (process.env.STRATEGY ||
+    StrategyImplementation.AAVE_V3_WSTETH_ETH) as StrategyImplementation;
   const networkName = hre.network.name;
   const deployConfig = DeployConfig[networkName];
   const networkConfig = NetworkDeployConfig[networkName];
@@ -81,11 +81,12 @@ async function main(strategy: string) {
     address: deployConfig[strategyImplementation]?.debtOracle,
     constructorArguments: [feedIds[OracleNamesEnum.ETH_USD], networkConfig.pyth],
   });
+
   console.log('Verifying Settings');
   await hre.run('verify:verify', {
     address: deployConfig[strategyImplementation]?.settings,
     constructorArguments: [],
-  });
+  })
 
   console.log('Verifying Settings Proxy');
   const settingsFactory = await hre.ethers.getContractFactory('Settings');
@@ -116,7 +117,6 @@ async function main(strategy: string) {
         networkConfig.owner,
         networkConfig.owner,
         deployConfig[strategyImplementation]?.serviceRegistry,
-        hre.ethers.keccak256(Buffer.from('AAVEv3')),
         hre.ethers.keccak256(Buffer.from('wstETH')),
         hre.ethers.keccak256(Buffer.from('WETH')),
         hre.ethers.keccak256(Buffer.from('wstETH/USD Oracle')),
@@ -155,7 +155,7 @@ async function main(strategy: string) {
 }
 
 // Add strategy argument to the main function
-main(process.argv[2]).catch((error) => {
+main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });

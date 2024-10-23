@@ -68,6 +68,21 @@ describeif(network.name === 'hardhat')(
       return { oracle, aggregator };
     }
 
+    async function deployFunctionZeroMinMax() {
+      const ChainLinkAggregator = await ethers.getContractFactory('ChainLinkAggregatorMock');
+      const aggregator = await ChainLinkAggregator.deploy();
+      await aggregator.waitForDeployment();
+
+      const ChainLinkOracle = await ethers.getContractFactory('ChainLinkOracle');
+      const oracle = await ChainLinkOracle.deploy(
+        await aggregator.getAddress(),
+        0n,
+        0n,
+      );
+      await oracle.waitForDeployment();
+      return { oracle, aggregator };
+    }
+
     it('Check Default Price and Decimals', async function () {
       const { oracle, aggregator } = await loadFixture(deployFunction);
       const [price, updatedAt] = await oracle.getLatestPrice();
@@ -80,6 +95,16 @@ describeif(network.name === 'hardhat')(
 
     it('Check Safe Price', async function () {
       const { oracle, aggregator } = await loadFixture(deployFunction);
+      const [price, updatedAt] = await oracle.getSafeLatestPrice([0, 0]);
+      const block = await ethers.provider.getBlock(0);
+      expect(price).to.equal(3500n * 10n ** 18n);
+      expect(await aggregator.decimals()).to.equal(6);
+      // @ts-ignore
+      expect(updatedAt).to.greaterThan(block?.timestamp);
+    });
+
+    it('Check Safe Price when min and max is 0', async function () {
+      const { oracle, aggregator } = await loadFixture(deployFunctionZeroMinMax);
       const [price, updatedAt] = await oracle.getSafeLatestPrice([0, 0]);
       const block = await ethers.provider.getBlock(0);
       expect(price).to.equal(3500n * 10n ** 18n);
@@ -114,10 +139,12 @@ describeif(network.name === 'hardhat')(
       const { oracle, aggregator } = await loadFixture(deployFunction);
       await aggregator.setLatestPrice(10n * 10n ** 6n);
       await expect(
-        oracle.getSafeLatestPrice([0, 0]),
+        oracle.getSafeLatestPrice([120, 0]),
         // @ts-ignore
       ).to.be.revertedWithCustomError(oracle, 'InvalidPriceFromOracle');
     });
+
+
 
     it('Check Price after changing prices', async function () {
       const { oracle, aggregator } = await loadFixture(deployFunction);

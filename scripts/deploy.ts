@@ -79,6 +79,7 @@ async function main() {
   const strategy = (process.env.STRATEGY ||
     StrategyImplementation.AAVE_V3_WSTETH_ETH) as StrategyImplementation;
   const loanMarket = (process.env.AAVE_MARKET || AAVEv3MarketNames.AAVE_V3) as AAVEv3MarketNames;
+  const reuseOracles = (process.env.REUSE_ORACLES === "true" || false) ;
 
   const [signerPKey] = STAGING_ACCOUNTS_PKEYS;
   let app;
@@ -106,6 +107,7 @@ async function main() {
       config,
       strategy,
       loanMarket,
+      reuseOracles,
       spinner,
       result,
     );
@@ -248,6 +250,7 @@ async function main() {
   process.exit(0);
 }
 
+
 async function deployOracles(
   client: ContractClient<typeof ContractTree>,
   chainId: bigint,
@@ -384,6 +387,7 @@ async function deployInfra(
   config: NetworkConfig,
   strategy: StrategyImplementation,
   loanMarket: AAVEv3MarketNames,
+  reuseOracles: boolean,
   spinner: ora.Ora,
   result: any[],
 ): Promise<{
@@ -464,14 +468,20 @@ async function deployInfra(
     await registerName(app, config, registryReceipt, 'wstETH', config.wstETH, spinner, result);
   }
   // Deploy Oracles
+  if (!reuseOracles) {
   await deployOracles(
     app,
     chainId ?? 0,
     config,
     registryReceipt?.contractAddress ?? '',
     spinner,
-    result,
-  );
+      result,
+    );
+  } else {
+    for (const oracle of config.oracles) {
+      await registerName(app, config, registryReceipt, oracle.name, oracle.address, spinner, result);
+    }
+  }
   return {
     registryReceipt,
     proxyAdminReceipt,
