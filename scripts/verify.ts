@@ -86,7 +86,7 @@ async function main() {
   await hre.run('verify:verify', {
     address: deployConfig[strategyImplementation]?.settings,
     constructorArguments: [],
-  })
+  });
 
   console.log('Verifying Settings Proxy');
   const settingsFactory = await hre.ethers.getContractFactory('Settings');

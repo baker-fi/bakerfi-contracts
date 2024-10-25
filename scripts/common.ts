@@ -270,28 +270,21 @@ export async function deployWSTETHToUSDPythOracle(serviceRegistry, pyth) {
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from('wstETH/USD Oracle')),
     await oracle.getAddress(),
-    );
+  );
 
   return oracle;
 }
 
-
 export async function deployWSTETHToUSDCustomOracle(serviceRegistry, baseOracle, wsETH) {
   const WSETHToETH = await ethers.getContractFactory('CustomExRateOracle');
-  const oracle = await WSETHToETH.deploy(
-    baseOracle,
-    [wsETH, '0x035faf82'],
-    18
-  );
+  const oracle = await WSETHToETH.deploy(baseOracle, [wsETH, '0x035faf82'], 18);
   await oracle.waitForDeployment();
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from('wstETH/USD Oracle')),
     await oracle.getAddress(),
-    );
+  );
   return oracle;
 }
-
-
 
 export async function deploySettings(owner: string, serviceRegistry, proxyAdmin?: any) {
   const Settings = await ethers.getContractFactory('Settings');

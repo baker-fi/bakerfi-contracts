@@ -32,7 +32,10 @@ export async function deployAAVEProd() {
   return await deployProd(StrategyImplementation.AAVE_V3_WSTETH_ETH, AAVEv3MarketNames.AAVE_V3);
 }
 export async function deployAAVELidoProd() {
-  return await deployProd(StrategyImplementation.AAVE_V3_WSTETH_ETH, AAVEv3MarketNames.AAVE_V3_LIDO_MARKET);
+  return await deployProd(
+    StrategyImplementation.AAVE_V3_WSTETH_ETH,
+    AAVEv3MarketNames.AAVE_V3_LIDO_MARKET,
+  );
 }
 
 export async function deployProd(
@@ -71,8 +74,11 @@ export async function deployProd(
   const ethOracle = await deployETHOracle(serviceRegistry, config.pyth);
 
   if (networkName === 'ethereum' || networkName === 'ethereum_devnet') {
-
-    await deployWSTETHToUSDCustomOracle(serviceRegistry,await ethOracle.getAddress(), config.wstETH);
+    await deployWSTETHToUSDCustomOracle(
+      serviceRegistry,
+      await ethOracle.getAddress(),
+      config.wstETH,
+    );
   } else {
     await deployWSTETHToUSDPythOracle(serviceRegistry, config.pyth);
   }
@@ -98,7 +104,7 @@ export async function deployProd(
     case StrategyImplementation.AAVE_V3_WSTETH_ETH:
     case StrategyImplementation.AAVE_V3_WSTETH_ETH_LIDO:
       await serviceRegistry.registerService(
-        ethers.keccak256(Buffer.from("AAVEv3")),
+        ethers.keccak256(Buffer.from('AAVEv3')),
         config.aavev3?.[aavev3Market],
       );
       const { proxy: aProxy } = await deployAAVEv3Strategy(
