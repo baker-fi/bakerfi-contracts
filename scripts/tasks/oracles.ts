@@ -52,7 +52,7 @@ task('oracles:priceUpdate', 'Update Required Prices').setAction(async ({}, { eth
 });
 
 task('oracles:getWSTETHPrice', 'Get WSTETH/USD')
-  .addParam('strategy', 'Strategy Type',  StrategyImplementation.AAVE_V3_WSTETH_ETH)
+  .addParam('strategy', 'Strategy Type', StrategyImplementation.AAVE_V3_WSTETH_ETH)
   .setAction(async ({ strategy }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
@@ -71,7 +71,7 @@ task('oracles:getWSTETHPrice', 'Get WSTETH/USD')
   });
 
 task('oracles:getETHPrice', 'Get ETH/USD')
-  .addParam('strategy', 'Strategy Type',  StrategyImplementation.AAVE_V3_WSTETH_ETH)
+  .addParam('strategy', 'Strategy Type', StrategyImplementation.AAVE_V3_WSTETH_ETH)
   .setAction(async ({ strategy }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
@@ -90,14 +90,14 @@ task('oracles:getETHPrice', 'Get ETH/USD')
   });
 
 task('oracles:prices', 'Generate an artifact tree')
-  .addParam('strategy', 'Strategy Type',  StrategyImplementation.AAVE_V3_WSTETH_ETH)
+  .addParam('strategy', 'Strategy Type', StrategyImplementation.AAVE_V3_WSTETH_ETH)
   .setAction(async ({ strategy }, { run }) => {
     await run('oracles:getETHPrice', { strategy });
     await run('oracles:getWSTETHPrice', { strategy });
   });
 
 task('oracles:compare', 'Generate an artifact tree')
-  .addParam('strategy', 'Strategy Type',  StrategyImplementation.AAVE_V3_WSTETH_ETH)
+  .addParam('strategy', 'Strategy Type', StrategyImplementation.AAVE_V3_WSTETH_ETH)
   .setAction(async ({ strategy }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];

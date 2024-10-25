@@ -79,7 +79,7 @@ async function main() {
   const strategy = (process.env.STRATEGY ||
     StrategyImplementation.AAVE_V3_WSTETH_ETH) as StrategyImplementation;
   const loanMarket = (process.env.AAVE_MARKET || AAVEv3MarketNames.AAVE_V3) as AAVEv3MarketNames;
-  const reuseOracles = (process.env.REUSE_ORACLES === "true" || false) ;
+  const reuseOracles = process.env.REUSE_ORACLES === 'true' || false;
 
   const [signerPKey] = STAGING_ACCOUNTS_PKEYS;
   let app;
@@ -249,7 +249,6 @@ async function main() {
   console.table(result);
   process.exit(0);
 }
-
 
 async function deployOracles(
   client: ContractClient<typeof ContractTree>,
@@ -469,17 +468,25 @@ async function deployInfra(
   }
   // Deploy Oracles
   if (!reuseOracles) {
-  await deployOracles(
-    app,
-    chainId ?? 0,
-    config,
-    registryReceipt?.contractAddress ?? '',
-    spinner,
+    await deployOracles(
+      app,
+      chainId ?? 0,
+      config,
+      registryReceipt?.contractAddress ?? '',
+      spinner,
       result,
     );
   } else {
     for (const oracle of config.oracles) {
-      await registerName(app, config, registryReceipt, oracle.name, oracle.address, spinner, result);
+      await registerName(
+        app,
+        config,
+        registryReceipt,
+        oracle.name,
+        oracle.address,
+        spinner,
+        result,
+      );
     }
   }
   return {

@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { ethers, network } from 'hardhat';
 import { describeif } from '../common';
 import { anyValue } from '@nomicfoundation/hardhat-chai-matchers/withArgs';
-import { deployAAVEProd, deployAAVELidoProd} from './common';
+import { deployAAVEProd, deployAAVELidoProd } from './common';
 
 describeif(
   network.name === 'ethereum_devnet' ||

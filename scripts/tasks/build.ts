@@ -32,48 +32,50 @@ task('build:artifactTree', 'Generate an artifact tree').setAction(
   },
 );
 
-task('build:calculateSelectors', 'Generate function and error selectors based on the contract blob ABIs').setAction(
-  async (taskArgs, { config }) => {
-    const ethers = require('ethers').ethers;
-    const contractBlobPath = path.join(__dirname, '..', '..', 'src', 'contract-blob.json');
-    const contractBlobString = fs.readFileSync(contractBlobPath, 'utf8');
-    const contractBlob = JSON.parse(contractBlobString);
-    const output = {};
+task(
+  'build:calculateSelectors',
+  'Generate function and error selectors based on the contract blob ABIs',
+).setAction(async (taskArgs, { config }) => {
+  const ethers = require('ethers').ethers;
+  const contractBlobPath = path.join(__dirname, '..', '..', 'src', 'contract-blob.json');
+  const contractBlobString = fs.readFileSync(contractBlobPath, 'utf8');
+  const contractBlob = JSON.parse(contractBlobString);
+  const output = {};
 
-    for (const contractName in contractBlob) {
-        output[contractName] = { functions: [], errors: [] }
+  for (const contractName in contractBlob) {
+    output[contractName] = { functions: [], errors: [] };
 
-        const functionOrErrorABIs = contractBlob[contractName].abi.filter(input => input.type == 'function' || input.type ==  'error');
+    const functionOrErrorABIs = contractBlob[contractName].abi.filter(
+      (input) => input.type == 'function' || input.type == 'error',
+    );
 
-        for (const abi of functionOrErrorABIs) {
-          // signature
-          const paramsTypes = abi.inputs.map(input => input.type);
-          const paramTypesString = paramsTypes.join(',');
+    for (const abi of functionOrErrorABIs) {
+      // signature
+      const paramsTypes = abi.inputs.map((input) => input.type);
+      const paramTypesString = paramsTypes.join(',');
 
-          const signature = `${abi.name}(${paramTypesString})`;
+      const signature = `${abi.name}(${paramTypesString})`;
 
-          // calculate selector
-          const id = ethers.id(signature);
-          const selector = id.slice(0, 10); // 0x + first 4 bytes
+      // calculate selector
+      const id = ethers.id(signature);
+      const selector = id.slice(0, 10); // 0x + first 4 bytes
 
-          // add to object
-          const outputObject = {
-            name: abi.name,
-            signature: signature,
-            selector: selector,
-        }
-          if(abi.type == 'error'){
-            output[contractName].errors.push(outputObject)
-          }
-          else if(abi.type == 'function'){
-            output[contractName].functions.push(outputObject)
-          }
-        }
+      // add to object
+      const outputObject = {
+        name: abi.name,
+        signature: signature,
+        selector: selector,
+      };
+      if (abi.type == 'error') {
+        output[contractName].errors.push(outputObject);
+      } else if (abi.type == 'function') {
+        output[contractName].functions.push(outputObject);
+      }
     }
+  }
 
-    // Output the result to a JSON file
-    const outputPath = path.join(__dirname, '..', '..', 'src', 'contract-selectors.json');
-    fs.writeFileSync(outputPath, JSON.stringify(output, null, 2), 'utf8');
-    console.log(`Contracts selectors exported to ${outputPath}`);
-},
-);
+  // Output the result to a JSON file
+  const outputPath = path.join(__dirname, '..', '..', 'src', 'contract-selectors.json');
+  fs.writeFileSync(outputPath, JSON.stringify(output, null, 2), 'utf8');
+  console.log(`Contracts selectors exported to ${outputPath}`);
+});
