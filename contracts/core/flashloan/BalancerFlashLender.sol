@@ -7,7 +7,7 @@ import { IERC3156FlashLenderUpgradeable } from "@openzeppelin/contracts-upgradea
 import { IFlashLoanRecipient } from "../../interfaces/balancer/IFlashLoan.sol";
 import { IVault } from "../../interfaces/balancer/IVault.sol";
 import { MathLibrary } from "../../libraries/MathLibrary.sol";
-import { ServiceRegistry, BALANCER_VAULT_CONTRACT } from "../../core/ServiceRegistry.sol";
+import { VaultRegistry, BALANCER_VAULT_CONTRACT } from "../../core/VaultRegistry.sol";
 import { IERC3156FlashBorrowerUpgradeable } from "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashBorrowerUpgradeable.sol";
 
 /**
@@ -40,8 +40,8 @@ contract BalancerFlashLender is IERC3156FlashLenderUpgradeable, IFlashLoanRecipi
 
   IVault private immutable _balancerVault;
 
-  constructor(ServiceRegistry registry) {
-    _balancerVault = IVault(registry.getServiceFromHash(BALANCER_VAULT_CONTRACT));
+  constructor(address balancerVault) {
+    _balancerVault = IVault(balancerVault);
     if (address(_balancerVault) == address(0)) {
       revert InvalidVaultAddress();
     }

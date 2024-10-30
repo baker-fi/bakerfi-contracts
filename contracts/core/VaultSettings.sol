@@ -3,7 +3,7 @@ pragma solidity ^0.8.24;
 
 import { Ownable2StepUpgradeable } from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 import { PERCENTAGE_PRECISION } from "./Constants.sol";
-import { ISettings } from "../interfaces/core/ISettings.sol";
+import { IVaultSettings } from "../interfaces/core/IVaultSettings.sol";
 import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 /**
  * @title BakerFI Settings(⚙️) Contract
@@ -21,7 +21,7 @@ import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableS
  * the fees, basic configuration parameters and the list of whitelisted adresess that can
  * interact with the system
  */
-contract Settings is Ownable2StepUpgradeable, ISettings {
+contract VaultSettings is Ownable2StepUpgradeable, IVaultSettings {
   error InvalidOwner();
   error WhiteListAlreadyEnabled();
   error WhiteListFailedToAdd();
@@ -31,10 +31,8 @@ contract Settings is Ownable2StepUpgradeable, ISettings {
   error InvalidPercentage();
   error InvalidMaxLoanToValue();
   error InvalidAddress();
-  error InvalidLoopCount();
 
   using EnumerableSet for EnumerableSet.AddressSet;
-
   /**
    * @dev The withdrawal fee percentage
    *
@@ -66,27 +64,9 @@ contract Settings is Ownable2StepUpgradeable, ISettings {
   EnumerableSet.AddressSet private _enabledAccounts;
 
   /**
-   * @dev Max Allowed ETH Deposit per Wallet
+   * @dev Max Allowed Deposit per Wallet
    */
-  uint256 private _maxDepositInETH;
-
-  /**
-   * @dev Max Age for sensitive price operations
-   */
-  uint256 private _priceRebalanceMaxAge;
-
-  /**
-   * @dev Maximum price age allowed for protocol state change
-   * operations.
-   */
-  uint256 private _priceMaxAge;
-
-  /**
-   * @dev Maximum Price Confidence in percentage allowed
-   * for the oracle prices. The zero percentage is unsafe and avoids
-   * the max Confidence check on Pyth Prices.
-   */
-  uint256 private _priceMaxConf;
+  uint256 private _maxDeposit;
 
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
@@ -99,21 +79,12 @@ contract Settings is Ownable2StepUpgradeable, ISettings {
    * This function is used for the initial setup of the contract, setting the owner, withdrawal fee,
    * performance fee, fee receiver, loan-to-value ratio, maximum loan-to-value ratio, and the number of loops.
    *
-   * @param initialOwner The address to be set as the initial owner of the contract.
-   *
-   * Requirements:
-   * - The provided owner address must not be the zero address.
    */
-  function initialize(address initialOwner) public initializer {
-    if (initialOwner == address(0)) revert InvalidOwner();
-    _transferOwnership(initialOwner);
+  function _initializeVaultSettings() public onlyInitializing {
     _withdrawalFee = 10 * 1e6; // 1%
     _performanceFee = 10 * 1e6; // 1%
     _feeReceiver = address(0); // No Fee Receiver
-    _maxDepositInETH = 0;
-    _priceRebalanceMaxAge = 5 minutes; // 5 Minutes Prices
-    _priceMaxAge = 60 minutes;
-    _priceMaxConf = 0;
+    _maxDeposit = 0;
   }
 
   /**
@@ -128,7 +99,7 @@ contract Settings is Ownable2StepUpgradeable, ISettings {
    * Requirements:
    * - The caller must be the owner of the contract.
    */
-  function enableAccount(address account, bool enabled) external onlyOwner {
+  function enableAccount(address account, bool enabled) public onlyOwner {
     if (enabled) {
       if (_enabledAccounts.contains(account)) revert WhiteListAlreadyEnabled();
       if (!_enabledAccounts.add(account)) revert WhiteListFailedToAdd();
@@ -148,7 +119,7 @@ contract Settings is Ownable2StepUpgradeable, ISettings {
    * @param account The address of the account to be checked.
    * @return enabled A boolean indicating whether the account is enabled (true) or not (false) in the whitelist.
    */
-  function isAccountEnabled(address account) external view returns (bool) {
+  function isAccountEnabled(address account) public view returns (bool) {
     return _enabledAccounts.length() == 0 || _enabledAccounts.contains(account);
   }
 
@@ -164,7 +135,7 @@ contract Settings is Ownable2StepUpgradeable, ISettings {
    * - The caller must be the owner of the contract.
    * - The new withdrawal fee percentage must be a valid percentage value.
    */
-  function setWithdrawalFee(uint256 fee) external onlyOwner {
+  function setWithdrawalFee(uint256 fee) public onlyOwner {
     if (fee >= PERCENTAGE_PRECISION) revert InvalidPercentage();
     _withdrawalFee = fee;
     emit WithdrawalFeeChanged(_withdrawalFee);
@@ -177,7 +148,7 @@ contract Settings is Ownable2StepUpgradeable, ISettings {
    *
    * @return fee The withdrawal fee percentage.
    */
-  function getWithdrawalFee() external view returns (uint256) {
+  function getWithdrawalFee() public view returns (uint256) {
     return _withdrawalFee;
   }
 
@@ -206,7 +177,7 @@ contract Settings is Ownable2StepUpgradeable, ISettings {
    *
    * @return fee The performance fee percentage.
    */
-  function getPerformanceFee() external view returns (uint256) {
+  function getPerformanceFee() public view returns (uint256) {
     return _performanceFee;
   }
   /**
@@ -234,85 +205,25 @@ contract Settings is Ownable2StepUpgradeable, ISettings {
    *
    * @return receiver The fee receiver address.
    */
-  function getFeeReceiver() external view returns (address) {
+  function getFeeReceiver() public view returns (address) {
     return _feeReceiver;
   }
   /**
    * @notice Retrieves the maximum deposit allowed in ETH.
    * @return The maximum deposit value in ETH.
    */
-  function getMaxDepositInETH() external view returns (uint256) {
-    return _maxDepositInETH;
+  function getMaxDeposit() public view returns (uint256) {
+    return _maxDeposit;
   }
 
   /**
    * @notice Sets the maximum deposit allowed in ETH.
    * @param value The maximum deposit value to be set in ETH.
    */
-  function setMaxDepositInETH(uint256 value) external onlyOwner {
-    _maxDepositInETH = value;
-    emit MaxDepositInETHChanged(value);
+  function setMaxDeposit(uint256 value) external onlyOwner {
+    _maxDeposit = value;
+    emit MaxDepositChanged(value);
   }
 
-  /**
-   * @notice Sets the maximum age of the price data used for rebalancing.
-   * @param value The maximum age in seconds.
-   */
-  function setRebalancePriceMaxAge(uint256 value) external onlyOwner {
-    _priceRebalanceMaxAge = value;
-    emit RebalancePriceMaxAgeChanged(value);
-  }
-
-  /**
-   * @notice Retrieves the maximum age of the price data used for rebalancing.
-   * @return The maximum age in seconds.
-   */
-  function getRebalancePriceMaxAge() external view returns (uint256) {
-    return _priceRebalanceMaxAge;
-  }
-
-  /**
-   * Sets the max age for price retrievals
-   * @notice Sets the maximum age of the price data.
-   *
-   * @dev Setting the maxAge to 0 is quite dangerous and the protocol could be working
-   * with stale prices
-   * @param value The maximum age in seconds.
-   */
-  function setPriceMaxAge(uint256 value) external onlyOwner {
-    _priceMaxAge = value;
-    emit PriceMaxAgeChanged(value);
-  }
-
-  /**
-   * @notice Retrieves the maximum age of the price data.
-   * @return The maximum age in seconds.
-   */
-  function getPriceMaxAge() external view returns (uint256) {
-    return _priceMaxAge;
-  }
-
-  /**
-   * @notice Sets the maximum confidence level for the price data in percentage
-   * @param value The maximum confidence level.
-   */
-  function setPriceMaxConf(uint256 value) external onlyOwner {
-    if (value > PERCENTAGE_PRECISION) revert InvalidPercentage();
-    _priceMaxConf = value;
-    emit PriceMaxConfChanged(value);
-  }
-
-  /**
-   * @notice Retrieves the maximum confidence level for the price data.
-   * @return The maximum confidence level.
-   */
-  function getPriceMaxConf() external view returns (uint256) {
-    return _priceMaxConf;
-  }
-
-  /**
-   * @dev This empty reserved space is put in place to allow future versions to add new
-   * variables without shifting down storage in the inheritance chain.
-   */
   uint256[50] private __gap;
 }

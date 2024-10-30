@@ -82,23 +82,6 @@ async function main() {
     constructorArguments: [feedIds[OracleNamesEnum.ETH_USD], networkConfig.pyth],
   });
 
-  console.log('Verifying Settings');
-  await hre.run('verify:verify', {
-    address: deployConfig[strategyImplementation]?.settings,
-    constructorArguments: [],
-  });
-
-  console.log('Verifying Settings Proxy');
-  const settingsFactory = await hre.ethers.getContractFactory('Settings');
-  await hre.run('verify:verify', {
-    address: deployConfig[strategyImplementation]?.settingsProxy,
-    contract: 'contracts/proxy/BakerFiProxy.sol:BakerFiProxy',
-    constructorArguments: [
-      deployConfig[strategyImplementation]?.settings,
-      deployConfig[strategyImplementation]?.proxyAdmin,
-      settingsFactory.interface.encodeFunctionData('initialize', [networkConfig.owner]),
-    ],
-  });
   console.log('Verifying Strategy');
   await hre.run('verify:verify', {
     address: deployConfig[strategyImplementation]?.strategy,
@@ -117,10 +100,15 @@ async function main() {
         networkConfig.owner,
         networkConfig.owner,
         deployConfig[strategyImplementation]?.serviceRegistry,
-        hre.ethers.keccak256(Buffer.from('wstETH')),
-        hre.ethers.keccak256(Buffer.from('WETH')),
-        hre.ethers.keccak256(Buffer.from('wstETH/USD Oracle')),
-        hre.ethers.keccak256(Buffer.from('ETH/USD Oracle')),
+        networkConfig.wstETH,
+        networkConfig.weth,
+        networkConfig.oracles.find((o) => o.name === 'wstETH/USD Oracle')?.address,
+        networkConfig.oracles.find((o) => o.name === 'ETH/USD Oracle')?.address,
+        deployConfig[strategyImplementation]?.flashLender,
+        networkConfig.aavev3?.[
+          networkConfig.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].aavev3MarketName
+        ],
+        networkConfig.uniswapRouter02,
         networkConfig.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
         networkConfig.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].AAVEEModeCategory,
       ]),
@@ -145,8 +133,8 @@ async function main() {
         networkConfig.owner,
         networkConfig.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].sharesName,
         networkConfig.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].sharesSymbol,
-        deployConfig[strategyImplementation]?.serviceRegistry,
         deployConfig[strategyImplementation]?.strategyProxy,
+        networkConfig.weth,
       ]),
     ],
   });

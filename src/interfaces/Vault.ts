@@ -99,4 +99,24 @@ export interface VaultMethods {
   redeem(shares: number, receiver: string, owner: string): ContractCallMethod<number>;
 
   asset(): ContractCallMethod<number>;
+
+  getFeeReceiver(): ContractCallMethod<string>;
+
+  getPerformanceFee(): ContractCallMethod<number>;
+
+  getWithdrawalFee(): ContractCallMethod<number>;
+
+  isAccountEnabled(account: string): ContractCallMethod<boolean>;
+
+  setFeeReceiver(receiver: string): ContractSendMethod;
+
+  setPerformanceFee(fee: number): ContractSendMethod;
+
+  setWithdrawalFee(fee: number): ContractSendMethod;
+
+  enableAccount(account: string, enabled: boolean): ContractSendMethod;
+
+  getMaxDeposit(): ContractCallMethod<number>;
+
+  setMaxDeposit(amount: number): ContractSendMethod;
 }

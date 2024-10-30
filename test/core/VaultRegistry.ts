@@ -3,7 +3,7 @@ import { describeif } from '../common';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import { expect } from 'chai';
 import { ethers, network } from 'hardhat';
-import { deployServiceRegistry } from '../../scripts/common';
+import { deployVaultRegistry } from '../../scripts/common';
 
 /***************************************************
  *
@@ -13,11 +13,11 @@ import { deployServiceRegistry } from '../../scripts/common';
 
 async function deployTestFunction() {
   const [owner, otherAccount] = await ethers.getSigners();
-  const serviceRegistry = await deployServiceRegistry(owner.address);
+  const serviceRegistry = await deployVaultRegistry(owner.address);
   return { owner, serviceRegistry, otherAccount };
 }
 
-describeif(network.name === 'hardhat')('ServiceRegistry', function () {
+describeif(network.name === 'hardhat')('VaultRegistry', function () {
   it('Owner is set', async () => {
     const { serviceRegistry } = await loadFixture(deployTestFunction);
     expect(await serviceRegistry.owner()).to.equal('0xf15CC0ccBdDA041e2508B829541917823222F364');

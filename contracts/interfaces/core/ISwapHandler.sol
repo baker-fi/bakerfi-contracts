@@ -37,7 +37,7 @@ abstract contract ISwapHandler {
 
   /// @notice Execute a trade on the swap handler
   /// @param params struct defining the requested trade
-  function _swap(
+  function swap(
     SwapParams memory params
   ) internal virtual returns (uint256 amountIn, uint256 amountOut);
 }

@@ -4,13 +4,12 @@ import { expect } from 'chai';
 import { ethers, network } from 'hardhat';
 import { describeif } from '../common';
 import {
-  deployServiceRegistry,
+  deployVaultRegistry,
   deployCbETH,
   deployAaveV3,
   deployFlashLender,
   deployOracleMock,
   deployWETH,
-  deploySettings,
 } from '../../scripts/common';
 
 import BaseConfig from '../../constants/network-deploy-config';
@@ -24,8 +23,7 @@ describeif(network.name === 'hardhat')('Strategy Proxy', function () {
     const CBETH_MAX_SUPPLY = ethers.parseUnits('1000000000', 18);
     const FLASH_LENDER_DEPOSIT = ethers.parseUnits('10000', 18);
     const AAVE_DEPOSIT = ethers.parseUnits('10000', 18);
-    const serviceRegistry = await deployServiceRegistry(owner.address);
-    const serviceRegistryAddress = await serviceRegistry.getAddress();
+    const serviceRegistry = await deployVaultRegistry(owner.address);
     // Deploy Proxy Admin
     const BakerFiProxyAdmin = await ethers.getContractFactory('BakerFiProxyAdmin');
     const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
@@ -34,16 +32,7 @@ describeif(network.name === 'hardhat')('Strategy Proxy', function () {
 
     const BakerFiProxy = await ethers.getContractFactory('BakerFiProxy');
     // 1. Deploy Flash Lender
-    await deployFlashLender(serviceRegistry, weth, FLASH_LENDER_DEPOSIT);
-
-    const { proxy: settingsProxy } = await deploySettings(
-      owner.address,
-      serviceRegistry,
-      proxyAdmin,
-    );
-
-    const pSettings = await ethers.getContractAt('Settings', await settingsProxy.getAddress());
-
+    const flashLender = await deployFlashLender(serviceRegistry, weth, FLASH_LENDER_DEPOSIT);
     // 2. Deploy cbEBT
     const cbETH = await deployCbETH(serviceRegistry, owner, CBETH_MAX_SUPPLY);
 
@@ -66,10 +55,10 @@ describeif(network.name === 'hardhat')('Strategy Proxy', function () {
     await cbETH.transfer(await uniRouter.getAddress(), ethers.parseUnits('10000', 18));
 
     // Deploy AAVEv3 Mock Pool
-    await deployAaveV3(cbETH, weth, serviceRegistry, AAVE_DEPOSIT);
+    const aave3Pool = await deployAaveV3(cbETH, weth, serviceRegistry, AAVE_DEPOSIT);
     // Deploy cbETH/ETH Oracle
-    await deployOracleMock(serviceRegistry, 'cbETH/USD Oracle');
-    const ethOracle = await deployOracleMock(serviceRegistry, 'ETH/USD Oracle');
+    const oracle = await deployOracleMock();
+    const ethOracle = await deployOracleMock();
     await ethOracle.setLatestPrice(ethers.parseUnits('1', 18));
 
     const StrategyLeverageAAVEv3 = await ethers.getContractFactory('StrategyLeverageAAVEv3');
@@ -81,11 +70,13 @@ describeif(network.name === 'hardhat')('Strategy Proxy', function () {
       StrategyLeverageAAVEv3.interface.encodeFunctionData('initialize', [
         owner.address,
         owner.address,
-        serviceRegistryAddress,
-        ethers.keccak256(Buffer.from('cbETH')),
-        ethers.keccak256(Buffer.from('WETH')),
-        ethers.keccak256(Buffer.from('cbETH/USD Oracle')),
-        ethers.keccak256(Buffer.from('ETH/USD Oracle')),
+        await cbETH.getAddress(),
+        await weth.getAddress(),
+        await oracle.getAddress(),
+        await ethOracle.getAddress(),
+        await flashLender.getAddress(),
+        await aave3Pool.getAddress(),
+        await uniRouter.getAddress(),
         config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
         (config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH] as AAVEv3Market)
           .AAVEEModeCategory,
@@ -97,13 +88,12 @@ describeif(network.name === 'hardhat')('Strategy Proxy', function () {
       owner,
       otherAccount,
       strategyProxy,
-      settings: pSettings,
     };
   }
 
   it('Strategy Initialization', async function () {
     const { strategyProxy } = await loadFixture(deployFunction);
     expect(await strategyProxy.getPosition([0, 0])).to.deep.equal([0n, 0n, 0n]);
-    expect(await strategyProxy.totalAssets([0, 0])).to.equal(0);
+    expect(await strategyProxy.totalAssets()).to.equal(0);
   });
 });

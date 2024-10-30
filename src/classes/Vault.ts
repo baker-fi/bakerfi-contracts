@@ -231,4 +231,68 @@ export class Vault extends Model<VaultMethods> implements Deployable {
   async getWithdrawEvents(filter: PastEventOptions): XPromiseEvent<Events.WithdrawEvent> {
     return this.contract.self.getPastEvents('Withdraw', filter);
   }
+
+  async getFeeReceiverChangedEvents(
+    filter: PastEventOptions,
+  ): XPromiseEvent<Events.FeeReceiverChangedEvent> {
+    return this.contract.self.getPastEvents('FeeReceiverChanged', filter);
+  }
+
+  async getPerformanceFeeChangedEvents(
+    filter: PastEventOptions,
+  ): XPromiseEvent<Events.PerformanceFeeChangedEvent> {
+    return this.contract.self.getPastEvents('PerformanceFeeChanged', filter);
+  }
+
+  async getWithdrawalFeeChangedEvents(
+    filter: PastEventOptions,
+  ): XPromiseEvent<Events.WithdrawalFeeChangedEvent> {
+    return this.contract.self.getPastEvents('WithdrawalFeeChanged', filter);
+  }
+
+  async getAccountWhiteListEvents(
+    filter: PastEventOptions,
+  ): XPromiseEvent<Events.AccountWhiteListEvent> {
+    return this.contract.self.getPastEvents('AccountWhiteList', filter);
+  }
+
+  async getFeeReceiver() {
+    return this.callTx(this.contract.methods.getFeeReceiver());
+  }
+
+  async getPerformanceFee() {
+    return this.callTx(this.contract.methods.getPerformanceFee());
+  }
+
+  async getWithdrawalFee() {
+    return this.callTx(this.contract.methods.getWithdrawalFee());
+  }
+
+  async setFeeReceiver(receiver: string) {
+    return this.sendTx(this.contract.methods.setFeeReceiver(receiver));
+  }
+
+  async setPerformanceFee(fee: number) {
+    return this.sendTx(this.contract.methods.setPerformanceFee(fee));
+  }
+
+  async setWithdrawalFee(fee: number) {
+    return this.sendTx(this.contract.methods.setWithdrawalFee(fee));
+  }
+
+  async enableAccount(account: string, enabled: boolean) {
+    return this.sendTx(this.contract.methods.enableAccount(account, enabled));
+  }
+
+  async isAccountEnabled(account: string) {
+    return this.callTx(this.contract.methods.isAccountEnabled(account));
+  }
+
+  async getMaxDeposit() {
+    return this.callTx(this.contract.methods.getMaxDeposit());
+  }
+
+  async setMaxDepositIn(amount: number) {
+    return this.sendTx(this.contract.methods.setMaxDeposit(amount));
+  }
 }

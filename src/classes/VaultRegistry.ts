@@ -6,20 +6,20 @@ import {
   XPromiseEvent,
 } from '@taikai/dappkit';
 
-import ServiceRegistryJson from '../../artifacts/contracts/core/ServiceRegistry.sol/ServiceRegistry.json';
-import { ServiceRegistryMethods } from '@interfaces/ServiceRegistry';
-import * as Events from '@events/ServiceRegistry';
+import VaultRegistryJson from '../../artifacts/contracts/core/VaultRegistry.sol/VaultRegistry.json';
+import { VaultRegistryMethods } from '@interfaces/VaultRegistry';
+import * as Events from '@events/VaultRegistry';
 import { PastEventOptions } from 'web3-eth-contract';
 import { AbiItem } from 'web3-utils';
 
-export class ServiceRegistry extends Model<ServiceRegistryMethods> implements Deployable {
+export class VaultRegistry extends Model<VaultRegistryMethods> implements Deployable {
   constructor(web3Connection: Web3Connection | Web3ConnectionOptions, contractAddress?: string) {
-    super(web3Connection, ServiceRegistryJson.abi as AbiItem[], contractAddress);
+    super(web3Connection, VaultRegistryJson.abi as AbiItem[], contractAddress);
   }
 
   async deployJsonAbi(ownerToSet: string) {
     const deployOptions = {
-      data: ServiceRegistryJson.bytecode,
+      data: VaultRegistryJson.bytecode,
       arguments: [ownerToSet],
     };
     return this.deploy(deployOptions, this.connection.Account);

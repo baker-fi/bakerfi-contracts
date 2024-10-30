@@ -3,7 +3,7 @@ pragma solidity ^0.8.24;
 import "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashBorrowerUpgradeable.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import { ServiceRegistry } from "../core/ServiceRegistry.sol";
+import { VaultRegistry } from "../core/VaultRegistry.sol";
 import { UseFlashLender } from "../core/hooks/UseFlashLender.sol";
 import { UseStrategy } from "../core/hooks/UseStrategy.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -18,9 +18,9 @@ contract BorrowerAttacker is IERC3156FlashBorrowerUpgradeable, UseFlashLender, U
 
   using SafeERC20 for IERC20;
 
-  function initialize(ServiceRegistry registry) public initializer {
-    _initUseFlashLender(registry);
-    _initUseStrategy(registry);
+  function initialize(address flashLender, address istrategy) public initializer {
+    _initUseFlashLender(flashLender);
+    _initUseStrategy(istrategy);
   }
 
   function borrowed(address token) external view returns (uint256) {

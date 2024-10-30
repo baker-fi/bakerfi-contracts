@@ -18,7 +18,10 @@ describeif(network.name === 'hardhat')('StrategyLeverageSettings', function () {
     const { settings, owner, otherAccount } = await loadFixture(deployFunction);
     expect(await settings.governor()).to.equal(otherAccount.address);
 
-    await settings.connect(otherAccount).transferGovernorship(owner.address);
+    await settings
+      .connect(otherAccount)
+      // @ts-expect-error
+      .transferGovernorship(owner.address);
     expect(await settings.governor()).to.equal(owner.address);
   });
 
@@ -27,7 +30,6 @@ describeif(network.name === 'hardhat')('StrategyLeverageSettings', function () {
     await expect(
       // @ts-expect-error
       settings.connect(owner).transferGovernorship(owner.address),
-      // @ts-expect-error
     ).to.be.revertedWithCustomError(settings, 'CallerNotTheGovernor');
   });
 
@@ -36,8 +38,8 @@ describeif(network.name === 'hardhat')('StrategyLeverageSettings', function () {
     await expect(
       settings
         .connect(otherAccount)
+        // @ts-expect-error
         .transferGovernorship('0x0000000000000000000000000000000000000000'),
-      // @ts-expect-error
     ).to.be.revertedWithCustomError(settings, 'InvalidGovernorAddress');
   });
 
@@ -54,7 +56,6 @@ describeif(network.name === 'hardhat')('StrategyLeverageSettings', function () {
     await expect(
       // @ts-expect-error
       settings.connect(otherAccount).setLoanToValue(1100 * 1e6),
-      // @ts-expect-error
     ).to.be.revertedWithCustomError(settings, 'InvalidValue');
   });
 
@@ -71,7 +72,6 @@ describeif(network.name === 'hardhat')('StrategyLeverageSettings', function () {
     await expect(
       // @ts-expect-error
       settings.connect(otherAccount).setMaxLoanToValue(400 * 1e6),
-      // @ts-expect-error
     ).to.be.revertedWithCustomError(settings, 'InvalidMaxLoanToValue');
   });
 
@@ -80,7 +80,6 @@ describeif(network.name === 'hardhat')('StrategyLeverageSettings', function () {
     await expect(
       // @ts-expect-error
       settings.connect(otherAccount).setMaxLoanToValue(1100 * 1e6),
-      // @ts-expect-error
     ).to.be.revertedWithCustomError(settings, 'InvalidPercentage');
   });
 
@@ -105,7 +104,6 @@ describeif(network.name === 'hardhat')('StrategyLeverageSettings', function () {
     await expect(
       // @ts-expect-error
       settings.connect(otherAccount).setNrLoops(30),
-      // @ts-expect-error
     ).to.be.revertedWithCustomError(settings, 'InvalidLoopCount');
   });
 
@@ -119,22 +117,18 @@ describeif(network.name === 'hardhat')('StrategyLeverageSettings', function () {
 
   it('Change Max Slippage ❌ - Invalid Value', async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
-    // @ts-expect-error
     await expect(
       // @ts-expect-error
       settings.connect(otherAccount).setMaxSlippage(2 * 1e9),
-      // @ts-expect-error
     ).to.be.revertedWithCustomError(settings, 'InvalidPercentage');
   });
 
   it('Change Max Slippage ❌ - No Permissions', async function () {
     const { settings, otherAccount } = await loadFixture(deployFunction);
-    // @ts-expect-error
-    await expect(
-      // @ts-expect-error
-      settings.setMaxSlippage(1 * 1e8),
-      // @ts-expect-error
-    ).to.be.revertedWithCustomError(settings, 'CallerNotTheGovernor');
+    await expect(settings.setMaxSlippage(1 * 1e8)).to.be.revertedWithCustomError(
+      settings,
+      'CallerNotTheGovernor',
+    );
   });
 
   it('Change Max Slippage ✅  Allow 0% Slippage', async function () {

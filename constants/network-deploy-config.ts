@@ -1,6 +1,5 @@
 import { feedIds } from './pyth';
 import { AAVEv3MarketNames, DeployConfig, OracleNamesEnum, StrategyImplementation } from './types';
-
 import { NetworkEnum } from './types';
 
 const Config: DeployConfig = {

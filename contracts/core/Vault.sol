@@ -5,19 +5,18 @@ import { Ownable2StepUpgradeable } from "@openzeppelin/contracts-upgradeable/acc
 import { PausableUpgradeable } from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import { Rebase, RebaseLibrary } from "../libraries/RebaseLibrary.sol";
 import { IERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import { ServiceRegistry } from "../core/ServiceRegistry.sol";
+import { VaultRegistry } from "../core/VaultRegistry.sol";
 import { IVault } from "../interfaces/core/IVault.sol";
-import { IOracle } from "../interfaces/core/IOracle.sol";
 import { IStrategy } from "../interfaces/core/IStrategy.sol";
 import { SafeERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import { PERCENTAGE_PRECISION } from "./Constants.sol";
 import { ERC20PermitUpgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20PermitUpgradeable.sol";
-import { UseSettings } from "./hooks/UseSettings.sol";
 import { UseWETH } from "./hooks/UseWETH.sol";
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import { AddressUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import { MathLibrary } from "../libraries/MathLibrary.sol";
 import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import { VaultSettings } from "./VaultSettings.sol";
 
 /**
  * @title BakerFi Vault 🏦🧑‍🍳
@@ -44,18 +43,13 @@ import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/ac
  *
  * The Vault follows the ERC-4626 Specification and can be integrated by any Aggregator
  *
- * Release Notes:
- *
- * 1.1 - ERC-4626 Compliant
- * 1.2 - The Vault is not memory compatible with 1.1
- *
  */
 contract Vault is
   Ownable2StepUpgradeable,
   PausableUpgradeable,
   ReentrancyGuardUpgradeable,
   ERC20PermitUpgradeable,
-  UseSettings,
+  VaultSettings,
   UseWETH,
   AccessControlUpgradeable,
   IVault
@@ -66,7 +60,6 @@ contract Vault is
   using AddressUpgradeable for address payable;
   using MathLibrary for uint256;
 
-  error InvalidOwner();
   error InvalidDepositAmount();
   error InvalidAssetsState();
   error MaxDepositReached();
@@ -75,7 +68,6 @@ contract Vault is
   error NoAssetsToWithdraw();
   error NoPermissions();
   error InvalidShareBalance();
-  error ETHTransferNotAllowed(address sender);
   error InvalidDepositAsset();
   error InvalidReceiver();
   error NoAllowance();
@@ -102,7 +94,7 @@ contract Vault is
    * If the caller's address is not whitelisted, the function call will be rejected.
    */
   modifier onlyWhiteListed() {
-    if (!settings().isAccountEnabled(msg.sender)) revert NoPermissions();
+    if (!isAccountEnabled(msg.sender)) revert NoPermissions();
     _;
   }
 
@@ -111,38 +103,41 @@ contract Vault is
     _disableInitializers();
   }
 
+  receive() external payable override {
+    if (msg.sender != wETHA()) revert ETHTransferNotAllowed(msg.sender);
+  }
   /**
    * @dev Initializes the contract with specified parameters.
    *
    * This function is designed to be called only once during the contract deployment.
    * It sets up the initial state of the contract, including ERC20 and ERC20Permit
-   * initializations, ownership transfer, and configuration of the ServiceRegistry
+   * initializations, ownership transfer, and configuration of the VaultRegistry
    * and Strategy.
    *
    * @param initialOwner The address that will be set as the initial owner of the contract.
-   * @param registry The ServiceRegistry contract to be associated with this contract.
    * @param strategy The IStrategy contract to be set as the strategy for this contract.
-   *
+   * @param weth The WETH contract to be set as the WETH for this contract.
+
    * Emits an {OwnershipTransferred} event and initializes ERC20 and ERC20Permit features.
-   * It also ensures that the initialOwner is a valid address and sets up the ServiceRegistry
+   * It also ensures that the initialOwner is a valid address and sets up the VaultRegistry
    * and Strategy for the contract.
    */
   function initialize(
     address initialOwner,
     string calldata tokenName,
     string calldata tokenSymbol,
-    ServiceRegistry registry,
-    IStrategy strategy
+    IStrategy strategy,
+    address weth
   ) public initializer {
     __ERC20Permit_init(tokenName);
     __ERC20_init(tokenName, tokenSymbol);
-    _initUseWETH(registry);
+    _initUseWETH(weth);
     __AccessControl_init();
     if (initialOwner == address(0)) revert InvalidOwner();
-    _transferOwnership(initialOwner);
     _grantRole(DEFAULT_ADMIN_ROLE, initialOwner);
     _grantRole(PAUSER_ROLE, initialOwner);
-    _initUseSettings(registry);
+    _initializeVaultSettings();
+    _transferOwnership(initialOwner);
     _strategy = strategy;
   }
 
@@ -158,12 +153,7 @@ contract Vault is
    *
    */
   function rebalance() external override nonReentrant whenNotPaused returns (int256 balanceChange) {
-    IOracle.PriceOptions memory priceOptions = IOracle.PriceOptions({
-      maxAge: settings().getRebalancePriceMaxAge(),
-      maxConf: settings().getPriceMaxConf()
-    });
-
-    uint256 currentPosition = _totalAssets(priceOptions);
+    uint256 currentPosition = totalAssets();
 
     if (currentPosition == 0) {
       return 0;
@@ -175,8 +165,8 @@ contract Vault is
       return balanceChange;
     }
 
-    address feeReceiver = settings().getFeeReceiver();
-    uint256 performanceFee = settings().getPerformanceFee();
+    address feeReceiver = getFeeReceiver();
+    uint256 performanceFee = getPerformanceFee();
 
     if (feeReceiver != address(this) && feeReceiver != address(0) && performanceFee > 0) {
       uint256 feeInEth = uint256(balanceChange) * performanceFee;
@@ -189,21 +179,6 @@ contract Vault is
     }
 
     return balanceChange;
-  }
-
-  /**
-   * @dev Fallback function to receive Ether.
-   *
-   * This function is marked as external and payable. It is automatically called
-   * when Ether is sent to the contract, such as during a regular transfer or as part
-   * of a self-destruct operation.
-   *
-   * Only Transfers from the strategy during the withdraw are allowed
-   *
-   * Emits no events and allows the contract to accept Ether.
-   */
-  receive() external payable {
-    if (msg.sender != wETHA()) revert ETHTransferNotAllowed(msg.sender);
   }
 
   function maxMint(address) external pure override returns (uint256 maxShares) {
@@ -265,14 +240,8 @@ contract Vault is
   function _depositInternal(uint256 assets, address receiver) private returns (uint256 shares) {
     if (receiver == address(0)) revert InvalidReceiver();
     // Fetch price options from settings
-
-    IOracle.PriceOptions memory priceOptions = IOracle.PriceOptions({
-      maxAge: settings().getPriceMaxAge(),
-      maxConf: settings().getPriceMaxConf()
-    });
-
     // Get the total assets and total supply
-    Rebase memory total = Rebase(_totalAssets(priceOptions), totalSupply());
+    Rebase memory total = Rebase(totalAssets(), totalSupply());
 
     // Check if the Rebase is uninitialized or both base and elastic are positive
     if (!((total.elastic == 0 && total.base == 0) || (total.base > 0 && total.elastic > 0))) {
@@ -280,11 +249,11 @@ contract Vault is
     }
 
     // Check if deposit exceeds the maximum allowed per wallet
-    uint256 maxDepositInEth = settings().getMaxDepositInETH();
-    if (maxDepositInEth > 0) {
-      uint256 depositInEth = (assets * _ONE) / _tokenPerAsset(priceOptions);
-      uint256 newBalance = balanceOf(msg.sender) + depositInEth;
-      if (newBalance > maxDepositInEth) revert MaxDepositReached();
+    uint256 maxDepositLocal = getMaxDeposit();
+    if (maxDepositLocal > 0) {
+      uint256 depositInAssets = (balanceOf(msg.sender) * _ONE) / tokenPerAsset();
+      uint256 newBalance = assets + depositInAssets;
+      if (newBalance > maxDepositLocal) revert MaxDepositReached();
     }
 
     // Approve the strategy to spend assets
@@ -424,20 +393,20 @@ contract Vault is
     _burn(msg.sender, shares);
 
     // Calculate and handle withdrawal fees
-    if (settings().getWithdrawalFee() != 0 && settings().getFeeReceiver() != address(0)) {
-      fee = amount.mulDivUp(settings().getWithdrawalFee(), PERCENTAGE_PRECISION);
+    if (getWithdrawalFee() != 0 && getFeeReceiver() != address(0)) {
+      fee = amount.mulDivUp(getWithdrawalFee(), PERCENTAGE_PRECISION);
 
       if (shouldRedeemETH) {
-        _unwrapWETH(amount);
+        unwrapETH(amount);
         payable(receiver).sendValue(amount - fee);
-        payable(settings().getFeeReceiver()).sendValue(fee);
+        payable(getFeeReceiver()).sendValue(fee);
       } else {
         IERC20Upgradeable(_strategy.asset()).transfer(receiver, amount - fee);
-        IERC20Upgradeable(_strategy.asset()).transfer(settings().getFeeReceiver(), fee);
+        IERC20Upgradeable(_strategy.asset()).transfer(getFeeReceiver(), fee);
       }
     } else {
       if (shouldRedeemETH) {
-        _unwrapWETH(amount);
+        unwrapETH(amount);
         payable(receiver).sendValue(amount);
       } else {
         IERC20Upgradeable(_strategy.asset()).transfer(receiver, amount);
@@ -457,19 +426,9 @@ contract Vault is
    * @return amount The total assets under management by the strategy
    */
   function totalAssets() public view override returns (uint256 amount) {
-    amount = _strategy.totalAssets(IOracle.PriceOptions({ maxAge: 0, maxConf: 0 }));
+    amount = _strategy.totalAssets();
   }
 
-  /**
-   * @dev Retrieves the total assets and reverts when the prices are outdated and a priceAge is
-   * bigger than 0.
-   * @param priceOptions The maximum age of the price without reverting
-   */
-  function _totalAssets(
-    IOracle.PriceOptions memory priceOptions
-  ) private view returns (uint256 amount) {
-    amount = _strategy.totalAssets(priceOptions);
-  }
   /**
    * @dev Converts the specified amount of ETH/ERC20 to shares.
    *
@@ -512,14 +471,8 @@ contract Vault is
    *
    * @return rate The calculated token-to-ETH exchange rate.
    */
-  function tokenPerAsset() external view override returns (uint256) {
-    return _tokenPerAsset(IOracle.PriceOptions({ maxAge: 0, maxConf: 0 }));
-  }
-
-  function _tokenPerAsset(
-    IOracle.PriceOptions memory priceOptions
-  ) internal view returns (uint256) {
-    uint256 totalAssetsValue = _totalAssets(priceOptions);
+  function tokenPerAsset() public view returns (uint256) {
+    uint256 totalAssetsValue = totalAssets();
 
     if (totalSupply() == 0 || totalAssetsValue == 0) {
       return _ONE;

@@ -2,14 +2,13 @@ import { ethers, network } from 'hardhat';
 import {
   deployAaveV3,
   deployFlashLender,
-  deployServiceRegistry,
+  deployVaultRegistry,
   deployStEth,
   deployWSTETHToUSDPythOracle,
   deployVault,
   deployWETH,
   deployETHOracle,
   deployWStEth,
-  deploySettings,
   deployBKR,
   deployAAVEv3Strategy,
 } from './common';
@@ -49,9 +48,8 @@ async function main() {
   result.push(['Proxy Admin', await proxyAdmin.getAddress()]);
 
   // 1. Deploy the Service Registry
-  const serviceRegistry = await deployServiceRegistry(owner.address);
+  const serviceRegistry = await deployVaultRegistry(owner.address);
   spinner.text = 'Deploying Registry';
-  //console.log(" Service Registry =", await serviceRegistry.getAddress());
   result.push(['Service Registry', await serviceRegistry.getAddress()]);
 
   // 3. Deploy the WETH
@@ -77,16 +75,6 @@ async function main() {
   spinner.text = 'Deploying WstETH';
   const wstETH = await deployWStEth(serviceRegistry, await stETH.getAddress());
   result.push(['WstETH', await wstETH.getAddress()]);
-
-  // Deploy Settings with a Proxy
-  spinner.text = 'Deploying Settings Proxied';
-  const { settings, proxy: settingsProxy } = await deploySettings(
-    owner.address,
-    serviceRegistry,
-    proxyAdmin,
-  );
-  result.push(['Settings', await settings.getAddress()]);
-  result.push(['Settings (Proxy)', await settingsProxy.getAddress()]);
 
   // Deploy cbETH -> ETH Uniswap Router
   spinner.text = 'Deploying Uniswap Router Mock';
@@ -152,11 +140,13 @@ async function main() {
   const { strategy, proxy: strategyProxy } = await deployAAVEv3Strategy(
     owner.address,
     owner.address,
-    await serviceRegistry.getAddress(),
-    'wstETH',
-    'WETH',
-    'wstETH/USD Oracle',
-    'ETH/USD Oracle',
+    await wstETH.getAddress(),
+    await weth.getAddress(),
+    await oracle.getAddress(),
+    await ethOracle.getAddress(),
+    await flashLender.getAddress(),
+    await aaveV3PoolMock.getAddress(),
+    await uniRouter.getAddress(),
     config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
     (config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH] as AAVEv3Market).AAVEEModeCategory,
     proxyAdmin,
@@ -181,6 +171,7 @@ async function main() {
     config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].sharesSymbol,
     await serviceRegistry.getAddress(),
     await strategyProxy.getAddress(),
+    await weth.getAddress(),
     proxyAdmin,
   );
   result.push(['BakerFi Vault 🕋', await vault.getAddress()]);

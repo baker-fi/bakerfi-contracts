@@ -41,7 +41,8 @@ These are the on-chain contracts deployed by the protocol to provide the money i
 
 
 ## 1.4 Version (In Progress)
-*  Exported Errors and Functions selection
+* Exported Errors and Functions selection
+* Vault Router to execute a sequence of commands (MultiCommand)
 
 ## Compatibility Matrix*
 

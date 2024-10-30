@@ -24,7 +24,7 @@ async function main() {
 }
 
 async function contracts(registerAddress: any) {
-  const registry = await hre.ethers.getContractAt('ServiceRegistry', registerAddress);
+  const registry = await hre.ethers.getContractAt('VaultRegistry', registerAddress);
   const constractKeys = [
     'FlashLender',
     'WETH',
@@ -37,7 +37,6 @@ async function contracts(registerAddress: any) {
     'Uniswap Router',
     'Swapper Handler',
     'Balancer Vault',
-    'Settings',
   ];
   for (const contractKey of constractKeys) {
     const address = await registry.getService(contractKey);
@@ -46,7 +45,7 @@ async function contracts(registerAddress: any) {
 }
 
 async function price(registerAddress: any) {
-  const registry = await hre.ethers.getContractAt('ServiceRegistry', registerAddress);
+  const registry = await hre.ethers.getContractAt('VaultRegistry', registerAddress);
   const oracleAddress = await registry.getService('cbETH/ETH Oracle');
   console.log('bETH/ETH Oracle =', oracleAddress);
   const oracle = await hre.ethers.getContractAt('ChainLinkOracle', oracleAddress);

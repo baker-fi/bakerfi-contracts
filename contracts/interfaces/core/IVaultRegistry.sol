@@ -7,9 +7,9 @@ pragma solidity ^0.8.24;
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
  */
-interface IServiceRegistry {
+interface IVaultRegistry {
   /**
-   * @dev Emitted when a service is unregistered from the ServiceRegistry.
+   * @dev Emitted when a service is unregistered from the VaultRegistry.
    *
    * This event provides the name hash of the unregistered service.
    *
@@ -18,7 +18,7 @@ interface IServiceRegistry {
   event ServiceUnregistered(bytes32 nameHash);
 
   /**
-   * @dev Emitted when a service is registered in the ServiceRegistry.
+   * @dev Emitted when a service is registered in the VaultRegistry.
    *
    * This event provides the name hash of the registered service and its address.
    *
@@ -28,7 +28,7 @@ interface IServiceRegistry {
   event ServiceRegistered(bytes32 nameHash, address service);
 
   /**
-   * @dev Registers a new service in the ServiceRegistry.
+   * @dev Registers a new service in the VaultRegistry.
    *
    * @param serviceNameHash The hash of the name of the service to be registered.
    * @param serviceAddress The address of the service to be registered.
@@ -36,7 +36,7 @@ interface IServiceRegistry {
   function registerService(bytes32 serviceNameHash, address serviceAddress) external;
 
   /**
-   * @dev Unregisters an existing service from the ServiceRegistry.
+   * @dev Unregisters an existing service from the VaultRegistry.
    *
    * @param serviceNameHash The hash of the name of the service to be unregistered.
    *

@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.24;
-pragma experimental ABIEncoderV2;
 
-import { ServiceRegistry, WETH_CONTRACT } from "../ServiceRegistry.sol";
 import { IWETH } from "../../interfaces/tokens/IWETH.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -18,27 +16,44 @@ import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/I
  * @author Chef Kal-El <chef.kal-el@bakerfi.xyz>
  */
 abstract contract UseWETH is Initializable {
-  address private _wETH;
   using SafeERC20 for IERC20;
 
   error InvalidWETHContract();
   error FailedAllowance();
+  error InvalidWETHAmount();
+  error InsufficientWETHBalance();
+  error ETHTransferNotAllowed(address sender);
+
+  IWETH private _wETH;
 
   /**
    * @dev Initializes the UseWETH contract.
-   * @param registry The address of the ServiceRegistry contract for accessing WETH.
+   * @param weth The address of the VaultRegistry contract for accessing WETH.
    */
-  function _initUseWETH(ServiceRegistry registry) internal onlyInitializing {
-    _wETH = registry.getServiceFromHash(WETH_CONTRACT);
-    if (_wETH == address(0)) revert InvalidWETHContract();
+  function _initUseWETH(address weth) internal onlyInitializing {
+    _wETH = IWETH(weth);
+    if (address(_wETH) == address(0)) revert InvalidWETHContract();
   }
+
+  /**
+   * @dev Fallback function to receive Ether.
+   *
+   * This function is marked as external and payable. It is automatically called
+   * when Ether is sent to the contract, such as during a regular transfer or as part
+   * of a self-destruct operation.
+   *
+   * Only Transfers from the strategy during the withdraw are allowed
+   *
+   * Emits no events and allows the contract to accept Ether.
+   */
+  receive() external payable virtual {}
 
   /**
    * @dev Returns the IWETH interface.
    * @return The IWETH interface.
    */
   function wETH() internal view returns (IWETH) {
-    return IWETH(_wETH);
+    return _wETH;
   }
 
   /**
@@ -46,15 +61,45 @@ abstract contract UseWETH is Initializable {
    * @return The address of the WETH contract.
    */
   function wETHA() internal view returns (address) {
-    return _wETH;
+    return address(_wETH);
   }
 
   /**
    * @dev Unwraps a specified amount of WETH to Ether.
    * @param wETHAmount The amount of WETH to unwrap.
    */
-  function _unwrapWETH(uint256 wETHAmount) internal {
-    if (!IERC20(address(_wETH)).approve(address(_wETH), wETHAmount)) revert FailedAllowance();
+  function unwrapETH(uint256 wETHAmount) internal virtual {
+    // Validate the WETH amount to ensure it is non-zero
+    if (wETHAmount == 0) revert InvalidWETHAmount();
+
+    // Check if the contract has sufficient WETH balance to unwrap
+    uint256 wETHBalance = _wETH.balanceOf(address(this));
+    if (wETHBalance < wETHAmount) revert InsufficientWETHBalance();
+
+    // Unwrap the specified amount of WETH to Ether
     wETH().withdraw(wETHAmount);
+  }
+
+  function wrapETH(uint256 amount) internal virtual {
+    if (address(this).balance < amount) revert InvalidWETHAmount();
+
+    wETH().deposit{ value: amount }();
+  }
+}
+
+/**
+ * @dev This contract is abstract and cannot be deployed directly.
+ */
+contract UseWETHMock is UseWETH {
+  function initialize(address initialOwner) public initializer {
+    _initUseWETH(initialOwner);
+  }
+
+  function test__unwrapETH(uint256 wETHAmount) external {
+    unwrapETH(wETHAmount);
+  }
+
+  function test__wrapETH(uint256 amount) external {
+    wrapETH(amount);
   }
 }

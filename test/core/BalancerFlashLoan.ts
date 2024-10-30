@@ -2,14 +2,15 @@ import '@nomicfoundation/hardhat-ethers';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import { expect } from 'chai';
 import { ethers, network } from 'hardhat';
-import BaseConfig, { NetworkConfig } from '../../constants/network-deploy-config';
+import BaseConfig from '../../constants/network-deploy-config';
 import { describeif } from '../common';
 import {
-  deployServiceRegistry,
+  deployVaultRegistry,
   deployBalancerFL,
   deployMockERC20,
   deployFlashBorrowerMock,
 } from '../../scripts/common';
+import { NetworkConfig } from '../../constants/types';
 
 describeif(network.name === 'arbitrum_devnet')('BalancerFlashLoan', function () {
   it('Borrow from Balancer Vault', async function () {
@@ -21,19 +22,19 @@ describeif(network.name === 'arbitrum_devnet')('BalancerFlashLoan', function () 
 
 describeif(network.name === 'hardhat')('Balancer Flash Loan', function () {
   it('Borrow 10ETH', async () => {
-    const { weth, owner, fl, config, borrower } = await loadFixture(deployFunction);
+    const { weth, borrower } = await loadFixture(deployFunction);
     await borrower.flashme(await weth.getAddress(), ethers.parseUnits('10', 18));
     expect(await borrower.borrowed(await weth.getAddress())).to.equal(ethers.parseUnits('10', 18));
   });
 
   it('Get Max Loan 10ETH', async () => {
-    const { weth, owner, fl, config, borrower } = await loadFixture(deployFunction);
+    const { weth, fl } = await loadFixture(deployFunction);
 
     expect(await fl.maxFlashLoan(weth)).to.equal(ethers.parseUnits('100', 18));
   });
 
   it('No Enough Balance to borrow', async () => {
-    const { weth, balancerVault, fl, config, borrower } = await loadFixture(deployFunction);
+    const { weth, balancerVault, borrower } = await loadFixture(deployFunction);
     await expect(
       borrower.flashme(await weth.getAddress(), ethers.parseUnits('10000', 18)),
       // @ts-ignore
@@ -41,16 +42,15 @@ describeif(network.name === 'hardhat')('Balancer Flash Loan', function () {
   });
 
   it('Flash Fee 0', async () => {
-    const { weth, owner, fl, config, borrower } = await loadFixture(deployFunction);
+    const { weth, fl } = await loadFixture(deployFunction);
     expect(await fl.flashFee(await weth.getAddress(), ethers.parseUnits('10', 18))).to.equal(0n);
   });
 });
 
 async function deployProdFunction() {
   // ETH Token
-
   const [owner, otherAccount] = await ethers.getSigners();
-  const serviceRegistry = await deployServiceRegistry(owner.address);
+  const serviceRegistry = await deployVaultRegistry(owner.address);
   const networkName = network.name;
   const config: NetworkConfig = BaseConfig[networkName];
 
@@ -66,8 +66,8 @@ async function deployProdFunction() {
 
   await serviceRegistry.registerService(ethers.keccak256(Buffer.from('WETH')), config.weth);
 
-  const fl = await deployBalancerFL(serviceRegistry);
-  const borrower = await deployFlashBorrowerMock(serviceRegistry);
+  const fl = await deployBalancerFL(config.balancerVault);
+  const borrower = await deployFlashBorrowerMock(await fl.getAddress());
 
   // Add the ETH/CBV
   return { owner, otherAccount, weth, wstETH, config, fl, borrower };
@@ -76,7 +76,7 @@ async function deployProdFunction() {
 async function deployFunction() {
   // ETH Token
   const [owner, otherAccount] = await ethers.getSigners();
-  const serviceRegistry = await deployServiceRegistry(owner.address);
+  const serviceRegistry = await deployVaultRegistry(owner.address);
   const networkName = network.name;
   const config: NetworkConfig = BaseConfig[networkName];
 
@@ -92,14 +92,9 @@ async function deployFunction() {
   // Balancer Vault 100 ETH
   await weth.transfer(await balancerVault.getAddress(), ethers.parseUnits('100', 18));
 
-  await serviceRegistry.registerService(
-    ethers.keccak256(Buffer.from('Balancer Vault')),
-    await balancerVault.getAddress(),
-  );
-
   // Balancer Flash Loan Adapter
-  const fl = await deployBalancerFL(serviceRegistry);
+  const fl = await deployBalancerFL(await balancerVault.getAddress());
 
-  const borrower = await deployFlashBorrowerMock(serviceRegistry);
+  const borrower = await deployFlashBorrowerMock(await fl.getAddress());
   return { owner, otherAccount, weth, borrower, config, fl, balancerVault };
 }

@@ -4,14 +4,13 @@ import { expect } from 'chai';
 import { ethers, network } from 'hardhat';
 import { describeif } from '../common';
 import {
-  deployServiceRegistry,
+  deployVaultRegistry,
   deployVault,
   deployAaveV3,
   deployFlashLender,
   deployOracleMock,
   deployWETH,
   deployCbETH,
-  deploySettings,
   deployAAVEv3Strategy,
 } from '../../scripts/common';
 import { AAVEv3Market, NetworkConfig, StrategyImplementation } from '../../constants/types';
@@ -33,6 +32,10 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
     expect((await strategy.getPosition([0, 0]))[1]).to.equal(0);
     expect((await strategy.getPosition([0, 0]))[2]).to.equal(0);
     expect(await vault.tokenPerAsset()).to.equal(ethers.parseUnits('1', 18));
+    expect(await vault.getWithdrawalFee()).to.equal(10 * 1e6);
+    expect(await vault.getPerformanceFee()).to.equal(10 * 1e6);
+    expect(await vault.getFeeReceiver()).to.equal('0x0000000000000000000000000000000000000000');
+    expect(await vault.getMaxDeposit()).to.equal(0);
   });
 
   it('Deposit - Emit Strategy Amount Update', async function () {
@@ -151,9 +154,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
   });
 
   it('Harvest Profit on Rebalance', async function () {
-    const { owner, vault, oracle, otherAccount, strategy, settings } = await loadFixture(
-      deployFunction,
-    );
+    const { owner, vault, oracle, otherAccount, strategy } = await loadFixture(deployFunction);
     await vault.depositNative(owner.address, {
       value: ethers.parseUnits('10', 18),
     });
@@ -167,7 +168,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
     expect(await vault.totalAssets()).to.equal(10408833417704232537n);
     expect((await strategy.getPosition([0, 0]))[0]).to.equal(106374761510910976000000n);
     expect((await strategy.getPosition([0, 0]))[1]).to.equal(82382400483102720000000n);
-    await settings.setFeeReceiver(otherAccount.address);
+    await vault.setFeeReceiver(otherAccount.address);
     await expect(vault.rebalance())
       // @ts-ignore
       .to.emit(vault, 'Transfer')
@@ -180,13 +181,13 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
   });
 
   it('Withdraw With Service Fees', async function () {
-    const { owner, vault, settings, otherAccount } = await loadFixture(deployFunction);
+    const { owner, vault, otherAccount } = await loadFixture(deployFunction);
 
     const provider = ethers.provider;
     const depositAmount = ethers.parseUnits('10', 18);
 
-    await settings.setFeeReceiver(otherAccount.address);
-    expect(await settings.getFeeReceiver()).to.equal(otherAccount.address);
+    await vault.setFeeReceiver(otherAccount.address);
+    expect(await vault.getFeeReceiver()).to.equal(otherAccount.address);
     await vault.depositNative(owner.address, {
       value: depositAmount,
     });
@@ -415,8 +416,8 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
   });
 
   it('convertToShares - 1ETH', async function () {
-    const { owner, vault, strategy, settings } = await loadFixture(deployFunction);
-    await settings.setPriceMaxAge(0);
+    const { owner, vault, strategy } = await loadFixture(deployFunction);
+    await strategy.setPriceMaxAge(0);
     await vault.depositNative(owner.address, {
       value: ethers.parseUnits('10', 18),
     });
@@ -425,8 +426,8 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
   });
 
   it('convertToAssets - 1e18 brETH', async function () {
-    const { owner, settings, vault, strategy } = await loadFixture(deployFunction);
-    await settings.setPriceMaxAge(0);
+    const { owner, strategy, vault } = await loadFixture(deployFunction);
+    await strategy.setPriceMaxAge(0);
     await vault.depositNative(owner.address, {
       value: ethers.parseUnits('10', 18),
     });
@@ -434,32 +435,32 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
   });
 
   it('convertToShares - 1ETH no balance', async function () {
-    const { owner, settings, vault, strategy } = await loadFixture(deployFunction);
-    await settings.setPriceMaxAge(0);
+    const { owner, strategy, vault } = await loadFixture(deployFunction);
+    await strategy.setPriceMaxAge(0);
     expect(await vault.convertToAssets(ethers.parseUnits('1', 18))).to.equal(
       ethers.parseUnits('1', 18),
     );
   });
 
   it('convertToAssets - 1e18 brETH  no balance', async function () {
-    const { owner, vault, settings, strategy } = await loadFixture(deployFunction);
-    await settings.setPriceMaxAge(0);
+    const { owner, vault, strategy } = await loadFixture(deployFunction);
+    await strategy.setPriceMaxAge(0);
     expect(await vault.convertToAssets(ethers.parseUnits('1', 18))).to.equal(
       ethers.parseUnits('1', 18),
     );
   });
 
   it('tokenPerAsset - No Balance', async function () {
-    const { owner, vault, settings, strategy } = await loadFixture(deployFunction);
-    await settings.setPriceMaxAge(0);
+    const { owner, vault, strategy } = await loadFixture(deployFunction);
+    await strategy.setPriceMaxAge(0);
     expect(await vault.tokenPerAsset()).to.equal(ethers.parseUnits('1', 18));
   });
 
   it('Deposit Fails when the prices are outdated', async () => {
-    const { settings, vault, owner, strategy } = await loadFixture(deployFunction);
+    const { strategy, vault, owner } = await loadFixture(deployFunction);
 
     // Price Max Age 6 Min
-    await settings.setPriceMaxAge(360);
+    await strategy.setPriceMaxAge(360);
 
     await vault.depositNative(owner.address, {
       value: ethers.parseUnits('10', 18),
@@ -477,10 +478,10 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
   });
 
   it('Deposit Fails when the prices are outdated', async () => {
-    const { settings, vault, owner, strategy } = await loadFixture(deployFunction);
+    const { vault, owner, strategy } = await loadFixture(deployFunction);
 
     // Price Max Age 6 Min
-    await settings.setPriceMaxAge(360);
+    await strategy.setPriceMaxAge(360);
 
     await vault.depositNative(owner.address, {
       value: ethers.parseUnits('10', 18),
@@ -498,10 +499,10 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
   });
 
   it('Deposit Success with old prices', async () => {
-    const { settings, vault, owner } = await loadFixture(deployFunction);
+    const { strategy, vault, owner } = await loadFixture(deployFunction);
 
     // Price Max Age 10 Hours
-    await settings.setPriceMaxAge(360);
+    await strategy.setPriceMaxAge(360);
     const tx = await vault.depositNative(owner.address, {
       value: ethers.parseUnits('10', 18),
     });
@@ -513,9 +514,9 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
   });
 
   it('convertToShares should return with outdated prices', async () => {
-    const { settings, vault, owner } = await loadFixture(deployFunction);
+    const { strategy, vault, owner } = await loadFixture(deployFunction);
 
-    await settings.setPriceMaxAge(360);
+    await strategy.setPriceMaxAge(360);
 
     await vault.depositNative(owner.address, {
       value: ethers.parseUnits('10', 18),
@@ -528,10 +529,10 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
   });
 
   it('convertToAssets should return with outdated prices', async () => {
-    const { settings, vault, owner } = await loadFixture(deployFunction);
+    const { strategy, vault, owner } = await loadFixture(deployFunction);
 
     // Price Max Age 10 Hours
-    await settings.setPriceMaxAge(360);
+    await strategy.setPriceMaxAge(360);
 
     await vault.depositNative(owner.address, {
       value: ethers.parseUnits('10', 18),
@@ -544,10 +545,10 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
   });
 
   it('tokenPerAsset should return with outdated prices', async () => {
-    const { settings, vault, owner } = await loadFixture(deployFunction);
+    const { strategy, vault, owner } = await loadFixture(deployFunction);
 
     // Price Max Age 10 Hours
-    await settings.setPriceMaxAge(360);
+    await strategy.setPriceMaxAge(360);
 
     await vault.depositNative(owner.address, {
       value: ethers.parseUnits('10', 18),
@@ -560,10 +561,10 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
   });
 
   it('totalAssets should return with outdated prices', async () => {
-    const { settings, vault, owner } = await loadFixture(deployFunction);
+    const { strategy, vault, owner } = await loadFixture(deployFunction);
 
     // Price Max Age 10 Hours
-    await settings.setPriceMaxAge(360);
+    await strategy.setPriceMaxAge(360);
 
     await vault.depositNative(owner.address, {
       value: ethers.parseUnits('10', 18),
@@ -880,7 +881,10 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
     await vault.approve(otherAccount.address, withdrawAmount);
 
     await expect(
-      vault.connect(otherAccount).withdraw(withdrawAmount, otherAccount.address, owner.address),
+      vault
+        .connect(otherAccount)
+        // @ts-ignore
+        .withdraw(withdrawAmount, otherAccount.address, owner.address),
     )
       // @ts-ignore
       .to.emit(vault, 'Withdraw')
@@ -913,7 +917,10 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
     await vault.deposit(depositAmount, owner.address);
 
     await expect(
-      vault.connect(otherAccount).withdraw(withdrawAmount, otherAccount.address, owner.address),
+      vault
+        .connect(otherAccount)
+        // @ts-ignore
+        .withdraw(withdrawAmount, otherAccount.address, owner.address),
     )
       .to.be // @ts-ignore
       .revertedWithCustomError(vault, 'NoAllowance');
@@ -943,7 +950,10 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
     await vault.deposit(depositAmount, owner.address);
 
     await expect(
-      vault.connect(otherAccount).withdraw(withdrawAmount, otherAccount.address, owner.address),
+      vault
+        .connect(otherAccount)
+        // @ts-ignore
+        .withdraw(withdrawAmount, otherAccount.address, owner.address),
     )
       .to.be // @ts-ignore
       .revertedWithCustomError(vault, 'NotEnoughBalanceToWithdraw');
@@ -1015,7 +1025,10 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
     await vault.approve(otherAccount.address, withdrawAmount);
 
     await expect(
-      vault.connect(otherAccount).redeem(withdrawAmount, otherAccount.address, owner.address),
+      vault
+        .connect(otherAccount)
+        // @ts-ignore
+        .redeem(withdrawAmount, otherAccount.address, owner.address),
     )
       // @ts-ignore
       .to.emit(vault, 'Withdraw')
@@ -1048,7 +1061,10 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
     await vault.deposit(depositAmount, owner.address);
 
     await expect(
-      vault.connect(otherAccount).redeem(withdrawAmount, otherAccount.address, owner.address),
+      vault
+        .connect(otherAccount)
+        // @ts-ignore
+        .redeem(withdrawAmount, otherAccount.address, owner.address),
     )
       .to.be // @ts-ignore
       .revertedWithCustomError(vault, 'NoAllowance');
@@ -1074,10 +1090,10 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
   });
 
   it('Deposit - Account not allowed', async () => {
-    const { owner, vault, settings, otherAccount } = await loadFixture(deployFunction);
+    const { owner, vault, otherAccount } = await loadFixture(deployFunction);
     const depositAmount = ethers.parseUnits('10', 18);
 
-    await settings.enableAccount(otherAccount.address, true);
+    await vault.enableAccount(otherAccount.address, true);
 
     await expect(
       vault.depositNative(owner.address, {
@@ -1088,14 +1104,14 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
   });
 
   it('Withdraw - Account not allowed', async () => {
-    const { owner, vault, settings, otherAccount } = await loadFixture(deployFunction);
+    const { owner, vault, otherAccount } = await loadFixture(deployFunction);
     const depositAmount = ethers.parseUnits('10', 18);
 
     await vault.depositNative(owner.address, {
       value: depositAmount,
     });
 
-    await settings.enableAccount(otherAccount.address, true);
+    await vault.enableAccount(otherAccount.address, true);
 
     await expect(vault.redeemNative(ethers.parseUnits('1', 18))).to.be.revertedWithCustomError(
       vault,
@@ -1131,7 +1147,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
   });
 
   it('Rebalance - Generates Revenue ', async () => {
-    const { owner, vault, strategy, settings, otherAccount } = await loadFixture(
+    const { owner, vault, strategy, otherAccount } = await loadFixture(
       deployWithMockStrategyFunction,
     );
     await vault.depositNative(owner.address, {
@@ -1141,8 +1157,8 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
     expect(await vault.totalAssets()).to.equal(5000);
     expect(await vault.totalSupply()).to.equal(10000);
 
-    await settings.setFeeReceiver(otherAccount.address);
-    await settings.setPerformanceFee(100 * 1e6);
+    await vault.setFeeReceiver(otherAccount.address);
+    await vault.setPerformanceFee(100 * 1e6);
     await strategy.setHarvestPerCall(1000);
 
     await expect(vault.rebalance())
@@ -1164,16 +1180,16 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
   });
 
   it('Deposit - Success Deposit When the value is under the max', async () => {
-    const { owner, vault, settings } = await loadFixture(deployFunction);
-    await settings.setMaxDepositInETH(ethers.parseUnits('1', 18));
+    const { owner, vault } = await loadFixture(deployFunction);
+    await vault.setMaxDeposit(ethers.parseUnits('1', 18));
     const depositAmount = ethers.parseUnits('1', 17);
     expect(await vault.depositNative(owner.address, { value: depositAmount }));
     expect(await vault.balanceOf(owner.address)).to.equal(99621138160606681n);
   });
 
   it('Deposit - Failed Deposit When the value is over the max', async () => {
-    const { owner, vault, settings } = await loadFixture(deployFunction);
-    await settings.setMaxDepositInETH(ethers.parseUnits('1', 18));
+    const { owner, vault } = await loadFixture(deployFunction);
+    await vault.setMaxDeposit(ethers.parseUnits('1', 18));
     const depositAmount = ethers.parseUnits('10', 18);
     await expect(
       vault.depositNative(owner.address, { value: depositAmount }),
@@ -1181,8 +1197,8 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
   });
 
   it('Deposit - Failed Deposit When the second deposit exceeds the max', async () => {
-    const { owner, vault, settings } = await loadFixture(deployFunction);
-    await settings.setMaxDepositInETH(ethers.parseUnits('1', 18));
+    const { owner, vault } = await loadFixture(deployFunction);
+    await vault.setMaxDeposit(ethers.parseUnits('1', 18));
 
     expect(
       await vault.depositNative(owner.address, {
@@ -1196,8 +1212,8 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
   });
 
   it('Deposit - Success Deposit When the value is under the max', async () => {
-    const { owner, vault, settings } = await loadFixture(deployFunction);
-    await settings.setMaxDepositInETH(ethers.parseUnits('1', 18));
+    const { owner, vault } = await loadFixture(deployFunction);
+    await vault.setMaxDeposit(ethers.parseUnits('1', 18));
     const depositAmount = ethers.parseUnits('1', 17);
     expect(await vault.depositNative(owner.address, { value: depositAmount }));
     expect(await vault.balanceOf(owner.address)).to.equal(99621138160606681n);
@@ -1233,6 +1249,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
 
   it('Grant Pause Role - Non-Pauser account cannot pause vault', async () => {
     const { vault, anotherAccount } = await loadFixture(deployFunction);
+    // @ts-ignore
     await expect(vault.connect(anotherAccount).pause()).to.be.revertedWith(
       /AccessControl: account .* is missing role .*/,
     );
@@ -1241,15 +1258,21 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
   it('Grant Pause Role - Non-Pauser account cannot unpause vault', async () => {
     const { vault, anotherAccount } = await loadFixture(deployFunction);
     await vault.pause();
-    await expect(vault.connect(anotherAccount).unpause()).to.be.revertedWith(
-      /AccessControl: account .* is missing role .*/,
-    );
+    await expect(
+      vault
+        .connect(anotherAccount)
+        // @ts-ignore
+        .unpause(),
+    ).to.be.revertedWith(/AccessControl: account .* is missing role .*/);
   });
 
   it('Grant Pause Role - Non-governor cannot grant pause role', async () => {
     const { vault, anotherAccount } = await loadFixture(deployFunction);
     await expect(
-      vault.connect(anotherAccount).grantRole(vault.PAUSER_ROLE(), anotherAccount.address),
+      vault
+        .connect(anotherAccount)
+        // @ts-ignore
+        .grantRole(vault.PAUSER_ROLE(), anotherAccount.address),
     ).to.be.revertedWith(/AccessControl: account .* is missing role .*/);
   });
 
@@ -1258,6 +1281,115 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
     await vault.grantRole(vault.PAUSER_ROLE(), anotherAccount.address);
     await vault.revokeRole(vault.PAUSER_ROLE(), anotherAccount.address);
     expect(await vault.hasRole(vault.PAUSER_ROLE(), anotherAccount.address)).to.be.false;
+  });
+
+  it('Change Withdrawal Fee ✅', async function () {
+    const { vault } = await loadFixture(deployFunction);
+    await vault.setWithdrawalFee(20 * 1e6);
+    expect(await vault.getWithdrawalFee()).to.equal(20 * 1e6);
+  });
+
+  it('Withdrawal Fee ❌', async function () {
+    const { vault } = await loadFixture(deployFunction);
+    await expect(vault.setWithdrawalFee(1100 * 1e6)).to.be.revertedWithCustomError(
+      vault,
+      'InvalidPercentage',
+    );
+  });
+
+  it('Change Perfornance Fee ✅', async function () {
+    const { vault } = await loadFixture(deployFunction);
+    await vault.setPerformanceFee(20 * 1e6);
+    expect(await vault.getPerformanceFee()).to.equal(20 * 1e6);
+  });
+
+  it('Invalid Perfornance Fee ❌', async function () {
+    const { vault } = await loadFixture(deployFunction);
+    await expect(vault.setPerformanceFee(1100 * 1e6)).to.be.revertedWithCustomError(
+      vault,
+      'InvalidPercentage',
+    );
+  });
+
+  it('Change Fee Receiver ✅', async function () {
+    const { vault, owner, otherAccount } = await loadFixture(deployFunction);
+    await vault.setFeeReceiver(owner.address);
+    expect(await vault.getFeeReceiver()).to.equal(owner.address);
+  });
+
+  it('Owner is no able to update ❌', async function () {
+    const { vault, owner, otherAccount } = await loadFixture(deployFunction);
+    // @ts-expect-error
+    await expect(vault.connect(otherAccount).setFeeReceiver(owner.address)).to.be.revertedWith(
+      'Ownable: caller is not the owner',
+    );
+  });
+
+  it('Account should be allowed when empty white list ✅', async function () {
+    const { vault, otherAccount } = await loadFixture(deployFunction);
+    await expect(await vault.isAccountEnabled(otherAccount.address)).to.equal(true);
+  });
+
+  it('Account should not be allowed when is not on the whitelist ✅ ', async function () {
+    const { vault, owner, otherAccount } = await loadFixture(deployFunction);
+
+    await vault.enableAccount(otherAccount.address, true);
+    await expect(await vault.isAccountEnabled(owner.address)).to.equal(false);
+  });
+
+  it('Only Owner allowed to change white list ✅', async function () {
+    const { vault, otherAccount } = await loadFixture(deployFunction);
+    await expect(
+      vault
+        .connect(otherAccount)
+        // @ts-expect-error
+        .enableAccount(otherAccount.address, true),
+    ).to.be.revertedWith('Ownable: caller is not the owner');
+  });
+
+  it('Fail to enable an address that is enabled ✅', async function () {
+    const { vault, otherAccount } = await loadFixture(deployFunction);
+
+    await vault.enableAccount(otherAccount.address, true);
+    await expect(vault.enableAccount(otherAccount.address, true)).to.be.revertedWithCustomError(
+      vault,
+      'WhiteListAlreadyEnabled',
+    );
+  });
+
+  it('Fail to disable an address that is disabled ❌', async function () {
+    const { vault, otherAccount } = await loadFixture(deployFunction);
+    await expect(vault.enableAccount(otherAccount.address, false)).to.be.revertedWithCustomError(
+      vault,
+      'WhiteListNotEnabled',
+    );
+  });
+
+  it('Change Max Deposit ✅', async function () {
+    const { vault, otherAccount } = await loadFixture(deployFunction);
+
+    await vault.setMaxDeposit(ethers.parseUnits('1', 17));
+    // @ts-expect-error
+    expect(await vault.connect(otherAccount).getMaxDeposit()).to.equal(ethers.parseUnits('1', 17));
+  });
+
+  it('Only Owner can change max deposit ❌', async function () {
+    const { vault, otherAccount } = await loadFixture(deployFunction);
+    await expect(
+      vault
+        .connect(otherAccount)
+        // @ts-ignore
+        .setMaxDeposit(ethers.parseUnits('1', 17)),
+    ).to.be.revertedWith('Ownable: caller is not the owner');
+  });
+
+  it('Change Price Max Age ✅', async function () {
+    const { vault, strategy, otherAccount } = await loadFixture(deployFunction);
+
+    await strategy.setPriceMaxAge(3600);
+
+    // @ts-expect-error
+    expect(await strategy.connect(otherAccount).getPriceMaxAge()).to.equal(3600);
   });
 });
 
@@ -1271,7 +1403,7 @@ async function deployFunction() {
   const CBETH_MAX_SUPPLY = ethers.parseUnits('1000000000', 18);
   const FLASH_LENDER_DEPOSIT = ethers.parseUnits('10000', 18);
   const AAVE_DEPOSIT = ethers.parseUnits('10000', 18);
-  const serviceRegistry = await deployServiceRegistry(owner.address);
+  const serviceRegistry = await deployVaultRegistry(owner.address);
   const serviceRegistryAddress = await serviceRegistry.getAddress();
   const weth = await deployWETH(serviceRegistry);
   const BakerFiProxyAdmin = await ethers.getContractFactory('BakerFiProxyAdmin');
@@ -1303,16 +1435,12 @@ async function deployFunction() {
 
   // Deposit cbETH on Uniswap Mock Router
   await cbETH.transfer(await uniRouter.getAddress(), ethers.parseUnits('10000', 18));
-
-  const { proxy: settingsProxy } = await deploySettings(owner.address, serviceRegistry, proxyAdmin);
-  const pSettings = await ethers.getContractAt('Settings', await settingsProxy.getAddress());
-  await pSettings.setPriceMaxAge(0);
   // 5. Deploy AAVEv3 Mock Pool
   const aave3Pool = await deployAaveV3(cbETH, weth, serviceRegistry, AAVE_DEPOSIT);
 
   // 6. Deploy wstETH/ETH Oracle
-  const oracle = await deployOracleMock(serviceRegistry, 'cbETH/USD Oracle');
-  const ethOracle = await deployOracleMock(serviceRegistry, 'ETH/USD Oracle');
+  const oracle = await deployOracleMock();
+  const ethOracle = await deployOracleMock();
 
   await oracle.setLatestPrice(ethers.parseUnits('2660', 18));
   await ethOracle.setLatestPrice(ethers.parseUnits('2305', 18));
@@ -1322,11 +1450,13 @@ async function deployFunction() {
   const { proxy: proxyStrategy } = await deployAAVEv3Strategy(
     owner.address,
     owner.address,
-    serviceRegistryAddress,
-    'cbETH',
-    'WETH',
-    'cbETH/USD Oracle',
-    'ETH/USD Oracle',
+    await cbETH.getAddress(),
+    await weth.getAddress(),
+    await oracle.getAddress(),
+    await ethOracle.getAddress(),
+    await flashLender.getAddress(),
+    await aave3Pool.getAddress(),
+    await uniRouter.getAddress(),
     config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
     (config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH] as AAVEv3Market).AAVEEModeCategory,
     proxyAdmin,
@@ -1336,6 +1466,7 @@ async function deployFunction() {
     'StrategyLeverageAAVEv3',
     await proxyStrategy.getAddress(),
   );
+  await pStrategy.setPriceMaxAge(0);
 
   const { proxy } = await deployVault(
     owner.address,
@@ -1343,6 +1474,7 @@ async function deployFunction() {
     'brETH',
     serviceRegistryAddress,
     await proxyStrategy.getAddress(),
+    await weth.getAddress(),
     proxyAdmin,
   );
 
@@ -1361,7 +1493,6 @@ async function deployFunction() {
     uniRouter,
     oracle,
     strategy: pStrategy,
-    settings: pSettings,
   };
 }
 
@@ -1376,11 +1507,8 @@ async function deployWithMockStrategyFunction() {
   const vault = await Vault.deploy();
   await vault.waitForDeployment();
 
-  const serviceRegistry = await deployServiceRegistry(owner.address);
+  const serviceRegistry = await deployVaultRegistry(owner.address);
   const weth = await deployWETH(serviceRegistry);
-  const { proxy: settingsProxy } = await deploySettings(owner.address, serviceRegistry, proxyAdmin);
-  const pSettings = await ethers.getContractAt('Settings', await settingsProxy.getAddress());
-
   const StrategyMock = await ethers.getContractFactory('StrategyMock');
   const strategy = await StrategyMock.deploy(await weth.getAddress());
   await strategy.waitForDeployment();
@@ -1392,12 +1520,12 @@ async function deployWithMockStrategyFunction() {
       owner.address,
       'Bread ETH',
       'brETH',
-      await serviceRegistry.getAddress(),
       await strategy.getAddress(),
+      await weth.getAddress(),
     ]),
   );
   await proxy.waitForDeployment();
   await strategy.waitForDeployment();
   const pVault = await ethers.getContractAt('Vault', await proxy.getAddress());
-  return { owner, weth, otherAccount, settings: pSettings, vault: pVault, strategy };
+  return { owner, weth, otherAccount, vault: pVault, strategy };
 }

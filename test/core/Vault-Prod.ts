@@ -211,12 +211,12 @@ describeif(
   });
 
   it('Deposit and Withdraw and pay the fee', async function () {
-    const { deployer, vault, settings } = await loadFixture(deployAAVEProd);
+    const { deployer, vault } = await loadFixture(deployAAVEProd);
     const feeReceiver = '0x1260E3ca7aD848498e3D6446FBcBc7c7A0717607';
 
-    await settings.setFeeReceiver(feeReceiver);
+    await vault.setFeeReceiver(feeReceiver);
     // Fees are 10%
-    await settings.setWithdrawalFee(ethers.parseUnits('100', 6));
+    await vault.setWithdrawalFee(ethers.parseUnits('100', 6));
 
     await vault.depositNative(deployer.address, {
       value: ethers.parseUnits('10', 18),

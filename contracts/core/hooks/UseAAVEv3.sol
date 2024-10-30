@@ -2,7 +2,6 @@
 pragma solidity ^0.8.24;
 pragma experimental ABIEncoderV2;
 
-import { ServiceRegistry, AAVE_V3_CONTRACT } from "../ServiceRegistry.sol";
 import { IPoolV3 } from "../../interfaces/aave/v3/IPoolV3.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -26,10 +25,10 @@ abstract contract UseAAVEv3 is Initializable {
 
   /**
    * @dev Initializes the UseAAVEv3 contract.
-   * @param registry The address of the ServiceRegistry contract for accessing AAVE v3.
+   * @param aaveV3Pool The address of the AAVE v3 contract.
    */
-  function _initUseAAVEv3(ServiceRegistry registry) internal onlyInitializing {
-    _aavev3 = IPoolV3(registry.getServiceFromHash(AAVE_V3_CONTRACT));
+  function _initUseAAVEv3(address aaveV3Pool) internal onlyInitializing {
+    _aavev3 = IPoolV3(aaveV3Pool);
     if (address(_aavev3) == address(0)) revert InvalidAAVEv3Contract();
   }
 

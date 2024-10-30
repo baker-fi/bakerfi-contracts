@@ -1,7 +1,7 @@
 import { ContractSendMethod } from 'web3-eth-contract';
 import { ContractCallMethod } from '@taikai/dappkit';
 
-export interface ServiceRegistryMethods {
+export interface VaultRegistryMethods {
   getService(serviceName: string): ContractCallMethod<string>;
 
   getServiceFromHash(serviceHash: string): ContractCallMethod<string>;

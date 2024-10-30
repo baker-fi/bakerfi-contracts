@@ -2,44 +2,36 @@
 pragma solidity ^0.8.24;
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
-import { IServiceRegistry } from "../interfaces/core/IServiceRegistry.sol";
+import { IVaultRegistry } from "../interfaces/core/IVaultRegistry.sol";
 
 /**
  * @dev The Constants used for servive names
  * Attention: These are the constants that should be used to resolve the deployment contract addresses !!
  */
 bytes32 constant FLASH_LENDER_CONTRACT = keccak256(bytes("FlashLender"));
-bytes32 constant WETH_CONTRACT = keccak256(bytes("WETH"));
-bytes32 constant ST_ETH_CONTRACT = keccak256(bytes("stETH"));
-bytes32 constant WST_ETH_CONTRACT = keccak256(bytes("wstETH"));
-bytes32 constant BKR_CONTRACT = keccak256(bytes("BKR"));
 bytes32 constant AAVE_V3_CONTRACT = keccak256(bytes("AAVEv3"));
-bytes32 constant WSTETH_USD_ORACLE_CONTRACT = keccak256(bytes("wstETH/USD Oracle"));
-bytes32 constant CBETH_USD_ORACLE_CONTRACT = keccak256(bytes("cbETH/USD Oracle"));
-bytes32 constant ETH_USD_ORACLE_CONTRACT = keccak256(bytes("ETH/USD Oracle"));
-bytes32 constant CBETH_ERC20_CONTRACT = keccak256(bytes("cbETH"));
 bytes32 constant UNISWAP_ROUTER_CONTRACT = keccak256(bytes("Uniswap Router"));
 bytes32 constant SWAPPER_HANDLER_CONTRACT = keccak256(bytes("Swapper Handler"));
 bytes32 constant BALANCER_VAULT_CONTRACT = keccak256(bytes("Balancer Vault"));
-bytes32 constant SETTINGS_CONTRACT = keccak256(bytes("Settings"));
 bytes32 constant UNISWAP_QUOTER_CONTRACT = keccak256(bytes("Uniswap Quoter"));
 bytes32 constant STRATEGY_CONTRACT = keccak256(bytes("Strategy"));
 bytes32 constant MORPHO_BLUE_CONTRACT = keccak256(bytes("Morpho Blue"));
+bytes32 constant VAULT_ROUTER_CONTRACT = keccak256(bytes("Vault Router"));
 bytes32 constant PYTH_CONTRACT = keccak256(bytes("Pyth"));
 
 /**
- * @title BakerFi Service Registy
+ * @title BakerFi Vault Registry
  *
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
  *
- * @notice Service registry that could be used resolve a service address with the
+ * @notice Vault registry that could be used resolve a service address with the
  * name of the service.
  *
- * This contract inherits from the `Ownable` contract and implements the `IServiceRegistry` interface.
+ * This contract inherits from the `Ownable` contract and implements the `IVaultRegistry` interface.
  * It serves as a registry for managing various services and dependencies within BakerFI System.
  */
-contract ServiceRegistry is Ownable, IServiceRegistry {
+contract VaultRegistry is Ownable, IVaultRegistry {
   error InvalidOwner();
   error ServiceAlreadySet();
   error ServiceUnknown();
@@ -52,7 +44,7 @@ contract ServiceRegistry is Ownable, IServiceRegistry {
   mapping(bytes32 => address) private _services;
 
   /**
-   * @dev Constructor for the ServiceRegistry contract.
+   * @dev Constructor for the VaultRegistry contract.
    *
    * It sets the initial owner of the contract and emits an {OwnershipTransferred} event.
    *
@@ -63,7 +55,7 @@ contract ServiceRegistry is Ownable, IServiceRegistry {
     _transferOwnership(ownerToSet);
   }
   /**
-   * @dev Registers a new service in the ServiceRegistry.
+   * @dev Registers a new service in the VaultRegistry.
    *
    * This function can only be called by the owner of the contract.
    * It associates the specified service name hash with its corresponding address in the _services mapping.
@@ -82,7 +74,7 @@ contract ServiceRegistry is Ownable, IServiceRegistry {
   }
 
   /**
-   * @dev Unregisters an existing service from the ServiceRegistry.
+   * @dev Unregisters an existing service from the VaultRegistry.
    *
    * This function can only be called by the owner of the contract.
    * It disassociates the specified service name hash from its corresponding address in the _services mapping.

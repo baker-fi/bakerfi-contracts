@@ -1,7 +1,7 @@
 import '@nomicfoundation/hardhat-ethers';
 import { ethers, network } from 'hardhat';
 import {
-  deployServiceRegistry,
+  deployVaultRegistry,
   deployVault,
   deployBalancerFL,
   deployAAVEv3Strategy,
@@ -9,7 +9,6 @@ import {
   deployETHOracle,
   deployWSTETHToUSDPythOracle,
   deployWSTETHToUSDCustomOracle,
-  deploySettings,
 } from '../../scripts/common';
 import { PriceServiceConnection } from '@pythnetwork/price-service-client';
 import BaseConfig from '../../constants/network-deploy-config';
@@ -51,17 +50,10 @@ export async function deployProd(
   await proxyAdmin.waitForDeployment();
 
   // 1. Deploy Service Registry
-  const serviceRegistry = await deployServiceRegistry(deployer.address);
+  const serviceRegistry = await deployVaultRegistry(deployer.address);
   // 3. Set the WETH Address
   await serviceRegistry.registerService(ethers.keccak256(Buffer.from('WETH')), config.weth);
-  // 4. Deploy Settings
-  const { proxy: settingsProxyDeploy, settings: settingsInstance } = await deploySettings(
-    deployer.address,
-    serviceRegistry,
-    proxyAdmin,
-  );
 
-  await ethers.getContractAt('Settings', await settingsProxyDeploy.getAddress());
   // 5. Register UniswapV3 Universal Router
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from('Uniswap Router')),
@@ -73,14 +65,15 @@ export async function deployProd(
   // 9. Deploy the Oracle
   const ethOracle = await deployETHOracle(serviceRegistry, config.pyth);
 
+  let oracle;
   if (networkName === 'ethereum' || networkName === 'ethereum_devnet') {
-    await deployWSTETHToUSDCustomOracle(
+    oracle = await deployWSTETHToUSDCustomOracle(
       serviceRegistry,
       await ethOracle.getAddress(),
       config.wstETH,
     );
   } else {
-    await deployWSTETHToUSDPythOracle(serviceRegistry, config.pyth);
+    oracle = await deployWSTETHToUSDPythOracle(serviceRegistry, config.pyth);
   }
 
   await updatePythPrices(
@@ -88,14 +81,8 @@ export async function deployProd(
     config.pyth,
   );
 
-  // 10. Balancer Vault
-  await serviceRegistry.registerService(
-    ethers.keccak256(Buffer.from('Balancer Vault')),
-    config.balancerVault,
-  );
-
   // 11. Flash Lender Adapter
-  await deployBalancerFL(serviceRegistry);
+  const flashLender = await deployBalancerFL(config.balancerVault);
 
   let strategyProxyDeploy;
   // 12. Deploy the Strategy
@@ -110,11 +97,13 @@ export async function deployProd(
       const { proxy: aProxy } = await deployAAVEv3Strategy(
         deployer.address,
         deployer.address,
-        await serviceRegistry.getAddress(),
-        'wstETH',
-        'WETH',
-        'wstETH/USD Oracle',
-        'ETH/USD Oracle',
+        config.wstETH,
+        config.weth,
+        await oracle.getAddress(),
+        await ethOracle.getAddress(),
+        await flashLender.getAddress(),
+        config.aavev3?.[aavev3Market] ?? '',
+        await config.uniswapRouter02,
         config.markets[type].swapFeeTier,
         (config.markets[type] as AAVEv3Market).AAVEEModeCategory,
         proxyAdmin,
@@ -122,18 +111,16 @@ export async function deployProd(
       strategyProxyDeploy = aProxy;
       break;
     case StrategyImplementation.MORPHO_BLUE_WSTETH_ETH:
-      await serviceRegistry.registerService(
-        ethers.keccak256(Buffer.from('Morpho Blue')),
-        config.morpho,
-      );
       const { proxy: mProxy } = await deployStrategyLeverageMorphoBlue(
         deployer.address,
         deployer.address,
-        await serviceRegistry.getAddress(),
         'wstETH',
         'WETH',
         'wstETH/USD Oracle',
         'ETH/USD Oracle',
+        await flashLender.getAddress(),
+        config.morpho ?? '',
+        await config.uniswapRouter02,
         config?.markets[StrategyImplementation.MORPHO_BLUE_WSTETH_ETH].swapFeeTier,
         (config?.markets[StrategyImplementation.MORPHO_BLUE_WSTETH_ETH] as MorphoMarket).oracle,
         (config?.markets[StrategyImplementation.MORPHO_BLUE_WSTETH_ETH] as MorphoMarket).irm,
@@ -157,17 +144,13 @@ export async function deployProd(
     'brETH',
     await serviceRegistry.getAddress(),
     await strategyProxyDeploy.getAddress(),
+    config.weth,
     proxyAdmin,
   );
 
   const weth = await ethers.getContractAt('IWETH', config.weth);
   const aave3Pool = await ethers.getContractAt('IPoolV3', config.aavev3?.[aavev3Market] ?? '');
   const wstETH = await ethers.getContractAt('IERC20', config.wstETH);
-
-  const settingsProxy = await ethers.getContractAt(
-    'Settings',
-    await settingsProxyDeploy.getAddress(),
-  );
 
   const strategyProxy = await ethers.getContractAt(
     'StrategyLeverageAAVEv3',
@@ -177,9 +160,8 @@ export async function deployProd(
   await strategyProxy.setMaxSlippage(5n * 10n ** 7n);
   await strategyProxy.setLoanToValue(ethers.parseUnits('800', 6));
   await strategyProxy.transferOwnership(await vaultProxy.getAddress());
-  await settingsProxy.setPriceMaxAge(360);
-  await settingsProxy.setRebalancePriceMaxAge(360);
-  await settingsProxy.setPriceMaxConf(0);
+  await strategyProxy.setPriceMaxAge(360);
+  await strategyProxy.setPriceMaxConf(0);
 
   return {
     serviceRegistry,
@@ -189,7 +171,6 @@ export async function deployProd(
     deployer,
     otherAccount,
     strategy: strategyProxy,
-    settings: settingsProxy,
     aave3Pool,
     config,
   };

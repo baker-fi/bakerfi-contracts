@@ -52,4 +52,12 @@ export interface AAVEv3StrategyAnyMethods {
   getDebtToken(): ContractCallMethod<string>;
 
   asset(): ContractCallMethod<string>;
+
+  setPriceMaxAge(maxAge: number): ContractSendMethod;
+
+  getPriceMaxAge(): ContractCallMethod<number>;
+
+  setPriceMaxConf(confPerc: number): ContractSendMethod;
+
+  getPriceMaxConf(): ContractCallMethod<number>;
 }

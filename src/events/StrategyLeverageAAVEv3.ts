@@ -33,3 +33,10 @@ export interface SetMaxLoanToValueChangedEvent {
 export interface NrLoopsChangedEvent {
   returnValues: { value: number };
 }
+export interface PriceMaxAgeChangeEvent {
+  returnValues: { value: number };
+}
+
+export interface PriceMaxConfChangeEvent {
+  returnValues: { value: number };
+}

@@ -2,7 +2,6 @@
 pragma solidity ^0.8.24;
 pragma experimental ABIEncoderV2;
 
-import { ServiceRegistry, WST_ETH_CONTRACT, ST_ETH_CONTRACT } from "../ServiceRegistry.sol";
 import { IWStETH } from "../../interfaces/lido/IWStETH.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -32,11 +31,10 @@ abstract contract UseWstETH is Initializable {
 
   /**
    * Initialize function for upgradeable contracts
-   * @param registry The service registry used by the system
    */
-  function _initUseWstETH(ServiceRegistry registry) internal onlyInitializing {
-    _wstETH = IWStETH(registry.getServiceFromHash(WST_ETH_CONTRACT));
-    _stETHToken = IERC20(registry.getServiceFromHash(ST_ETH_CONTRACT));
+  function _initUseWstETH(address iwstETH, address istETH) internal onlyInitializing {
+    _wstETH = IWStETH(iwstETH);
+    _stETHToken = IERC20(istETH);
     if (address(_wstETH) == address(0)) revert InvalidWstETHContract();
     if (address(_stETHToken) == address(0)) revert InvalidStETHContract();
   }

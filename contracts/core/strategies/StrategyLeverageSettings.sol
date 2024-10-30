@@ -3,11 +3,10 @@ pragma solidity ^0.8.24;
 
 import { GovernableOwnable } from "../GovernableOwnable.sol";
 import { PERCENTAGE_PRECISION, MAX_LOOPS } from "../Constants.sol";
+import { StrategySettings } from "./StrategySettings.sol";
 
-contract StrategyLeverageSettings is GovernableOwnable {
+contract StrategyLeverageSettings is StrategySettings {
   error InvalidMaxLoanToValue();
-  error InvalidPercentage();
-  error InvalidValue();
   error InvalidLoopCount();
 
   /**
@@ -70,6 +69,7 @@ contract StrategyLeverageSettings is GovernableOwnable {
     address initialGovernor
   ) internal initializer {
     _initializeGovernableOwnable(initialOwner, initialGovernor);
+    _initializeStrategySettings();
     _loanToValue = 800 * 1e6; // 80%
     _maxLoanToValue = 850 * 1e6; // 85%
     _nrLoops = 10;

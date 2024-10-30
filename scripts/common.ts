@@ -1,6 +1,10 @@
 import '@nomicfoundation/hardhat-ethers';
 import { config, ethers } from 'hardhat';
-import { pythFeeds } from '../constants/types';
+import { NetworkConfig, pythFeeds, StrategyImplementation } from '../constants/types';
+import ContractTree from '../src/contract-blob.json';
+import { ContractClient } from './lib/contract-client';
+import ora from 'ora';
+export type ProxyContracts = keyof typeof ContractTree;
 
 export async function deployFlashLender(serviceRegistry, weth, depositedAmount) {
   const MockFlashLender = await ethers.getContractFactory('MockFlashLender');
@@ -40,9 +44,9 @@ export async function deployBKR(owner, serviceRegistry) {
   return bkr;
 }
 
-export async function deployServiceRegistry(owner: string) {
-  const ServiceRegistry = await ethers.getContractFactory('ServiceRegistry');
-  const serviceRegistry = await ServiceRegistry.deploy(owner);
+export async function deployVaultRegistry(owner: string) {
+  const VaultRegistry = await ethers.getContractFactory('VaultRegistry');
+  const serviceRegistry = await VaultRegistry.deploy(owner);
   await serviceRegistry.waitForDeployment();
   return serviceRegistry;
 }
@@ -53,6 +57,7 @@ export async function deployVault(
   tokenSymbol: string,
   serviceRegistry: string,
   strategy: string,
+  weth: string,
   proxyAdmin?: any,
 ) {
   const Vault = await ethers.getContractFactory('Vault');
@@ -67,8 +72,8 @@ export async function deployVault(
       owner,
       tokenName,
       tokenSymbol,
-      serviceRegistry,
       strategy,
+      weth,
     ]),
   );
   await proxy.waitForDeployment();
@@ -78,11 +83,13 @@ export async function deployVault(
 export async function deployAAVEv3Strategy(
   owner: string,
   governor: string,
-  serviceRegistry: string,
   collateralToken: string,
   debtToken: string,
   collateralOracle: string,
   debtOracle: string,
+  flashLender: string,
+  aaveV3Pool: string,
+  univ3Router: string,
   swapFreeTier: number,
   emodeCategory: number,
   proxyAdmin?: any,
@@ -97,11 +104,13 @@ export async function deployAAVEv3Strategy(
     StrategyLeverageAAVEv3.interface.encodeFunctionData('initialize', [
       owner,
       governor,
-      serviceRegistry,
-      ethers.keccak256(Buffer.from(collateralToken)),
-      ethers.keccak256(Buffer.from(debtToken)),
-      ethers.keccak256(Buffer.from(collateralOracle)),
-      ethers.keccak256(Buffer.from(debtOracle)),
+      collateralToken,
+      debtToken,
+      collateralOracle,
+      debtOracle,
+      flashLender,
+      aaveV3Pool,
+      univ3Router,
       swapFreeTier,
       emodeCategory,
     ]),
@@ -113,11 +122,13 @@ export async function deployAAVEv3Strategy(
 export async function deployStrategyLeverageMorphoBlue(
   owner: string,
   governor: string,
-  serviceRegistry: string,
   collateralToken: string,
   debtToken: string,
   collateralOracle: string,
   debtOracle: string,
+  flashLender: string,
+  morphoBlue: string,
+  univ3Router: string,
   swapFreeTier: number,
   morphoOracle: string,
   irm: string,
@@ -134,12 +145,14 @@ export async function deployStrategyLeverageMorphoBlue(
     Strategy.interface.encodeFunctionData('initialize', [
       owner,
       governor,
-      serviceRegistry,
       [
-        ethers.keccak256(Buffer.from(collateralToken)),
-        ethers.keccak256(Buffer.from(debtToken)),
-        ethers.keccak256(Buffer.from(collateralOracle)),
-        ethers.keccak256(Buffer.from(debtOracle)),
+        collateralToken,
+        debtToken,
+        collateralOracle,
+        debtOracle,
+        flashLender,
+        morphoBlue,
+        univ3Router,
         swapFreeTier,
         morphoOracle,
         irm,
@@ -218,14 +231,10 @@ export async function deployAaveV3(stETH, weth, serviceRegistry, amount) {
   return aaveV3PoolMock;
 }
 
-export async function deployOracleMock(serviceRegistry, name) {
+export async function deployOracleMock() {
   const OracleMock = await ethers.getContractFactory('OracleMock');
   const oracle = await OracleMock.deploy();
   await oracle.waitForDeployment();
-  await serviceRegistry.registerService(
-    ethers.keccak256(Buffer.from(name)),
-    await oracle.getAddress(),
-  );
   return oracle;
 }
 
@@ -286,24 +295,6 @@ export async function deployWSTETHToUSDCustomOracle(serviceRegistry, baseOracle,
   return oracle;
 }
 
-export async function deploySettings(owner: string, serviceRegistry, proxyAdmin?: any) {
-  const Settings = await ethers.getContractFactory('Settings');
-  const settings = await Settings.deploy();
-  await settings.waitForDeployment();
-  const BakerFiProxy = await ethers.getContractFactory('BakerFiProxy');
-  const proxy = await BakerFiProxy.deploy(
-    await settings.getAddress(),
-    await proxyAdmin.getAddress(),
-    Settings.interface.encodeFunctionData('initialize', [owner]),
-  );
-  await proxy.waitForDeployment();
-  await serviceRegistry.registerService(
-    ethers.keccak256(Buffer.from('Settings')),
-    await proxy.getAddress(),
-  );
-  return { settings, proxy };
-}
-
 export async function deployMockERC20(name: string, symbol: string, cap: bigint, owner: string) {
   const ERC20 = await ethers.getContractFactory('ERC20Mock');
   const erc20 = await ERC20.deploy(name, symbol, cap, owner);
@@ -345,21 +336,16 @@ export async function deployUniSwapper(owner: string, serviceRegistry: any) {
   return swapper;
 }
 
-export async function deployBalancerFL(serviceRegistry: any) {
+export async function deployBalancerFL(balancerVault: string) {
   const FlashLender = await ethers.getContractFactory('BalancerFlashLender');
-  const fl = await FlashLender.deploy(await serviceRegistry.getAddress());
+  const fl = await FlashLender.deploy(balancerVault);
   await fl.waitForDeployment();
-  await serviceRegistry.registerService(
-    ethers.keccak256(Buffer.from('FlashLender')),
-    await fl.getAddress(),
-  );
   return fl;
 }
-
-export async function deployFlashBorrowerMock(serviceRegistry) {
+export async function deployFlashBorrowerMock(flashLender: string) {
   const Borrower = await ethers.getContractFactory('FlashBorrowerMock');
   const borrower = await Borrower.deploy();
-  await borrower.initialize(await serviceRegistry.getAddress());
+  await borrower.initialize(flashLender);
   await borrower.waitForDeployment();
   return borrower;
 }
@@ -376,4 +362,149 @@ export async function deployTestLeverage() {
   const levarage = await Leverage.deploy();
   await levarage.waitForDeployment();
   return levarage;
+}
+
+export async function deployQuoterV2Mock() {
+  const QuoterMock = await ethers.getContractFactory('QuoterV2Mock');
+  const quoter = await QuoterMock.deploy();
+  await quoter.waitForDeployment();
+  return quoter;
+}
+
+export async function deployVaultZap(
+  owner: string,
+  uniRouter: string,
+  quoter: string,
+  proxyAdmin?: any,
+) {
+  const VaultZap = await ethers.getContractFactory('VaultZap');
+  //owner, uniRouter, quoter, proxyAdmin
+  const vaultZap = await VaultZap.deploy();
+  await vaultZap.waitForDeployment();
+  const BakerFiProxy = await ethers.getContractFactory('BakerFiProxy');
+  const proxy = await BakerFiProxy.deploy(
+    await vaultZap.getAddress(),
+    await proxyAdmin.getAddress(),
+    VaultZap.interface.encodeFunctionData('initialize', [owner, uniRouter, quoter]),
+  );
+  await proxy.waitForDeployment();
+  return { vaultZap, proxy };
+}
+
+export async function deployVaultRouter(
+  owner: string,
+  uniRouter: string,
+  weth: string,
+  proxyAdmin?: any,
+) {
+  const VaultRouter = await ethers.getContractFactory('VaultRouter');
+  //owner, uniRouter, quoter, proxyAdmin
+  const vaultRouter = await VaultRouter.deploy();
+  await vaultRouter.waitForDeployment();
+  const BakerFiProxy = await ethers.getContractFactory('BakerFiProxy');
+  const proxy = await BakerFiProxy.deploy(
+    await vaultRouter.getAddress(),
+    await proxyAdmin.getAddress(),
+    VaultRouter.interface.encodeFunctionData('initialize', [owner, uniRouter, weth]),
+  );
+  await proxy.waitForDeployment();
+  return { vaultRouter, proxy };
+}
+
+export const RegistryNames = [
+  'FlashLender',
+  'Pyth',
+  'DeploymentRegistry',
+  'Uniswap Router',
+  'WETH',
+  'stETH',
+  'wstETH',
+  'AAVEv3',
+  'Balancer Vault',
+  'wstETH',
+  'wstETH/USD Oracle',
+  'cbETH/USD Oracle',
+  'ETH/USD Oracle',
+  'ChainLinkExRateOracle',
+  'CustomExRateOracle',
+  'BakerFiProxyAdmin',
+  'Pyth',
+  'Registry',
+  'Strategy',
+  'Vault',
+  'VaultRouter',
+  'VaultZap',
+  'BakerFiProxy',
+  'BakerFiProxyAdmin',
+  'FlashLender',
+  'Pyth',
+  'Uniswap Router',
+];
+
+type RegistryName = (typeof RegistryNames)[number];
+
+/**
+ *
+ * @param spinner
+ * @param ethApp
+ * @param ledgerPath
+ * @param proxyAdminAddress
+ * @param owner
+ * @param result
+ * @returns
+ */
+export async function deployProxyContract(
+  chainId: bigint,
+  client: ContractClient<typeof ContractTree>,
+  config: NetworkConfig,
+  instanceName: ProxyContracts,
+  registerName: RegistryName,
+  proxyAdminAddress: string | null | undefined,
+  registryContractAddress: string | null | undefined,
+  args: any[],
+  spinner: ora.Ora,
+  result: any[],
+) {
+  spinner.text = `Deploying ${instanceName}`;
+  const instanceReceipt = await client.deploy(
+    instanceName,
+    [],
+    // Tx Options
+    {
+      chainId,
+      minTxConfirmations: config.minTxConfirmations,
+    },
+  );
+  const contractFactory = await ethers.getContractFactory(instanceName);
+  spinner.text = `Deploying ${instanceName} Proxy`;
+  const proxyReceipt = await client.deploy(
+    'BakerFiProxy',
+    [
+      instanceReceipt?.contractAddress,
+      proxyAdminAddress,
+      contractFactory.interface.encodeFunctionData('initialize', args),
+    ],
+    {
+      chainId,
+      minTxConfirmations: config.minTxConfirmations,
+    },
+  );
+
+  if (registryContractAddress) {
+    spinner.text = `Registering ${instanceName} Proxy Address`;
+    await client.send(
+      'VaultRegistry',
+      registryContractAddress ?? '',
+      'registerService',
+      [ethers.keccak256(Buffer.from(registerName)), proxyReceipt?.contractAddress],
+      {
+        chainId,
+        minTxConfirmations: config.minTxConfirmations,
+      },
+    );
+  }
+  result.push([instanceName, instanceReceipt?.contractAddress, instanceReceipt?.hash]);
+  result.push([`${instanceName} Proxy`, proxyReceipt?.contractAddress, proxyReceipt?.hash]);
+
+  return proxyReceipt?.contractAddress;
 }
