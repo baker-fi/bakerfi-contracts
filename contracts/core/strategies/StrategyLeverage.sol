@@ -180,9 +180,9 @@ abstract contract StrategyLeverage is
     if (address(_collateralOracle) == address(0)) revert InvalidCollateralOracle();
     if (address(_debtOracle) == address(0)) revert InvalidDebtOracle();
 
-    if (!IERC20Upgradeable(_collateralToken).approve(uniRouterA(), 2 ** 256 - 1))
+    if (!IERC20Upgradeable(_collateralToken).approve(uniRouterA(), type(uint256).max))
       revert FailedToApproveAllowance();
-    if (!IERC20Upgradeable(_debtToken).approve(uniRouterA(), 2 ** 256 - 1))
+    if (!IERC20Upgradeable(_debtToken).approve(uniRouterA(), type(uint256).max))
       revert FailedToApproveAllowance();
   }
 

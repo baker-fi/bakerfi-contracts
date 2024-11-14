@@ -94,6 +94,9 @@ abstract contract UseSwapper is ISwapHandler, Initializable {
           sqrtPriceLimitX96: 0
         })
       );
+      if (amountIn > params.amountIn) {
+        revert SwapFailed();
+      }
       emit Swap(params.underlyingIn, params.underlyingOut, amountIn, amountOut);
     }
   }
