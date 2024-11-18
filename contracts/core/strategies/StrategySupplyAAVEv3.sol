@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.24;
 
+import { IPoolV3 } from "../../interfaces/aave/v3/IPoolV3.sol";
+import { DataTypes } from "../../interfaces/aave/v3/DataTypes.sol";
+
 import { IStrategy } from "../../interfaces/core/IStrategy.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
-import { Vault } from "../Vault.sol";
 
 /**
  * @title Strategy Supply AAVEv3 🅿️
@@ -27,14 +29,22 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
   address payable private immutable _asset;
 
   // Strategy Supply AAVEv3 Address
-  address private constant _STRATEGY_LEVERAGE_AAVEV3_ADDRESS = 0xC5Dfa3ebaDD8cf122b2b086e3aC28492Da76a0eE;
+  address private immutable _STRATEGY_LEVERAGE_AAVEV3_ADDRESS;
+
+  uint256 _deployedAmount;
+
+  uint256 _totalAssets; // TODO: set this?
+
+  IPoolV3 private _aavev3;
 
   /**
    * @param asset_ The address of the asset to be managed
    */
-  constructor(address initialOwner, address asset_) ReentrancyGuard() Ownable() {
+  constructor(address initialOwner, address asset_, address STRATEGY_LEVERAGE_AAVEV3_ADDRESS_) ReentrancyGuard() Ownable() {
    if (asset_ == address(0)) revert ZeroAddress();
     _asset = payable(asset_);
+    _STRATEGY_LEVERAGE_AAVEV3_ADDRESS = STRATEGY_LEVERAGE_AAVEV3_ADDRESS_;
+    _aavev3 = IPoolV3(STRATEGY_LEVERAGE_AAVEV3_ADDRESS_);
     _transferOwnership(initialOwner);
   }
 
@@ -45,11 +55,16 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
     if (amount == 0) revert ZeroAmount();
     
     // Transfer assets from caller to strategy
-    uint256 shares = Vault(_asset).deposit(amount, _STRATEGY_LEVERAGE_AAVEV3_ADDRESS);
+    _aavev3.supply(_asset, amount, msg.sender, 0);
+    
 
+    // TODO: get shares amount and emit amount update
     emit StrategyDeploy(msg.sender, amount);
-    emit StrategyAmountUpdate(shares);
 
+    // emit StrategyAmountUpdate(shares);
+
+    _deployedAmount += amount;
+    
     return amount;
   }
 
@@ -57,8 +72,19 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
    * @inheritdoc IStrategy
    */
   function harvest() external returns (int256 balanceChange) {
-    // what's harvest in supply ?
-    return 0;
+    uint256 newBalance = _totalAssets;
+
+    balanceChange = int256(newBalance) - int256(_deployedAmount);
+
+    if (balanceChange > 0) {
+      emit StrategyProfit(uint256(balanceChange));
+    } else if (balanceChange < 0) {
+      emit StrategyLoss(uint256(-balanceChange));
+    }
+    if (balanceChange != 0) {
+      emit StrategyAmountUpdate(newBalance);
+    }
+    _deployedAmount = newBalance;
 
   }
 
@@ -68,14 +94,14 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
   function undeploy(
     uint256 amount
   ) external nonReentrant onlyOwner returns (uint256 undeployedAmount) {
-    
-    uint256 balance = Vault(_asset).balanceOf(_STRATEGY_LEVERAGE_AAVEV3_ADDRESS);
+     // TODO: check balance
+    uint256 balance = 0;
 
     if (amount == 0) revert ZeroAmount();
     if (amount > balance) revert InsufficientBalance();
 
     // Transfer assets back to caller
-    Vault(_asset).withdraw(amount, msg.sender, _STRATEGY_LEVERAGE_AAVEV3_ADDRESS);
+    _aavev3.withdraw(_asset, amount, msg.sender);
 
     balance -= amount;
     emit StrategyUndeploy(msg.sender, amount);
@@ -88,8 +114,7 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
    * @inheritdoc IStrategy
    */
   function totalAssets() external view returns (uint256 assets) {
-    uint256 balance = Vault(_asset).balanceOf(_STRATEGY_LEVERAGE_AAVEV3_ADDRESS);
-    return balance;
+   return _totalAssets;
   }
 
   /**
