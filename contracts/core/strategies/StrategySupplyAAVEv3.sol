@@ -39,10 +39,10 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
   /**
    * @param asset_ The address of the asset to be managed
    */
-  constructor(address initialOwner, address asset_, address aavev3_address) ReentrancyGuard() Ownable() {
+  constructor(address initialOwner, address asset_, address aavev3Address) ReentrancyGuard() Ownable() {
    if (asset_ == address(0)) revert ZeroAddress();
     _asset = payable(asset_);
-    _aavev3 = IPoolV3(aavev3_address);
+    _aavev3 = IPoolV3(aavev3Address);
     _transferOwnership(initialOwner);
   }
 
