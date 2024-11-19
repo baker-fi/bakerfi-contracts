@@ -36,8 +36,6 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
 
   uint256 _deployedAmount;
 
-  uint256 _totalAssets; // TODO: set this?
-
   IPoolV3 private _aavev3;
 
   /**
@@ -75,7 +73,7 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
    * @inheritdoc IStrategy
    */
   function harvest() external returns (int256 balanceChange) {
-    uint256 newBalance = _totalAssets;
+    uint256 newBalance = getBalance();
 
     balanceChange = int256(newBalance) - int256(_deployedAmount);
 
@@ -117,7 +115,7 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
    * @inheritdoc IStrategy
    */
   function totalAssets() external view returns (uint256 assets) {
-   return _totalAssets;
+   return getBalance();
   }
 
   /**
@@ -142,7 +140,6 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
     DataTypes.ReserveData memory reserve = (_aavev3.getReserveData(_asset));
     uint8 reserveDecimals = ERC20(reserve.aTokenAddress).decimals();
     uint256 reserveBalance = ERC20(reserve.aTokenAddress).balanceOf(address(this));
-
 
     reserveBalance = reserveBalance.toDecimals(reserveDecimals, SYSTEM_DECIMALS);
     return reserveBalance;
