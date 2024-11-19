@@ -51,10 +51,12 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
   function deploy(uint256 amount) external nonReentrant onlyOwner returns (uint256 deployedAmount) {
     if (amount == 0) revert ZeroAmount();
     
+    // Transfer assets from user
+    ERC20(_asset).safeTransferFrom(msg.sender, address(this), amount);
+
     // Transfer assets from caller to strategy
     _aavev3.supply(_asset, amount, address(this), 0);  
 
-    // TODO: get shares amount and emit amount update
     emit StrategyDeploy(msg.sender, amount);
 
     // emit StrategyAmountUpdate(shares);
@@ -98,6 +100,9 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
 
     // Transfer assets back to caller
     _aavev3.withdraw(_asset, amount, address(this));
+
+    // Transfer assets to user
+    ERC20(_asset).safeTransferFrom(address(this), msg.sender, amount);
 
     balance -= amount;
     emit StrategyUndeploy(msg.sender, amount);
