@@ -31,21 +31,17 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
   // The asset being managed
   address payable private immutable _asset;
 
-  // Strategy Supply AAVEv3 Address
-  address private immutable _AAVEV3_ADDRESS;
-
   uint256 _deployedAmount;
 
-  IPoolV3 private _aavev3;
+  IPoolV3 private immutable _aavev3;
 
   /**
    * @param asset_ The address of the asset to be managed
    */
-  constructor(address initialOwner, address asset_, address AAVEV3_ADDRESS_) ReentrancyGuard() Ownable() {
+  constructor(address initialOwner, address asset_, address aavev3_address) ReentrancyGuard() Ownable() {
    if (asset_ == address(0)) revert ZeroAddress();
     _asset = payable(asset_);
-    _AAVEV3_ADDRESS = AAVEV3_ADDRESS_;
-    _aavev3 = IPoolV3(AAVEV3_ADDRESS_);
+    _aavev3 = IPoolV3(aavev3_address);
     _transferOwnership(initialOwner);
   }
 
@@ -56,8 +52,7 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
     if (amount == 0) revert ZeroAmount();
     
     // Transfer assets from caller to strategy
-    _aavev3.supply(_asset, amount, msg.sender, 0);
-    
+    _aavev3.supply(_asset, amount, address(this), 0);  
 
     // TODO: get shares amount and emit amount update
     emit StrategyDeploy(msg.sender, amount);
@@ -102,7 +97,7 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
     if (amount > balance) revert InsufficientBalance();
 
     // Transfer assets back to caller
-    _aavev3.withdraw(_asset, amount, msg.sender);
+    _aavev3.withdraw(_asset, amount, address(this));
 
     balance -= amount;
     emit StrategyUndeploy(msg.sender, amount);
