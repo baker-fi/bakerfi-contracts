@@ -27,6 +27,7 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
   error ZeroAddress();
   error ZeroAmount();
   error InsufficientBalance();
+  error WithdrawalValueMismatch();
 
   // The asset being managed
   address payable private immutable _asset;
@@ -99,7 +100,10 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
     if (amount > balance) revert InsufficientBalance();
 
     // Transfer assets back to caller
-    _aavev3.withdraw(_asset, amount, address(this));
+    uint256 withdrawalValue = _aavev3.withdraw(_asset, amount, address(this));
+
+    // Check withdrawal value matches the initial amount
+    if(withdrawalValue != amount) revert WithdrawalValueMismatch();
 
     // Transfer assets to user
     ERC20(_asset).safeTransferFrom(address(this), msg.sender, amount);
