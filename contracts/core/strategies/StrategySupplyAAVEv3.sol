@@ -3,12 +3,13 @@ pragma solidity ^0.8.24;
 
 import { IPoolV3 } from "../../interfaces/aave/v3/IPoolV3.sol";
 import { DataTypes } from "../../interfaces/aave/v3/DataTypes.sol";
-
+import { SYSTEM_DECIMALS } from "../../core/Constants.sol";
 import { IStrategy } from "../../interfaces/core/IStrategy.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { MathLibrary } from "../../libraries/MathLibrary.sol";
 
 /**
  * @title Strategy Supply AAVEv3 🅿️
@@ -19,7 +20,9 @@ import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
  */
 contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
 
-  using SafeERC20 for IERC20;
+  using SafeERC20 for ERC20;
+
+  using MathLibrary for uint256;
 
   error ZeroAddress();
   error ZeroAmount();
@@ -29,7 +32,7 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
   address payable private immutable _asset;
 
   // Strategy Supply AAVEv3 Address
-  address private immutable _STRATEGY_LEVERAGE_AAVEV3_ADDRESS;
+  address private immutable _AAVEV3_ADDRESS;
 
   uint256 _deployedAmount;
 
@@ -40,11 +43,11 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
   /**
    * @param asset_ The address of the asset to be managed
    */
-  constructor(address initialOwner, address asset_, address STRATEGY_LEVERAGE_AAVEV3_ADDRESS_) ReentrancyGuard() Ownable() {
+  constructor(address initialOwner, address asset_, address AAVEV3_ADDRESS_) ReentrancyGuard() Ownable() {
    if (asset_ == address(0)) revert ZeroAddress();
     _asset = payable(asset_);
-    _STRATEGY_LEVERAGE_AAVEV3_ADDRESS = STRATEGY_LEVERAGE_AAVEV3_ADDRESS_;
-    _aavev3 = IPoolV3(STRATEGY_LEVERAGE_AAVEV3_ADDRESS_);
+    _AAVEV3_ADDRESS = AAVEV3_ADDRESS_;
+    _aavev3 = IPoolV3(AAVEV3_ADDRESS_);
     _transferOwnership(initialOwner);
   }
 
@@ -94,8 +97,8 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
   function undeploy(
     uint256 amount
   ) external nonReentrant onlyOwner returns (uint256 undeployedAmount) {
-     // TODO: check balance
-    uint256 balance = 0;
+
+    uint256 balance = getBalance();
 
     if (amount == 0) revert ZeroAmount();
     if (amount > balance) revert InsufficientBalance();
@@ -123,4 +126,26 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
   function asset() external view returns (address) {
     return _asset;
   }
+
+
+  /**
+   * Get the Current Balance on AAVEv3
+   *
+   * @dev !Important: No Conversion to USD Done
+   */
+  function getBalance()
+    public
+    view
+    virtual
+    returns (uint256)
+  {
+    DataTypes.ReserveData memory reserve = (_aavev3.getReserveData(_asset));
+    uint8 reserveDecimals = ERC20(reserve.aTokenAddress).decimals();
+    uint256 reserveBalance = ERC20(reserve.aTokenAddress).balanceOf(address(this));
+
+
+    reserveBalance = reserveBalance.toDecimals(reserveDecimals, SYSTEM_DECIMALS);
+    return reserveBalance;
+  }
+
 }
