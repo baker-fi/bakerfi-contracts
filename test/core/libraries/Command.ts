@@ -1,5 +1,5 @@
 import { network } from 'hardhat';
-import { describeif } from '../common';
+import { describeif } from '../../common';
 import { ethers } from 'hardhat';
 import { expect } from 'chai';
 import '@nomicfoundation/hardhat-ethers';

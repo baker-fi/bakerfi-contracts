@@ -4,6 +4,7 @@ pragma solidity ^0.8.24;
 import { IV3SwapRouter } from "../interfaces/uniswap/v3/IV3SwapRouter.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import { console } from "hardhat/console.sol";
 
 contract UniV3RouterMock is IV3SwapRouter {
   IERC20 _asset0;
@@ -37,8 +38,9 @@ contract UniV3RouterMock is IV3SwapRouter {
     } else {
       amountOut = (params.amountIn * _price) / PRICE_PRECISION;
     }
+
     require(IERC20(params.tokenOut).balanceOf(address(this)) >= amountOut, "No Enough Liquidity");
-    require(amountOut > params.amountOutMinimum, "Mininum Out not reached");
+    require(amountOut >= params.amountOutMinimum, "Mininum Out not reached");
     IERC20(params.tokenOut).safeTransfer(params.recipient, amountOut);
   }
 

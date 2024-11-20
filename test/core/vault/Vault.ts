@@ -2,7 +2,7 @@ import '@nomicfoundation/hardhat-ethers';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import { expect } from 'chai';
 import { ethers, network } from 'hardhat';
-import { describeif } from '../common';
+import { describeif } from '../../common';
 import {
   deployVaultRegistry,
   deployVault,
@@ -12,9 +12,9 @@ import {
   deployWETH,
   deployCbETH,
   deployAAVEv3Strategy,
-} from '../../scripts/common';
-import { AAVEv3Market, NetworkConfig, StrategyImplementation } from '../../constants/types';
-import BaseConfig from '../../constants/network-deploy-config';
+} from '../../../scripts/common';
+import { AAVEv3Market, NetworkConfig, StrategyImplementation } from '../../../constants/types';
+import BaseConfig from '../../../constants/network-deploy-config';
 import { time } from '@nomicfoundation/hardhat-network-helpers';
 import { anyValue } from '@nomicfoundation/hardhat-chai-matchers/withArgs';
 
@@ -1472,7 +1472,6 @@ async function deployFunction() {
     owner.address,
     'Bread ETH',
     'brETH',
-    serviceRegistryAddress,
     await proxyStrategy.getAddress(),
     await weth.getAddress(),
     proxyAdmin,
@@ -1520,6 +1519,7 @@ async function deployWithMockStrategyFunction() {
       owner.address,
       'Bread ETH',
       'brETH',
+      await weth.getAddress(),
       await strategy.getAddress(),
       await weth.getAddress(),
     ]),

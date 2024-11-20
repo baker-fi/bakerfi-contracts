@@ -43,4 +43,17 @@ contract BalancerVaultMock is IVault, IProtocolFeesCollector {
     uint256 balanceAfter = _flashLoanToken.balanceOf(address(this));
     if (balanceAfter < balanceBefore) revert LoanNotPaid();
   }
+
+  function swap(
+    SingleSwap memory,
+    FundManagement memory,
+    uint256,
+    uint256
+  ) external payable returns (uint256) {
+    return 0;
+  }
+
+  function querySwap(SingleSwap memory, FundManagement memory) external pure returns (uint256) {
+    return 0;
+  }
 }

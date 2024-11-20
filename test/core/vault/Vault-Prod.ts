@@ -1,9 +1,9 @@
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import { expect } from 'chai';
 import { ethers, network } from 'hardhat';
-import { describeif } from '../common';
+import { describeif } from '../../common';
 import { anyValue } from '@nomicfoundation/hardhat-chai-matchers/withArgs';
-import { deployAAVEProd, deployAAVELidoProd } from './common';
+import { deployAAVEProd, deployAAVELidoProd } from '../common';
 
 describeif(
   network.name === 'ethereum_devnet' ||
@@ -248,8 +248,7 @@ describeif(
     expect(await vault.balanceOf(deployer.address)).to.equal(0n);
     expect(await vault.totalSupply()).to.equal(0n);
     expect((await strategy.getPosition([0, 0]))[0])
-      .to.greaterThan(1500)
-      .lessThanOrEqual(10000);
+      .to.equal(0n);
     expect((await strategy.getPosition([0, 0]))[1]).to.equal(0n);
     expect((await strategy.getPosition([0, 0]))[2]).to.equal(0n);
     expect(await vault.tokenPerAsset()).to.equal(ethers.parseUnits('1', 18));

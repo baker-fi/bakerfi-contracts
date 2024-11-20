@@ -134,10 +134,14 @@ export type NetworkConfig = {
   owner: string;
   uniswapRouter02: string;
   uniswapQuoter?: string;
+  curveRouterNG?: string;
+  balancerVault?: string;
+  uniswapV2Router02?: string;
   balancerVault: string;
   weth: string;
   wstETH: string;
   stETH?: string;
+  usdt?: string;
   minTxConfirmations: number;
   oracles: Oracle[];
   markets: {

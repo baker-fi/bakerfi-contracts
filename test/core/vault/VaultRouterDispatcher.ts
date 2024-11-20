@@ -1,5 +1,5 @@
 import { ethers, network } from 'hardhat';
-import { VAULT_ROUTER_COMMAND_ACTIONS, VaultRouterABI, describeif } from '../common';
+import { VAULT_ROUTER_COMMAND_ACTIONS, VaultRouterABI, describeif } from '../../common';
 import { expect } from 'chai';
 
 describeif(network.name === 'hardhat')('Vault Router Dispatch', function () {

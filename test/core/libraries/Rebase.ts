@@ -1,7 +1,7 @@
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import { expect } from 'chai';
 import { ethers, network } from 'hardhat';
-import { describeif } from '../common';
+import { describeif } from '../../common';
 
 describeif(network.name === 'hardhat')('Rebase Library', function () {
   async function deployFunction() {

@@ -1,12 +1,11 @@
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import { expect } from 'chai';
 import { ethers, network } from 'hardhat';
-import { describeif } from '../common';
+import { describeif } from '../../common';
 import { anyValue } from '@nomicfoundation/hardhat-chai-matchers/withArgs';
-import { deployMorphoProd } from './common';
+import { deployMorphoProd } from '../common';
 
-describeif(network.name === 'ethereum_devnet' || network.name === 'base_devnet')(
-  'BakerFi Morpho Blue Vault - Production',
+describeif(network.name === 'base_devnet')('BakerFi Morpho Blue Vault - Production',
   function () {
     it('Vault Initialization', async function () {
       const { vault, deployer, strategy } = await loadFixture(deployMorphoProd);

@@ -3,7 +3,7 @@ pragma solidity ^0.8.24;
 
 import { IERC4626 } from "@openzeppelin/contracts/interfaces/IERC4626.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { UseSwapper } from "./hooks/UseSwapper.sol";
+import { UseUniV3Swapper } from "./hooks/UseUniV3Swapper.sol";
 import { IV3SwapRouter } from "../interfaces/uniswap/v3/IV3SwapRouter.sol";
 import { UseWETH } from "./hooks/UseWETH.sol";
 import { UseIERC4626 } from "./hooks/UseIERC4626.sol";
@@ -34,7 +34,7 @@ import { IERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/IER
  * - ERC4626 vaults operations
  */
 contract VaultRouter is
-  UseSwapper,
+  UseUniV3Swapper,
   UseTokenActions,
   UsePermitTransfers,
   UseIERC4626,
@@ -56,7 +56,7 @@ contract VaultRouter is
    */
   function initialize(address initialOwner, IV3SwapRouter router, IWETH weth) public initializer {
     initializeUseIERC4626(initialOwner);
-    _initUseSwapper(router);
+    _initUseUniV3Swapper(router);
     _initUseWETH(address(weth));
   }
 

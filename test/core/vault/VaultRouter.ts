@@ -1,5 +1,5 @@
 import { ethers, network } from 'hardhat';
-import { VAULT_ROUTER_COMMAND_ACTIONS, VaultRouterABI, describeif } from '../common';
+import { VAULT_ROUTER_COMMAND_ACTIONS, VaultRouterABI, describeif } from '../../common';
 import { expect } from 'chai';
 import {
   deployVaultRegistry,
@@ -7,7 +7,7 @@ import {
   deployCbETH,
   deployQuoterV2Mock,
   deployVaultRouter,
-} from '../../scripts/common';
+} from '../../../scripts/common';
 
 describeif(network.name === 'hardhat')('Vault Router', function () {
   it('Deposit 1 WETH to Vault', async function () {
