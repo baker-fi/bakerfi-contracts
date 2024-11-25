@@ -908,8 +908,8 @@
       },
       {
         "name": "initialize",
-        "signature": "initialize(address)",
-        "selector": "0xc4d66de8"
+        "signature": "initialize(address,address)",
+        "selector": "0x485cc955"
       },
       {
         "name": "onFlashLoan",
@@ -2293,9 +2293,9 @@
         "selector": "0x57bdec01"
       },
       {
-        "name": "ERC4626_VAULT_REDDEM",
-        "signature": "ERC4626_VAULT_REDDEM()",
-        "selector": "0xba9cc47d"
+        "name": "ERC4626_VAULT_REDEEM",
+        "signature": "ERC4626_VAULT_REDEEM()",
+        "selector": "0x094966b5"
       },
       {
         "name": "ERC4626_VAULT_WITHDRAW",
@@ -2801,8 +2801,8 @@
       },
       {
         "name": "initialize",
-        "signature": "initialize(address,address,address,bytes32,bytes32,bytes32,bytes32,uint24,uint8)",
-        "selector": "0x1d64754b"
+        "signature": "initialize(address,address,address,address,address,address,address,address,address,uint24,uint8)",
+        "selector": "0x7be44f6f"
       },
       {
         "name": "onFlashLoan",
@@ -3187,8 +3187,8 @@
       },
       {
         "name": "initialize",
-        "signature": "initialize(address,address,address,tuple)",
-        "selector": "0x23eedb42"
+        "signature": "initialize(address,address,tuple)",
+        "selector": "0xce863c89"
       },
       {
         "name": "onFlashLoan",
@@ -3688,6 +3688,82 @@
         "name": "InvalidValue",
         "signature": "InvalidValue()",
         "selector": "0xaa7feadc"
+      }
+    ]
+  },
+  "StrategySupplyAAVEv3": {
+    "functions": [
+      {
+        "name": "asset",
+        "signature": "asset()",
+        "selector": "0x38d52e0f"
+      },
+      {
+        "name": "deploy",
+        "signature": "deploy(uint256)",
+        "selector": "0xa5e38751"
+      },
+      {
+        "name": "getBalance",
+        "signature": "getBalance()",
+        "selector": "0x12065fe0"
+      },
+      {
+        "name": "harvest",
+        "signature": "harvest()",
+        "selector": "0x4641257d"
+      },
+      {
+        "name": "owner",
+        "signature": "owner()",
+        "selector": "0x8da5cb5b"
+      },
+      {
+        "name": "renounceOwnership",
+        "signature": "renounceOwnership()",
+        "selector": "0x715018a6"
+      },
+      {
+        "name": "totalAssets",
+        "signature": "totalAssets()",
+        "selector": "0x01e1d114"
+      },
+      {
+        "name": "transferOwnership",
+        "signature": "transferOwnership(address)",
+        "selector": "0xf2fde38b"
+      },
+      {
+        "name": "undeploy",
+        "signature": "undeploy(uint256)",
+        "selector": "0x440e6dff"
+      }
+    ],
+    "errors": [
+      {
+        "name": "InsufficientBalance",
+        "signature": "InsufficientBalance()",
+        "selector": "0xf4d678b8"
+      },
+      {
+        "name": "OverflowDetected",
+        "signature": "OverflowDetected()",
+        "selector": "0xf1075a7a"
+      },
+      {
+        "name": "WithdrawalValueMismatch",
+        "signature": "WithdrawalValueMismatch()",
+        "selector": "0x56ce51b8"
+      },
+      {
+        "name": "ZeroAddress",
+        "signature": "ZeroAddress()",
+        "selector": "0xd92e233d"
+      },
+      {
+        "name": "ZeroAmount",
+        "signature": "ZeroAmount()",
+        "selector": "0x1f2a2005"
       }
     ]
   },

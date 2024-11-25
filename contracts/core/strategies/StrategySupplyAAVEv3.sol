@@ -11,6 +11,7 @@ import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuar
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { MathLibrary } from "../../libraries/MathLibrary.sol";
 
+
 /**
  * @title Strategy Supply AAVEv3 🅿️
  *
@@ -84,7 +85,6 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
       emit StrategyAmountUpdate(newBalance);
     }
     _deployedAmount = newBalance;
-
   }
 
   /**
@@ -118,7 +118,7 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
   /**
    * @inheritdoc IStrategy
    */
-  function totalAssets() external view returns (uint256 assets) {
+  function totalAssets() external view returns (uint256) {
    return getBalance();
   }
 
