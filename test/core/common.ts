@@ -142,7 +142,6 @@ export async function deployProd(
     deployer.address,
     'Bread ETH',
     'brETH',
-    await serviceRegistry.getAddress(),
     await strategyProxyDeploy.getAddress(),
     config.weth,
     proxyAdmin,

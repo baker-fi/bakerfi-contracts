@@ -11,11 +11,11 @@ import {
   deployOracleMock,
   deployWETH,
   deployAAVEv3Strategy,
-} from '../../scripts/common';
+} from '../../../scripts/common';
 
-import { describeif } from '../common';
-import BaseConfig from '../../constants/network-deploy-config';
-import { AAVEv3Market, NetworkConfig, StrategyImplementation } from '../../constants/types';
+import { describeif } from '../../common';
+import BaseConfig from '../../../constants/network-deploy-config';
+import { AAVEv3Market, NetworkConfig, StrategyImplementation } from '../../../constants/types';
 
 /**
  * StrategyLeverageAAVEv3 Unit Tests

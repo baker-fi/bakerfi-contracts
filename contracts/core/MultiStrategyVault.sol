@@ -9,13 +9,14 @@ import { IVault } from "../interfaces/core/IVault.sol";
 import { IStrategy } from "../interfaces/core/IStrategy.sol";
 import { SafeERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import { PERCENTAGE_PRECISION } from "./Constants.sol";
-import { ERC20PermitUpgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20PermitUpgradeable.sol";
+import { ERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import { UseWETH } from "./hooks/UseWETH.sol";
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import { AddressUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import { MathLibrary } from "../libraries/MathLibrary.sol";
 import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import { VaultSettings } from "./VaultSettings.sol";
+import { MultiStrategy } from "./MultiStrategy.sol";
 
 /**
  * @title BakerFi Vault 🏦🧑‍🍳
@@ -43,14 +44,15 @@ import { VaultSettings } from "./VaultSettings.sol";
  * The Vault follows the ERC-4626 Specification and can be integrated by any Aggregator
  *
  */
-contract Vault is
+contract MultiStrategyVault is
   Ownable2StepUpgradeable,
   PausableUpgradeable,
   ReentrancyGuardUpgradeable,
-  ERC20PermitUpgradeable,
+  ERC20Upgradeable,
   VaultSettings,
   UseWETH,
   AccessControlUpgradeable,
+  MultiStrategy,
   IVault
 {
   using RebaseLibrary for Rebase;
@@ -59,16 +61,15 @@ contract Vault is
   using AddressUpgradeable for address payable;
   using MathLibrary for uint256;
 
-  error InvalidDepositAmount();
+  error InvalidAmount();
   error InvalidAssetsState();
-  error InvalidAsset();
   error MaxDepositReached();
   error NotEnoughBalanceToWithdraw();
   error InvalidWithdrawAmount();
   error NoAssetsToWithdraw();
   error NoPermissions();
   error InvalidShareBalance();
-  error InvalidDepositAsset();
+  error InvalidAsset();
   error InvalidReceiver();
   error NoAllowance();
 
@@ -83,12 +84,7 @@ contract Vault is
    * which defines the strategy for managing assets within the current contract.
    */
 
-  IStrategy private _strategy;
-
-  address private _asset;
-
-  uint8 private constant _VAULT_VERSION = 3;
-
+  address internal _asset;
   /**
    * @dev Modifier to restrict access to addresses that are whitelisted.
    *
@@ -109,6 +105,7 @@ contract Vault is
   receive() external payable override {
     if (msg.sender != wETHA()) revert ETHTransferNotAllowed(msg.sender);
   }
+
   /**
    * @dev Initializes the contract with specified parameters.
    *
@@ -118,7 +115,11 @@ contract Vault is
    * and Strategy.
    *
    * @param initialOwner The address that will be set as the initial owner of the contract.
-   * @param strategy The IStrategy contract to be set as the strategy for this contract.
+   * @param tokenName The name of the token.
+   * @param tokenSymbol The symbol of the token.
+   * @param iAsset The asset to be set as the asset for this contract.
+   * @param istrategies The IStrategy contracts to be set as the strategies for this contract.
+   * @param iweights The weights of the strategies.
    * @param weth The WETH contract to be set as the WETH for this contract.
 
    * Emits an {OwnershipTransferred} event and initializes ERC20 and ERC20Permit features.
@@ -130,22 +131,27 @@ contract Vault is
     string calldata tokenName,
     string calldata tokenSymbol,
     address iAsset,
-    IStrategy strategy,
+    IStrategy[] memory istrategies,
+    uint16[] memory iweights,
     address weth
   ) public initializer {
-    __ERC20Permit_init(tokenName);
     __ERC20_init(tokenName, tokenSymbol);
     _initUseWETH(weth);
     __AccessControl_init();
     if (initialOwner == address(0)) revert InvalidOwner();
-    if (iAsset == address(0)) revert InvalidAsset();
-    if (iAsset != strategy.asset()) revert InvalidAsset();
     _grantRole(DEFAULT_ADMIN_ROLE, initialOwner);
     _grantRole(PAUSER_ROLE, initialOwner);
     _initializeVaultSettings();
     _transferOwnership(initialOwner);
-    _strategy = strategy;
+    _initMultiStrategy(istrategies, iweights);
     _asset = iAsset;
+
+    for (uint256 i = 0; i < istrategies.length; i++) {
+      // Check if the strategy asset is the same as the asset of the vault
+      if (istrategies[i].asset() != iAsset) revert InvalidAsset();
+      // Approve the strategies to spend assets that are deposited in the vault
+      IERC20Upgradeable(iAsset).safeApprove(address(istrategies[i]), type(uint256).max);
+    }
   }
 
   /**
@@ -160,77 +166,148 @@ contract Vault is
    *
    */
   function rebalance() external override nonReentrant whenNotPaused returns (int256 balanceChange) {
-    uint256 currentPosition = totalAssets();
+    uint256 currentPosition = _totalAssets();
 
     if (currentPosition == 0) {
       return 0;
     }
 
-    balanceChange = _strategy.harvest();
+    balanceChange = _harvestStrategies();
 
-    if (balanceChange <= 0) {
-      return balanceChange;
+    if (balanceChange > 0) {
+      address feeReceiver = getFeeReceiver();
+      uint256 performanceFee = getPerformanceFee();
+
+      if (feeReceiver != address(this) && feeReceiver != address(0) && performanceFee > 0) {
+        uint256 feeInEth = uint256(balanceChange) * performanceFee;
+        uint256 sharesToMint = feeInEth.mulDivUp(
+          totalSupply(),
+          currentPosition * PERCENTAGE_PRECISION
+        );
+
+        _mint(feeReceiver, sharesToMint);
+      }
     }
-
-    address feeReceiver = getFeeReceiver();
-    uint256 performanceFee = getPerformanceFee();
-
-    if (feeReceiver != address(this) && feeReceiver != address(0) && performanceFee > 0) {
-      uint256 feeInEth = uint256(balanceChange) * performanceFee;
-      uint256 sharesToMint = feeInEth.mulDivUp(
-        totalSupply(),
-        currentPosition * PERCENTAGE_PRECISION
-      );
-
-      _mint(feeReceiver, sharesToMint);
-    }
+    _rebalanceStrategies();
 
     return balanceChange;
   }
 
+  /**
+   * @dev Function to calculate the maximum number of shares that can be minted.
+   *
+   * This function returns the maximum possible value for shares, which is the maximum value of uint256.
+   *
+   * @return maxShares The maximum number of shares that can be minted.
+   */
   function maxMint(address) external pure override returns (uint256 maxShares) {
     return type(uint256).max;
   }
 
+  /**
+   * @dev Function to calculate the maximum number of assets that can be minted.
+   *
+   * This function returns the maximum possible value for assets, which is the maximum value of uint256.
+   *
+   * @param shares The number of shares to be converted to assets.
+   * @return assets The number of assets that can be minted for the specified shares.
+   */
   function previewMint(uint256 shares) external view override returns (uint256 assets) {
     assets = this.convertToAssets(shares);
   }
 
+  /**
+   * @dev Function to mint shares to the receiver.
+   *
+   * This function is externally callable, marked as non-reentrant, and restricted
+   * to whitelisted addresses. It checks for sufficient balance, non-zero share amount,
+   * and undeploy the capital from the strategy to handle the withdrawal request. It calculates withdrawal fees, transfers Ether to the caller, and burns the
+   * withdrawn shares.
+   *
+   * @param shares The number of shares to be minted.
+   * @param receiver The address to receive the minted shares.
+   * @return assets The number of assets minted for the specified receiver.
+   */
   function mint(
     uint256 shares,
     address receiver
   ) external override nonReentrant whenNotPaused onlyWhiteListed returns (uint256 assets) {
-    if (shares == 0) revert InvalidDepositAmount();
+    if (shares == 0) revert InvalidAmount();
     assets = this.convertToAssets(shares);
     IERC20Upgradeable(_asset).safeTransferFrom(msg.sender, address(this), assets);
     _depositInternal(assets, receiver);
   }
 
+  /**
+   * @dev Function to calculate the maximum number of assets that can be deposited.
+   *
+   * This function returns the maximum possible value for assets, which is the maximum value of uint256.
+   *
+   * @return maxAssets The maximum number of assets that can be deposited.
+   */
   function maxDeposit(address) external pure override returns (uint256 maxAssets) {
     return type(uint256).max;
   }
 
+  /**
+   * @dev Function to calculate the number of shares that can be minted for a given number of assets.
+   *
+   * This function converts the number of assets to shares.
+   *
+   * @param assets The number of assets to be converted to shares.
+   * @return shares The number of shares that can be minted for the specified assets.
+   */
   function previewDeposit(uint256 assets) external view override returns (uint256 shares) {
     shares = this.convertToShares(assets);
   }
 
+  /**
+   * @dev Function to deposit ETH into the vault and mint shares for the specified receiver.
+   *
+   * This function is externally callable, marked as non-reentrant, and could be restricted
+   * to whitelisted addresses. It wraps ETH into WETH and then calls the internal deposit function.
+   *
+   * @param receiver The address to receive the minted shares.
+   * @return shares The number of shares minted for the specified receiver.
+   */
   function depositNative(
     address receiver
   ) external payable nonReentrant whenNotPaused onlyWhiteListed returns (uint256 shares) {
-    if (msg.value == 0) revert InvalidDepositAmount();
-    if (_asset != wETHA()) revert InvalidDepositAsset();
+    if (msg.value == 0) revert InvalidAmount();
+    if (_asset != wETHA()) revert InvalidAsset();
     //  Wrap ETH
     wETHA().functionCallWithValue(abi.encodeWithSignature("deposit()"), msg.value);
     return _depositInternal(msg.value, receiver);
   }
 
+  /**
+   * @dev Function to deposit assets into the vault.
+   *
+   * This function transfers the specified number of assets from the caller to the vault,
+   * and then calls the internal deposit function to handle the deposit process.
+   *
+   * @param assets The number of assets to be deposited.
+   * @param receiver The address to receive the minted shares.
+   * @return shares The number of shares minted for the specified receiver.
+   */
   function deposit(
     uint256 assets,
     address receiver
   ) external override nonReentrant whenNotPaused onlyWhiteListed returns (uint256 shares) {
-    if (assets == 0) revert InvalidDepositAmount();
+    if (assets == 0) revert InvalidAmount();
     IERC20Upgradeable(_asset).safeTransferFrom(msg.sender, address(this), assets);
     return _depositInternal(assets, receiver);
+  }
+
+  /**
+   * @dev Function to get the total assets of the vault.
+   *
+   * This function returns the total assets of the vault.
+   *
+   * @return amount The total assets of the vault.
+   */
+  function totalAssets() external view override returns (uint256 amount) {
+    amount = _totalAssets();
   }
 
   /**
@@ -248,7 +325,7 @@ contract Vault is
     if (receiver == address(0)) revert InvalidReceiver();
     // Fetch price options from settings
     // Get the total assets and total supply
-    Rebase memory total = Rebase(totalAssets(), totalSupply());
+    Rebase memory total = Rebase(_totalAssets(), totalSupply());
 
     // Check if the Rebase is uninitialized or both base and elastic are positive
     if (!((total.elastic == 0 && total.base == 0) || (total.base > 0 && total.elastic > 0))) {
@@ -263,11 +340,8 @@ contract Vault is
       if (newBalance > maxDepositLocal) revert MaxDepositReached();
     }
 
-    // Approve the strategy to spend assets
-    IERC20Upgradeable(_asset).safeApprove(address(_strategy), assets);
-
     // Deploy assets via the strategy
-    uint256 deployedAmount = _strategy.deploy(assets);
+    uint256 deployedAmount = _allocateAssets(assets);
 
     // Calculate shares to mint
     shares = total.toBase(deployedAmount, false);
@@ -284,26 +358,58 @@ contract Vault is
     emit Deposit(msg.sender, receiver, assets, shares);
   }
 
+  /**
+   * @dev Function to calculate the maximum number of assets that can be withdrawn.
+   *
+   * This function converts the balance of shares to assets.
+   *
+   * @param shareHolder The address holding the shares.
+   * @return maxAssets The maximum number of assets that can be withdrawn.
+   */
   function maxWithdraw(address shareHolder) external view override returns (uint256 maxAssets) {
     maxAssets = this.convertToAssets(balanceOf(shareHolder));
   }
 
+  /**
+   * @dev Function to calculate the number of shares that can be withdrawn for a given number of assets.
+   *
+   * This function converts the number of assets to shares.
+   *
+   * @param assets The number of assets to be converted to shares.
+   * @return shares The number of shares that can be withdrawn for the specified assets.
+   */
   function previewWithdraw(uint256 assets) external view override returns (uint256 shares) {
     shares = this.convertToShares(assets);
   }
 
+  /**
+   * @dev Function to withdraw assets from the vault in ETH.
+   *
+   * This function converts the number of assets to shares and redeems them.
+   *
+   * @param assets The number of assets to be withdrawn.
+   * @return shares The number of shares redeemed for the specified assets.
+   */
   function withdrawNative(
     uint256 assets
   ) external override nonReentrant whenNotPaused onlyWhiteListed returns (uint256 shares) {
-    if (_asset != wETHA()) revert InvalidDepositAsset();
+    if (_asset != wETHA()) revert InvalidAsset();
     shares = this.convertToShares(assets);
     _redeemInternal(shares, msg.sender, msg.sender, true);
   }
 
+  /**
+   * @dev Function to redeem shares for assets.
+   *
+   * This function converts the number of shares to assets.
+   *
+   * @param shares The number of shares to be redeemed.
+   * @return assets The number of assets redeemed for the specified shares.
+   */
   function redeemNative(
     uint256 shares
   ) external override nonReentrant whenNotPaused onlyWhiteListed returns (uint256 assets) {
-    if (_asset != wETHA()) revert InvalidDepositAsset();
+    if (_asset != wETHA()) revert InvalidAsset();
     assets = _redeemInternal(shares, msg.sender, msg.sender, true);
   }
 
@@ -324,10 +430,26 @@ contract Vault is
     return _redeemInternal(shares, receiver, holder, false);
   }
 
+  /**
+   * @dev Function to calculate the maximum number of shares that can be redeemed.
+   *
+   * This function returns the maximum number of shares that can be redeemed by the specified holder.
+   *
+   * @param shareHolder The address holding the shares.
+   * @return maxShares The maximum number of shares that can be redeemed.
+   */
   function maxRedeem(address shareHolder) external view override returns (uint256 maxShares) {
     maxShares = balanceOf(shareHolder);
   }
 
+  /**
+   * @dev Function to calculate the number of assets that can be redeemed for a given number of shares.
+   *
+   * This function converts the number of shares to assets.
+   *
+   * @param shares The number of shares to be converted to assets.
+   * @return assets The number of assets that can be redeemed for the specified shares.
+   */
   function previewRedeem(uint256 shares) external view override returns (uint256 assets) {
     assets = this.convertToAssets(shares);
   }
@@ -385,10 +507,10 @@ contract Vault is
     }
 
     // Calculate the amount to withdraw based on shares
-    uint256 withdrawAmount = (shares * totalAssets()) / totalSupply();
+    uint256 withdrawAmount = (shares * _totalAssets()) / totalSupply();
     if (withdrawAmount == 0) revert NoAssetsToWithdraw();
 
-    uint256 amount = _strategy.undeploy(withdrawAmount);
+    uint256 amount = _deallocateAssets(withdrawAmount);
     uint256 fee = 0;
     uint256 remainingShares = totalSupply() - shares;
 
@@ -403,7 +525,7 @@ contract Vault is
     if (getWithdrawalFee() != 0 && getFeeReceiver() != address(0)) {
       fee = amount.mulDivUp(getWithdrawalFee(), PERCENTAGE_PRECISION);
 
-      if (shouldRedeemETH && _asset == wETHA()) {
+      if (shouldRedeemETH) {
         unwrapETH(amount);
         payable(receiver).sendValue(amount - fee);
         payable(getFeeReceiver()).sendValue(fee);
@@ -423,18 +545,6 @@ contract Vault is
     emit Withdraw(msg.sender, receiver, holder, amount - fee, shares);
     retAmount = amount - fee;
   }
-  /**
-   * @dev Retrieves the total assets controlled/belonging to the vault
-   *
-   * This function is publicly accessible and provides a view of the total assets currently
-   * deployed in the current strategy. This function uses the latest prices
-   * and does not revert on outdated prices
-   *
-   * @return amount The total assets under management by the strategy
-   */
-  function totalAssets() public view override returns (uint256 amount) {
-    amount = _strategy.totalAssets();
-  }
 
   /**
    * @dev Converts the specified amount of ETH/ERC20 to shares.
@@ -446,7 +556,7 @@ contract Vault is
    * @return shares The calculated number of shares.
    */
   function convertToShares(uint256 assets) external view override returns (uint256 shares) {
-    Rebase memory total = Rebase(totalAssets(), totalSupply());
+    Rebase memory total = Rebase(_totalAssets(), totalSupply());
     shares = total.toBase(assets, false);
   }
 
@@ -460,7 +570,7 @@ contract Vault is
    * @return assets The calculated amount of assets.
    */
   function convertToAssets(uint256 shares) external view override returns (uint256 assets) {
-    Rebase memory total = Rebase(totalAssets(), totalSupply());
+    Rebase memory total = Rebase(_totalAssets(), totalSupply());
     assets = total.toElastic(shares, false);
   }
 
@@ -479,7 +589,7 @@ contract Vault is
    * @return rate The calculated token-to-ETH exchange rate.
    */
   function tokenPerAsset() public view returns (uint256) {
-    uint256 totalAssetsValue = totalAssets();
+    uint256 totalAssetsValue = _totalAssets();
 
     if (totalSupply() == 0 || totalAssetsValue == 0) {
       return _ONE;
@@ -488,6 +598,13 @@ contract Vault is
     return (totalSupply() * _ONE) / totalAssetsValue;
   }
 
+  /**
+   * @dev Function to get the asset token address of the vault.
+   *
+   * This function returns the asset token address of the vault.
+   *
+   * @return The asset token address of the vault.
+   */
   function asset() external view override returns (address) {
     return _asset;
   }

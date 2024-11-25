@@ -61,6 +61,623 @@
       }
     ]
   },
+  "MultiStrategy": {
+    "functions": [
+      {
+        "name": "MAX_TOTAL_WEIGHT",
+        "signature": "MAX_TOTAL_WEIGHT()",
+        "selector": "0x09a3bbe4"
+      },
+      {
+        "name": "acceptOwnership",
+        "signature": "acceptOwnership()",
+        "selector": "0x79ba5097"
+      },
+      {
+        "name": "addStrategy",
+        "signature": "addStrategy(address)",
+        "selector": "0x223e5479"
+      },
+      {
+        "name": "maxDifference",
+        "signature": "maxDifference()",
+        "selector": "0x30c867f8"
+      },
+      {
+        "name": "owner",
+        "signature": "owner()",
+        "selector": "0x8da5cb5b"
+      },
+      {
+        "name": "pendingOwner",
+        "signature": "pendingOwner()",
+        "selector": "0xe30c3978"
+      },
+      {
+        "name": "removeStrategy",
+        "signature": "removeStrategy(uint256)",
+        "selector": "0xc0cbbca6"
+      },
+      {
+        "name": "renounceOwnership",
+        "signature": "renounceOwnership()",
+        "selector": "0x715018a6"
+      },
+      {
+        "name": "setMaxDifference",
+        "signature": "setMaxDifference(uint256)",
+        "selector": "0x0757d899"
+      },
+      {
+        "name": "setWeights",
+        "signature": "setWeights(uint16[])",
+        "selector": "0xbbc7dc36"
+      },
+      {
+        "name": "strategies",
+        "signature": "strategies()",
+        "selector": "0xd9f9027f"
+      },
+      {
+        "name": "totalWeight",
+        "signature": "totalWeight()",
+        "selector": "0x96c82e57"
+      },
+      {
+        "name": "transferOwnership",
+        "signature": "transferOwnership(address)",
+        "selector": "0xf2fde38b"
+      },
+      {
+        "name": "weights",
+        "signature": "weights()",
+        "selector": "0xc649f040"
+      }
+    ],
+    "errors": [
+      {
+        "name": "InvalidMaxDifference",
+        "signature": "InvalidMaxDifference(uint256)",
+        "selector": "0xca4a8357"
+      },
+      {
+        "name": "InvalidStrategies",
+        "signature": "InvalidStrategies()",
+        "selector": "0x6dac0528"
+      },
+      {
+        "name": "InvalidStrategy",
+        "signature": "InvalidStrategy()",
+        "selector": "0x4e236e9a"
+      },
+      {
+        "name": "InvalidStrategyIndex",
+        "signature": "InvalidStrategyIndex(uint256)",
+        "selector": "0xf3e4f1b4"
+      },
+      {
+        "name": "InvalidWeights",
+        "signature": "InvalidWeights()",
+        "selector": "0x84677ce8"
+      },
+      {
+        "name": "InvalidWeightsLength",
+        "signature": "InvalidWeightsLength()",
+        "selector": "0xf846d153"
+      }
+    ]
+  },
+  "MultiStrategyVault": {
+    "functions": [
+      {
+        "name": "DEFAULT_ADMIN_ROLE",
+        "signature": "DEFAULT_ADMIN_ROLE()",
+        "selector": "0xa217fddf"
+      },
+      {
+        "name": "MAX_TOTAL_WEIGHT",
+        "signature": "MAX_TOTAL_WEIGHT()",
+        "selector": "0x09a3bbe4"
+      },
+      {
+        "name": "PAUSER_ROLE",
+        "signature": "PAUSER_ROLE()",
+        "selector": "0xe63ab1e9"
+      },
+      {
+        "name": "_initializeVaultSettings",
+        "signature": "_initializeVaultSettings()",
+        "selector": "0xcd435cdd"
+      },
+      {
+        "name": "acceptOwnership",
+        "signature": "acceptOwnership()",
+        "selector": "0x79ba5097"
+      },
+      {
+        "name": "addStrategy",
+        "signature": "addStrategy(address)",
+        "selector": "0x223e5479"
+      },
+      {
+        "name": "allowance",
+        "signature": "allowance(address,address)",
+        "selector": "0xdd62ed3e"
+      },
+      {
+        "name": "approve",
+        "signature": "approve(address,uint256)",
+        "selector": "0x095ea7b3"
+      },
+      {
+        "name": "asset",
+        "signature": "asset()",
+        "selector": "0x38d52e0f"
+      },
+      {
+        "name": "balanceOf",
+        "signature": "balanceOf(address)",
+        "selector": "0x70a08231"
+      },
+      {
+        "name": "convertToAssets",
+        "signature": "convertToAssets(uint256)",
+        "selector": "0x07a2d13a"
+      },
+      {
+        "name": "convertToShares",
+        "signature": "convertToShares(uint256)",
+        "selector": "0xc6e6f592"
+      },
+      {
+        "name": "decimals",
+        "signature": "decimals()",
+        "selector": "0x313ce567"
+      },
+      {
+        "name": "decreaseAllowance",
+        "signature": "decreaseAllowance(address,uint256)",
+        "selector": "0xa457c2d7"
+      },
+      {
+        "name": "deposit",
+        "signature": "deposit(uint256,address)",
+        "selector": "0x6e553f65"
+      },
+      {
+        "name": "depositNative",
+        "signature": "depositNative(address)",
+        "selector": "0x33bb7f91"
+      },
+      {
+        "name": "enableAccount",
+        "signature": "enableAccount(address,bool)",
+        "selector": "0x8645e84b"
+      },
+      {
+        "name": "getFeeReceiver",
+        "signature": "getFeeReceiver()",
+        "selector": "0xe8a35392"
+      },
+      {
+        "name": "getMaxDeposit",
+        "signature": "getMaxDeposit()",
+        "selector": "0xa4dbc6a8"
+      },
+      {
+        "name": "getPerformanceFee",
+        "signature": "getPerformanceFee()",
+        "selector": "0x235c3603"
+      },
+      {
+        "name": "getRoleAdmin",
+        "signature": "getRoleAdmin(bytes32)",
+        "selector": "0x248a9ca3"
+      },
+      {
+        "name": "getWithdrawalFee",
+        "signature": "getWithdrawalFee()",
+        "selector": "0xd8e159f8"
+      },
+      {
+        "name": "grantRole",
+        "signature": "grantRole(bytes32,address)",
+        "selector": "0x2f2ff15d"
+      },
+      {
+        "name": "hasRole",
+        "signature": "hasRole(bytes32,address)",
+        "selector": "0x91d14854"
+      },
+      {
+        "name": "increaseAllowance",
+        "signature": "increaseAllowance(address,uint256)",
+        "selector": "0x39509351"
+      },
+      {
+        "name": "initialize",
+        "signature": "initialize(address,string,string,address,address[],uint16[],address)",
+        "selector": "0x82da75e2"
+      },
+      {
+        "name": "isAccountEnabled",
+        "signature": "isAccountEnabled(address)",
+        "selector": "0xb8b359cc"
+      },
+      {
+        "name": "maxDeposit",
+        "signature": "maxDeposit(address)",
+        "selector": "0x402d267d"
+      },
+      {
+        "name": "maxDifference",
+        "signature": "maxDifference()",
+        "selector": "0x30c867f8"
+      },
+      {
+        "name": "maxMint",
+        "signature": "maxMint(address)",
+        "selector": "0xc63d75b6"
+      },
+      {
+        "name": "maxRedeem",
+        "signature": "maxRedeem(address)",
+        "selector": "0xd905777e"
+      },
+      {
+        "name": "maxWithdraw",
+        "signature": "maxWithdraw(address)",
+        "selector": "0xce96cb77"
+      },
+      {
+        "name": "mint",
+        "signature": "mint(uint256,address)",
+        "selector": "0x94bf804d"
+      },
+      {
+        "name": "name",
+        "signature": "name()",
+        "selector": "0x06fdde03"
+      },
+      {
+        "name": "owner",
+        "signature": "owner()",
+        "selector": "0x8da5cb5b"
+      },
+      {
+        "name": "pause",
+        "signature": "pause()",
+        "selector": "0x8456cb59"
+      },
+      {
+        "name": "paused",
+        "signature": "paused()",
+        "selector": "0x5c975abb"
+      },
+      {
+        "name": "pendingOwner",
+        "signature": "pendingOwner()",
+        "selector": "0xe30c3978"
+      },
+      {
+        "name": "previewDeposit",
+        "signature": "previewDeposit(uint256)",
+        "selector": "0xef8b30f7"
+      },
+      {
+        "name": "previewMint",
+        "signature": "previewMint(uint256)",
+        "selector": "0xb3d7f6b9"
+      },
+      {
+        "name": "previewRedeem",
+        "signature": "previewRedeem(uint256)",
+        "selector": "0x4cdad506"
+      },
+      {
+        "name": "previewWithdraw",
+        "signature": "previewWithdraw(uint256)",
+        "selector": "0x0a28a477"
+      },
+      {
+        "name": "rebalance",
+        "signature": "rebalance()",
+        "selector": "0x7d7c2a1c"
+      },
+      {
+        "name": "redeem",
+        "signature": "redeem(uint256,address,address)",
+        "selector": "0xba087652"
+      },
+      {
+        "name": "redeemNative",
+        "signature": "redeemNative(uint256)",
+        "selector": "0x4bf03edf"
+      },
+      {
+        "name": "removeStrategy",
+        "signature": "removeStrategy(uint256)",
+        "selector": "0xc0cbbca6"
+      },
+      {
+        "name": "renounceOwnership",
+        "signature": "renounceOwnership()",
+        "selector": "0x715018a6"
+      },
+      {
+        "name": "renounceRole",
+        "signature": "renounceRole(bytes32,address)",
+        "selector": "0x36568abe"
+      },
+      {
+        "name": "revokeRole",
+        "signature": "revokeRole(bytes32,address)",
+        "selector": "0xd547741f"
+      },
+      {
+        "name": "setFeeReceiver",
+        "signature": "setFeeReceiver(address)",
+        "selector": "0xefdcd974"
+      },
+      {
+        "name": "setMaxDeposit",
+        "signature": "setMaxDeposit(uint256)",
+        "selector": "0xbb371fdd"
+      },
+      {
+        "name": "setMaxDifference",
+        "signature": "setMaxDifference(uint256)",
+        "selector": "0x0757d899"
+      },
+      {
+        "name": "setPerformanceFee",
+        "signature": "setPerformanceFee(uint256)",
+        "selector": "0x70897b23"
+      },
+      {
+        "name": "setWeights",
+        "signature": "setWeights(uint16[])",
+        "selector": "0xbbc7dc36"
+      },
+      {
+        "name": "setWithdrawalFee",
+        "signature": "setWithdrawalFee(uint256)",
+        "selector": "0xac1e5025"
+      },
+      {
+        "name": "strategies",
+        "signature": "strategies()",
+        "selector": "0xd9f9027f"
+      },
+      {
+        "name": "supportsInterface",
+        "signature": "supportsInterface(bytes4)",
+        "selector": "0x01ffc9a7"
+      },
+      {
+        "name": "symbol",
+        "signature": "symbol()",
+        "selector": "0x95d89b41"
+      },
+      {
+        "name": "tokenPerAsset",
+        "signature": "tokenPerAsset()",
+        "selector": "0x63e334a7"
+      },
+      {
+        "name": "totalAssets",
+        "signature": "totalAssets()",
+        "selector": "0x01e1d114"
+      },
+      {
+        "name": "totalSupply",
+        "signature": "totalSupply()",
+        "selector": "0x18160ddd"
+      },
+      {
+        "name": "totalWeight",
+        "signature": "totalWeight()",
+        "selector": "0x96c82e57"
+      },
+      {
+        "name": "transfer",
+        "signature": "transfer(address,uint256)",
+        "selector": "0xa9059cbb"
+      },
+      {
+        "name": "transferFrom",
+        "signature": "transferFrom(address,address,uint256)",
+        "selector": "0x23b872dd"
+      },
+      {
+        "name": "transferOwnership",
+        "signature": "transferOwnership(address)",
+        "selector": "0xf2fde38b"
+      },
+      {
+        "name": "unpause",
+        "signature": "unpause()",
+        "selector": "0x3f4ba83a"
+      },
+      {
+        "name": "weights",
+        "signature": "weights()",
+        "selector": "0xc649f040"
+      },
+      {
+        "name": "withdraw",
+        "signature": "withdraw(uint256,address,address)",
+        "selector": "0xb460af94"
+      },
+      {
+        "name": "withdrawNative",
+        "signature": "withdrawNative(uint256)",
+        "selector": "0x84276d81"
+      }
+    ],
+    "errors": [
+      {
+        "name": "ETHTransferNotAllowed",
+        "signature": "ETHTransferNotAllowed(address)",
+        "selector": "0x25402f9a"
+      },
+      {
+        "name": "FailedAllowance",
+        "signature": "FailedAllowance()",
+        "selector": "0xeded658b"
+      },
+      {
+        "name": "InsufficientWETHBalance",
+        "signature": "InsufficientWETHBalance()",
+        "selector": "0xea920f37"
+      },
+      {
+        "name": "InvalidAddress",
+        "signature": "InvalidAddress()",
+        "selector": "0xe6c4247b"
+      },
+      {
+        "name": "InvalidAmount",
+        "signature": "InvalidAmount()",
+        "selector": "0x2c5211c6"
+      },
+      {
+        "name": "InvalidAsset",
+        "signature": "InvalidAsset()",
+        "selector": "0xc891add2"
+      },
+      {
+        "name": "InvalidAssetsState",
+        "signature": "InvalidAssetsState()",
+        "selector": "0x6ccb80a3"
+      },
+      {
+        "name": "InvalidDivDenominator",
+        "signature": "InvalidDivDenominator()",
+        "selector": "0x9124a73d"
+      },
+      {
+        "name": "InvalidMaxDifference",
+        "signature": "InvalidMaxDifference(uint256)",
+        "selector": "0xca4a8357"
+      },
+      {
+        "name": "InvalidMaxLoanToValue",
+        "signature": "InvalidMaxLoanToValue()",
+        "selector": "0x3b755ca2"
+      },
+      {
+        "name": "InvalidOwner",
+        "signature": "InvalidOwner()",
+        "selector": "0x49e27cff"
+      },
+      {
+        "name": "InvalidPercentage",
+        "signature": "InvalidPercentage()",
+        "selector": "0x1f3b85d3"
+      },
+      {
+        "name": "InvalidReceiver",
+        "signature": "InvalidReceiver()",
+        "selector": "0x1e4ec46b"
+      },
+      {
+        "name": "InvalidShareBalance",
+        "signature": "InvalidShareBalance()",
+        "selector": "0x15da7dae"
+      },
+      {
+        "name": "InvalidStrategies",
+        "signature": "InvalidStrategies()",
+        "selector": "0x6dac0528"
+      },
+      {
+        "name": "InvalidStrategy",
+        "signature": "InvalidStrategy()",
+        "selector": "0x4e236e9a"
+      },
+      {
+        "name": "InvalidStrategyIndex",
+        "signature": "InvalidStrategyIndex(uint256)",
+        "selector": "0xf3e4f1b4"
+      },
+      {
+        "name": "InvalidValue",
+        "signature": "InvalidValue()",
+        "selector": "0xaa7feadc"
+      },
+      {
+        "name": "InvalidWETHAmount",
+        "signature": "InvalidWETHAmount()",
+        "selector": "0x93116e71"
+      },
+      {
+        "name": "InvalidWETHContract",
+        "signature": "InvalidWETHContract()",
+        "selector": "0xca879b3c"
+      },
+      {
+        "name": "InvalidWeights",
+        "signature": "InvalidWeights()",
+        "selector": "0x84677ce8"
+      },
+      {
+        "name": "InvalidWeightsLength",
+        "signature": "InvalidWeightsLength()",
+        "selector": "0xf846d153"
+      },
+      {
+        "name": "InvalidWithdrawAmount",
+        "signature": "InvalidWithdrawAmount()",
+        "selector": "0xdb73cdf0"
+      },
+      {
+        "name": "MaxDepositReached",
+        "signature": "MaxDepositReached()",
+        "selector": "0xa942f8cd"
+      },
+      {
+        "name": "NoAllowance",
+        "signature": "NoAllowance()",
+        "selector": "0xebf59ac8"
+      },
+      {
+        "name": "NoAssetsToWithdraw",
+        "signature": "NoAssetsToWithdraw()",
+        "selector": "0xbb464a5e"
+      },
+      {
+        "name": "NoPermissions",
+        "signature": "NoPermissions()",
+        "selector": "0x0e7c0580"
+      },
+      {
+        "name": "NotEnoughBalanceToWithdraw",
+        "signature": "NotEnoughBalanceToWithdraw()",
+        "selector": "0x6dd14794"
+      },
+      {
+        "name": "WhiteListAlreadyEnabled",
+        "signature": "WhiteListAlreadyEnabled()",
+        "selector": "0xf0de7609"
+      },
+      {
+        "name": "WhiteListFailedToAdd",
+        "signature": "WhiteListFailedToAdd()",
+        "selector": "0x4d42d837"
+      },
+      {
+        "name": "WhiteListFailedToRemove",
+        "signature": "WhiteListFailedToRemove()",
+        "selector": "0x3936520e"
+      },
+      {
+        "name": "WhiteListNotEnabled",
+        "signature": "WhiteListNotEnabled()",
+        "selector": "0xdf7f799b"
+      }
+    ]
+  },
   "Vault": {
     "functions": [
       {
@@ -190,8 +807,8 @@
       },
       {
         "name": "initialize",
-        "signature": "initialize(address,string,string,address,address)",
-        "selector": "0x6cf1dbed"
+        "signature": "initialize(address,string,string,address,address,address)",
+        "selector": "0xdb8d8fc6"
       },
       {
         "name": "isAccountEnabled",
@@ -404,6 +1021,11 @@
         "name": "InvalidAddress",
         "signature": "InvalidAddress()",
         "selector": "0xe6c4247b"
+      },
+      {
+        "name": "InvalidAsset",
+        "signature": "InvalidAsset()",
+        "selector": "0xc891add2"
       },
       {
         "name": "InvalidAssetsState",
@@ -2155,36 +2777,6 @@
       }
     ]
   },
-  "UseSwapper": {
-    "functions": [],
-    "errors": [
-      {
-        "name": "InvalidFeeTier",
-        "signature": "InvalidFeeTier()",
-        "selector": "0x3733548a"
-      },
-      {
-        "name": "InvalidInputToken",
-        "signature": "InvalidInputToken()",
-        "selector": "0x2df9739b"
-      },
-      {
-        "name": "InvalidOutputToken",
-        "signature": "InvalidOutputToken()",
-        "selector": "0x06202020"
-      },
-      {
-        "name": "InvalidUniRouterContract",
-        "signature": "InvalidUniRouterContract()",
-        "selector": "0xcf29a968"
-      },
-      {
-        "name": "SwapFailed",
-        "signature": "SwapFailed()",
-        "selector": "0x81ceff30"
-      }
-    ]
-  },
   "UseTokenActions": {
     "functions": [],
     "errors": [
@@ -2212,6 +2804,61 @@
         "name": "UseUniQuoter_InvalidUniQuoterContract",
         "signature": "UseUniQuoter_InvalidUniQuoterContract()",
         "selector": "0xa523fdd6"
+      }
+    ]
+  },
+  "UseUniV2Swapper": {
+    "functions": [],
+    "errors": [
+      {
+        "name": "InvalidInputToken",
+        "signature": "InvalidInputToken()",
+        "selector": "0x2df9739b"
+      },
+      {
+        "name": "InvalidOutputToken",
+        "signature": "InvalidOutputToken()",
+        "selector": "0x06202020"
+      },
+      {
+        "name": "InvalidV2RouterContract",
+        "signature": "InvalidV2RouterContract()",
+        "selector": "0x42881e2f"
+      },
+      {
+        "name": "SwapFailed",
+        "signature": "SwapFailed()",
+        "selector": "0x81ceff30"
+      }
+    ]
+  },
+  "UseUniV3Swapper": {
+    "functions": [],
+    "errors": [
+      {
+        "name": "InvalidFeeTier",
+        "signature": "InvalidFeeTier()",
+        "selector": "0x3733548a"
+      },
+      {
+        "name": "InvalidInputToken",
+        "signature": "InvalidInputToken()",
+        "selector": "0x2df9739b"
+      },
+      {
+        "name": "InvalidOutputToken",
+        "signature": "InvalidOutputToken()",
+        "selector": "0x06202020"
+      },
+      {
+        "name": "InvalidUniRouterContract",
+        "signature": "InvalidUniRouterContract()",
+        "selector": "0xcf29a968"
+      },
+      {
+        "name": "SwapFailed",
+        "signature": "SwapFailed()",
+        "selector": "0x81ceff30"
       }
     ]
   },
@@ -3610,6 +4257,67 @@
       }
     ]
   },
+  "StrategyPark": {
+    "functions": [
+      {
+        "name": "asset",
+        "signature": "asset()",
+        "selector": "0x38d52e0f"
+      },
+      {
+        "name": "deploy",
+        "signature": "deploy(uint256)",
+        "selector": "0xa5e38751"
+      },
+      {
+        "name": "harvest",
+        "signature": "harvest()",
+        "selector": "0x4641257d"
+      },
+      {
+        "name": "owner",
+        "signature": "owner()",
+        "selector": "0x8da5cb5b"
+      },
+      {
+        "name": "renounceOwnership",
+        "signature": "renounceOwnership()",
+        "selector": "0x715018a6"
+      },
+      {
+        "name": "totalAssets",
+        "signature": "totalAssets()",
+        "selector": "0x01e1d114"
+      },
+      {
+        "name": "transferOwnership",
+        "signature": "transferOwnership(address)",
+        "selector": "0xf2fde38b"
+      },
+      {
+        "name": "undeploy",
+        "signature": "undeploy(uint256)",
+        "selector": "0x440e6dff"
+      }
+    ],
+    "errors": [
+      {
+        "name": "InsufficientBalance",
+        "signature": "InsufficientBalance()",
+        "selector": "0xf4d678b8"
+      },
+      {
+        "name": "ZeroAddress",
+        "signature": "ZeroAddress()",
+        "selector": "0xd92e233d"
+      },
+      {
+        "name": "ZeroAmount",
+        "signature": "ZeroAmount()",
+        "selector": "0x1f2a2005"
+      }
+    ]
+  },
   "StrategySettings": {
     "functions": [
       {
@@ -3764,6 +4472,102 @@
         "name": "ZeroAmount",
         "signature": "ZeroAmount()",
         "selector": "0x1f2a2005"
+      }
+    ]
+  },
+  "StrategySwapPark": {
+    "functions": [
+      {
+        "name": "asset",
+        "signature": "asset()",
+        "selector": "0x38d52e0f"
+      },
+      {
+        "name": "deploy",
+        "signature": "deploy(uint256)",
+        "selector": "0xa5e38751"
+      },
+      {
+        "name": "harvest",
+        "signature": "harvest()",
+        "selector": "0x4641257d"
+      },
+      {
+        "name": "maxSlippage",
+        "signature": "maxSlippage()",
+        "selector": "0x8c04166f"
+      },
+      {
+        "name": "owner",
+        "signature": "owner()",
+        "selector": "0x8da5cb5b"
+      },
+      {
+        "name": "renounceOwnership",
+        "signature": "renounceOwnership()",
+        "selector": "0x715018a6"
+      },
+      {
+        "name": "setMaxSlippage",
+        "signature": "setMaxSlippage(uint256)",
+        "selector": "0x43f68a49"
+      },
+      {
+        "name": "totalAssets",
+        "signature": "totalAssets()",
+        "selector": "0x01e1d114"
+      },
+      {
+        "name": "transferOwnership",
+        "signature": "transferOwnership(address)",
+        "selector": "0xf2fde38b"
+      },
+      {
+        "name": "undeploy",
+        "signature": "undeploy(uint256)",
+        "selector": "0x440e6dff"
+      }
+    ],
+    "errors": [
+      {
+        "name": "InvalidAmount",
+        "signature": "InvalidAmount()",
+        "selector": "0x2c5211c6"
+      },
+      {
+        "name": "InvalidConfiguration",
+        "signature": "InvalidConfiguration()",
+        "selector": "0xc52a9bd3"
+      },
+      {
+        "name": "InvalidFeeTier",
+        "signature": "InvalidFeeTier()",
+        "selector": "0x3733548a"
+      },
+      {
+        "name": "InvalidInputToken",
+        "signature": "InvalidInputToken()",
+        "selector": "0x2df9739b"
+      },
+      {
+        "name": "InvalidOutputToken",
+        "signature": "InvalidOutputToken()",
+        "selector": "0x06202020"
+      },
+      {
+        "name": "InvalidUniRouterContract",
+        "signature": "InvalidUniRouterContract()",
+        "selector": "0xcf29a968"
+      },
+      {
+        "name": "SlippageExceeded",
+        "signature": "SlippageExceeded()",
+        "selector": "0x8199f5f3"
+      },
+      {
+        "name": "SwapFailed",
+        "signature": "SwapFailed()",
+        "selector": "0x81ceff30"
       }
     ]
   },
@@ -4820,6 +5624,231 @@
         "name": "withdraw",
         "signature": "withdraw(address,uint256,address)",
         "selector": "0x69328dec"
+      }
+    ],
+    "errors": []
+  },
+  "IUniswapV2Router01": {
+    "functions": [
+      {
+        "name": "WETH",
+        "signature": "WETH()",
+        "selector": "0xad5c4648"
+      },
+      {
+        "name": "addLiquidity",
+        "signature": "addLiquidity(address,address,uint256,uint256,uint256,uint256,address,uint256)",
+        "selector": "0xe8e33700"
+      },
+      {
+        "name": "addLiquidityETH",
+        "signature": "addLiquidityETH(address,uint256,uint256,uint256,address,uint256)",
+        "selector": "0xf305d719"
+      },
+      {
+        "name": "factory",
+        "signature": "factory()",
+        "selector": "0xc45a0155"
+      },
+      {
+        "name": "getAmountIn",
+        "signature": "getAmountIn(uint256,uint256,uint256)",
+        "selector": "0x85f8c259"
+      },
+      {
+        "name": "getAmountOut",
+        "signature": "getAmountOut(uint256,uint256,uint256)",
+        "selector": "0x054d50d4"
+      },
+      {
+        "name": "getAmountsIn",
+        "signature": "getAmountsIn(uint256,address[])",
+        "selector": "0x1f00ca74"
+      },
+      {
+        "name": "getAmountsOut",
+        "signature": "getAmountsOut(uint256,address[])",
+        "selector": "0xd06ca61f"
+      },
+      {
+        "name": "quote",
+        "signature": "quote(uint256,uint256,uint256)",
+        "selector": "0xad615dec"
+      },
+      {
+        "name": "removeLiquidity",
+        "signature": "removeLiquidity(address,address,uint256,uint256,uint256,address,uint256)",
+        "selector": "0xbaa2abde"
+      },
+      {
+        "name": "removeLiquidityETH",
+        "signature": "removeLiquidityETH(address,uint256,uint256,uint256,address,uint256)",
+        "selector": "0x02751cec"
+      },
+      {
+        "name": "removeLiquidityETHWithPermit",
+        "signature": "removeLiquidityETHWithPermit(address,uint256,uint256,uint256,address,uint256,bool,uint8,bytes32,bytes32)",
+        "selector": "0xded9382a"
+      },
+      {
+        "name": "removeLiquidityWithPermit",
+        "signature": "removeLiquidityWithPermit(address,address,uint256,uint256,uint256,address,uint256,bool,uint8,bytes32,bytes32)",
+        "selector": "0x2195995c"
+      },
+      {
+        "name": "swapETHForExactTokens",
+        "signature": "swapETHForExactTokens(uint256,address[],address,uint256)",
+        "selector": "0xfb3bdb41"
+      },
+      {
+        "name": "swapExactETHForTokens",
+        "signature": "swapExactETHForTokens(uint256,address[],address,uint256)",
+        "selector": "0x7ff36ab5"
+      },
+      {
+        "name": "swapExactTokensForETH",
+        "signature": "swapExactTokensForETH(uint256,uint256,address[],address,uint256)",
+        "selector": "0x18cbafe5"
+      },
+      {
+        "name": "swapExactTokensForTokens",
+        "signature": "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)",
+        "selector": "0x38ed1739"
+      },
+      {
+        "name": "swapTokensForExactETH",
+        "signature": "swapTokensForExactETH(uint256,uint256,address[],address,uint256)",
+        "selector": "0x4a25d94a"
+      },
+      {
+        "name": "swapTokensForExactTokens",
+        "signature": "swapTokensForExactTokens(uint256,uint256,address[],address,uint256)",
+        "selector": "0x8803dbee"
+      }
+    ],
+    "errors": []
+  },
+  "IUniswapV2Router02": {
+    "functions": [
+      {
+        "name": "WETH",
+        "signature": "WETH()",
+        "selector": "0xad5c4648"
+      },
+      {
+        "name": "addLiquidity",
+        "signature": "addLiquidity(address,address,uint256,uint256,uint256,uint256,address,uint256)",
+        "selector": "0xe8e33700"
+      },
+      {
+        "name": "addLiquidityETH",
+        "signature": "addLiquidityETH(address,uint256,uint256,uint256,address,uint256)",
+        "selector": "0xf305d719"
+      },
+      {
+        "name": "factory",
+        "signature": "factory()",
+        "selector": "0xc45a0155"
+      },
+      {
+        "name": "getAmountIn",
+        "signature": "getAmountIn(uint256,uint256,uint256)",
+        "selector": "0x85f8c259"
+      },
+      {
+        "name": "getAmountOut",
+        "signature": "getAmountOut(uint256,uint256,uint256)",
+        "selector": "0x054d50d4"
+      },
+      {
+        "name": "getAmountsIn",
+        "signature": "getAmountsIn(uint256,address[])",
+        "selector": "0x1f00ca74"
+      },
+      {
+        "name": "getAmountsOut",
+        "signature": "getAmountsOut(uint256,address[])",
+        "selector": "0xd06ca61f"
+      },
+      {
+        "name": "quote",
+        "signature": "quote(uint256,uint256,uint256)",
+        "selector": "0xad615dec"
+      },
+      {
+        "name": "removeLiquidity",
+        "signature": "removeLiquidity(address,address,uint256,uint256,uint256,address,uint256)",
+        "selector": "0xbaa2abde"
+      },
+      {
+        "name": "removeLiquidityETH",
+        "signature": "removeLiquidityETH(address,uint256,uint256,uint256,address,uint256)",
+        "selector": "0x02751cec"
+      },
+      {
+        "name": "removeLiquidityETHSupportingFeeOnTransferTokens",
+        "signature": "removeLiquidityETHSupportingFeeOnTransferTokens(address,uint256,uint256,uint256,address,uint256)",
+        "selector": "0xaf2979eb"
+      },
+      {
+        "name": "removeLiquidityETHWithPermit",
+        "signature": "removeLiquidityETHWithPermit(address,uint256,uint256,uint256,address,uint256,bool,uint8,bytes32,bytes32)",
+        "selector": "0xded9382a"
+      },
+      {
+        "name": "removeLiquidityETHWithPermitSupportingFeeOnTransferTokens",
+        "signature": "removeLiquidityETHWithPermitSupportingFeeOnTransferTokens(address,uint256,uint256,uint256,address,uint256,bool,uint8,bytes32,bytes32)",
+        "selector": "0x5b0d5984"
+      },
+      {
+        "name": "removeLiquidityWithPermit",
+        "signature": "removeLiquidityWithPermit(address,address,uint256,uint256,uint256,address,uint256,bool,uint8,bytes32,bytes32)",
+        "selector": "0x2195995c"
+      },
+      {
+        "name": "swapETHForExactTokens",
+        "signature": "swapETHForExactTokens(uint256,address[],address,uint256)",
+        "selector": "0xfb3bdb41"
+      },
+      {
+        "name": "swapExactETHForTokens",
+        "signature": "swapExactETHForTokens(uint256,address[],address,uint256)",
+        "selector": "0x7ff36ab5"
+      },
+      {
+        "name": "swapExactETHForTokensSupportingFeeOnTransferTokens",
+        "signature": "swapExactETHForTokensSupportingFeeOnTransferTokens(uint256,address[],address,uint256)",
+        "selector": "0xb6f9de95"
+      },
+      {
+        "name": "swapExactTokensForETH",
+        "signature": "swapExactTokensForETH(uint256,uint256,address[],address,uint256)",
+        "selector": "0x18cbafe5"
+      },
+      {
+        "name": "swapExactTokensForETHSupportingFeeOnTransferTokens",
+        "signature": "swapExactTokensForETHSupportingFeeOnTransferTokens(uint256,uint256,address[],address,uint256)",
+        "selector": "0x791ac947"
+      },
+      {
+        "name": "swapExactTokensForTokens",
+        "signature": "swapExactTokensForTokens(uint256,uint256,address[],address,uint256)",
+        "selector": "0x38ed1739"
+      },
+      {
+        "name": "swapExactTokensForTokensSupportingFeeOnTransferTokens",
+        "signature": "swapExactTokensForTokensSupportingFeeOnTransferTokens(uint256,uint256,address[],address,uint256)",
+        "selector": "0x5c11d795"
+      },
+      {
+        "name": "swapTokensForExactETH",
+        "signature": "swapTokensForExactETH(uint256,uint256,address[],address,uint256)",
+        "selector": "0x4a25d94a"
+      },
+      {
+        "name": "swapTokensForExactTokens",
+        "signature": "swapTokensForExactTokens(uint256,uint256,address[],address,uint256)",
+        "selector": "0x8803dbee"
       }
     ],
     "errors": []

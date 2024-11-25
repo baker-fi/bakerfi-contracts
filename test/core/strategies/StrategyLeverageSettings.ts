@@ -1,5 +1,5 @@
 import '@nomicfoundation/hardhat-ethers';
-import { describeif } from '../common';
+import { describeif } from '../../common';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import { expect } from 'chai';
 import { ethers, network } from 'hardhat';

@@ -55,7 +55,6 @@ export async function deployVault(
   owner: string,
   tokenName: string,
   tokenSymbol: string,
-  serviceRegistry: string,
   strategy: string,
   weth: string,
   proxyAdmin?: any,
@@ -72,6 +71,7 @@ export async function deployVault(
       owner,
       tokenName,
       tokenSymbol,
+      weth,
       strategy,
       weth,
     ]),
@@ -307,7 +307,7 @@ export async function deployUniV3RouterMock(
   supplyA,
   tokenBContract,
   supplyB,
-  serviceRegistry: any,
+  serviceRegistry?: any,
 ) {
   const UniRouter = await ethers.getContractFactory('UniV3RouterMock');
   const uniRouter = await UniRouter.deploy(
@@ -316,10 +316,12 @@ export async function deployUniV3RouterMock(
   );
   await uniRouter.waitForDeployment();
   const uniRouterAddress = await uniRouter.getAddress();
-  await serviceRegistry.registerService(
-    ethers.keccak256(Buffer.from('Uniswap Router')),
-    uniRouterAddress,
-  );
+  if (serviceRegistry) {
+    await serviceRegistry.registerService(
+      ethers.keccak256(Buffer.from('Uniswap Router')),
+      uniRouterAddress,
+    );
+  }
   await tokenAContract.transfer(uniRouterAddress, supplyA);
   await tokenBContract.transfer(uniRouterAddress, supplyB);
   return uniRouter;

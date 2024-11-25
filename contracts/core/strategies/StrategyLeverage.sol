@@ -11,7 +11,7 @@ import { ISwapHandler } from "../../interfaces/core/ISwapHandler.sol";
 import { IStrategyLeverage } from "../../interfaces/core/IStrategyLeverage.sol";
 import { UseLeverage } from "../hooks/UseLeverage.sol";
 import { UseFlashLender } from "../hooks/UseFlashLender.sol";
-import { UseSwapper } from "../hooks/UseSwapper.sol";
+import { UseUniV3Swapper } from "../hooks/UseUniV3Swapper.sol";
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import { AddressUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import { StrategyLeverageSettings } from "./StrategyLeverageSettings.sol";
@@ -63,7 +63,7 @@ abstract contract StrategyLeverage is
   IERC3156FlashBorrowerUpgradeable,
   StrategyLeverageSettings,
   ReentrancyGuardUpgradeable,
-  UseSwapper,
+  UseUniV3Swapper,
   UseFlashLender,
   UseLeverage
 {
@@ -158,7 +158,7 @@ abstract contract StrategyLeverage is
 
     _initLeverageSettings(initialOwner, initialGovernor);
     IV3SwapRouter uniRouter = IV3SwapRouter(univ3Router);
-    _initUseSwapper(uniRouter);
+    _initUseUniV3Swapper(uniRouter);
     _initUseFlashLender(flashLender);
 
     // Find the Tokens on Registry

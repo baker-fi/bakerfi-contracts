@@ -44,6 +44,7 @@ async function deployFunction() {
       deployer.address,
       'Bread ETH',
       'brETH',
+      await weth.getAddress(),
       await strategy.getAddress(),
       await weth.getAddress(),
     ]),

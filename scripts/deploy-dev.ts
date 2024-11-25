@@ -169,7 +169,6 @@ async function main() {
     owner.address,
     config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].sharesName,
     config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].sharesSymbol,
-    await serviceRegistry.getAddress(),
     await strategyProxy.getAddress(),
     await weth.getAddress(),
     proxyAdmin,

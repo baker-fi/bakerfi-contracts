@@ -11,6 +11,8 @@ const Config: DeployConfig = {
     balancerVault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8', // Validated
     weth: '0x4200000000000000000000000000000000000006', // Validated
     wstETH: '0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452', // Validated
+    stETH: '0xae7ab96520de3a18e5e111b5eaab095312d7fe84',
+
     oracles: [
       {
         name: 'ETH/USD Oracle',
@@ -352,9 +354,13 @@ const Config: DeployConfig = {
     minTxConfirmations: 0,
     owner: '0xdD1945499B695F21f5472f10B67Aa8Dafb1b1c7c',
     uniswapRouter02: '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45',
+    uniswapV2Router02: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
+    curveRouterNG: '0x16C6521Dff6baB339122a0FE25a9116693265353',
     balancerVault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
     weth: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+    usdt: '0xdac17f958d2ee523a2206206994597c13d831ec7',
     wstETH: '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0',
+    stETH: '0xae7ab96520de3a18e5e111b5eaab095312d7fe84',
     morpho: '0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb',
     oracles: [
       {
