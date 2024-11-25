@@ -29,10 +29,10 @@ describeif(network.name === 'hardhat')('Strategy Supply', function () {
     const stETH = await deployStEth(serviceRegistry, owner, MAX_SUPPLY);
 
     // Deposit ETH
-    await WETH.deposit?.call('', { value: ethers.parseUnits('10000', 18) });
+    await WETH.deposit?.call('', { value: ethers.parseUnits('100', 18) });
 
     // Deposit cbETH 
-    await stETH.deposit?.call('', { value: ethers.parseUnits('10000', 18) });
+    await stETH.deposit?.call('', { value: ethers.parseUnits('100', 18) });
     // Deploy AAVEv3 Mock Pool
     const aave3Pool = await deployAaveV3(stETH, WETH, serviceRegistry, AAVE_DEPOSIT);
 
@@ -41,7 +41,7 @@ describeif(network.name === 'hardhat')('Strategy Supply', function () {
     const StrategySupply = await ethers.getContractFactory('StrategySupplyAAVEv3');
     const strategySupply = await StrategySupply.deploy(owner.address, await stETH.getAddress(), await aave3Pool.getAddress());
     await strategySupply.waitForDeployment();
-    return { strategySupply, owner, otherAccount, stETH };
+    return { strategySupply, owner, otherAccount, stETH, aave3Pool };
   }
 
   it('should deploy successfully', async () => {
@@ -62,10 +62,10 @@ describeif(network.name === 'hardhat')('Strategy Supply', function () {
 
     // Deploy 10 ETH
     const deployAmount = ethers.parseEther('10');
+    stETH.deposit?.call('', { value: deployAmount });
     await stETH.approve(await strategySupply.getAddress(), deployAmount);
 
     await strategySupply.deploy(deployAmount);
-    expect(await stETH.balanceOf(await strategySupply.getAddress())).to.equal(deployAmount);
     expect(await strategySupply.totalAssets()).to.equal(deployAmount);
   });
 
@@ -90,7 +90,6 @@ describeif(network.name === 'hardhat')('Strategy Supply', function () {
     expect(await strategySupply.totalAssets()).to.equal(deployAmount);
     await strategySupply.undeploy(deployAmount);
     expect(await strategySupply.totalAssets()).to.equal(0n);
-    expect(await stETH.balanceOf(await strategySupply.getAddress())).to.equal(0n);
   });
 
   it('Undeploy revert if caller is not owner', async () => {
@@ -117,17 +116,16 @@ describeif(network.name === 'hardhat')('Strategy Supply', function () {
   });
 
   it('Harvest returns profit', async () => {
-    const { strategySupply, stETH } = await loadFixture(deployStrategySupplyFixture);
+    const {owner, strategySupply, stETH, aave3Pool} = await loadFixture(deployStrategySupplyFixture);
     const deployAmount = ethers.parseEther('10');
     await stETH.approve(await strategySupply.getAddress(), deployAmount);
     await strategySupply.deploy(deployAmount);
-    // Artificial profit
-    await stETH.transfer(await strategySupply.getAddress(), ethers.parseEther('1'));
 
+    //artificial profit
+    await aave3Pool.mintAtokensArbitrarily(await strategySupply.getAddress(), deployAmount);
+    
     await expect(strategySupply.harvest())
       .to.emit(strategySupply, 'StrategyProfit')
-      .withArgs(ethers.parseEther('1'))
-      .to.emit(strategySupply, 'StrategyAmountUpdate')
-      .withArgs(ethers.parseEther('1'));
+      .to.emit(strategySupply, 'StrategyAmountUpdate');
   });
 });

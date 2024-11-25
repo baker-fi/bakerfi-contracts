@@ -25,6 +25,7 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
 
   using MathLibrary for uint256;
 
+  error FailedToApproveAllowanceForAAVE();
   error ZeroAddress();
   error ZeroAmount();
   error InsufficientBalance();
@@ -45,27 +46,31 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
     _asset = payable(asset_);
     _aavev3 = IPoolV3(aavev3Address);
     _transferOwnership(initialOwner);
+    ERC20(_asset).approve(aavev3Address, type(uint256).max);
   }
 
   /**
    * @inheritdoc IStrategy
    */
-  function deploy(uint256 amount) external nonReentrant onlyOwner returns (uint256 deployedAmount) {
+  function deploy(uint256 amount) external nonReentrant onlyOwner returns (uint256) {
     if (amount == 0) revert ZeroAmount();
-    
+
     // Transfer assets from user
     ERC20(_asset).safeTransferFrom(msg.sender, address(this), amount);
-
+    
+    if (!ERC20(_asset).approve(aaveV3A(), amount))
+      revert FailedToApproveAllowanceForAAVE();
+      
     // Transfer assets from caller to strategy
     _aavev3.supply(_asset, amount, address(this), 0);  
 
+    _deployedAmount += amount;
+
     emit StrategyDeploy(msg.sender, amount);
 
-    // emit StrategyAmountUpdate(shares);
-
-    _deployedAmount += amount;
+    emit StrategyAmountUpdate(_deployedAmount);
     
-    return amount;
+    return _deployedAmount;
   }
 
   /**
@@ -106,7 +111,7 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
     if(withdrawalValue != amount) revert WithdrawalValueMismatch();
 
     // Transfer assets to user
-    ERC20(_asset).safeTransferFrom(address(this), msg.sender, amount);
+    ERC20(_asset).safeTransfer(msg.sender, amount);
 
     balance -= amount;
     emit StrategyUndeploy(msg.sender, amount);
@@ -149,4 +154,11 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
     return reserveBalance;
   }
 
+/**
+   * @dev Returns the address of the AAVE v3 contract.
+   * @return The address of the AAVE v3 contract.
+   */
+  function aaveV3A() internal view returns (address) {
+    return address(_aavev3);
+  }
 }
