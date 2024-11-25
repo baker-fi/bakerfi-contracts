@@ -34,7 +34,7 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
   // The asset being managed
   address payable private immutable _asset;
 
-  uint256 _deployedAmount;
+  uint256 private _deployedAmount;
 
   IPoolV3 private immutable _aavev3;
 
