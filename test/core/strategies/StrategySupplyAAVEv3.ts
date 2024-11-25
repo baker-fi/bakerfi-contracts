@@ -110,7 +110,7 @@ describeif(network.name === 'hardhat')('Strategy Supply', function () {
 
   it('Undeploy revert if amount is greater than deployed amount', async () => {
     const { strategySupply, stETH } = await loadFixture(deployStrategySupplyFixture);
-    await expect(strategySupply.undeploy(ethers.parseEther('10'))).to.be.revertedWithCustomError(
+    await expect(strategySupply.undeploy(ethers.parseEther('10000000'))).to.be.revertedWithCustomError(
       strategySupply,
       'InsufficientBalance',
     );
