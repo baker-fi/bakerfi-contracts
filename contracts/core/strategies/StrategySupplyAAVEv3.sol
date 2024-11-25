@@ -42,7 +42,8 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
    * @param asset_ The address of the asset to be managed
    */
   constructor(address initialOwner, address asset_, address aavev3Address) ReentrancyGuard() Ownable() {
-   if (asset_ == address(0)) revert ZeroAddress();
+    if (initialOwner == address(0) || asset_ == address(0) || aavev3Address == address(0)) revert ZeroAddress();
+    
     _asset = payable(asset_);
     _aavev3 = IPoolV3(aavev3Address);
     _transferOwnership(initialOwner);
@@ -57,10 +58,7 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
 
     // Transfer assets from user
     ERC20(_asset).safeTransferFrom(msg.sender, address(this), amount);
-    
-    if (!ERC20(_asset).approve(aaveV3A(), amount))
-      revert FailedToApproveAllowanceForAAVE();
-      
+
     // Transfer assets from caller to strategy
     _aavev3.supply(_asset, amount, address(this), 0);  
 
