@@ -52,23 +52,25 @@ describeif(network.name === 'hardhat')('Strategy Supply', function () {
   it('Contructor', async () => {
     const { strategySupply, stETH, owner } = await loadFixture(deployStrategySupplyFixture);
     expect(await strategySupply.asset()).to.equal(await stETH.getAddress());
-    let reserveData = await strategySupply.getReserveData();
     let totalAssets = await strategySupply.totalAssets();
     expect(totalAssets).to.equal(0n);
     expect(await strategySupply.owner()).to.equal(owner.address);
   });
 
-  it('Deploy - 2 stETH', async () => {
+  it('Deploy - 10 stETH', async () => {
     const { strategySupply, stETH } = await loadFixture(deployStrategySupplyFixture);
-    const deployAmount = ethers.parseEther("2");
+
+    // Deploy 10 ETH
+    const deployAmount = ethers.parseEther('10');
     await stETH.approve(await strategySupply.getAddress(), deployAmount);
+
     await strategySupply.deploy(deployAmount);
     expect(await stETH.balanceOf(await strategySupply.getAddress())).to.equal(deployAmount);
     expect(await strategySupply.totalAssets()).to.equal(deployAmount);
   });
 
   it('Deploy revert if caller is not owner', async () => {
-    const deployAmount = 10000n * 10n ** 18n;
+    const deployAmount = ethers.parseEther('10');
     const { strategySupply, stETH, otherAccount } = await loadFixture(deployStrategySupplyFixture);
     await expect(strategySupply.connect(otherAccount).deploy(deployAmount)).to.be.revertedWith(
       'Ownable: caller is not the owner',
@@ -82,7 +84,7 @@ describeif(network.name === 'hardhat')('Strategy Supply', function () {
 
   it('Undeploy', async () => {
     const { strategySupply, stETH } = await loadFixture(deployStrategySupplyFixture);
-    const deployAmount = 10000n * 10n ** 18n;
+    const deployAmount = ethers.parseEther('10');
     await stETH.approve(await strategySupply.getAddress(), deployAmount);
     await strategySupply.deploy(deployAmount);
     expect(await strategySupply.totalAssets()).to.equal(deployAmount);
@@ -94,7 +96,7 @@ describeif(network.name === 'hardhat')('Strategy Supply', function () {
   it('Undeploy revert if caller is not owner', async () => {
     const { strategySupply, stETH, otherAccount } = await loadFixture(deployStrategySupplyFixture);
     await expect(
-      strategySupply.connect(otherAccount).undeploy(10000n * 10n ** 18n),
+      strategySupply.connect(otherAccount).undeploy(ethers.parseEther('10')),
     ).to.be.revertedWith('Ownable: caller is not the owner');
   });
 
@@ -108,7 +110,7 @@ describeif(network.name === 'hardhat')('Strategy Supply', function () {
 
   it('Undeploy revert if amount is greater than deployed amount', async () => {
     const { strategySupply, stETH } = await loadFixture(deployStrategySupplyFixture);
-    await expect(strategySupply.undeploy(10000n * 10n ** 18n)).to.be.revertedWithCustomError(
+    await expect(strategySupply.undeploy(ethers.parseEther('10'))).to.be.revertedWithCustomError(
       strategySupply,
       'InsufficientBalance',
     );
@@ -116,16 +118,16 @@ describeif(network.name === 'hardhat')('Strategy Supply', function () {
 
   it('Harvest returns profit', async () => {
     const { strategySupply, stETH } = await loadFixture(deployStrategySupplyFixture);
-    const deployAmount = 10000n * 10n ** 18n;
+    const deployAmount = ethers.parseEther('10');
     await stETH.approve(await strategySupply.getAddress(), deployAmount);
     await strategySupply.deploy(deployAmount);
     // Artificial profit
-    await stETH.transfer(await strategySupply.getAddress(), 1000n * 10n ** 18n);
+    await stETH.transfer(await strategySupply.getAddress(), ethers.parseEther('1'));
 
     await expect(strategySupply.harvest())
       .to.emit(strategySupply, 'StrategyProfit')
-      .withArgs(1000n * 10n ** 18n)
+      .withArgs(ethers.parseEther('1'))
       .to.emit(strategySupply, 'StrategyAmountUpdate')
-      .withArgs(11000n * 10n ** 18n);
+      .withArgs(ethers.parseEther('1'));
   });
 });
