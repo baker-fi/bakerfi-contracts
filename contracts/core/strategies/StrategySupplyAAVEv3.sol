@@ -32,7 +32,7 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
   error WithdrawalValueMismatch();
 
   // The asset being managed
-  address payable private immutable _asset;
+  address private immutable _asset;
 
   uint256 private _deployedAmount;
 
@@ -44,9 +44,11 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
   constructor(address initialOwner, address asset_, address aavev3Address) ReentrancyGuard() Ownable() {
     if (initialOwner == address(0) || asset_ == address(0) || aavev3Address == address(0)) revert ZeroAddress();
     
-    _asset = payable(asset_);
+    _asset = asset_;
     _aavev3 = IPoolV3(aavev3Address);
     _transferOwnership(initialOwner);
+    
+    // Allowance approval
     if(!ERC20(_asset).approve(aavev3Address, type(uint256).max)){
       revert FailedToApproveAllowanceForAAVE();
     }
@@ -77,6 +79,8 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
    * @inheritdoc IStrategy
    */
   function harvest() external returns (int256 balanceChange) {
+
+    // Get Balance
     uint256 newBalance = getBalance();
 
     balanceChange = int256(newBalance) - int256(_deployedAmount);
@@ -98,10 +102,10 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
   function undeploy(
     uint256 amount
   ) external nonReentrant onlyOwner returns (uint256 undeployedAmount) {
-
-    uint256 balance = getBalance();
-
     if (amount == 0) revert ZeroAmount();
+
+    // Get Balance
+    uint256 balance = getBalance();
     if (amount > balance) revert InsufficientBalance();
 
     // Transfer assets back to caller
@@ -134,7 +138,6 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
     return _asset;
   }
 
-
   /**
    * Get the Current Balance on AAVEv3
    *
@@ -152,13 +155,5 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
 
     reserveBalance = reserveBalance.toDecimals(reserveDecimals, SYSTEM_DECIMALS);
     return reserveBalance;
-  }
-
-/**
-   * @dev Returns the address of the AAVE v3 contract.
-   * @return The address of the AAVE v3 contract.
-   */
-  function aaveV3A() internal view returns (address) {
-    return address(_aavev3);
   }
 }
