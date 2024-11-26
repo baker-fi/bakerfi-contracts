@@ -47,7 +47,9 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
     _asset = payable(asset_);
     _aavev3 = IPoolV3(aavev3Address);
     _transferOwnership(initialOwner);
-    ERC20(_asset).approve(aavev3Address, type(uint256).max);
+    if(!ERC20(_asset).approve(aavev3Address, type(uint256).max)){
+      revert FailedToApproveAllowanceForAAVE();
+    }
   }
 
   /**
