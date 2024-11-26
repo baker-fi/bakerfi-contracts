@@ -3,10 +3,9 @@ pragma solidity ^0.8.24;
 
 import { IERC4626 } from "@openzeppelin/contracts/interfaces/IERC4626.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { UseUniV3Swapper } from "./hooks/UseUniV3Swapper.sol";
-import { IV3SwapRouter } from "../interfaces/uniswap/v3/IV3SwapRouter.sol";
 import { UseWETH } from "./hooks/UseWETH.sol";
 import { UseIERC4626 } from "./hooks/UseIERC4626.sol";
+import { UseUnifiedSwapper } from "./hooks/swappers/UseUnifiedSwapper.sol";
 import { IWETH } from "../interfaces/tokens/IWETH.sol";
 import { ISwapHandler } from "../interfaces/core/ISwapHandler.sol";
 import { UseTokenActions } from "./hooks/UseTokenActions.sol";
@@ -34,7 +33,7 @@ import { IERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/IER
  * - ERC4626 vaults operations
  */
 contract VaultRouter is
-  UseUniV3Swapper,
+  UseUnifiedSwapper,
   UseTokenActions,
   UsePermitTransfers,
   UseIERC4626,
@@ -48,15 +47,14 @@ contract VaultRouter is
   constructor() {
     _disableInitializers();
   }
+
   /**
    * @notice Initializes the contract.
    * @param initialOwner The address of the owner.
-   * @param router The Uniswap V3 Router address.
    * @param weth The Chain WETH address
    */
-  function initialize(address initialOwner, IV3SwapRouter router, IWETH weth) public initializer {
+  function initialize(address initialOwner, IWETH weth) public initializer {
     initializeUseIERC4626(initialOwner);
-    _initUseUniV3Swapper(router);
     _initUseWETH(address(weth));
   }
 
@@ -99,8 +97,12 @@ contract VaultRouter is
     // Extract output mapping from bits 64-95 by right shifting 64 bits and masking
     uint32 outputMapping = uint16(((action >> 64) & Commands.THIRTY_TWO_BITS_MASK));
 
-    if (actionToExecute == Commands.V3_UNISWAP_SWAP) {
-      output = _handleUniswapSwap(data, callStack, inputMapping, outputMapping);
+    if (
+      actionToExecute == Commands.V3_UNISWAP_SWAP ||
+      actionToExecute == Commands.AERODROME_SWAP ||
+      actionToExecute == Commands.V2_UNISWAP_SWAP
+    ) {
+      output = _handleSwap(data, callStack, inputMapping, outputMapping);
     } else if (action == Commands.PULL_TOKEN) {
       output = _handlePullToken(data, callStack, inputMapping);
     } else if (actionToExecute == Commands.PULL_TOKEN_FROM) {
@@ -133,6 +135,7 @@ contract VaultRouter is
       revert InvalidCommand({ action: action });
     }
   }
+
   /**
    * @notice Handles the Uniswap V3 swap command.
    * @param data The encoded swap parameters.
@@ -141,7 +144,7 @@ contract VaultRouter is
    * @param outputMapping The output mapping.
    * @return output The encoded output values.
    */
-  function _handleUniswapSwap(
+  function _handleSwap(
     bytes calldata data,
     uint256[] memory callStack,
     uint32 inputMapping,
@@ -509,33 +512,6 @@ contract VaultRouter is
     uint256 amount = convertToVaultAssets(vault, shares);
     Commands.pushOutputParam(callStack, amount, outputMapping, 1);
     return abi.encodePacked(amount);
-  }
-
-  /**
-   * @notice Approves a token to be used for swaps.
-   * @param token The token to approve.
-   */
-  function approveTokenToSwap(IERC20 token) public onlyOwner {
-    _approvedSwapTokens[token] = true;
-    IERC20(token).approve(uniRouterA(), 2 ** 256 - 1);
-  }
-
-  /**
-   * @notice Checks if a token is approved to be used for swaps.
-   * @param token The token to check.
-   * @return bool True if the token is approved, false otherwise.
-   */
-  function isTokenApprovedToSwap(IERC20 token) public view returns (bool) {
-    return _approvedSwapTokens[token];
-  }
-
-  /**
-   * @notice Unapproves a token to be used for swaps.
-   * @param token The token to unapprove.
-   */
-  function unapproveTokenToSwap(IERC20 token) public onlyOwner {
-    _approvedSwapTokens[token] = false;
-    IERC20(token).approve(uniRouterA(), 0);
   }
 
   /**

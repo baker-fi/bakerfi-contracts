@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.24;
 
-import { Ownable2StepUpgradeable } from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 import { PERCENTAGE_PRECISION } from "../Constants.sol";
 import { IStrategySettings } from "../../interfaces/core/IStrategySettings.sol";
 import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
@@ -31,18 +30,11 @@ abstract contract StrategySettings is GovernableOwnable, IStrategySettings {
 
   using EnumerableSet for EnumerableSet.AddressSet;
 
-  /**
-   * @dev Maximum price age allowed for protocol state change
-   * operations.
-   */
-  uint256 private _priceMaxAge;
+  /// @dev Storage slot for price max age
+  bytes32 private constant PRICE_MAX_AGE_SLOT = keccak256("bakerfi.strategy.price.max.age");
 
-  /**
-   * @dev Maximum Price Confidence in percentage allowed
-   * for the oracle prices. The zero percentage is unsafe and avoids
-   * the max Confidence check on Pyth Prices.
-   */
-  uint256 private _priceMaxConf;
+  /// @dev Storage slot for price max confidence
+  bytes32 private constant PRICE_MAX_CONF_SLOT = keccak256("bakerfi.strategy.price.max.conf");
 
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
@@ -59,8 +51,8 @@ abstract contract StrategySettings is GovernableOwnable, IStrategySettings {
    * - The provided owner address must not be the zero address.
    */
   function _initializeStrategySettings() internal onlyInitializing {
-    _priceMaxAge = 60 minutes;
-    _priceMaxConf = 0;
+    _setUint256(PRICE_MAX_AGE_SLOT, 60 minutes);
+    _setUint256(PRICE_MAX_CONF_SLOT, 0);
   }
 
   /**
@@ -72,7 +64,7 @@ abstract contract StrategySettings is GovernableOwnable, IStrategySettings {
    * @param value The maximum age in seconds.
    */
   function setPriceMaxAge(uint256 value) external onlyGovernor {
-    _priceMaxAge = value;
+    _setUint256(PRICE_MAX_AGE_SLOT, value);
     emit PriceMaxAgeChanged(value);
   }
 
@@ -81,7 +73,7 @@ abstract contract StrategySettings is GovernableOwnable, IStrategySettings {
    * @return The maximum age in seconds.
    */
   function getPriceMaxAge() public view returns (uint256) {
-    return _priceMaxAge;
+    return _getUint256(PRICE_MAX_AGE_SLOT);
   }
 
   /**
@@ -90,7 +82,7 @@ abstract contract StrategySettings is GovernableOwnable, IStrategySettings {
    */
   function setPriceMaxConf(uint256 value) external onlyGovernor {
     if (value > PERCENTAGE_PRECISION) revert InvalidPercentage();
-    _priceMaxConf = value;
+    _setUint256(PRICE_MAX_CONF_SLOT, value);
     emit PriceMaxConfChanged(value);
   }
 
@@ -99,12 +91,19 @@ abstract contract StrategySettings is GovernableOwnable, IStrategySettings {
    * @return The maximum confidence level.
    */
   function getPriceMaxConf() public view returns (uint256) {
-    return _priceMaxConf;
+    return _getUint256(PRICE_MAX_CONF_SLOT);
   }
 
-  /**
-   * @dev This empty reserved space is put in place to allow future versions to add new
-   * variables without shifting down storage in the inheritance chain.
-   */
-  uint256[50] private __gap;
+  // Add helper functions for storage slots
+  function _setUint256(bytes32 slot, uint256 value) private {
+    assembly {
+      sstore(slot, value)
+    }
+  }
+
+  function _getUint256(bytes32 slot) private view returns (uint256 value) {
+    assembly {
+      value := sload(slot)
+    }
+  }
 }

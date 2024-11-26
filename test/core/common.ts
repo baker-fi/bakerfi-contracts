@@ -103,11 +103,16 @@ export async function deployProd(
         await ethOracle.getAddress(),
         await flashLender.getAddress(),
         config.aavev3?.[aavev3Market] ?? '',
-        await config.uniswapRouter02,
-        config.markets[type].swapFeeTier,
         (config.markets[type] as AAVEv3Market).AAVEEModeCategory,
         proxyAdmin,
       );
+      const sp = await ethers.getContractAt('StrategyLeverageAAVEv3', await aProxy.getAddress());
+      await sp.enableRoute(config.wstETH, config.weth, {
+        router: await config.uniswapRouter02,
+        provider: 1,
+        uniV3Tier: config.markets[type].swapFeeTier,
+        tickSpacing: 0,
+      });
       strategyProxyDeploy = aProxy;
       break;
     case StrategyImplementation.MORPHO_BLUE_WSTETH_ETH:
@@ -120,14 +125,19 @@ export async function deployProd(
         'ETH/USD Oracle',
         await flashLender.getAddress(),
         config.morpho ?? '',
-        await config.uniswapRouter02,
-        config?.markets[StrategyImplementation.MORPHO_BLUE_WSTETH_ETH].swapFeeTier,
         (config?.markets[StrategyImplementation.MORPHO_BLUE_WSTETH_ETH] as MorphoMarket).oracle,
         (config?.markets[StrategyImplementation.MORPHO_BLUE_WSTETH_ETH] as MorphoMarket).irm,
         (config?.markets[StrategyImplementation.MORPHO_BLUE_WSTETH_ETH] as MorphoMarket).lltv,
         proxyAdmin,
       );
       strategyProxyDeploy = mProxy;
+      const sp2 = await ethers.getContractAt('StrategyLeverageAAVEv3', await mProxy.getAddress());
+      await sp2.enableRoute(config.wstETH, config.weth, {
+        router: await config.uniswapRouter02,
+        provider: 1,
+        uniV3Tier: config.markets[type].swapFeeTier,
+        tickSpacing: 0,
+      });
       break;
     default:
       throw 'No ';
@@ -155,6 +165,7 @@ export async function deployProd(
     'StrategyLeverageAAVEv3',
     await strategyProxyDeploy.getAddress(),
   );
+
   const vaultProxy = await ethers.getContractAt('Vault', await vaultProxyDeploy.getAddress());
   await strategyProxy.setMaxSlippage(5n * 10n ** 7n);
   await strategyProxy.setLoanToValue(ethers.parseUnits('800', 6));

@@ -1456,8 +1456,6 @@ async function deployFunction() {
     await ethOracle.getAddress(),
     await flashLender.getAddress(),
     await aave3Pool.getAddress(),
-    await uniRouter.getAddress(),
-    config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
     (config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH] as AAVEv3Market).AAVEEModeCategory,
     proxyAdmin,
   );
@@ -1476,8 +1474,14 @@ async function deployFunction() {
     await weth.getAddress(),
     proxyAdmin,
   );
-
+  await pStrategy.enableRoute(await cbETH.getAddress(), await weth.getAddress(), {
+    router: await uniRouter.getAddress(),
+    provider: 1,
+    uniV3Tier: config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
+    tickSpacing: 0,
+  });
   await pStrategy.transferOwnership(await proxy.getAddress());
+
   const pVault = await ethers.getContractAt('Vault', await proxy.getAddress());
   return {
     cbETH,

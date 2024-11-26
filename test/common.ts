@@ -42,7 +42,7 @@ export const VaultRouterABI = [
   'function sweepTokens(address, address)',
   'function wrapETH(uint256)',
   'function unwrapETH(uint256)',
-  'function swap((address,address,uint8,uint256,uint256,uint24,bytes))',
+  'function swap((address,address,uint8,uint256,uint256,bytes))',
   'function pullTokenWithPermit(address, uint256, address, uint256, uint8, bytes32, bytes32)',
   'function depositVault(address, uint256, address)',
   'function mintVault(address, uint256, address)',

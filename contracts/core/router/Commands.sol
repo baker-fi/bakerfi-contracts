@@ -28,6 +28,9 @@ library Commands {
   uint8 public constant ERC4626_VAULT_CONVERT_TO_SHARES = 0x14; // Command to convert assets to shares in an ERC4626 vault.
   uint8 public constant ERC4626_VAULT_CONVERT_TO_ASSETS = 0x15; // Command to convert shares to assets in an ERC4626 vault.
 
+  uint8 public constant AERODROME_SWAP = 0x20; // Command to execute a swap on Aerodrome.
+  uint8 public constant V2_UNISWAP_SWAP = 0x21; // Command to execute a swap on Aerodrome.
+
   // Constant for a 32-bit mask used in bitwise operations.
   uint32 public constant THIRTY_TWO_BITS_MASK = 0xFFFFFFFF; // Mask to extract 32 bits.
 

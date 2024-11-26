@@ -3,7 +3,6 @@ pragma solidity ^0.8.24;
 
 import { IERC3156FlashBorrowerUpgradeable } from "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashBorrowerUpgradeable.sol";
 import { IERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import { PERCENTAGE_PRECISION } from "../Constants.sol";
 import { IOracle } from "../../interfaces/core/IOracle.sol";
@@ -11,12 +10,12 @@ import { ISwapHandler } from "../../interfaces/core/ISwapHandler.sol";
 import { IStrategyLeverage } from "../../interfaces/core/IStrategyLeverage.sol";
 import { UseLeverage } from "../hooks/UseLeverage.sol";
 import { UseFlashLender } from "../hooks/UseFlashLender.sol";
-import { UseUniV3Swapper } from "../hooks/UseUniV3Swapper.sol";
+import { UseUnifiedSwapper } from "../hooks/swappers/UseUnifiedSwapper.sol";
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import { AddressUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import { StrategyLeverageSettings } from "./StrategyLeverageSettings.sol";
 import { MathLibrary } from "../../libraries/MathLibrary.sol";
-import { IV3SwapRouter } from "../../interfaces/uniswap/v3/IV3SwapRouter.sol";
+import { EmptySlot } from "../EmptySlot.sol";
 
 /**
  * @title Base Recursive Staking Strategy
@@ -63,8 +62,9 @@ abstract contract StrategyLeverage is
   IERC3156FlashBorrowerUpgradeable,
   StrategyLeverageSettings,
   ReentrancyGuardUpgradeable,
-  UseUniV3Swapper,
+  UseUnifiedSwapper,
   UseFlashLender,
+  EmptySlot,
   UseLeverage
 {
   enum FlashLoanAction {
@@ -103,7 +103,6 @@ abstract contract StrategyLeverage is
   error ETHTransferNotAllowed(address sender);
   error FailedToAuthenticateArgs();
   error InvalidFlashLoanAction();
-  error FailedToApproveAllowance();
 
   // Assets in debtToken() Controlled by the strategy that can be unwinded
   uint256 private _deployedAssets = 0;
@@ -115,8 +114,8 @@ abstract contract StrategyLeverage is
   IOracle private _collateralOracle;
   // Debt Price Oracle used for balance conversions to USD
   IOracle private _debtOracle;
-  // Swap tier used to convert between Collateral and Debt
-  uint24 internal _swapFeeTier;
+  // Empty Slot to keep the storage layout consistent
+  uint24 internal _emptySlot;
   // Internal Storaged used for flash loan parameter authentication
   bytes32 private _flashLoanArgsHash = 0;
   // The Deployed or Undeployed pending amount. Used for internal accounting
@@ -134,8 +133,6 @@ abstract contract StrategyLeverage is
    * @param collateralOracle The hash representing the collateral ERC20 token in the service registry.
    * @param debtOracle The hash representing the collateral/ETH oracle in the service registry.
    * @param flashLender The hash representing the flash lender in the service registry.
-   * @param univ3Router The hash representing the Uniswap V3 Router in the service registry.
-   * @param swapFeeTier The swap fee tier for Uniswap.
    *
    * Requirements:
    * - The caller must be in the initializing state.
@@ -150,15 +147,11 @@ abstract contract StrategyLeverage is
     address debtToken,
     address collateralOracle,
     address debtOracle,
-    address flashLender,
-    address univ3Router,
-    uint24 swapFeeTier
+    address flashLender
   ) internal onlyInitializing {
     if (initialOwner == address(0)) revert InvalidOwner();
 
     _initLeverageSettings(initialOwner, initialGovernor);
-    IV3SwapRouter uniRouter = IV3SwapRouter(univ3Router);
-    _initUseUniV3Swapper(uniRouter);
     _initUseFlashLender(flashLender);
 
     // Find the Tokens on Registry
@@ -169,18 +162,11 @@ abstract contract StrategyLeverage is
     _collateralOracle = IOracle(collateralOracle);
     _debtOracle = IOracle(debtOracle);
 
-    _swapFeeTier = swapFeeTier;
-
     if (_collateralToken == address(0)) revert InvalidCollateralToken();
     if (_debtToken == address(0)) revert InvalidDebtToken();
 
     if (address(_collateralOracle) == address(0)) revert InvalidCollateralOracle();
     if (address(_debtOracle) == address(0)) revert InvalidDebtOracle();
-
-    // Allow the router to spend Collateral tokens on swaps
-    _allowRouterSpend(IERC20(_collateralToken), 2 ** 256 - 1);
-    // Allow the router to spend Debt tokens on swaps
-    _allowRouterSpend(IERC20(_debtToken), 2 ** 256 - 1);
   }
 
   /**
@@ -668,7 +654,6 @@ abstract contract StrategyLeverage is
         ISwapHandler.SwapType.EXACT_OUTPUT,
         amountInMax,
         debtAmount + fee,
-        _swapFeeTier,
         bytes("")
       )
     );
@@ -712,7 +697,6 @@ abstract contract StrategyLeverage is
         ISwapHandler.SwapType.EXACT_INPUT, // Swap Mode
         amount, // Amount In
         amountOutMinimum, // Amount Out
-        _swapFeeTier, // Fee Pair Tier
         bytes("") // User Payload
       )
     );
@@ -747,7 +731,6 @@ abstract contract StrategyLeverage is
         ISwapHandler.SwapType.EXACT_INPUT, // Swap Mode
         amount, // Amount In
         amountOutMinimum, // Amount Out
-        _swapFeeTier, // Fee Pair Tier
         bytes("") // User Payload
       )
     );

@@ -8,6 +8,7 @@ import {
   deployQuoterV2Mock,
   deployVaultRouter,
 } from '../../../scripts/common';
+import { AbiCoder } from 'ethers/abi';
 
 describeif(network.name === 'hardhat')('Vault Router', function () {
   it('Deposit 1 WETH to Vault', async function () {
@@ -63,8 +64,7 @@ describeif(network.name === 'hardhat')('Vault Router', function () {
                 0, //mode
                 ethers.parseUnits('1', 18), //amountIn
                 0, //amountOut
-                10, //feeTier
-                '0x', //payload
+                new AbiCoder().encode(['uint24'], [10]),
               ],
             ])
             .slice(10),
@@ -142,8 +142,7 @@ describeif(network.name === 'hardhat')('Vault Router', function () {
                 0, //mode
                 ethers.parseUnits('5', 17), //amountIn
                 0, //amountOut
-                10, //feeTier
-                '0x', //payload
+                new AbiCoder().encode(['uint24'], [10]),
               ],
             ])
             .slice(10),
@@ -203,17 +202,23 @@ async function deployFunction() {
   await vault.waitForDeployment();
   const { proxy: proxyRouter } = await deployVaultRouter(
     owner.address,
-    await router.getAddress(),
     await weth.getAddress(),
     proxyAdmin,
   );
 
   const pRouter = await ethers.getContractAt('VaultRouter', await proxyRouter.getAddress());
 
+  await pRouter.enableRoute(await weth.getAddress(), await cbETH.getAddress(), {
+    router: await router.getAddress(),
+    provider: 1,
+    uniV3Tier: 100,
+    tickSpacing: 0,
+  });
+
   await pRouter.approveTokenForVault(await vault.getAddress(), await weth.getAddress());
   await pRouter.approveTokenForVault(await vault.getAddress(), await cbETH.getAddress());
-  await pRouter.approveTokenToSwap(await cbETH.getAddress());
-  await pRouter.approveTokenToSwap(await weth.getAddress());
+  //  await pRouter.approveTokenToSwap(await cbETH.getAddress());
+  //await pRouter.approveTokenToSwap(await weth.getAddress());
 
   return {
     cbETH,

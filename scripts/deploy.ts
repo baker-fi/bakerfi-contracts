@@ -298,12 +298,30 @@ async function deployStrategy(
           oracles['ETH/USD Oracle'],
           flashLenderReceipt?.contractAddress,
           config.aavev3?.[marketName],
-          config.uniswapRouter02,
-          strategyConfig.swapFeeTier,
           strategyConfig.AAVEEModeCategory,
         ],
         spinner,
         result,
+      );
+      // Configure Route
+      await app.send(
+        strategyContract,
+        strategyAddress ?? '',
+        'enableRoute',
+        [
+          config.wstETH,
+          config.weth,
+          {
+            router: config.uniswapRouter02,
+            provider: 1,
+            uniV3Tier: strategyConfig.swapFeeTier,
+            tickSpacing: 0,
+          },
+        ],
+        {
+          chainId,
+          minTxConfirmations: config.minTxConfirmations,
+        },
       );
       break;
     case StrategyImplementation.MORPHO_BLUE_WSTETH_ETH:
@@ -327,8 +345,6 @@ async function deployStrategy(
             oracles['ETH/USD Oracle'],
             flashLenderReceipt?.contractAddress,
             config.morpho,
-            config.uniswapRouter02,
-            strategyConfig.swapFeeTier,
             strategyConfig.oracle,
             strategyConfig.irm,
             strategyConfig.lltv,
@@ -336,6 +352,25 @@ async function deployStrategy(
         ],
         spinner,
         result,
+      );
+      await app.send(
+        strategyContract,
+        strategyAddress ?? '',
+        'enableRoute',
+        [
+          config.wstETH,
+          config.weth,
+          {
+            router: config.uniswapRouter02,
+            provider: 1,
+            uniV3Tier: strategyConfig.swapFeeTier,
+            tickSpacing: 0,
+          },
+        ],
+        {
+          chainId,
+          minTxConfirmations: config.minTxConfirmations,
+        },
       );
       break;
     default:

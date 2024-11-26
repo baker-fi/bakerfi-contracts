@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.24;
 
-import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import { IERC4626 } from "@openzeppelin/contracts/interfaces/IERC4626.sol";
 import { IERC20 } from "@openzeppelin/contracts/interfaces/IERC20.sol";
-import { Ownable2StepUpgradeable } from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
+import { GovernableOwnable } from "../GovernableOwnable.sol";
 
 /**
  * @title UseIERC4626
@@ -13,22 +12,24 @@ import { Ownable2StepUpgradeable } from "@openzeppelin/contracts-upgradeable/acc
  *
  * @dev Contract to integrate the use of ERC4626 vaults.
  */
-abstract contract UseIERC4626 is Ownable2StepUpgradeable {
+abstract contract UseIERC4626 is GovernableOwnable {
   /**
    * @dev Error thrown when an invalid vault address is provided.
    */
   error InvalidVaultAddress();
+  error FailedToApproveAllowanceForVault();
 
   mapping(IERC4626 => mapping(IERC20 => bool)) private _approvedVaults;
 
   function initializeUseIERC4626(address initialOwner) internal onlyInitializing {
-    __Ownable2Step_init();
     _transferOwnership(initialOwner);
+    _transferGovernorship(initialOwner);
   }
 
   function approveTokenForVault(IERC4626 vault, IERC20 token) public onlyOwner {
     _approvedVaults[vault][token] = true;
-    IERC20(token).approve(address(vault), 2 ** 256 - 1);
+    if (!IERC20(token).approve(address(vault), 2 ** 256 - 1))
+      revert FailedToApproveAllowanceForVault();
   }
 
   function isTokenApprovedForVault(IERC4626 vault, IERC20 token) public view returns (bool) {
@@ -37,7 +38,7 @@ abstract contract UseIERC4626 is Ownable2StepUpgradeable {
 
   function unapproveTokenForVault(IERC4626 vault, IERC20 token) public onlyOwner {
     _approvedVaults[vault][token] = false;
-    IERC20(token).approve(address(vault), 0);
+    if (!IERC20(token).approve(address(vault), 0)) revert FailedToApproveAllowanceForVault();
   }
 
   /**

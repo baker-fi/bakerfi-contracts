@@ -76,8 +76,6 @@ describeif(network.name === 'hardhat')('Strategy Proxy', function () {
         await ethOracle.getAddress(),
         await flashLender.getAddress(),
         await aave3Pool.getAddress(),
-        await uniRouter.getAddress(),
-        config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
         (config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH] as AAVEv3Market)
           .AAVEEModeCategory,
       ]),

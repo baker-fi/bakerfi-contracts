@@ -2,7 +2,6 @@
 pragma solidity ^0.8.24;
 
 import { StrategyLeverage } from "./StrategyLeverage.sol";
-import { VaultRegistry } from "../../core/VaultRegistry.sol";
 import { SYSTEM_DECIMALS } from "../../core/Constants.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -52,8 +51,6 @@ contract StrategyLeverageAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
     address debtOracle,
     address flashLender,
     address aaveV3Pool,
-    address univ3Router,
-    uint24 swapFeeTier,
     uint8 eModeCategory
   ) public initializer {
     _initializeStrategyLeverage(
@@ -63,9 +60,7 @@ contract StrategyLeverageAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
       debtToken,
       collateralOracle,
       debtOracle,
-      flashLender,
-      univ3Router,
-      swapFeeTier
+      flashLender
     );
     _initUseAAVEv3(aaveV3Pool);
     aaveV3().setUserEMode(eModeCategory);

@@ -146,8 +146,6 @@ async function main() {
     await ethOracle.getAddress(),
     await flashLender.getAddress(),
     await aaveV3PoolMock.getAddress(),
-    await uniRouter.getAddress(),
-    config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
     (config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH] as AAVEv3Market).AAVEEModeCategory,
     proxyAdmin,
   );
@@ -181,6 +179,17 @@ async function main() {
     'StrategyLeverageAAVEv3',
     await (strategyProxy as any).getAddress(),
   );
+
+  await strategyProxied.enableRoute(await wstETH.getAddress(), await weth.getAddress(), {
+    router: await uniRouter.getAddress(),
+    provider: 1,
+    i: 0,
+    j: 1,
+    swapType: 0,
+    poolType: 0,
+    pool: ethers.ZeroAddress,
+    uniV3Tier: config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
+  });
   await strategyProxied.transferOwnership(vaultProxy);
 
   // 2. Deploy BKR

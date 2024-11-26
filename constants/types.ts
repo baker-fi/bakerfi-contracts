@@ -135,9 +135,9 @@ export type NetworkConfig = {
   uniswapRouter02: string;
   uniswapQuoter?: string;
   curveRouterNG?: string;
-  balancerVault?: string;
   uniswapV2Router02?: string;
   balancerVault: string;
+  usdc?: string;
   weth: string;
   wstETH: string;
   stETH?: string;

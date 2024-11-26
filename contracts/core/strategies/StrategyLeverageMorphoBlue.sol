@@ -91,9 +91,7 @@ contract StrategyLeverageMorphoBlue is Initializable, StrategyLeverage {
       params.debtToken,
       params.collateralOracle,
       params.debtOracle,
-      params.flashLender,
-      params.univ3Router,
-      params.swapFeeTier
+      params.flashLender
     );
 
     // Check if the Morpho Blue Contract exists

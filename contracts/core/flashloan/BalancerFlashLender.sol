@@ -7,7 +7,6 @@ import { IERC3156FlashLenderUpgradeable } from "@openzeppelin/contracts-upgradea
 import { IFlashLoanRecipient } from "../../interfaces/balancer/IFlashLoan.sol";
 import { IVault } from "../../interfaces/balancer/IVault.sol";
 import { MathLibrary } from "../../libraries/MathLibrary.sol";
-import { VaultRegistry, BALANCER_VAULT_CONTRACT } from "../../core/VaultRegistry.sol";
 import { IERC3156FlashBorrowerUpgradeable } from "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashBorrowerUpgradeable.sol";
 
 /**

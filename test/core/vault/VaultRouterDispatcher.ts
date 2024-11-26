@@ -1,6 +1,7 @@
 import { ethers, network } from 'hardhat';
 import { VAULT_ROUTER_COMMAND_ACTIONS, VaultRouterABI, describeif } from '../../common';
 import { expect } from 'chai';
+import { AbiCoder } from 'ethers/abi';
 
 describeif(network.name === 'hardhat')('Vault Router Dispatch', function () {
   it('Dispatch swap', async function () {
@@ -18,8 +19,7 @@ describeif(network.name === 'hardhat')('Vault Router Dispatch', function () {
                 0, //mode
                 ethers.parseUnits('1', 18), //amountIn
                 0, //amountOut
-                10, //feeTier
-                '0x', //payload
+                new AbiCoder().encode(['uint24'], [10]),
               ],
             ])
             .slice(10),
@@ -28,11 +28,12 @@ describeif(network.name === 'hardhat')('Vault Router Dispatch', function () {
     await vaultRouterMock.execute(commands);
     const callInput = await vaultRouterMock.callInput();
 
-    const [tokenIn, tokenOut, mode, amountIn, amountOut, feeTier] =
+    const [tokenIn, tokenOut, mode, amountIn, amountOut, payload] =
       ethers.AbiCoder.defaultAbiCoder().decode(
-        ['address', 'address', 'uint256', 'uint256', 'uint256', 'uint24', 'bytes'],
+        ['address', 'address', 'uint256', 'uint256', 'uint256', 'bytes'],
         callInput,
       );
+    const feeTier = new AbiCoder().decode(['uint24'], payload)[0];
     expect(tokenIn).to.equal('0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e');
     expect(tokenOut).to.equal('0x5Ac32814f9EB4d415779892890a216b244FcB3B5');
     expect(mode).to.equal(0);

@@ -23,7 +23,6 @@ contract VaultRouterMock is VaultRouter {
       params.mode,
       params.amountIn,
       params.amountOut,
-      params.feeTier,
       params.payload
     );
     return (params.amountIn, params.amountOut);

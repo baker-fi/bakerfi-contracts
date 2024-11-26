@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.24;
-pragma experimental ABIEncoderV2;
 
 /**
  * @title These are global constants used by other contracts

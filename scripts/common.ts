@@ -89,8 +89,6 @@ export async function deployAAVEv3Strategy(
   debtOracle: string,
   flashLender: string,
   aaveV3Pool: string,
-  univ3Router: string,
-  swapFreeTier: number,
   emodeCategory: number,
   proxyAdmin?: any,
 ) {
@@ -110,8 +108,6 @@ export async function deployAAVEv3Strategy(
       debtOracle,
       flashLender,
       aaveV3Pool,
-      univ3Router,
-      swapFreeTier,
       emodeCategory,
     ]),
   );
@@ -128,8 +124,6 @@ export async function deployStrategyLeverageMorphoBlue(
   debtOracle: string,
   flashLender: string,
   morphoBlue: string,
-  univ3Router: string,
-  swapFreeTier: number,
   morphoOracle: string,
   irm: string,
   lltv: bigint,
@@ -152,8 +146,6 @@ export async function deployStrategyLeverageMorphoBlue(
         debtOracle,
         flashLender,
         morphoBlue,
-        univ3Router,
-        swapFreeTier,
         morphoOracle,
         irm,
         lltv,
@@ -393,12 +385,7 @@ export async function deployVaultZap(
   return { vaultZap, proxy };
 }
 
-export async function deployVaultRouter(
-  owner: string,
-  uniRouter: string,
-  weth: string,
-  proxyAdmin?: any,
-) {
+export async function deployVaultRouter(owner: string, weth: string, proxyAdmin?: any) {
   const VaultRouter = await ethers.getContractFactory('VaultRouter');
   //owner, uniRouter, quoter, proxyAdmin
   const vaultRouter = await VaultRouter.deploy();
@@ -407,7 +394,7 @@ export async function deployVaultRouter(
   const proxy = await BakerFiProxy.deploy(
     await vaultRouter.getAddress(),
     await proxyAdmin.getAddress(),
-    VaultRouter.interface.encodeFunctionData('initialize', [owner, uniRouter, weth]),
+    VaultRouter.interface.encodeFunctionData('initialize', [owner, weth]),
   );
   await proxy.waitForDeployment();
   return { vaultRouter, proxy };

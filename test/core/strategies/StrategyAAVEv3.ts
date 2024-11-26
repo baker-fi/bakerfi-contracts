@@ -161,8 +161,6 @@ describeif(network.name === 'hardhat')('Strategy Leverage AAVEv3', function () {
       await ethOracle.getAddress(),
       owner.address,
       await aave3Pool.getAddress(),
-      await uniRouter.getAddress(),
-      config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
       (config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH] as AAVEv3Market).AAVEEModeCategory,
       proxyAdmin,
     );
@@ -170,6 +168,13 @@ describeif(network.name === 'hardhat')('Strategy Leverage AAVEv3', function () {
       'StrategyLeverageAAVEv3',
       await proxyStrategy.getAddress(),
     );
+
+    await pStrategy.enableRoute(await cbETH.getAddress(), await weth.getAddress(), {
+      router: await uniRouter.getAddress(),
+      provider: 1,
+      uniV3Tier: config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
+      tickSpacing: 0,
+    });
 
     await expect(
       pStrategy.onFlashLoan(
@@ -203,8 +208,6 @@ describeif(network.name === 'hardhat')('Strategy Leverage AAVEv3', function () {
       await ethOracle.getAddress(),
       owner.address,
       await aave3Pool.getAddress(),
-      await uniRouter.getAddress(),
-      config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
       (config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH] as AAVEv3Market).AAVEEModeCategory,
       proxyAdmin,
     );
@@ -212,6 +215,13 @@ describeif(network.name === 'hardhat')('Strategy Leverage AAVEv3', function () {
       'StrategyLeverageAAVEv3',
       await proxyStrategy.getAddress(),
     );
+
+    await pStrategy.enableRoute(await cbETH.getAddress(), await weth.getAddress(), {
+      router: await uniRouter.getAddress(),
+      provider: 1,
+      uniV3Tier: config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
+      tickSpacing: 0,
+    });
 
     await expect(
       pStrategy.onFlashLoan(
@@ -464,8 +474,6 @@ async function deployFunction() {
     await ethOracle.getAddress(),
     await flashLender.getAddress(),
     await aave3Pool.getAddress(),
-    await uniRouter.getAddress(),
-    config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
     (config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH] as AAVEv3Market).AAVEEModeCategory,
     proxyAdmin,
   );
@@ -473,6 +481,13 @@ async function deployFunction() {
     'StrategyLeverageAAVEv3',
     await proxyStrategy.getAddress(),
   );
+
+  await pStrategy.enableRoute(await cbETH.getAddress(), await weth.getAddress(), {
+    provider: 1,
+    router: await uniRouter.getAddress(),
+    uniV3Tier: config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
+    tickSpacing: 0,
+  });
 
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from('Strategy')),

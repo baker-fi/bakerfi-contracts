@@ -1,84 +1,44 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.24;
-
+import { ISwapHandler } from "../interfaces/core/ISwapHandler.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { ISwapHandler } from "../../interfaces/core/ISwapHandler.sol";
-import { ICurveRouterNG } from "../../interfaces/curve/ICurveRouterNG.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import { ICurveRouterNG } from "../interfaces/curve/ICurveRouterNG.sol";
 
 /**
- * @title UseCurveSwapper
+ * @title SwapLibrary
+ * @dev Library for swapping tokens using Uniswap V2 and V3
  *
- * @dev Abstract contract to integrate Curve Finance NG for token swaps
- *      Provides functions to initialize, access and swap tokens using Curve NG Router
- *      It allows any contract to swap an ERC-20 for another ERC-20 with either
- *      a fixed input amount or a fixed output amount of tokens.
- *      The Curve NG Router is used for the swap to stableswap pools, metapools and crypto pools
- *
- * @author Chef Kenji <chef.kenji@bakerfi.xyz>
- * @author Chef Kal-El <chef.kal-el@bakerfi.xyz>
- *
+ * swapCurveFi is used for Curve Finance Swaps
+ * swapUniV3 is used for Uniswap V3 Swaps
+ * swapUniV2 is used for Uniswap V2 Swaps
  */
-abstract contract UseCurveSwapper is ISwapHandler {
+library CurveFiLibrary {
   using SafeERC20 for IERC20;
-
-  error InvalidCurveRouterContract();
-  error InvalidInputToken();
-  error InvalidOutputToken();
-  error SwapFailed();
-  error InsufficientBalance();
-  error UnsupportedSwapType();
-
-  ICurveRouterNG private _curveRouterNG;
 
   address public constant ETH_ADDRESS = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
 
-  function _initUseCurveSwapper(ICurveRouterNG icurveRouterNG) internal {
-    _curveRouterNG = icurveRouterNG;
-    if (address(_curveRouterNG) == address(0)) revert InvalidCurveRouterContract();
-  }
-  /**
-   * @dev Returns the Curve Router contract
-   * @return The Curve Router contract
-   */
-  function curveRouter() public view returns (ICurveRouterNG) {
-    return _curveRouterNG;
-  }
-  /**
-   * @dev Returns the Curve Router contract address
-   * @return The Curve Router contract address
-   */
-  function curveRouterA() internal view returns (address) {
-    return address(_curveRouterNG);
-  }
-
-  /**
-   * @dev Approves the Curve Router contract to spend the specified amount of tokens
-   * @param token The token to approve
-   * @param amount The amount of tokens to approve
-   */
-  function _allowRouterSpend(IERC20 token, uint256 amount) internal {
-    token.approve(address(_curveRouterNG), amount);
-  }
+  error InvalidFeeTier();
+  error InvalidV2RouterContract();
+  error InvalidV3RouterContract();
+  error InsufficientBalance();
+  error UnsupportedSwapType();
 
   /**
    * @dev Executes a token swap using the Curve Router.
-   *
-   * @inheritdoc ISwapHandler
    */
-  function swap(
+  function swapCurveFi(
+    ICurveRouterNG router,
     ISwapHandler.SwapParams memory params
-  ) internal virtual override returns (uint256 amountIn, uint256 amountOut) {
-    if (params.underlyingIn == address(0)) revert InvalidInputToken();
-    if (params.underlyingOut == address(0)) revert InvalidOutputToken();
+  ) internal returns (uint256 amountIn, uint256 amountOut) {
+    if (params.underlyingIn == address(0)) revert ISwapHandler.InvalidInputToken();
+    if (params.underlyingOut == address(0)) revert ISwapHandler.InvalidOutputToken();
 
     // Initialize route and swap parameters
     address[11] memory route;
     uint256[5][5] memory swapParams;
     address[5] memory pools;
-
     // Set up basic route (simplified for single direct swap)
-
     // Configure swap parameters for a standard token exchange
     // [i, j, swap_type, pool_type, n_coins]
     (uint256 i, uint256 j, uint256 swapType, uint256 poolType, address pool) = abi.decode(
@@ -91,8 +51,9 @@ abstract contract UseCurveSwapper is ISwapHandler {
     pools[0] = pool;
     // Decode the payload to get the swap parameters for Curve Router
     swapParams[0] = [uint256(i), uint256(j), uint256(swapType), poolType, 2]; // Standard token exchange in stable pool
-    return _executeSwap(route, swapParams, pools, params);
+    return _executeCurveFiSwap(router, route, swapParams, pools, params);
   }
+
   /**
    * @dev Executes a token swap using the Curve Router.
    *
@@ -107,7 +68,8 @@ abstract contract UseCurveSwapper is ISwapHandler {
    * @return amountIn The actual amount of input tokens used in the swap.
    * @return amountOut The actual amount of output tokens received from the swap.
    */
-  function _executeSwap(
+  function _executeCurveFiSwap(
+    ICurveRouterNG router,
     address[11] memory route,
     uint256[5][5] memory swapParams,
     address[5] memory pools,
@@ -119,7 +81,7 @@ abstract contract UseCurveSwapper is ISwapHandler {
       amountIn = params.underlyingIn == ETH_ADDRESS ? msg.value : params.amountIn;
 
       // Execute the swap using the Curve Router
-      amountOut = _curveRouterNG.exchange{ value: msg.value }(
+      amountOut = router.exchange{ value: msg.value }(
         route,
         swapParams,
         amountIn,
@@ -130,7 +92,7 @@ abstract contract UseCurveSwapper is ISwapHandler {
 
       // Check if the output amount is less than the expected amount
       if (amountOut < params.amountOut) {
-        revert SwapFailed(); // Revert if the swap failed
+        revert ISwapHandler.SwapFailed(); // Revert if the swap failed
       }
 
       // Check if the swap mode is EXACT_OUTPUT
@@ -140,7 +102,7 @@ abstract contract UseCurveSwapper is ISwapHandler {
       address[5] memory baseTokens;
 
       // Calculate the required input amount for the desired output
-      uint256 requiredIn = _curveRouterNG.get_dx(
+      uint256 requiredIn = router.get_dx(
         route,
         swapParams,
         params.amountOut,
@@ -161,7 +123,7 @@ abstract contract UseCurveSwapper is ISwapHandler {
       amountIn = params.underlyingIn == ETH_ADDRESS ? msg.value : params.amountIn;
 
       // Execute the swap using the Curve Router
-      amountOut = _curveRouterNG.exchange{ value: amountIn }(
+      amountOut = router.exchange{ value: amountIn }(
         route,
         swapParams,
         amountIn,
@@ -172,31 +134,10 @@ abstract contract UseCurveSwapper is ISwapHandler {
 
       // Check if the output amount is less than the expected amount
       if (amountOut < params.amountOut) {
-        revert SwapFailed(); // Revert if the swap failed
+        revert ISwapHandler.SwapFailed(); // Revert if the swap failed
       }
     } else {
       revert UnsupportedSwapType(); // Revert if the swap type is unsupported
     }
-  }
-}
-
-/**
- * @title UseCurveSwapperMock
- * @dev Mock contract for testing the UseCurveSwapper contract
- */
-contract UseCurveSwapperMock is UseCurveSwapper {
-  constructor(ICurveRouterNG icurveRouterNG) {
-    _initUseCurveSwapper(icurveRouterNG);
-  }
-  /**
-   * @dev Mock function for testing the swap function
-   * @param params The swap parameters
-   * @return amountIn The actual amount of input tokens used in the swap
-   * @return amountOut The actual amount of output tokens received from the swap
-   */
-  function test__swap(
-    ISwapHandler.SwapParams memory params
-  ) external payable returns (uint256, uint256) {
-    return swap(params);
   }
 }

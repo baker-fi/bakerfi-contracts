@@ -194,7 +194,7 @@ const config: HardhatUserConfig = {
   },
 
   storageLayoutChanges: {
-    contracts: ['Vault', 'StrategyLeverageAAVEv3'],
+    contracts: ['Vault', 'StrategyLeverageAAVEv3', 'StrategyLeverageMorphoBlue'],
     fullPath: false,
   },
 };
