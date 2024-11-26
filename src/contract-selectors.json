@@ -1266,6 +1266,11 @@
         "name": "unapproveTokenToSwap",
         "signature": "unapproveTokenToSwap(address)",
         "selector": "0xfc9812ab"
+      },
+      {
+        "name": "uniRouter",
+        "signature": "uniRouter()",
+        "selector": "0xa0e47bf6"
       }
     ],
     "errors": [
@@ -2642,6 +2647,52 @@
       }
     ]
   },
+  "UseCurveSwapper": {
+    "functions": [
+      {
+        "name": "ETH_ADDRESS",
+        "signature": "ETH_ADDRESS()",
+        "selector": "0xa734f06e"
+      },
+      {
+        "name": "curveRouter",
+        "signature": "curveRouter()",
+        "selector": "0xcda90b88"
+      }
+    ],
+    "errors": [
+      {
+        "name": "InsufficientBalance",
+        "signature": "InsufficientBalance()",
+        "selector": "0xf4d678b8"
+      },
+      {
+        "name": "InvalidCurveRouterContract",
+        "signature": "InvalidCurveRouterContract()",
+        "selector": "0xb90e00fb"
+      },
+      {
+        "name": "InvalidInputToken",
+        "signature": "InvalidInputToken()",
+        "selector": "0x2df9739b"
+      },
+      {
+        "name": "InvalidOutputToken",
+        "signature": "InvalidOutputToken()",
+        "selector": "0x06202020"
+      },
+      {
+        "name": "SwapFailed",
+        "signature": "SwapFailed()",
+        "selector": "0x81ceff30"
+      },
+      {
+        "name": "UnsupportedSwapType",
+        "signature": "UnsupportedSwapType()",
+        "selector": "0xc8bde227"
+      }
+    ]
+  },
   "UseFlashLender": {
     "functions": [],
     "errors": [
@@ -2833,7 +2884,13 @@
     ]
   },
   "UseUniV3Swapper": {
-    "functions": [],
+    "functions": [
+      {
+        "name": "uniRouter",
+        "signature": "uniRouter()",
+        "selector": "0xa0e47bf6"
+      }
+    ],
     "errors": [
       {
         "name": "InvalidFeeTier",
@@ -3169,6 +3226,11 @@
         "name": "undeploy",
         "signature": "undeploy(uint256)",
         "selector": "0x440e6dff"
+      },
+      {
+        "name": "uniRouter",
+        "signature": "uniRouter()",
+        "selector": "0xa0e47bf6"
       }
     ],
     "errors": [
@@ -3525,6 +3587,11 @@
         "name": "undeploy",
         "signature": "undeploy(uint256)",
         "selector": "0x440e6dff"
+      },
+      {
+        "name": "uniRouter",
+        "signature": "uniRouter()",
+        "selector": "0xa0e47bf6"
       }
     ],
     "errors": [
@@ -3911,6 +3978,11 @@
         "name": "undeploy",
         "signature": "undeploy(uint256)",
         "selector": "0x440e6dff"
+      },
+      {
+        "name": "uniRouter",
+        "signature": "uniRouter()",
+        "selector": "0xa0e47bf6"
       }
     ],
     "errors": [
@@ -4399,7 +4471,7 @@
       }
     ]
   },
-  "StrategySwapPark": {
+  "StrategySupplyAAVEv3": {
     "functions": [
       {
         "name": "asset",
@@ -4412,6 +4484,92 @@
         "selector": "0xa5e38751"
       },
       {
+        "name": "getBalance",
+        "signature": "getBalance()",
+        "selector": "0x12065fe0"
+      },
+      {
+        "name": "harvest",
+        "signature": "harvest()",
+        "selector": "0x4641257d"
+      },
+      {
+        "name": "owner",
+        "signature": "owner()",
+        "selector": "0x8da5cb5b"
+      },
+      {
+        "name": "renounceOwnership",
+        "signature": "renounceOwnership()",
+        "selector": "0x715018a6"
+      },
+      {
+        "name": "totalAssets",
+        "signature": "totalAssets()",
+        "selector": "0x01e1d114"
+      },
+      {
+        "name": "transferOwnership",
+        "signature": "transferOwnership(address)",
+        "selector": "0xf2fde38b"
+      },
+      {
+        "name": "undeploy",
+        "signature": "undeploy(uint256)",
+        "selector": "0x440e6dff"
+      }
+    ],
+    "errors": [
+      {
+        "name": "FailedToApproveAllowanceForAAVE",
+        "signature": "FailedToApproveAllowanceForAAVE()",
+        "selector": "0x3365315e"
+      },
+      {
+        "name": "InsufficientBalance",
+        "signature": "InsufficientBalance()",
+        "selector": "0xf4d678b8"
+      },
+      {
+        "name": "OverflowDetected",
+        "signature": "OverflowDetected()",
+        "selector": "0xf1075a7a"
+      },
+      {
+        "name": "WithdrawalValueMismatch",
+        "signature": "WithdrawalValueMismatch()",
+        "selector": "0x56ce51b8"
+      },
+      {
+        "name": "ZeroAddress",
+        "signature": "ZeroAddress()",
+        "selector": "0xd92e233d"
+      },
+      {
+        "name": "ZeroAmount",
+        "signature": "ZeroAmount()",
+        "selector": "0x1f2a2005"
+      }
+    ]
+  },
+  "StrategyUniV3SwapAnd": {
+    "functions": [
+      {
+        "name": "asset",
+        "signature": "asset()",
+        "selector": "0x38d52e0f"
+      },
+      {
+        "name": "deploy",
+        "signature": "deploy(uint256)",
+        "selector": "0xa5e38751"
+      },
+      {
+        "name": "feeTier",
+        "signature": "feeTier()",
+        "selector": "0x72f5d98a"
+      },
+      {
         "name": "harvest",
         "signature": "harvest()",
         "selector": "0x4641257d"
@@ -4420,6 +4578,11 @@
         "name": "maxSlippage",
         "signature": "maxSlippage()",
         "selector": "0x8c04166f"
+      },
+      {
+        "name": "oracle",
+        "signature": "oracle()",
+        "selector": "0x7dc0d1d0"
       },
       {
         "name": "owner",
@@ -4450,6 +4613,16 @@
         "name": "undeploy",
         "signature": "undeploy(uint256)",
         "selector": "0x440e6dff"
+      },
+      {
+        "name": "underlyingAsset",
+        "signature": "underlyingAsset()",
+        "selector": "0x7158da7c"
+      },
+      {
+        "name": "uniRouter",
+        "signature": "uniRouter()",
+        "selector": "0xa0e47bf6"
       }
     ],
     "errors": [
@@ -4976,6 +5149,26 @@
         "name": "remove_liquidity_one_coin",
         "signature": "remove_liquidity_one_coin(uint256,int128,uint256)",
         "selector": "0x1a4d01d2"
+      }
+    ],
+    "errors": []
+  },
+  "ICurveRouterNG": {
+    "functions": [
+      {
+        "name": "exchange",
+        "signature": "exchange(address[11],uint256[5][5],uint256,uint256,address[5],address)",
+        "selector": "0xc872a3c5"
+      },
+      {
+        "name": "get_dx",
+        "signature": "get_dx(address[11],uint256[5][5],uint256,address[5],address[5],address[5])",
+        "selector": "0x90e7e205"
+      },
+      {
+        "name": "get_dy",
+        "signature": "get_dy(address[11],uint256[5][5],uint256,address[5])",
+        "selector": "0x637653cb"
       }
     ],
     "errors": []
