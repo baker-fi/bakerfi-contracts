@@ -247,8 +247,7 @@ describeif(
     await vault.redeemNative(withrawing);
     expect(await vault.balanceOf(deployer.address)).to.equal(0n);
     expect(await vault.totalSupply()).to.equal(0n);
-    expect((await strategy.getPosition([0, 0]))[0])
-      .to.equal(0n);
+    expect((await strategy.getPosition([0, 0]))[0]).to.equal(0n);
     expect((await strategy.getPosition([0, 0]))[1]).to.equal(0n);
     expect((await strategy.getPosition([0, 0]))[2]).to.equal(0n);
     expect(await vault.tokenPerAsset()).to.equal(ethers.parseUnits('1', 18));

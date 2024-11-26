@@ -18,11 +18,11 @@ describeif(network.name === 'hardhat')('Strategy Supply', function () {
     const AAVE_DEPOSIT = ethers.parseEther('100000');
     const serviceRegistry = await deployVaultRegistry(owner.address);
     const serviceRegistryAddress = await serviceRegistry.getAddress();
-  
+
     const BakerFiProxyAdmin = await ethers.getContractFactory('BakerFiProxyAdmin');
     const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
     await proxyAdmin.waitForDeployment();
-    
+
     const MAX_SUPPLY = ethers.parseUnits('1000000000');
     const WETH = await deployWETH(serviceRegistry);
 
@@ -31,15 +31,18 @@ describeif(network.name === 'hardhat')('Strategy Supply', function () {
     // Deposit ETH
     await WETH.deposit?.call('', { value: ethers.parseUnits('100', 18) });
 
-    // Deposit cbETH 
+    // Deposit cbETH
     await stETH.deposit?.call('', { value: ethers.parseUnits('100', 18) });
     // Deploy AAVEv3 Mock Pool
     const aave3Pool = await deployAaveV3(stETH, WETH, serviceRegistry, AAVE_DEPOSIT);
 
-
     // Deploy StrategySupply contract
     const StrategySupply = await ethers.getContractFactory('StrategySupplyAAVEv3');
-    const strategySupply = await StrategySupply.deploy(owner.address, await stETH.getAddress(), await aave3Pool.getAddress());
+    const strategySupply = await StrategySupply.deploy(
+      owner.address,
+      await stETH.getAddress(),
+      await aave3Pool.getAddress(),
+    );
     await strategySupply.waitForDeployment();
     return { strategySupply, owner, otherAccount, stETH, aave3Pool };
   }
@@ -79,7 +82,10 @@ describeif(network.name === 'hardhat')('Strategy Supply', function () {
 
   it('Deploy revert if amount is 0', async () => {
     const { strategySupply, stETH } = await loadFixture(deployStrategySupplyFixture);
-    await expect(strategySupply.deploy(0n)).to.be.revertedWithCustomError(strategySupply, 'ZeroAmount');
+    await expect(strategySupply.deploy(0n)).to.be.revertedWithCustomError(
+      strategySupply,
+      'ZeroAmount',
+    );
   });
 
   it('Undeploy', async () => {
@@ -109,21 +115,22 @@ describeif(network.name === 'hardhat')('Strategy Supply', function () {
 
   it('Undeploy revert if amount is greater than deployed amount', async () => {
     const { strategySupply, stETH } = await loadFixture(deployStrategySupplyFixture);
-    await expect(strategySupply.undeploy(ethers.parseEther('10000000'))).to.be.revertedWithCustomError(
-      strategySupply,
-      'InsufficientBalance',
-    );
+    await expect(
+      strategySupply.undeploy(ethers.parseEther('10000000')),
+    ).to.be.revertedWithCustomError(strategySupply, 'InsufficientBalance');
   });
 
   it('Harvest returns profit', async () => {
-    const {owner, strategySupply, stETH, aave3Pool} = await loadFixture(deployStrategySupplyFixture);
+    const { owner, strategySupply, stETH, aave3Pool } = await loadFixture(
+      deployStrategySupplyFixture,
+    );
     const deployAmount = ethers.parseEther('10');
     await stETH.approve(await strategySupply.getAddress(), deployAmount);
     await strategySupply.deploy(deployAmount);
 
     //artificial profit
     await aave3Pool.mintAtokensArbitrarily(await strategySupply.getAddress(), deployAmount);
-    
+
     await expect(strategySupply.harvest())
       .to.emit(strategySupply, 'StrategyProfit')
       .to.emit(strategySupply, 'StrategyAmountUpdate');

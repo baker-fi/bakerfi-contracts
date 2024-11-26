@@ -11,7 +11,6 @@ import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuar
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { MathLibrary } from "../../libraries/MathLibrary.sol";
 
-
 /**
  * @title Strategy Supply AAVEv3 🅿️
  *
@@ -20,7 +19,6 @@ import { MathLibrary } from "../../libraries/MathLibrary.sol";
  * @notice A simple strategy that can deploy or undeploy assets to AAVEv3
  */
 contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
-
   using SafeERC20 for ERC20;
 
   using MathLibrary for uint256;
@@ -41,15 +39,20 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
   /**
    * @param asset_ The address of the asset to be managed
    */
-  constructor(address initialOwner, address asset_, address aavev3Address) ReentrancyGuard() Ownable() {
-    if (initialOwner == address(0) || asset_ == address(0) || aavev3Address == address(0)) revert ZeroAddress();
-    
+  constructor(
+    address initialOwner,
+    address asset_,
+    address aavev3Address
+  ) ReentrancyGuard() Ownable() {
+    if (initialOwner == address(0) || asset_ == address(0) || aavev3Address == address(0))
+      revert ZeroAddress();
+
     _asset = asset_;
     _aavev3 = IPoolV3(aavev3Address);
     _transferOwnership(initialOwner);
-    
+
     // Allowance approval
-    if(!ERC20(_asset).approve(aavev3Address, type(uint256).max)){
+    if (!ERC20(_asset).approve(aavev3Address, type(uint256).max)) {
       revert FailedToApproveAllowanceForAAVE();
     }
   }
@@ -64,14 +67,14 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
     ERC20(_asset).safeTransferFrom(msg.sender, address(this), amount);
 
     // Transfer assets from caller to strategy
-    _aavev3.supply(_asset, amount, address(this), 0);  
+    _aavev3.supply(_asset, amount, address(this), 0);
 
     _deployedAmount += amount;
 
     emit StrategyDeploy(msg.sender, amount);
 
     emit StrategyAmountUpdate(_deployedAmount);
-    
+
     return _deployedAmount;
   }
 
@@ -79,7 +82,6 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
    * @inheritdoc IStrategy
    */
   function harvest() external returns (int256 balanceChange) {
-
     // Get Balance
     uint256 newBalance = getBalance();
 
@@ -112,7 +114,7 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
     uint256 withdrawalValue = _aavev3.withdraw(_asset, amount, address(this));
 
     // Check withdrawal value matches the initial amount
-    if(withdrawalValue != amount) revert WithdrawalValueMismatch();
+    if (withdrawalValue != amount) revert WithdrawalValueMismatch();
 
     // Transfer assets to user
     ERC20(_asset).safeTransfer(msg.sender, amount);
@@ -128,7 +130,7 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
    * @inheritdoc IStrategy
    */
   function totalAssets() external view returns (uint256) {
-   return getBalance();
+    return getBalance();
   }
 
   /**
@@ -143,12 +145,7 @@ contract StrategySupplyAAVEv3 is IStrategy, ReentrancyGuard, Ownable {
    *
    * @dev !Important: No Conversion to USD Done
    */
-  function getBalance()
-    public
-    view
-    virtual
-    returns (uint256)
-  {
+  function getBalance() public view virtual returns (uint256) {
     DataTypes.ReserveData memory reserve = (_aavev3.getReserveData(_asset));
     uint8 reserveDecimals = ERC20(reserve.aTokenAddress).decimals();
     uint256 reserveBalance = ERC20(reserve.aTokenAddress).balanceOf(address(this));
