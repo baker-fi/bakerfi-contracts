@@ -20,7 +20,7 @@ describeif(network.name === 'hardhat')('UseIERC4626', function () {
     const { useIERC4626, vault, weth, otherAccount } = await deployFunction();
     await expect(
       useIERC4626.connect(otherAccount).approveTokenForVault(vault, weth),
-    ).to.be.revertedWith('Ownable: caller is not the owner');
+    ).to.be.revertedWithCustomError(useIERC4626, 'CallerNotTheGovernor');
   });
 
   it('Only Owner can UnApprove Token for Vault', async function () {
@@ -28,7 +28,7 @@ describeif(network.name === 'hardhat')('UseIERC4626', function () {
     await useIERC4626.approveTokenForVault(vault, weth);
     await expect(
       useIERC4626.connect(otherAccount).unapproveTokenForVault(vault, weth),
-    ).to.be.revertedWith('Ownable: caller is not the owner');
+    ).to.be.revertedWithCustomError(useIERC4626, 'CallerNotTheGovernor');
   });
 
   it('Deposit to Vault', async function () {

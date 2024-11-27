@@ -43,6 +43,24 @@ These are the on-chain contracts deployed by the protocol to provide the money i
 ## 1.4 Version (In Progress)
 * Exported Errors and Functions selection
 * Vault Router to execute a sequence of commands (MultiCommand)
+    * Uniswap V3 Swaps
+    * Aerodrome Swaps
+    * Uniswap V2 Swaps
+    * ERC4626 Vaults Integration
+    * Pull/Push Tokens from Vaults
+    * Sweep Tokens
+    * Wrap/Unwrap ETH
+    * Pull/Push Tokens with Permit
+* Multi Strategy Vault with weighted strategies
+* Curve Finance Swap Library
+* Aerodrome Swap Library
+* Uniswap V2 Swap Library
+* Uniswap V3 Swap Library
+* Swap And Earn Strategy
+* Swap and Park Strategy
+* AAVEv3 Supply Strategy
+* Morpho Blue Supply Strategy
+
 
 ## Compatibility Matrix*
 
@@ -51,8 +69,8 @@ These are the on-chain contracts deployed by the protocol to provide the money i
 | **1.0**     |    ✔    |    ✔    |    ✘    |    ✘    |    ✘    |
 | **1.1**     |    ✔    |    ✔    |    ✘    |    ✘    |    ✘    |
 | **1.2**     |    ✘    |    ✘    |    ✔    |    ✘    |    ✘    |
-| **1.3**     |    ✘    |    ✘    |    ✘    |    ✔    |    ✘    |
-| **1.4**     |    ✘    |    ✘    |    ✘    |    x    |    ✔    |
+| **1.3**     |    ✘    |    ✘    |    ✘    |    ✔    |    ✔    |
+| **1.4**     |    ✘    |    ✘    |    ✘    |    ✔    |    ✔    |
 
 
 *Note 🔔: Somes versions loose upgradability duet to slot storage imcompatibility*

@@ -26,7 +26,7 @@ abstract contract UseIERC4626 is GovernableOwnable {
     _transferGovernorship(initialOwner);
   }
 
-  function approveTokenForVault(IERC4626 vault, IERC20 token) public onlyOwner {
+  function approveTokenForVault(IERC4626 vault, IERC20 token) public onlyGovernor {
     _approvedVaults[vault][token] = true;
     if (!IERC20(token).approve(address(vault), 2 ** 256 - 1))
       revert FailedToApproveAllowanceForVault();
@@ -36,7 +36,7 @@ abstract contract UseIERC4626 is GovernableOwnable {
     return _approvedVaults[vault][token];
   }
 
-  function unapproveTokenForVault(IERC4626 vault, IERC20 token) public onlyOwner {
+  function unapproveTokenForVault(IERC4626 vault, IERC20 token) public onlyGovernor {
     _approvedVaults[vault][token] = false;
     if (!IERC20(token).approve(address(vault), 0)) revert FailedToApproveAllowanceForVault();
   }
