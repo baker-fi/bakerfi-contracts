@@ -4,7 +4,6 @@ pragma solidity ^0.8.24;
 import { IV3SwapRouter } from "../interfaces/uniswap/v3/IV3SwapRouter.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import { console } from "hardhat/console.sol";
 
 contract UniV3RouterMock is IV3SwapRouter {
   IERC20 _asset0;

@@ -4,7 +4,11 @@ export enum OracleNamesEnum {
   CBETH_USD = 'cbETH/USD',
 }
 
-export type OracleRegistryNames = 'wstETH/USD Oracle' | 'cbETH/USD Oracle' | 'ETH/USD Oracle';
+export type OracleRegistryNames =
+  | 'wstETH/USD Oracle'
+  | 'cbETH/USD Oracle'
+  | 'ETH/USD Oracle'
+  | 'wstETH/ETH Oracle';
 
 export type FeedNameEnumType =
   | OracleNamesEnum.ETH_USD
@@ -68,7 +72,7 @@ export type AAVEv3MarketNamesType =
   | AAVEv3MarketNames.AAVE_V3
   | AAVEv3MarketNames.AAVE_V3_LIDO_MARKET;
 
-export type OracleType = 'chainlink' | 'pyth' | 'clExRate' | 'customExRate';
+export type OracleType = 'chainlink' | 'pyth' | 'clExRate' | 'customExRate' | 'ratio';
 
 export enum StrategyImplementation {
   AAVE_V3_WSTETH_ETH = 'AAVEv3 wstETH/ETH',
@@ -128,7 +132,14 @@ export type CustomExRateOracle = OracleBase<
   { base: string; target: string; callData: string }
 >;
 
-export type Oracle = PythOracle | ChainLinkOracle | ClExRateOracle | CustomExRateOracle;
+export type RatioOracle = OracleBase<'ratio', { target: string; callData: string }>;
+
+export type Oracle =
+  | PythOracle
+  | ChainLinkOracle
+  | ClExRateOracle
+  | CustomExRateOracle
+  | RatioOracle;
 
 export type NetworkConfig = {
   owner: string;

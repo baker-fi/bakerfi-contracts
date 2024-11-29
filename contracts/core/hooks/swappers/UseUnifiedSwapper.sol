@@ -52,7 +52,6 @@ abstract contract UseUnifiedSwapper is ISwapHandler, GovernableOwnable {
     uint24 tickSpacing; // 3 bytes tick spacing
   }
 
-
   mapping(bytes32 => RouteInfo) private _routes;
 
   function _key(address tokenA, address tokenB) internal pure returns (bytes32) {

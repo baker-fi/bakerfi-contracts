@@ -58,8 +58,6 @@ describeif(network.name === 'hardhat')('Strategy Proxy', function () {
     const aave3Pool = await deployAaveV3(cbETH, weth, serviceRegistry, AAVE_DEPOSIT);
     // Deploy cbETH/ETH Oracle
     const oracle = await deployOracleMock();
-    const ethOracle = await deployOracleMock();
-    await ethOracle.setLatestPrice(ethers.parseUnits('1', 18));
 
     const StrategyLeverageAAVEv3 = await ethers.getContractFactory('StrategyLeverageAAVEv3');
     const strategyLogic = await StrategyLeverageAAVEv3.deploy();
@@ -73,7 +71,6 @@ describeif(network.name === 'hardhat')('Strategy Proxy', function () {
         await cbETH.getAddress(),
         await weth.getAddress(),
         await oracle.getAddress(),
-        await ethOracle.getAddress(),
         await flashLender.getAddress(),
         await aave3Pool.getAddress(),
         (config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH] as AAVEv3Market)

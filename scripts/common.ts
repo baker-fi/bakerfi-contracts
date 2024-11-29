@@ -1,6 +1,6 @@
 import '@nomicfoundation/hardhat-ethers';
-import { config, ethers } from 'hardhat';
-import { NetworkConfig, pythFeeds, StrategyImplementation } from '../constants/types';
+import { ethers } from 'hardhat';
+import { NetworkConfig, pythFeeds } from '../constants/types';
 import ContractTree from '../src/contract-blob.json';
 import { ContractClient } from './lib/contract-client';
 import ora from 'ora';
@@ -85,8 +85,7 @@ export async function deployAAVEv3Strategy(
   governor: string,
   collateralToken: string,
   debtToken: string,
-  collateralOracle: string,
-  debtOracle: string,
+  oracle: string,
   flashLender: string,
   aaveV3Pool: string,
   emodeCategory: number,
@@ -104,8 +103,7 @@ export async function deployAAVEv3Strategy(
       governor,
       collateralToken,
       debtToken,
-      collateralOracle,
-      debtOracle,
+      oracle,
       flashLender,
       aaveV3Pool,
       emodeCategory,
@@ -120,8 +118,7 @@ export async function deployStrategyLeverageMorphoBlue(
   governor: string,
   collateralToken: string,
   debtToken: string,
-  collateralOracle: string,
-  debtOracle: string,
+  oracle: string,
   flashLender: string,
   morphoBlue: string,
   morphoOracle: string,
@@ -139,17 +136,7 @@ export async function deployStrategyLeverageMorphoBlue(
     Strategy.interface.encodeFunctionData('initialize', [
       owner,
       governor,
-      [
-        collateralToken,
-        debtToken,
-        collateralOracle,
-        debtOracle,
-        flashLender,
-        morphoBlue,
-        morphoOracle,
-        irm,
-        lltv,
-      ],
+      [collateralToken, debtToken, oracle, flashLender, morphoBlue, morphoOracle, irm, lltv],
     ]),
   );
   await proxy.waitForDeployment();
@@ -252,7 +239,21 @@ export async function deployETHOracle(serviceRegistry, pyth) {
   return oracle;
 }
 
-export async function deployCbETHToUSDOracle(serviceRegistry, pyth) {
+export async function deployWSTETH_ETH_OracleL2(chainlinkPriceFeed) {
+  const ChainLinkOracle = await ethers.getContractFactory('ChainLinkOracle');
+  const oracle = await ChainLinkOracle.deploy(chainlinkPriceFeed, 0, 0);
+  await oracle.waitForDeployment();
+  return oracle;
+}
+
+export async function deployWSTETH_ETH_Oracle(wstETH) {
+  const ChainLinkOracle = await ethers.getContractFactory('RatioOracle');
+  const oracle = await ChainLinkOracle.deploy([wstETH, '0x035faf82'], 18);
+  await oracle.waitForDeployment();
+  return oracle;
+}
+
+export async function deployCbETHToETHOracle(serviceRegistry, pyth) {
   const oracleContract = await ethers.getContractFactory('PythOracle');
   const oracle = await oracleContract.deploy(pythFeeds.CBETHUSDFeedId, pyth);
   await oracle.waitForDeployment();
@@ -264,19 +265,19 @@ export async function deployCbETHToUSDOracle(serviceRegistry, pyth) {
   return oracle;
 }
 
-export async function deployWSTETHToUSDPythOracle(serviceRegistry, pyth) {
+export async function deployWSTETHToETHPythOracle(serviceRegistry, pyth) {
   const WSETHToETH = await ethers.getContractFactory('PythOracle');
   const oracle = await WSETHToETH.deploy(pythFeeds.WSETHUSDFeedId, pyth);
   await oracle.waitForDeployment();
   await serviceRegistry.registerService(
-    ethers.keccak256(Buffer.from('wstETH/USD Oracle')),
+    ethers.keccak256(Buffer.from('wstETH/ETH Oracle')),
     await oracle.getAddress(),
   );
 
   return oracle;
 }
 
-export async function deployWSTETHToUSDCustomOracle(serviceRegistry, baseOracle, wsETH) {
+export async function deployWSTETHToETHCustomOracle(serviceRegistry, baseOracle, wsETH) {
   const WSETHToETH = await ethers.getContractFactory('CustomExRateOracle');
   const oracle = await WSETHToETH.deploy(baseOracle, [wsETH, '0x035faf82'], 18);
   await oracle.waitForDeployment();

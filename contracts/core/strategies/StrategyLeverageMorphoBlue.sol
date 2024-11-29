@@ -44,12 +44,9 @@ contract StrategyLeverageMorphoBlue is Initializable, StrategyLeverage {
   struct StrategyLeverageMorphoParams {
     address collateralToken; ///< The token used as collateral in the strategy.
     address debtToken; ///< The token used as debt in the strategy.
-    address collateralOracle; ///< The oracle for the collateral token.
-    address debtOracle; ///< The oracle for the debt token.
+    address oracle; ///< The oracle for the collateral token.
     address flashLender; ///< The flash lender address.
     address morphoBlue; ///< The oracle for Morpho protocol.
-    address univ3Router; ///< The Uniswap V3 Router address.
-    uint24 swapFeeTier; ///< The fee tier for swaps.
     address morphoOracle; ///< The oracle for Morpho protocol.
     address irm; ///< The interest rate model (IRM) address.
     uint256 lltv; ///< The liquidation loan-to-value ratio (LLTV).
@@ -89,8 +86,7 @@ contract StrategyLeverageMorphoBlue is Initializable, StrategyLeverage {
       initialGovernor,
       params.collateralToken,
       params.debtToken,
-      params.collateralOracle,
-      params.debtOracle,
+      params.oracle,
       params.flashLender
     );
 
