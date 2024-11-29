@@ -88,8 +88,7 @@ abstract contract StrategyLeverage is
 
   error InvalidDebtToken();
   error InvalidCollateralToken();
-  error InvalidDebtOracle();
-  error InvalidCollateralOracle();
+  error InvalidOracle();
   error InvalidDeployAmount();
   error InvalidAllowance();
   error FailedToRunFlashLoan();
@@ -110,12 +109,10 @@ abstract contract StrategyLeverage is
   address internal _collateralToken;
   // Debt IERC20 Token address used on this
   address internal _debtToken;
-  // Collateral Price Oracle used for balance conversions to USD
-  IOracle private _collateralOracle;
-  // Debt Price Oracle used for balance conversions to USD
-  IOracle private _debtOracle;
-  // Empty Slot to keep the storage layout consistent
-  uint24 internal _emptySlot;
+  // Oracle used to get the price of the collateral and debt
+  IOracle private _oracle;
+  // Two Empty Slots to keep the storage layout consistent
+  uint256[1] internal _emptySlots;
   // Internal Storaged used for flash loan parameter authentication
   bytes32 private _flashLoanArgsHash = 0;
   // The Deployed or Undeployed pending amount. Used for internal accounting
@@ -130,8 +127,7 @@ abstract contract StrategyLeverage is
    * @param initialOwner The address to be set as the initial owner of the AAVEv3 strategy base contract.
    * @param collateralToken The hash representing the collateral ERC20 token in the service registry.
    * @param debtToken The hash representing the collateral/ETH oracle in the service registry.
-   * @param collateralOracle The hash representing the collateral ERC20 token in the service registry.
-   * @param debtOracle The hash representing the collateral/ETH oracle in the service registry.
+   * @param oracle The hash representing the collateral ERC20 token in the service registry.
    * @param flashLender The hash representing the flash lender in the service registry.
    *
    * Requirements:
@@ -145,8 +141,7 @@ abstract contract StrategyLeverage is
     address initialGovernor,
     address collateralToken,
     address debtToken,
-    address collateralOracle,
-    address debtOracle,
+    address oracle,
     address flashLender
   ) internal onlyInitializing {
     if (initialOwner == address(0)) revert InvalidOwner();
@@ -158,15 +153,13 @@ abstract contract StrategyLeverage is
     _collateralToken = collateralToken;
     _debtToken = debtToken;
 
-    // Find the Oracles on the Registry
-    _collateralOracle = IOracle(collateralOracle);
-    _debtOracle = IOracle(debtOracle);
+    // Set the Oracle
+    _oracle = IOracle(oracle);
 
     if (_collateralToken == address(0)) revert InvalidCollateralToken();
     if (_debtToken == address(0)) revert InvalidDebtToken();
 
-    if (address(_collateralOracle) == address(0)) revert InvalidCollateralOracle();
-    if (address(_debtOracle) == address(0)) revert InvalidDebtOracle();
+    if (address(_oracle) == address(0)) revert InvalidOracle();
   }
 
   /**
@@ -188,8 +181,8 @@ abstract contract StrategyLeverage is
    * This function is externally callable and returns the total collateral in Ether, total debt in USD,
    * and the loan-to-value ratio for the AAVEv3 strategy.
    *
-   * @return totalCollateralInUSD The total collateral in USD.
-   * @return totalDebtInUSD The total debt in USD.
+   * @return totalCollateralInAsset The total collateral in USD.
+   * @return totalDebtInAsset The total debt in USD.
    * @return loanToValue The loan-to-value ratio calculated as (totalDebtInUSD * PERCENTAGE_PRECISION) / totalCollateralInUSD.
    *
    * Requirements:
@@ -200,13 +193,13 @@ abstract contract StrategyLeverage is
   )
     external
     view
-    returns (uint256 totalCollateralInUSD, uint256 totalDebtInUSD, uint256 loanToValue)
+    returns (uint256 totalCollateralInAsset, uint256 totalDebtInAsset, uint256 loanToValue)
   {
-    (totalCollateralInUSD, totalDebtInUSD) = _getPosition(priceOptions);
-    if (totalCollateralInUSD == 0) {
+    (totalCollateralInAsset, totalDebtInAsset) = _getPosition(priceOptions);
+    if (totalCollateralInAsset == 0) {
       loanToValue = 0;
     } else {
-      loanToValue = (totalDebtInUSD * PERCENTAGE_PRECISION) / totalCollateralInUSD;
+      loanToValue = (totalDebtInAsset * PERCENTAGE_PRECISION) / totalCollateralInAsset;
     }
   }
 
@@ -466,7 +459,6 @@ abstract contract StrategyLeverage is
     if (deltaDebt >= totalCollateralInDebt) {
       revert InvalidDeltaDebt();
     }
-
     // If no change in deployed amount, return early
     if (newDeployedAmount == deployedAmount) {
       return 0;
@@ -501,33 +493,30 @@ abstract contract StrategyLeverage is
     view
     virtual
     returns (uint256 collateralBalance, uint256 debtBalance);
+
   /**
    * @dev Retrieves the current collateral and debt positions of the contract.
    *
    * This internal function provides a view into the current collateral and debt positions of the contract
    * by querying the Aave V3 protocol. It calculates the positions in ETH based on the current ETH/USD exchange rate.
    *
-   * @return totalCollateralInUSD The total collateral position in ETH.
-   * @return totalDebtInUSD The total debt position in ETH.
+   * @return totalCollateralInAsset The total collateral position in ETH.
+   * @return totalDebtInAsset The total debt position in ETH.
    */
   function _getPosition(
     IOracle.PriceOptions memory priceOptions
-  ) internal view returns (uint256 totalCollateralInUSD, uint256 totalDebtInUSD) {
-    totalCollateralInUSD = 0;
-    totalDebtInUSD = 0;
+  ) internal view returns (uint256 totalCollateralInAsset, uint256 totalDebtInAsset) {
+    totalCollateralInAsset = 0;
+    totalDebtInAsset = 0;
 
     (uint256 collateralBalance, uint256 debtBalance) = getBalances();
     // Convert Collateral Balance to $USD safely
     if (collateralBalance != 0) {
-      IOracle.Price memory collateralPrice = _collateralOracle.getSafeLatestPrice(priceOptions);
-      totalCollateralInUSD =
-        (collateralBalance * collateralPrice.price) /
-        _collateralOracle.getPrecision();
+      totalCollateralInAsset = _toDebt(priceOptions, collateralBalance, false);
     }
-    // Convert DebtBalance to $USD safely
+    // Convert DebtBalance to Debt in Asset Terms
     if (debtBalance != 0) {
-      IOracle.Price memory debtPrice = _debtOracle.getSafeLatestPrice(priceOptions);
-      totalDebtInUSD = (debtBalance * debtPrice.price) / _debtOracle.getPrecision();
+      totalDebtInAsset = debtBalance;
     }
   }
 
@@ -751,8 +740,8 @@ abstract contract StrategyLeverage is
     bool roundUp
   ) internal view returns (uint256 amountOut) {
     amountOut = amountIn.mulDiv(
-      _collateralOracle.getSafeLatestPrice(priceOptions).price,
-      _debtOracle.getSafeLatestPrice(priceOptions).price,
+      _oracle.getSafeLatestPrice(priceOptions).price,
+      _oracle.getPrecision(),
       roundUp
     );
   }
@@ -771,8 +760,8 @@ abstract contract StrategyLeverage is
     bool roundUp
   ) internal view returns (uint256 amountOut) {
     amountOut = amountIn.mulDiv(
-      _debtOracle.getSafeLatestPrice(priceOptions).price,
-      _collateralOracle.getSafeLatestPrice(priceOptions).price,
+      _oracle.getPrecision(),
+      _oracle.getSafeLatestPrice(priceOptions).price,
       roundUp
     );
   }
@@ -885,19 +874,11 @@ abstract contract StrategyLeverage is
   }
 
   function getCollateralOracle() public view returns (address oracle) {
-    oracle = address(_collateralOracle);
-  }
-
-  function getDebtOracle() public view returns (address oracle) {
-    oracle = address(_debtOracle);
-  }
-
-  function setCollateralOracle(IOracle oracle) public onlyGovernor {
-    _collateralOracle = oracle;
+    oracle = address(_oracle);
   }
 
   function setDebtOracle(IOracle oracle) public onlyGovernor {
-    _debtOracle = oracle;
+    _oracle = oracle;
   }
 
   function asset() public view override returns (address) {

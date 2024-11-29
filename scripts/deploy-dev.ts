@@ -4,13 +4,12 @@ import {
   deployFlashLender,
   deployVaultRegistry,
   deployStEth,
-  deployWSTETHToUSDPythOracle,
   deployVault,
   deployWETH,
-  deployETHOracle,
   deployWStEth,
   deployBKR,
   deployAAVEv3Strategy,
+  deployOracleMock,
 } from './common';
 
 import { AAVEv3Market, NetworkConfig, StrategyImplementation } from '../constants/types';
@@ -120,20 +119,13 @@ async function main() {
   const aaveV3PoolMock = await deployAaveV3(wstETH, weth, serviceRegistry, AAVE_DEPOSIT);
   result.push(['AAVE v3 Mock', await aaveV3PoolMock.getAddress()]);
 
-  // 3. Deploy Pyth Mock Contract
-  spinner.text = 'Deploying Pyth Mock';
-  const PythMock = await ethers.getContractFactory('PythMock');
-  const pythMock = await PythMock.deploy();
-  await pythMock.waitForDeployment();
-  result.push(['PythMock', await pythMock.getAddress()]);
-
-  spinner.text = 'Deploying wstETH/USD Oracle';
-  const oracle = await deployWSTETHToUSDPythOracle(serviceRegistry, await pythMock.getAddress());
-  result.push(['wstETH/USD Oracle', await oracle.getAddress()]);
-
-  spinner.text = 'Deploying ETH/USD Oracle ';
-  const ethOracle = await deployETHOracle(serviceRegistry, await pythMock.getAddress());
-  result.push(['ETH/USD Oracle', await ethOracle.getAddress()]);
+  // Deploy wstETH/ETH Oracle
+  spinner.text = 'Deploying wstETH/ETH Oracle';
+  const oracle = await deployOracleMock();
+  await oracle.setDecimals(9);
+  // Price of wstETH in ETH is 1.187
+  await oracle.setLatestPrice(1187 * 1e6);
+  result.push(['WSTETH/ETH Oracle', await oracle.getAddress()]);
 
   // Deploying Proxied Strategy
   spinner.text = 'Deploying StrategyLeverageAAVEv3WstETH';
@@ -143,7 +135,6 @@ async function main() {
     await wstETH.getAddress(),
     await weth.getAddress(),
     await oracle.getAddress(),
-    await ethOracle.getAddress(),
     await flashLender.getAddress(),
     await aaveV3PoolMock.getAddress(),
     (config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH] as AAVEv3Market).AAVEEModeCategory,
@@ -183,12 +174,8 @@ async function main() {
   await strategyProxied.enableRoute(await wstETH.getAddress(), await weth.getAddress(), {
     router: await uniRouter.getAddress(),
     provider: 1,
-    i: 0,
-    j: 1,
-    swapType: 0,
-    poolType: 0,
-    pool: ethers.ZeroAddress,
     uniV3Tier: config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
+    tickSpacing: 10000,
   });
   await strategyProxied.transferOwnership(vaultProxy);
 

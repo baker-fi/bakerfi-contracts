@@ -6,11 +6,10 @@ import {
   deployBalancerFL,
   deployAAVEv3Strategy,
   deployStrategyLeverageMorphoBlue,
-  deployETHOracle,
-  deployWSTETHToUSDPythOracle,
-  deployWSTETHToUSDCustomOracle,
+  deployWSTETH_ETH_OracleL2,
+  deployWSTETH_ETH_Oracle,
 } from '../../scripts/common';
-import { PriceServiceConnection } from '@pythnetwork/price-service-client';
+
 import BaseConfig from '../../constants/network-deploy-config';
 import {
   AAVEv3Market,
@@ -18,10 +17,8 @@ import {
   AAVEv3MarketNamesType,
   MorphoMarket,
   NetworkConfig,
-  OracleNamesEnum,
   StrategyImplementation,
 } from '../../constants/types';
-import { feedIds } from '../../constants/pyth';
 
 export async function deployMorphoProd() {
   return await deployProd(StrategyImplementation.MORPHO_BLUE_WSTETH_ETH);
@@ -62,25 +59,13 @@ export async function deployProd(
 
   // 8. Register wstETH
   await serviceRegistry.registerService(ethers.keccak256(Buffer.from('wstETH')), config.wstETH);
-  // 9. Deploy the Oracle
-  const ethOracle = await deployETHOracle(serviceRegistry, config.pyth);
 
   let oracle;
   if (networkName === 'ethereum' || networkName === 'ethereum_devnet') {
-    oracle = await deployWSTETHToUSDCustomOracle(
-      serviceRegistry,
-      await ethOracle.getAddress(),
-      config.wstETH,
-    );
+    oracle = await deployWSTETH_ETH_Oracle(config.wstETH);
   } else {
-    oracle = await deployWSTETHToUSDPythOracle(serviceRegistry, config.pyth);
+    oracle = await deployWSTETH_ETH_OracleL2(config.chainlink?.wstEthToETH);
   }
-
-  await updatePythPrices(
-    [feedIds[OracleNamesEnum.ETH_USD], feedIds[OracleNamesEnum.WSTETH_USD]],
-    config.pyth,
-  );
-
   // 11. Flash Lender Adapter
   const flashLender = await deployBalancerFL(config.balancerVault);
 
@@ -100,7 +85,6 @@ export async function deployProd(
         config.wstETH,
         config.weth,
         await oracle.getAddress(),
-        await ethOracle.getAddress(),
         await flashLender.getAddress(),
         config.aavev3?.[aavev3Market] ?? '',
         (config.markets[type] as AAVEv3Market).AAVEEModeCategory,
@@ -119,10 +103,9 @@ export async function deployProd(
       const { proxy: mProxy } = await deployStrategyLeverageMorphoBlue(
         deployer.address,
         deployer.address,
-        'wstETH',
-        'WETH',
-        'wstETH/USD Oracle',
-        'ETH/USD Oracle',
+        config.wstETH,
+        config.weth,
+        await oracle.getAddress(),
         await flashLender.getAddress(),
         config.morpho ?? '',
         (config?.markets[StrategyImplementation.MORPHO_BLUE_WSTETH_ETH] as MorphoMarket).oracle,
@@ -170,7 +153,7 @@ export async function deployProd(
   await strategyProxy.setMaxSlippage(5n * 10n ** 7n);
   await strategyProxy.setLoanToValue(ethers.parseUnits('800', 6));
   await strategyProxy.transferOwnership(await vaultProxy.getAddress());
-  await strategyProxy.setPriceMaxAge(360);
+  await strategyProxy.setPriceMaxAge(3600 * 48);
   await strategyProxy.setPriceMaxConf(0);
 
   return {
@@ -184,21 +167,4 @@ export async function deployProd(
     aave3Pool,
     config,
   };
-}
-
-export async function updatePythPrices(feeds: string[], pythAddress: string) {
-  const connection = new PriceServiceConnection('https://hermes.pyth.network', {
-    priceFeedRequestConfig: {
-      // Provide this option to retrieve signed price updates for on-chain contracts.
-      // Ignore this option for off-chain use.
-      binary: true,
-    },
-  }); // See Hermes endpoints section below for other endpoints
-
-  const currentPrices = await connection.getLatestPriceFeeds(feeds);
-  const pyth = await ethers.getContractAt('IPyth', pythAddress);
-  // @ts-ignore
-  const vaas = currentPrices?.map((feed) => Buffer.from(feed.vaa, 'base64'));
-  const fee = await pyth.getUpdateFee(vaas);
-  await pyth.updatePriceFeeds(vaas, { value: fee });
 }

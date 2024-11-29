@@ -47,8 +47,7 @@ contract StrategyLeverageAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
     address initialGovernor,
     address collateralToken,
     address debtToken,
-    address collateralOracle,
-    address debtOracle,
+    address oracle,
     address flashLender,
     address aaveV3Pool,
     uint8 eModeCategory
@@ -58,8 +57,7 @@ contract StrategyLeverageAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
       initialGovernor,
       collateralToken,
       debtToken,
-      collateralOracle,
-      debtOracle,
+      oracle,
       flashLender
     );
     _initUseAAVEv3(aaveV3Pool);

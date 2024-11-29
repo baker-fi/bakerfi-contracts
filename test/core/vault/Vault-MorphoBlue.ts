@@ -19,7 +19,7 @@ describeif(network.name === 'base_devnet')('BakerFi Morpho Blue Vault - Producti
 
   it('Deposit 1 ETH', async function () {
     const { vault, deployer, strategy } = await loadFixture(deployMorphoProd);
-    const depositAmount = ethers.parseUnits('1', 18);
+    const depositAmount = ethers.parseUnits('1', 17);
 
     await expect(
       vault.depositNative(deployer.address, {
@@ -31,30 +31,30 @@ describeif(network.name === 'base_devnet')('BakerFi Morpho Blue Vault - Producti
 
     expect(await vault.balanceOf(deployer.address))
       // @ts-ignore
-      .to.greaterThan(ethers.parseUnits('9', 17))
+      .to.greaterThan(ethers.parseUnits('9', 16))
       // @ts-ignore
-      .lessThanOrEqual(ethers.parseUnits('10', 18));
+      .lessThanOrEqual(ethers.parseUnits('10', 17));
     expect(await vault.totalSupply())
       // @ts-ignore
-      .to.greaterThan(ethers.parseUnits('9', 17))
+      .to.greaterThan(ethers.parseUnits('9', 16))
       // @ts-ignore
-      .lessThanOrEqual(ethers.parseUnits('10', 18));
+      .lessThanOrEqual(ethers.parseUnits('10', 16));
     expect(await vault.totalAssets())
       // @ts-ignore
-      .to.greaterThan(ethers.parseUnits('9', 17))
+      .to.greaterThan(ethers.parseUnits('9', 16))
       // @ts-ignore
-      .lessThanOrEqual(ethers.parseUnits('11', 17));
+      .lessThanOrEqual(ethers.parseUnits('11', 16));
 
     expect(await vault.totalAssets())
       // @ts-ignore
-      .to.greaterThan(ethers.parseUnits('9', 17))
+      .to.greaterThan(ethers.parseUnits('9', 16))
       // @ts-ignore
-      .lessThanOrEqual(ethers.parseUnits('11', 17));
+      .lessThanOrEqual(ethers.parseUnits('11', 16));
   });
 
   it('Deposit + Withdraw', async function () {
     const { vault, deployer, strategy } = await loadFixture(deployMorphoProd);
-    const depositAmount = ethers.parseUnits('1', 18);
+    const depositAmount = ethers.parseUnits('1', 17);
 
     await vault.depositNative(deployer.address, {
       value: depositAmount,
@@ -64,16 +64,16 @@ describeif(network.name === 'base_devnet')('BakerFi Morpho Blue Vault - Producti
 
     expect(collateralBalance)
       // @ts-ignore
-      .to.greaterThan(ethers.parseUnits('3', 18))
+      .to.greaterThan(ethers.parseUnits('3', 17))
       // @ts-ignore
-      .lessThanOrEqual(ethers.parseUnits('5', 18));
+      .lessThanOrEqual(ethers.parseUnits('5', 17));
     expect(debtBalance)
       // @ts-ignore
-      .to.greaterThan(ethers.parseUnits('3', 18))
+      .to.greaterThan(ethers.parseUnits('3', 17))
       // @ts-ignore
-      .lessThanOrEqual(ethers.parseUnits('5', 18));
+      .lessThanOrEqual(ethers.parseUnits('5', 17));
 
-    await expect(vault.redeemNative(ethers.parseUnits('5', 17)))
+    await expect(vault.redeemNative(ethers.parseUnits('5', 16)))
       // @ts-ignore
       .to.emit(vault, 'Withdraw')
       // @ts-ignore
@@ -84,29 +84,29 @@ describeif(network.name === 'base_devnet')('BakerFi Morpho Blue Vault - Producti
 
     expect(await vault.totalAssets())
       // @ts-ignore
-      .to.greaterThan(ethers.parseUnits('4', 17))
+      .to.greaterThan(ethers.parseUnits('4', 16))
       // @ts-ignore
-      .lessThanOrEqual(ethers.parseUnits('6', 17));
+      .lessThanOrEqual(ethers.parseUnits('6', 16));
   });
 
   it('Withdraw - Burn all brETH', async function () {
     const { vault, deployer, strategy } = await loadFixture(deployMorphoProd);
 
     await vault.depositNative(deployer.address, {
-      value: ethers.parseUnits('1', 18),
+      value: ethers.parseUnits('1', 17),
     });
-    const [collateralBalanceInUSD, debtBalanceInUSD] = await strategy.getPosition([0, 0]);
+    const [collateralBalanceInETH, debtBalanceInETH] = await strategy.getPosition([0, 0]);
 
-    expect(collateralBalanceInUSD)
+    expect(collateralBalanceInETH)
       // @ts-ignore
-      .to.greaterThan(ethers.parseUnits('10000', 18))
+      .to.greaterThan(ethers.parseUnits('10', 16))
       // @ts-ignore
-      .lessThanOrEqual(ethers.parseUnits('100000', 18));
-    expect(debtBalanceInUSD)
+      .lessThanOrEqual(ethers.parseUnits('50', 16));
+    expect(debtBalanceInETH)
       // @ts-ignore
-      .to.greaterThan(ethers.parseUnits('1000', 18))
+      .to.greaterThan(ethers.parseUnits('10', 16))
       // @ts-ignore
-      .lessThanOrEqual(ethers.parseUnits('100000', 18));
+      .lessThanOrEqual(ethers.parseUnits('50', 16));
     const balanceOf = await vault.balanceOf(deployer.address);
     await vault.approve(vault.getAddress(), balanceOf);
     await vault.redeemNative(balanceOf);
@@ -116,12 +116,12 @@ describeif(network.name === 'base_devnet')('BakerFi Morpho Blue Vault - Producti
     expect((await strategy.getPosition([0, 0]))[1]).to.equal(0);
 
     await vault.depositNative(deployer.address, {
-      value: ethers.parseUnits('1', 18),
+      value: ethers.parseUnits('1', 17),
     });
 
     expect(await vault.totalAssets())
       // @ts-ignore
-      .to.greaterThan(ethers.parseUnits('9', 17))
+      .to.greaterThan(ethers.parseUnits('9', 16))
       // @ts-ignore
       .lessThanOrEqual(ethers.parseUnits('11', 17));
   });

@@ -22,7 +22,7 @@ import { AAVEv3Market, NetworkConfig, StrategyImplementation } from '../../../co
  */
 describeif(network.name === 'hardhat')('Strategy Leverage AAVEv3', function () {
   it('Test Initialized Strategy', async function () {
-    const { owner, strategy } = await loadFixture(deployFunction);
+    const { strategy } = await loadFixture(deployFunction);
     expect(await strategy.getPosition([0, 0])).to.deep.equal([0n, 0n, 0n]);
     expect(await strategy.totalAssets()).to.equal(0);
   });
@@ -40,11 +40,11 @@ describeif(network.name === 'hardhat')('Strategy Leverage AAVEv3', function () {
       // @ts-ignore
     ).to.changeEtherBalances([owner.address], [ethers.parseUnits('10', 18)]);
     expect(await strategy.getPosition([0, 0])).to.deep.equal([
-      105345072829122560000000n,
-      82382400483102720000000n,
-      782024239n,
+      45701778505671475200n,
+      35740737736704000000n,
+      782042601n,
     ]);
-    expect(await strategy.totalAssets()).to.equal(9962113816060668112n);
+    expect(await strategy.totalAssets()).to.equal(9961040768967475200n);
   });
 
   //TODO: Test Deploy Emission
@@ -60,16 +60,16 @@ describeif(network.name === 'hardhat')('Strategy Leverage AAVEv3', function () {
     await strategy.deploy(amount);
 
     expect(await strategy.getPosition([0, 0])).to.deep.equal([
-      105345072829122560000000n,
-      82382400483102720000000n,
-      782024239n,
+      45701778505671475200n,
+      35740737736704000000n,
+      782042601n,
     ]);
-    expect(await strategy.totalAssets()).to.equal(9962113816060668112n);
+    expect(await strategy.totalAssets()).to.equal(9961040768967475200n);
     // Receive ~=5 ETH
     await expect(
       strategy.undeploy(ethers.parseUnits('5', 18)),
       // @ts-ignore
-    ).to.changeTokenBalances(weth, [owner.address], [4983156389718359985n]);
+    ).to.changeTokenBalances(weth, [owner.address], [4983693196859889569n]);
   });
 
   it('Deploy Fail - Zero Value', async () => {
@@ -147,7 +147,7 @@ describeif(network.name === 'hardhat')('Strategy Leverage AAVEv3', function () {
   });
 
   it('onFlashLoan - Invalid Flash Loan Asset', async () => {
-    const { owner, aave3Pool, uniRouter, otherAccount, weth, cbETH, oracle, ethOracle, config } =
+    const { owner, aave3Pool, uniRouter, otherAccount, weth, cbETH, oracle, config } =
       await loadFixture(deployFunction);
     const BakerFiProxyAdmin = await ethers.getContractFactory('BakerFiProxyAdmin');
     const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
@@ -158,7 +158,6 @@ describeif(network.name === 'hardhat')('Strategy Leverage AAVEv3', function () {
       await cbETH.getAddress(),
       await weth.getAddress(),
       await oracle.getAddress(),
-      await ethOracle.getAddress(),
       owner.address,
       await aave3Pool.getAddress(),
       (config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH] as AAVEv3Market).AAVEEModeCategory,
@@ -189,7 +188,7 @@ describeif(network.name === 'hardhat')('Strategy Leverage AAVEv3', function () {
   });
 
   it('onFlashLoan - Failed to Validate Flash Loan Args', async () => {
-    const { weth, aave3Pool, uniRouter, owner, serviceRegistry, cbETH, oracle, ethOracle, config } =
+    const { weth, aave3Pool, uniRouter, owner, serviceRegistry, cbETH, oracle, config } =
       await loadFixture(deployFunction);
     const BakerFiProxyAdmin = await ethers.getContractFactory('BakerFiProxyAdmin');
     const proxyAdmin = await BakerFiProxyAdmin.deploy(owner.address);
@@ -205,7 +204,6 @@ describeif(network.name === 'hardhat')('Strategy Leverage AAVEv3', function () {
       await cbETH.getAddress(),
       await weth.getAddress(),
       await oracle.getAddress(),
-      await ethOracle.getAddress(),
       owner.address,
       await aave3Pool.getAddress(),
       (config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH] as AAVEv3Market).AAVEEModeCategory,
@@ -255,9 +253,7 @@ describeif(network.name === 'hardhat')('Strategy Leverage AAVEv3', function () {
   });
 
   it('Rebalance - Fails with outdated prices', async () => {
-    const { weth, serviceRegistry, strategy, oracle, ethOracle } = await loadFixture(
-      deployFunction,
-    );
+    const { weth, strategy } = await loadFixture(deployFunction);
     const amount = ethers.parseUnits('10', 18);
     await weth.deposit?.call('', { value: amount });
     await weth.approve(await strategy.getAddress(), amount);
@@ -282,28 +278,29 @@ describeif(network.name === 'hardhat')('Strategy Leverage AAVEv3', function () {
     await strategy.deploy(amount);
 
     expect(await strategy.getPosition([0, 0])).to.deep.equal([
-      105345072829122560000000n,
-      82382400483102720000000n,
-      782024239n,
+      45701778505671475200n,
+      35740737736704000000n,
+      782042601n,
     ]);
 
-    expect(await strategy.totalAssets()).to.equal(9962113816060668112n);
+    expect(await strategy.totalAssets()).to.equal(9961040768967475200n);
 
+    await strategy.setMaxLoanToValue(900 * 1e6);
     // Decremennt the Collateral value by 10%
-    await oracle.setLatestPrice(ethers.parseUnits('2606', 18));
+    await oracle.setLatestPrice(1187 * 1e6 * 0.9);
 
     await expect(strategy.harvest())
       // @ts-ignore
       .to.emit(strategy, 'StrategyLoss')
-      .withArgs(927802249567403037n);
+      .withArgs(4570177850567147520n);
 
     expect(await strategy.getPosition([0, 0])).to.deep.equal([
-      103206488643869696000000n,
-      82382400483102720000000n,
-      798228886n,
+      41131600655104327680n,
+      35740737736704000000n,
+      868936223n,
     ]);
 
-    expect(await strategy.totalAssets()).to.equal(9034311566493265075n);
+    expect(await strategy.totalAssets()).to.equal(5390862918400327680n);
   });
 
   it('Harvest - Debt Adjust', async function () {
@@ -314,28 +311,28 @@ describeif(network.name === 'hardhat')('Strategy Leverage AAVEv3', function () {
     await weth.approve(await strategy.getAddress(), amount);
 
     await strategy.deploy(amount);
-    // Descrease the Collateral value by 20%
-    await oracle.setLatestPrice(ethers.parseUnits('2394', 18));
-    await strategy.setMaxLoanToValue(800 * 1e6);
+    await strategy.setMaxLoanToValue(850 * 1e6);
+    // Descrease the Collateral value by 10%
+    await oracle.setLatestPrice(1187 * 1e6 * 0.9);
 
     expect(await strategy.getPosition([0, 0])).to.deep.equal([
-      94810565546210304000000n,
-      82382400483102720000000n,
-      868915821n,
+      41131600655104327680n,
+      35740737736704000000n,
+      868936223n,
     ]);
 
     await expect(strategy.harvest())
       // @ts-ignore
       .to.emit(strategy, 'StrategyAmountUpdate')
-      .withArgs(5391828660784201301n);
+      .withArgs(5390862918400327680n);
 
     expect(await strategy.getPosition([0, 0])).to.deep.equal([
-      65379801144452702660802n,
-      49712660252430335986000n,
-      760367259n,
+      28360193029826529452n,
+      21563451673601310720n,
+      760342203n,
     ]);
 
-    expect(await strategy.totalAssets()).to.equal(6797024248165885759n);
+    expect(await strategy.totalAssets()).to.equal(6796741356225218732n);
   });
 
   it('Harvest Loss - Collateral Value is lower than debt', async function () {
@@ -440,7 +437,7 @@ async function deployFunction() {
   const UniRouter = await ethers.getContractFactory('UniV3RouterMock');
   const uniRouter = await UniRouter.deploy(await weth.getAddress(), await cbETH.getAddress());
 
-  await uniRouter.setPrice(8665 * 1e5);
+  await uniRouter.setPrice(8424 * 1e5);
   // Register Uniswap Router
   await serviceRegistry.registerService(
     ethers.keccak256(Buffer.from('Uniswap Router')),
@@ -458,12 +455,10 @@ async function deployFunction() {
   const aave3Pool = await deployAaveV3(cbETH, weth, serviceRegistry, AAVE_DEPOSIT);
 
   const oracle = await deployOracleMock();
-  const ethOracle = await deployOracleMock();
 
-  await oracle.setLatestPrice(ethers.parseUnits('2660', 18));
-  await ethOracle.setLatestPrice(ethers.parseUnits('2305', 18));
-  await oracle.setDecimals(18);
-  await ethOracle.setDecimals(18);
+  await oracle.setDecimals(9);
+  // Price of wstETH in ETH is 1.187
+  await oracle.setLatestPrice(1187 * 1e6);
 
   const { proxy: proxyStrategy } = await deployAAVEv3Strategy(
     owner.address,
@@ -471,7 +466,6 @@ async function deployFunction() {
     await cbETH.getAddress(),
     await weth.getAddress(),
     await oracle.getAddress(),
-    await ethOracle.getAddress(),
     await flashLender.getAddress(),
     await aave3Pool.getAddress(),
     (config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH] as AAVEv3Market).AAVEEModeCategory,
@@ -504,7 +498,6 @@ async function deployFunction() {
     flashLender,
     strategy: pStrategy,
     oracle,
-    ethOracle,
     config,
   };
 }

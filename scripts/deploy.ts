@@ -294,8 +294,7 @@ async function deployStrategy(
           registryReceipt?.contractAddress,
           config.wstETH,
           config.weth,
-          oracles['wstETH/USD Oracle'],
-          oracles['ETH/USD Oracle'],
+          oracles['wstETH/ETH Oracle'],
           flashLenderReceipt?.contractAddress,
           config.aavev3?.[marketName],
           strategyConfig.AAVEEModeCategory,
@@ -341,8 +340,7 @@ async function deployStrategy(
           [
             config.wstETH,
             config.weth,
-            oracles['wstETH/USD Oracle'],
-            oracles['ETH/USD Oracle'],
+            oracles['wstETH/ETH Oracle'],
             flashLenderReceipt?.contractAddress,
             config.morpho,
             strategyConfig.oracle,
@@ -449,6 +447,12 @@ async function deployOracles(
             minTxConfirmations: config.minTxConfirmations,
           },
         );
+        break;
+      case 'ratio':
+        oracleReceipt = await client.deploy('RatioOracle', [[oracle.target, oracle.callData], 18], {
+          chainId,
+          minTxConfirmations: config.minTxConfirmations,
+        });
         break;
       default:
         throw Error('Oracle type unrecognized');
