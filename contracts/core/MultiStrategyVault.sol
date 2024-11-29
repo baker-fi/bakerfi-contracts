@@ -295,13 +295,10 @@ contract MultiStrategyVault is
     address receiver
   ) external override nonReentrant whenNotPaused onlyWhiteListed returns (uint256 shares) {
     if (assets == 0) revert InvalidAmount();
-    // Get the residual balance of the asset in the vault , the residual balance could be
-    // a side effect of a previous rebalance strategies
-    uint256 residualBalance = IERC20Upgradeable(_asset).balanceOf(address(this));
     // Transfer the assets from the sender to the vault
     IERC20Upgradeable(_asset).safeTransferFrom(msg.sender, address(this), assets);
     // Deposit the assets to the vault
-    return _depositInternal(assets + residualBalance, receiver);
+    return _depositInternal(assets , receiver);
   }
 
   /**
