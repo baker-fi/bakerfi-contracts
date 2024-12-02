@@ -231,7 +231,6 @@ abstract contract MultiStrategy is Initializable, Ownable2StepUpgradeable {
   function _rebalanceStrategies() internal {
     // Calculate the total assets managed by all strategies
     uint256 totalCapital = _totalAssets();
-
     // Cache the maximum allowable difference and the total number of strategies to save gas in the loop
     uint256 maxDifferenceAllowed = _maxDifference;
     uint256 totalStrategies = _strategies.length;
@@ -274,6 +273,20 @@ abstract contract MultiStrategy is Initializable, Ownable2StepUpgradeable {
       } else if (deltas[i] < 0) {
         IStrategy(_strategies[indexes[i]]).undeploy(uint256(-deltas[i]));
       }
+    }
+
+    // Deploy any dust balance to the highest weight strategy
+    uint256 dustBalance = IERC20(_strategies[0].asset()).balanceOf(address(this));
+    if (dustBalance > 0) {
+      uint256 highestWeightIndex = 0;
+      uint16 highestWeight = 0;
+      for (uint256 i = 0; i < totalStrategies; i++) {
+        if (_weights[i] > highestWeight) {
+          highestWeight = _weights[i];
+          highestWeightIndex = i;
+        }
+      }
+      IStrategy(_strategies[highestWeightIndex]).deploy(dustBalance);
     }
   }
 

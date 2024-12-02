@@ -298,7 +298,7 @@ contract MultiStrategyVault is
     // Transfer the assets from the sender to the vault
     IERC20Upgradeable(_asset).safeTransferFrom(msg.sender, address(this), assets);
     // Deposit the assets to the vault
-    return _depositInternal(assets , receiver);
+    return _depositInternal(assets, receiver);
   }
 
   /**
