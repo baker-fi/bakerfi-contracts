@@ -24,6 +24,23 @@ export async function deployMorphoProd() {
   return await deployProd(StrategyImplementation.MORPHO_BLUE_WSTETH_ETH);
 }
 
+export async function deployStrategySupplyMorpho(
+  morphoContractAddress: String,
+  marketAddress: String,
+) {
+  const [owner, otherAccount] = await ethers.getSigners();
+
+  const StrategySupply = await ethers.getContractFactory('StrategySupplyMorpho');
+  const strategySupply = await StrategySupply.deploy(
+    owner.address,
+    morphoContractAddress,
+    marketAddress,
+  );
+  await strategySupply.waitForDeployment();
+
+  return { strategy: strategySupply };
+}
+
 export async function deployAAVEProd() {
   return await deployProd(StrategyImplementation.AAVE_V3_WSTETH_ETH, AAVEv3MarketNames.AAVE_V3);
 }
