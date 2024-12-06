@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.24;
 
+/**
+ * @title MathLibrary
+ * @author Chef Kenji <chef.kenji@bakerfi.xyz>
+ * @dev Library for handling mathematical operations
+ */
 library MathLibrary {
   error InvalidDivDenominator();
   error OverflowDetected();

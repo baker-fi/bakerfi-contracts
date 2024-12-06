@@ -142,6 +142,7 @@ export async function deployStrategyLeverageMorphoBlue(
   await proxy.waitForDeployment();
   return { strategy, proxy };
 }
+
 export async function deployStEth(serviceRegistry, owner, maxSupply) {
   const STETHMock = await ethers.getContractFactory('ERC20Mock');
 

@@ -17,10 +17,28 @@ error InvalidWETHContract()
 error FailedAllowance()
 ```
 
+### InvalidWETHAmount
+
+```solidity
+error InvalidWETHAmount()
+```
+
+### InsufficientWETHBalance
+
+```solidity
+error InsufficientWETHBalance()
+```
+
+### ETHTransferNotAllowed
+
+```solidity
+error ETHTransferNotAllowed(address sender)
+```
+
 ### _initUseWETH
 
 ```solidity
-function _initUseWETH(contract ServiceRegistry registry) internal
+function _initUseWETH(address weth) internal
 ```
 
 _Initializes the UseWETH contract._
@@ -29,12 +47,28 @@ _Initializes the UseWETH contract._
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| registry | contract ServiceRegistry | The address of the ServiceRegistry contract for accessing WETH. |
+| weth | address | The address of the VaultRegistry contract for accessing WETH. |
+
+### receive
+
+```solidity
+receive() external payable virtual
+```
+
+_Fallback function to receive Ether.
+
+This function is marked as external and payable. It is automatically called
+when Ether is sent to the contract, such as during a regular transfer or as part
+of a self-destruct operation.
+
+Only Transfers from the strategy during the withdraw are allowed
+
+Emits no events and allows the contract to accept Ether._
 
 ### wETH
 
 ```solidity
-function wETH() public view returns (contract IWETH)
+function wETH() internal view returns (contract IWETH)
 ```
 
 _Returns the IWETH interface._
@@ -48,7 +82,7 @@ _Returns the IWETH interface._
 ### wETHA
 
 ```solidity
-function wETHA() public view returns (address)
+function wETHA() internal view returns (address)
 ```
 
 _Returns the address of the WETH contract._
@@ -59,10 +93,10 @@ _Returns the address of the WETH contract._
 | ---- | ---- | ----------- |
 | [0] | address | The address of the WETH contract. |
 
-### _unwrapWETH
+### unwrapETH
 
 ```solidity
-function _unwrapWETH(uint256 wETHAmount) internal
+function unwrapETH(uint256 wETHAmount) internal virtual
 ```
 
 _Unwraps a specified amount of WETH to Ether._
@@ -72,4 +106,32 @@ _Unwraps a specified amount of WETH to Ether._
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | wETHAmount | uint256 | The amount of WETH to unwrap. |
+
+### wrapETH
+
+```solidity
+function wrapETH(uint256 amount) internal virtual
+```
+
+## UseWETHMock
+
+_This contract is abstract and cannot be deployed directly._
+
+### initialize
+
+```solidity
+function initialize(address initialOwner) public
+```
+
+### test__unwrapETH
+
+```solidity
+function test__unwrapETH(uint256 wETHAmount) external
+```
+
+### test__wrapETH
+
+```solidity
+function test__wrapETH(uint256 amount) external
+```
 

@@ -123,7 +123,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
       vault.depositNative(owner.address, {
         value: ethers.parseUnits('0', 18),
       }),
-    ).to.be.revertedWithCustomError(vault, 'InvalidDepositAmount');
+    ).to.be.revertedWithCustomError(vault, 'InvalidAmount');
   });
 
   it('Withdraw failed not enough brETH', async function () {
@@ -687,7 +687,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
     // @ts-ignore
     await expect(vault.deposit(0, owner.address)).to.be.revertedWithCustomError(
       vault,
-      'InvalidDepositAmount',
+      'InvalidAmount',
     );
   });
 
@@ -788,7 +788,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
     // @ts-ignore
     await expect(vault.mint(0, owner.address)).to.be.revertedWithCustomError(
       vault,
-      'InvalidDepositAmount',
+      'InvalidAmount',
     );
   });
 
@@ -1223,39 +1223,28 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
     expect(await vault.balanceOf(owner.address)).to.equal(298831223069024256n);
   });
 
-  it('Governor should have pauser role', async () => {
-    const { owner, vault } = await loadFixture(deployFunction);
-    expect(await vault.hasRole(vault.PAUSER_ROLE(), owner.address)).to.be.true;
-  });
-
-  it('Pause - Vault should be able to be paused by the governor', async () => {
+  it('Pause - Vault should be able to be paused by the owner', async () => {
     const { owner, vault } = await loadFixture(deployFunction);
     await vault.pause();
     expect(await vault.paused()).to.be.true;
   });
 
-  it('Pause - Vault should be able to be unpaused by the governor', async () => {
+  it('Pause - Vault should be able to be unpaused by the owner', async () => {
     const { owner, vault } = await loadFixture(deployFunction);
     await vault.pause();
     await vault.unpause();
     expect(await vault.paused()).to.be.false;
   });
 
-  it('Grant Pause Role - Governor can grant pause role to another account', async () => {
-    const { vault, anotherAccount } = await loadFixture(deployFunction);
-    await vault.grantRole(vault.PAUSER_ROLE(), anotherAccount.address);
-    expect(await vault.hasRole(vault.PAUSER_ROLE(), anotherAccount.address)).to.be.true;
-  });
-
-  it('Grant Pause Role - Non-Pauser account cannot pause vault', async () => {
+  it('Pauser - Non-Owner account cannot pause vault', async () => {
     const { vault, anotherAccount } = await loadFixture(deployFunction);
     // @ts-ignore
     await expect(vault.connect(anotherAccount).pause()).to.be.revertedWith(
-      /AccessControl: account .* is missing role .*/,
+      /Ownable: caller is not the owner/,
     );
   });
 
-  it('Grant Pause Role - Non-Pauser account cannot unpause vault', async () => {
+  it('Pauser - Non-Pauser account cannot unpause vault', async () => {
     const { vault, anotherAccount } = await loadFixture(deployFunction);
     await vault.pause();
     await expect(
@@ -1263,24 +1252,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
         .connect(anotherAccount)
         // @ts-ignore
         .unpause(),
-    ).to.be.revertedWith(/AccessControl: account .* is missing role .*/);
-  });
-
-  it('Grant Pause Role - Non-governor cannot grant pause role', async () => {
-    const { vault, anotherAccount } = await loadFixture(deployFunction);
-    await expect(
-      vault
-        .connect(anotherAccount)
-        // @ts-ignore
-        .grantRole(vault.PAUSER_ROLE(), anotherAccount.address),
-    ).to.be.revertedWith(/AccessControl: account .* is missing role .*/);
-  });
-
-  it('Grant Pause Role - Governor can revoke pause role', async () => {
-    const { vault, anotherAccount } = await loadFixture(deployFunction);
-    await vault.grantRole(vault.PAUSER_ROLE(), anotherAccount.address);
-    await vault.revokeRole(vault.PAUSER_ROLE(), anotherAccount.address);
-    expect(await vault.hasRole(vault.PAUSER_ROLE(), anotherAccount.address)).to.be.false;
+    ).to.be.revertedWith(/Ownable: caller is not the owner/);
   });
 
   it('Change Withdrawal Fee ✅', async function () {

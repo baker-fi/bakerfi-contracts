@@ -1,6 +1,6 @@
 # Solidity API
 
-## IServiceRegistry
+## IVaultRegistry
 
 ### ServiceUnregistered
 
@@ -8,7 +8,7 @@
 event ServiceUnregistered(bytes32 nameHash)
 ```
 
-_Emitted when a service is unregistered from the ServiceRegistry.
+_Emitted when a service is unregistered from the VaultRegistry.
 
 This event provides the name hash of the unregistered service._
 
@@ -24,7 +24,7 @@ This event provides the name hash of the unregistered service._
 event ServiceRegistered(bytes32 nameHash, address service)
 ```
 
-_Emitted when a service is registered in the ServiceRegistry.
+_Emitted when a service is registered in the VaultRegistry.
 
 This event provides the name hash of the registered service and its address._
 
@@ -41,7 +41,7 @@ This event provides the name hash of the registered service and its address._
 function registerService(bytes32 serviceNameHash, address serviceAddress) external
 ```
 
-_Registers a new service in the ServiceRegistry._
+_Registers a new service in the VaultRegistry._
 
 #### Parameters
 
@@ -56,7 +56,7 @@ _Registers a new service in the ServiceRegistry._
 function unregisterService(bytes32 serviceNameHash) external
 ```
 
-_Unregisters an existing service from the ServiceRegistry._
+_Unregisters an existing service from the VaultRegistry._
 
 #### Parameters
 

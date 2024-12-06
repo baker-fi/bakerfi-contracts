@@ -78,12 +78,14 @@ export enum StrategyImplementation {
   AAVE_V3_WSTETH_ETH = 'AAVEv3 wstETH/ETH',
   AAVE_V3_WSTETH_ETH_LIDO = 'AAVEv3 Lido wstETH/ETH',
   MORPHO_BLUE_WSTETH_ETH = 'Morpho Blue wstETH/ETH',
+  MORPHO_BLUE_SUPPLY_WSTETH_ETH = 'Morpho Blue Supply wstETH/ETH',
 }
 
 export type StrategyImplementationType =
   | StrategyImplementation.AAVE_V3_WSTETH_ETH
   | StrategyImplementation.MORPHO_BLUE_WSTETH_ETH
-  | StrategyImplementation.AAVE_V3_WSTETH_ETH_LIDO;
+  | StrategyImplementation.AAVE_V3_WSTETH_ETH_LIDO
+  | StrategyImplementation.MORPHO_BLUE_SUPPLY_WSTETH_ETH;
 
 export type MarketBase<T extends string, U extends Record<string, any> = {}> = {
   sharesName: string;

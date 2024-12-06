@@ -158,7 +158,7 @@ describeif(network.name === 'hardhat')('MultiStrategy Vault', function () {
     const { vault, owner } = await loadFixture(deployMultiStrategyVaultFixture);
     await expect(vault.redeem(0n, owner.address, owner.address)).to.be.revertedWithCustomError(
       vault,
-      'InvalidWithdrawAmount',
+      'InvalidAmount',
     );
   });
 
@@ -308,11 +308,6 @@ describeif(network.name === 'hardhat')('MultiStrategy Vault', function () {
     expect(await park1.totalAssets()).to.equal(0n);
   });
 
-  it('Governor should have pauser role', async () => {
-    const { owner, vault } = await loadFixture(deployMultiStrategyVaultFixture);
-    expect(await vault.hasRole(vault.PAUSER_ROLE(), owner.address)).to.be.true;
-  });
-
   it('Pause - Vault should be able to be paused by the governor', async () => {
     const { owner, vault } = await loadFixture(deployMultiStrategyVaultFixture);
     await vault.pause();
@@ -334,17 +329,7 @@ describeif(network.name === 'hardhat')('MultiStrategy Vault', function () {
         .connect(otherAccount)
         // @ts-ignore
         .unpause(),
-    ).to.be.revertedWith(/AccessControl: account .* is missing role .*/);
-  });
-
-  it('Grant Pause Role - Non-governor cannot grant pause role', async () => {
-    const { vault, otherAccount } = await loadFixture(deployMultiStrategyVaultFixture);
-    await expect(
-      vault
-        .connect(otherAccount)
-        // @ts-ignore
-        .grantRole(vault.PAUSER_ROLE(), otherAccount.address),
-    ).to.be.revertedWith(/AccessControl: account .* is missing role .*/);
+    ).to.be.revertedWith(/Ownable: caller is not the owner/);
   });
 
   it('Change Withdrawal Fee ✅', async function () {

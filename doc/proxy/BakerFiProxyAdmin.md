@@ -2,7 +2,10 @@
 
 ## BakerFiProxyAdmin
 
-The Proxy Admin is a separate contract that manages the upgradeability process. It's responsible for authorizing and executing upgrades to the implementation contract. The Proxy Admin contract is usually the only entity with the authority to upgrade the implementation contract associated with the proxy.
+This contract serves as the admin for the BakerFi proxy, allowing for the management
+        of the proxy's implementation contracts. It inherits from OpenZeppelin's ProxyAdmin,
+        which provides the necessary functionality to upgrade the implementation and manage
+        ownership.
 
 ### InvalidOwner
 
@@ -10,9 +13,20 @@ The Proxy Admin is a separate contract that manages the upgradeability process. 
 error InvalidOwner()
 ```
 
+Error thrown when the provided owner address is invalid (zero address).
+
 ### constructor
 
 ```solidity
 constructor(address initialOwner) public
 ```
+
+_The constructor initializes the ProxyAdmin with the provided initial owner.
+     It reverts if the initial owner address is the zero address._
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| initialOwner | address | The address of the initial owner of the proxy admin. |
 

@@ -32,10 +32,10 @@ error InvalidTargetValue()
 error InvalidDivisor()
 ```
 
-### calculateLeverageRatio
+### _calculateLeverageRatio
 
 ```solidity
-function calculateLeverageRatio(uint256 baseValue, uint256 loanToValue, uint8 nrLoops) public pure returns (uint256)
+function _calculateLeverageRatio(uint256 baseValue, uint256 loanToValue, uint8 nrLoops) internal pure returns (uint256)
 ```
 
 _Calculates the leverage ratio based on the provided parameters._
@@ -54,10 +54,10 @@ _Calculates the leverage ratio based on the provided parameters._
 | ---- | ---- | ----------- |
 | [0] | uint256 | The calculated leverage ratio. |
 
-### calcDeltaPosition
+### _calcDeltaPosition
 
 ```solidity
-function calcDeltaPosition(uint256 percentageToBurn, uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) public pure returns (uint256 deltaCollateralInETH, uint256 deltaDebtInETH)
+function _calcDeltaPosition(uint256 percentageToBurn, uint256 totalCollateralBaseInEth, uint256 totalDebtBaseInEth) internal pure returns (uint256 deltaCollateralInETH, uint256 deltaDebtInETH)
 ```
 
 _Calculates the changes in collateral and debt based on a specified percentage to burn._
@@ -77,10 +77,10 @@ _Calculates the changes in collateral and debt based on a specified percentage t
 | deltaCollateralInETH | uint256 | The change in collateral in ETH. |
 | deltaDebtInETH | uint256 | The change in debt in ETH. |
 
-### calculateDebtToPay
+### _calculateDebtToPay
 
 ```solidity
-function calculateDebtToPay(uint256 targetLoanToValue, uint256 collateral, uint256 debt) public pure returns (uint256 delta)
+function _calculateDebtToPay(uint256 targetLoanToValue, uint256 collateral, uint256 debt) internal pure returns (uint256 delta)
 ```
 
 _Calculates the amount of debt that needs to be paid to achieve a target loan-to-value ratio._

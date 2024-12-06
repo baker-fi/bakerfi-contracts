@@ -4552,6 +4552,87 @@
       }
     ]
   },
+  "StrategySupplyMorpho": {
+    "functions": [
+      {
+        "name": "asset",
+        "signature": "asset()",
+        "selector": "0x38d52e0f"
+      },
+      {
+        "name": "deploy",
+        "signature": "deploy(uint256)",
+        "selector": "0xa5e38751"
+      },
+      {
+        "name": "getBalance",
+        "signature": "getBalance()",
+        "selector": "0x12065fe0"
+      },
+      {
+        "name": "harvest",
+        "signature": "harvest()",
+        "selector": "0x4641257d"
+      },
+      {
+        "name": "owner",
+        "signature": "owner()",
+        "selector": "0x8da5cb5b"
+      },
+      {
+        "name": "renounceOwnership",
+        "signature": "renounceOwnership()",
+        "selector": "0x715018a6"
+      },
+      {
+        "name": "totalAssets",
+        "signature": "totalAssets()",
+        "selector": "0x01e1d114"
+      },
+      {
+        "name": "transferOwnership",
+        "signature": "transferOwnership(address)",
+        "selector": "0xf2fde38b"
+      },
+      {
+        "name": "undeploy",
+        "signature": "undeploy(uint256)",
+        "selector": "0x440e6dff"
+      }
+    ],
+    "errors": [
+      {
+        "name": "FailedToApproveAllowanceForMorpho",
+        "signature": "FailedToApproveAllowanceForMorpho()",
+        "selector": "0xd33fb6b4"
+      },
+      {
+        "name": "InsufficientBalance",
+        "signature": "InsufficientBalance()",
+        "selector": "0xf4d678b8"
+      },
+      {
+        "name": "InvalidMorphoBlueContract",
+        "signature": "InvalidMorphoBlueContract()",
+        "selector": "0x6b37287f"
+      },
+      {
+        "name": "WithdrawalValueMismatch",
+        "signature": "WithdrawalValueMismatch()",
+        "selector": "0x56ce51b8"
+      },
+      {
+        "name": "ZeroAddress",
+        "signature": "ZeroAddress()",
+        "selector": "0xd92e233d"
+      },
+      {
+        "name": "ZeroAmount",
+        "signature": "ZeroAmount()",
+        "selector": "0x1f2a2005"
+      }
+    ]
+  },
   "StrategyUniV3SwapAnd": {
     "functions": [
       {

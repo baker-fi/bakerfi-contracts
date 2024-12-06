@@ -27,6 +27,11 @@ struct Rebase {
   uint256 base;
 }
 
+/**
+ * @title RebaseLibrary
+ * @author Chef Kenji <chef.kenji@bakerfi.xyz>
+ * @dev Library for handling rebase operations. This library was adapted from Boring Solidity Rebase Library
+ */
 library RebaseLibrary {
   /// @notice Calculates the base value in relationship to `elastic` and `total`.
   function toBase(

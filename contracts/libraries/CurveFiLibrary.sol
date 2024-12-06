@@ -9,6 +9,8 @@ import { ICurveRouterNG } from "../interfaces/curve/ICurveRouterNG.sol";
  * @title SwapLibrary
  * @dev Library for swapping tokens using Uniswap V2 and V3
  *
+ * @author Chef Kenji <chef.kenji@bakerfi.xyz>
+ *
  * swapCurveFi is used for Curve Finance Swaps
  * swapUniV3 is used for Uniswap V3 Swaps
  * swapUniV2 is used for Uniswap V2 Swaps
