@@ -24,3 +24,9 @@ uint256 PERCENTAGE_PRECISION
 address ETH
 ```
 
+## SYSTEM_DECIMALS
+
+```solidity
+uint8 SYSTEM_DECIMALS
+```
+

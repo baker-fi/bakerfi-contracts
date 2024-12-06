@@ -34,21 +34,15 @@ error FailedToApproveStAllowance()
 ### _initUseWstETH
 
 ```solidity
-function _initUseWstETH(contract ServiceRegistry registry) internal
+function _initUseWstETH(address iwstETH, address istETH) internal
 ```
 
 Initialize function for upgradeable contracts
 
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| registry | contract ServiceRegistry | The service registry used by the system |
-
 ### wstETH
 
 ```solidity
-function wstETH() public view returns (contract IWStETH)
+function wstETH() internal view returns (contract IWStETH)
 ```
 
 _Returns the IWStETH interface._
@@ -62,7 +56,7 @@ _Returns the IWStETH interface._
 ### wstETHA
 
 ```solidity
-function wstETHA() public view returns (address)
+function wstETHA() internal view returns (address)
 ```
 
 _Returns the address of the WstETH contract._

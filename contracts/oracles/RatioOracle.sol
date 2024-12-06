@@ -25,6 +25,9 @@ contract RatioOracle is IOracle {
     bytes callData;
   }
 
+  /**
+   * @dev The target contract and calldata for fetching the ratio
+   */
   Call private _call;
 
   /// @notice Constructs the RatioOracle contract

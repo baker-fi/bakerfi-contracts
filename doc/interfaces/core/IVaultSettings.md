@@ -1,6 +1,6 @@
 # Solidity API
 
-## ISettings
+## IVaultSettings
 
 _The Settings contract have to implement this interface_
 
@@ -69,30 +69,10 @@ This event provides information about whether an account is enabled or disabled 
 | account | address | The address of the account affected by the whitelist change. |
 | enabled | bool | A boolean indicating whether the account is enabled (true) or disabled (false) in the whitelist. |
 
-### RebalancePriceMaxAgeChange
+### MaxDepositChanged
 
 ```solidity
-event RebalancePriceMaxAgeChange(uint256 value)
-```
-
-_Emitted when the Maximum Deposit ETH is changed_
-
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| value | uint256 | The new amount that is allowed to be deposited |
-
-### PriceMaxAgeChange
-
-```solidity
-event PriceMaxAgeChanged(uint256 value)
-```
-
-### MaxDepositInETHChanged
-
-```solidity
-event MaxDepositInETHChanged(uint256 value)
+event MaxDepositChanged(uint256 value)
 ```
 
 _Emitted when the Maximum Deposit ETH is changed_
@@ -223,39 +203,31 @@ _Checks if an account is enabled in the whitelist._
 | ---- | ---- | ----------- |
 | [0] | bool | enabled A boolean indicating whether the account is enabled (true) or not (false) in the whitelist. |
 
-### getMaxDepositInETH
+### getMaxDeposit
 
 ```solidity
-function getMaxDepositInETH() external view returns (uint256)
+function getMaxDeposit() external view returns (uint256)
 ```
 
-### setMaxDepositInETH
+Retrieves the maximum deposit allowed in ETH.
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | uint256 | The maximum deposit value in ETH. |
+
+### setMaxDeposit
 
 ```solidity
-function setMaxDepositInETH(uint256 value) external
+function setMaxDeposit(uint256 value) external
 ```
 
-### setRebalancePriceMaxAge
+Sets the maximum deposit allowed in ETH.
 
-```solidity
-function setRebalancePriceMaxAge(uint256 value) external
-```
+#### Parameters
 
-### getRebalancePriceMaxAge
-
-```solidity
-function getRebalancePriceMaxAge() external view returns (uint256)
-```
-
-### setPriceMaxAge
-
-```solidity
-function setPriceMaxAge(uint256 value) external
-```
-
-### getPriceMaxAge
-
-```solidity
-function getPriceMaxAge() external view returns (uint256)
-```
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| value | uint256 | The maximum deposit value to be set in ETH. |
 

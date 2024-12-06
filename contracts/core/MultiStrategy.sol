@@ -206,7 +206,7 @@ abstract contract MultiStrategy is Initializable, Ownable2StepUpgradeable {
    * @notice Calculates the total assets managed by all strategies.
    * @return assets The total assets as a uint256.
    */
-  function _totalAssets() internal view returns (uint256 assets) {
+  function _totalAssets() internal view virtual returns (uint256 assets) {
     for (uint256 i = 0; i < _strategies.length; ) {
       assets += IStrategy(_strategies[i]).totalAssets();
       unchecked {

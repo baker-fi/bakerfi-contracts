@@ -8,18 +8,6 @@
 error InvalidMaxLoanToValue()
 ```
 
-### InvalidPercentage
-
-```solidity
-error InvalidPercentage()
-```
-
-### InvalidValue
-
-```solidity
-error InvalidValue()
-```
-
 ### InvalidLoopCount
 
 ```solidity
@@ -73,6 +61,12 @@ This event provides information about the updated number of loops._
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | value | uint256 | The new number of loops. |
+
+### MaxSlippageChanged
+
+```solidity
+event MaxSlippageChanged(uint256 value)
+```
 
 ### _initLeverageSettings
 
@@ -178,4 +172,16 @@ Emits an {NrLoopsChanged} event upon successful update._
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | nrLoops | uint8 | The new number of loops to be set. Requirements: - The caller must be the owner of the contract. - The new number of loops must be less than the maximum allowed number of loops. |
+
+### getMaxSlippage
+
+```solidity
+function getMaxSlippage() public view returns (uint256)
+```
+
+### setMaxSlippage
+
+```solidity
+function setMaxSlippage(uint256 slippage) external
+```
 

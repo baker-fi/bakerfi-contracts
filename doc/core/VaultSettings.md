@@ -1,9 +1,8 @@
 # Solidity API
 
-## Settings
+## VaultSettings
 
-The contract is responsible for managing all the properties and settings related to the protocol. 
-The contract is upgradeable by the BakerFi DAO. 
+The settings could only be changed by the Owner and could be used by any contract by the system.
 
 _The `Settings` contract is used to manage protocol settings.
 It extends the `OwnableUpgradeable` contract and implements the `ISettings` interface.
@@ -12,41 +11,6 @@ The settings can only be changed by the owner and can be utilized by any contrac
 This contract is going to be used by any service on the Bakerfi system to retrieve
 the fees, basic configuration parameters and the list of whitelisted adresess that can
 interact with the system_
-
-
-### Contracts Description Table
-
-
-|  Contract  |         Type        |       Bases      |                  |                 |
-|:----------:|:-------------------:|:----------------:|:----------------:|:---------------:|
-|     └      |  **Function Name**  |  **Visibility**  |  **Mutability**  |  **Modifiers**  |
-||||||
-| **Settings** | Implementation | Ownable2StepUpgradeable, ISettings |||
-| └ | <Constructor> | Public ❗️ | 🛑  |NO❗️ |
-| └ | initialize | Public ❗️ | 🛑  | initializer |
-| └ | enableAccount | External ❗️ | 🛑  | onlyOwner |
-| └ | isAccountEnabled | External ❗️ |   |NO❗️ |
-| └ | setWithdrawalFee | External ❗️ | 🛑  | onlyOwner |
-| └ | getWithdrawalFee | External ❗️ |   |NO❗️ |
-| └ | setPerformanceFee | External ❗️ | 🛑  | onlyOwner |
-| └ | getPerformanceFee | External ❗️ |   |NO❗️ |
-| └ | setFeeReceiver | External ❗️ | 🛑  | onlyOwner |
-| └ | getFeeReceiver | External ❗️ |   |NO❗️ |
-| └ | getMaxDepositInETH | External ❗️ |   |NO❗️ |
-| └ | setMaxDepositInETH | External ❗️ | 🛑  | onlyOwner |
-| └ | setRebalancePriceMaxAge | External ❗️ | 🛑  | onlyOwner |
-| └ | getRebalancePriceMaxAge | External ❗️ |   |NO❗️ |
-| └ | setPriceMaxAge | External ❗️ | 🛑  | onlyOwner |
-| └ | getPriceMaxAge | External ❗️ |   |NO❗️ |
-
-
- Legend
-
-|  Symbol  |  Meaning  |
-|:--------:|-----------|
-|    🛑    | Function can modify state |
-|    💵    | Function is payable |
-
 
 ### InvalidOwner
 
@@ -102,22 +66,16 @@ error InvalidMaxLoanToValue()
 error InvalidAddress()
 ```
 
-### InvalidLoopCount
-
-```solidity
-error InvalidLoopCount()
-```
-
 ### constructor
 
 ```solidity
 constructor() public
 ```
 
-### initialize
+### _initializeVaultSettings
 
 ```solidity
-function initialize(address initialOwner) public
+function _initializeVaultSettings() public
 ```
 
 _Initializes the contract.
@@ -125,16 +83,10 @@ _Initializes the contract.
 This function is used for the initial setup of the contract, setting the owner, withdrawal fee,
 performance fee, fee receiver, loan-to-value ratio, maximum loan-to-value ratio, and the number of loops._
 
-#### Parameters
-
-| Name | Type | Description |
-| ---- | ---- | ----------- |
-| initialOwner | address | The address to be set as the initial owner of the contract. Requirements: - The provided owner address must not be the zero address. |
-
 ### enableAccount
 
 ```solidity
-function enableAccount(address account, bool enabled) external
+function enableAccount(address account, bool enabled) public
 ```
 
 _Enables or disables an account in the whitelist.
@@ -152,7 +104,7 @@ in the whitelist. Emits an {AccountWhiteList} event upon successful update._
 ### isAccountEnabled
 
 ```solidity
-function isAccountEnabled(address account) external view returns (bool)
+function isAccountEnabled(address account) public view returns (bool)
 ```
 
 _Checks if an account is enabled in the whitelist.
@@ -175,7 +127,7 @@ is enabled in the whitelist._
 ### setWithdrawalFee
 
 ```solidity
-function setWithdrawalFee(uint256 fee) external
+function setWithdrawalFee(uint256 fee) public
 ```
 
 _Sets the withdrawal fee percentage.
@@ -192,7 +144,7 @@ Emits a {WithdrawalFeeChanged} event upon successful update._
 ### getWithdrawalFee
 
 ```solidity
-function getWithdrawalFee() external view returns (uint256)
+function getWithdrawalFee() public view returns (uint256)
 ```
 
 _Retrieves the withdrawal fee percentage.
@@ -225,7 +177,7 @@ Emits a {PerformanceFeeChanged} event upon successful update._
 ### getPerformanceFee
 
 ```solidity
-function getPerformanceFee() external view returns (uint256)
+function getPerformanceFee() public view returns (uint256)
 ```
 
 _Retrieves the performance fee percentage.
@@ -258,7 +210,7 @@ Emits a {FeeReceiverChanged} event upon successful update._
 ### getFeeReceiver
 
 ```solidity
-function getFeeReceiver() external view returns (address)
+function getFeeReceiver() public view returns (address)
 ```
 
 _Retrieves the fee receiver address.
@@ -271,39 +223,31 @@ This function is externally callable and returns the fee receiver address._
 | ---- | ---- | ----------- |
 | [0] | address | receiver The fee receiver address. |
 
-### getMaxDepositInETH
+### getMaxDeposit
 
 ```solidity
-function getMaxDepositInETH() external view returns (uint256)
+function getMaxDeposit() public view returns (uint256)
 ```
 
-### setMaxDepositInETH
+Retrieves the maximum deposit allowed in ETH.
+
+#### Return Values
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| [0] | uint256 | The maximum deposit value in ETH. |
+
+### setMaxDeposit
 
 ```solidity
-function setMaxDepositInETH(uint256 value) external
+function setMaxDeposit(uint256 value) external
 ```
 
-### setRebalancePriceMaxAge
+Sets the maximum deposit allowed in ETH.
 
-```solidity
-function setRebalancePriceMaxAge(uint256 value) external
-```
+#### Parameters
 
-### getRebalancePriceMaxAge
-
-```solidity
-function getRebalancePriceMaxAge() external view returns (uint256)
-```
-
-### setPriceMaxAge
-
-```solidity
-function setPriceMaxAge(uint256 value) external
-```
-
-### getPriceMaxAge
-
-```solidity
-function getPriceMaxAge() external view returns (uint256)
-```
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| value | uint256 | The maximum deposit value to be set in ETH. |
 

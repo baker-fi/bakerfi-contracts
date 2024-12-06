@@ -6,6 +6,11 @@ import { ISwapHandler } from "../interfaces/core/ISwapHandler.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
+/**
+ * @title UniV2Library
+ * @author Chef Kenji <chef.kenji@bakerfi.xyz>
+ * @dev Library for handling Uniswap V2 swaps
+ */
 library UniV2Library {
   using SafeERC20 for IERC20;
   error InvalidInputToken();

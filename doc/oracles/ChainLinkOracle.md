@@ -2,9 +2,8 @@
 
 ## ChainLinkOracle
 
-CBETH/ETH Oracle using chainlink data feeds
-
- https://data.chain.link/feeds/base/base/cbeth-eth
+Oracle that uses ChainLink feeds to provide up to date prices
+for further use on the protocol
 
 ### InvalidPriceFromOracle
 
@@ -21,13 +20,23 @@ error InvalidPriceUpdatedAt()
 ### constructor
 
 ```solidity
-constructor(address stCbETHToETHPriceFeed) public
+constructor(address priceFeed, uint256 minPrice, uint256 maxPrice) public
 ```
+
+Chainlink Price Feed Address
+
+#### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| priceFeed | address | The Price Feed Chain Address. |
+| minPrice | uint256 |  |
+| maxPrice | uint256 |  |
 
 ### getPrecision
 
 ```solidity
-function getPrecision() external pure returns (uint256)
+function getPrecision() public pure returns (uint256)
 ```
 
 Retrieves the precision of the price information provided by the Oracle.
@@ -43,10 +52,20 @@ _This function is view-only and does not modify the state of the contract._
 ### getLatestPrice
 
 ```solidity
-function getLatestPrice() external view returns (struct IOracle.Price price)
+function getLatestPrice() public view returns (struct IOracle.Price price)
 ```
 
-Retrieves the latest price information from the Oracle.
+Get the Latest price from the Chainlink aggregator and convert the price taking into account
+the price decimals.
+
+### getSafeLatestPrice
+
+```solidity
+function getSafeLatestPrice(struct IOracle.PriceOptions priceOptions) public view returns (struct IOracle.Price price)
+```
+
+Retrieves the latest price information from the Oracle and reverts whern the price
+is outdated
 
 _This function is view-only and does not modify the state of the contract._
 

@@ -11,18 +11,18 @@ error InvalidIERC20Contract()
 ### _initUseIERC20
 
 ```solidity
-function _initUseIERC20(contract ServiceRegistry registry, bytes32 name) internal
+function _initUseIERC20(contract VaultRegistry registry, bytes32 name) internal
 ```
 
 ### ierc20
 
 ```solidity
-function ierc20() public view returns (contract IERC20)
+function ierc20() internal view returns (contract IERC20)
 ```
 
 ### ierc20A
 
 ```solidity
-function ierc20A() public view returns (address)
+function ierc20A() internal view returns (address)
 ```
 
