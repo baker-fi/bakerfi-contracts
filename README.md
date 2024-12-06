@@ -17,6 +17,11 @@ Unlock higher yields with flexible, low-risk strategies that go beyond just ETH 
 * Uniswap v3
 * Balancer Flash Loans
 
+## Audits
+
+* [Creed Audit Q2 2024](./audits/bakerfi-smart-contracts-audit-report.pdf)
+* [BakerFi Code4rena Competitive Audit Q2 2024](https://code4rena.com/reports/2024-05-bakerfi)
+
 ## Prerequisites
 Before getting started with this project, make sure you have the following prerequisites:
 
