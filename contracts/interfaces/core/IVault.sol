@@ -16,6 +16,10 @@ import { IERC4626Upgradeable } from "@openzeppelin/contracts-upgradeable/interfa
  *
  * */
 interface IVault is IERC20Upgradeable, IERC20MetadataUpgradeable, IERC4626Upgradeable {
+  struct RebalanceCommand {
+    uint256 action;
+    bytes data;
+  }
   /**
    * Deposits ETH or the native currency on the strategy
    *
@@ -55,8 +59,9 @@ interface IVault is IERC20Upgradeable, IERC20MetadataUpgradeable, IERC4626Upgrad
    * @dev Function to rebalance the strategy, prevent a liquidation and pay fees
    * to protocol by minting shares to the fee receiver
    *
-   * @return balanceChange The change in balance after the rebalance operation.
+   * @param commands The data to be passed to the rebalance function
+   * @return success The success of the rebalance operation.
    *
    */
-  function rebalance() external returns (int256 balanceChange);
+  function rebalance(RebalanceCommand[] calldata commands) external returns (bool success);
 }

@@ -9,6 +9,8 @@ currently being supported with security updates.
 | ------- | ------------------ |
 | 1.0.x   | :white_check_mark: |
 | 1.1.x   | :white_check_mark: |
+| 1.2.x   | :white_check_mark: |
+| 1.3.x   | :white_check_mark: |
 
 ## Reporting a Vulnerability
 
@@ -31,7 +33,7 @@ Read this entire template: Before you begin filling out the report, read through
   * Deployment Network:
 
 3. **Vulnerability Details**
-    
+
 * Vulnerability Title:
 * Severity Level:
   * Low
@@ -80,7 +82,7 @@ Include any supporting evidence that demonstrates the existence and impact of th
 * Code Changes (if applicable):
 
 9. **Additional Information**
-    
+
 Include any other information that may be relevant to understanding and addressing the vulnerability.
 
 Send the report for security@bakerfi.xyz

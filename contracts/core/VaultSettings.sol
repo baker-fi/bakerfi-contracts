@@ -1,10 +1,12 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.24;
 
-import { Ownable2StepUpgradeable } from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 import { PERCENTAGE_PRECISION } from "./Constants.sol";
 import { IVaultSettings } from "../interfaces/core/IVaultSettings.sol";
 import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import { ADMIN_ROLE } from "./Constants.sol";
 /**
  * @title BakerFI Settings(⚙️) Contract
  *
@@ -21,7 +23,7 @@ import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableS
  * the fees, basic configuration parameters and the list of whitelisted adresess that can
  * interact with the system
  */
-contract VaultSettings is Ownable2StepUpgradeable, IVaultSettings {
+contract VaultSettings is Initializable, AccessControlUpgradeable, IVaultSettings {
   error InvalidOwner();
   error WhiteListAlreadyEnabled();
   error WhiteListFailedToAdd();
@@ -31,6 +33,10 @@ contract VaultSettings is Ownable2StepUpgradeable, IVaultSettings {
   error InvalidPercentage();
   error InvalidMaxLoanToValue();
   error InvalidAddress();
+
+  // Gap before the roles to keep the storage layout consistent with version 1.3
+  uint256[103] private __gapBefore;
+  // Role definitions
 
   using EnumerableSet for EnumerableSet.AddressSet;
   /**
@@ -99,7 +105,7 @@ contract VaultSettings is Ownable2StepUpgradeable, IVaultSettings {
    * Requirements:
    * - The caller must be the owner of the contract.
    */
-  function enableAccount(address account, bool enabled) public onlyOwner {
+  function enableAccount(address account, bool enabled) public onlyRole(ADMIN_ROLE) {
     if (enabled) {
       if (_enabledAccounts.contains(account)) revert WhiteListAlreadyEnabled();
       if (!_enabledAccounts.add(account)) revert WhiteListFailedToAdd();
@@ -135,7 +141,7 @@ contract VaultSettings is Ownable2StepUpgradeable, IVaultSettings {
    * - The caller must be the owner of the contract.
    * - The new withdrawal fee percentage must be a valid percentage value.
    */
-  function setWithdrawalFee(uint256 fee) public onlyOwner {
+  function setWithdrawalFee(uint256 fee) public onlyRole(ADMIN_ROLE) {
     if (fee >= PERCENTAGE_PRECISION) revert InvalidPercentage();
     _withdrawalFee = fee;
     emit WithdrawalFeeChanged(_withdrawalFee);
@@ -164,7 +170,7 @@ contract VaultSettings is Ownable2StepUpgradeable, IVaultSettings {
    * - The caller must be the owner of the contract.
    * - The new performance fee percentage must be a valid percentage value.
    */
-  function setPerformanceFee(uint256 fee) external onlyOwner {
+  function setPerformanceFee(uint256 fee) external onlyRole(ADMIN_ROLE) {
     if (fee >= PERCENTAGE_PRECISION) revert InvalidPercentage();
     _performanceFee = fee;
     emit PerformanceFeeChanged(_performanceFee);
@@ -192,7 +198,7 @@ contract VaultSettings is Ownable2StepUpgradeable, IVaultSettings {
    * - The caller must be the owner of the contract.
    * - The new fee receiver address must not be the zero address.
    */
-  function setFeeReceiver(address receiver) external onlyOwner {
+  function setFeeReceiver(address receiver) external onlyRole(ADMIN_ROLE) {
     if (receiver == address(0)) revert InvalidAddress();
     _feeReceiver = receiver;
     emit FeeReceiverChanged(_feeReceiver);
@@ -220,7 +226,7 @@ contract VaultSettings is Ownable2StepUpgradeable, IVaultSettings {
    * @notice Sets the maximum deposit allowed in ETH.
    * @param value The maximum deposit value to be set in ETH.
    */
-  function setMaxDeposit(uint256 value) external onlyOwner {
+  function setMaxDeposit(uint256 value) external onlyRole(ADMIN_ROLE) {
     _maxDeposit = value;
     emit MaxDepositChanged(value);
   }

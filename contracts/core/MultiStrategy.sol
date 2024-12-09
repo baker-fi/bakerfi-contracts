@@ -3,8 +3,9 @@ pragma solidity ^0.8.24;
 
 import { IStrategy } from "../interfaces/core/IStrategy.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import { Ownable2StepUpgradeable } from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import { VAULT_MANAGER_ROLE } from "./Constants.sol";
 /**
  * @title MultiStrategy
 
@@ -14,7 +15,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
  * @notice This contract is used to manage multiple strategies. The rebalancing is done based on the weights of the
  * strategies.
  */
-abstract contract MultiStrategy is Initializable, Ownable2StepUpgradeable {
+abstract contract MultiStrategy is Initializable, AccessControlUpgradeable {
   /**
    * @notice Emitted when a new strategy is added to the MultiStrategy contract.
    * @param strategy The address of the added strategy.
@@ -38,8 +39,8 @@ abstract contract MultiStrategy is Initializable, Ownable2StepUpgradeable {
 
   error InvalidStrategy(); // Thrown when an invalid strategy is provided (e.g., address is zero).
   error InvalidStrategyIndex(uint256 index); // Thrown when an invalid strategy index is accessed.
-  error InvalidMaxDifference(uint256 maxDifference); // Thrown when the maximum difference exceeds allowed limits.
   error InvalidWeightsLength(); // Thrown when the weights array length is not equal to the strategies array length.
+  error InvalidDeltasLength(); // Thrown when the deltas array length is not equal to the indexes array length.
   error InvalidStrategies(); // Thrown when the strategies array length is zero.
   error InvalidWeights(); // Thrown when the weights array length is zero.
 
@@ -57,10 +58,6 @@ abstract contract MultiStrategy is Initializable, Ownable2StepUpgradeable {
    * @notice Sum of all weights
    */
   uint16 private _totalWeight;
-  /**
-   * @notice Minimum difference between target and current allocation
-   */
-  uint256 private _maxDifference; // 1%
 
   /**
    * @notice Initializes the MultiStrategy contract with an array of strategy parameters.
@@ -77,7 +74,6 @@ abstract contract MultiStrategy is Initializable, Ownable2StepUpgradeable {
     _strategies = istrategies;
     _weights = iweights;
     _totalWeight = 0;
-    _maxDifference = 100;
     for (uint256 i = 0; i < istrategies.length; i++) {
       _totalWeight += iweights[i];
     }
@@ -89,7 +85,7 @@ abstract contract MultiStrategy is Initializable, Ownable2StepUpgradeable {
    * @param iweights The new weights to set.
    * @dev Reverts if the weights array length is not equal to the strategies array length.
    */
-  function setWeights(uint16[] memory iweights) external onlyOwner {
+  function setWeights(uint16[] memory iweights) public onlyRole(VAULT_MANAGER_ROLE) {
     if (iweights.length != _strategies.length) revert InvalidWeightsLength();
     _weights = iweights;
     _totalWeight = 0;
@@ -107,31 +103,11 @@ abstract contract MultiStrategy is Initializable, Ownable2StepUpgradeable {
   }
 
   /**
-   * @notice Returns the maximum allowable difference between target and current allocation.
-   * @return The maximum difference as a uint256.
-   */
-  function maxDifference() external view returns (uint256) {
-    return _maxDifference;
-  }
-
-  /**
-   * @notice Sets the maximum allowable difference between target and current allocation.
-   * @param imaxDifference The new maximum difference to set.
-   * @dev Reverts if the new maximum difference exceeds the defined precision.
-   */
-  function setMaxDifference(uint256 imaxDifference) external onlyOwner {
-    if (imaxDifference > MAX_TOTAL_WEIGHT) revert InvalidMaxDifference(imaxDifference);
-    _maxDifference = imaxDifference;
-
-    emit MaxDifferenceUpdated(imaxDifference);
-  }
-
-  /**
    * @notice Adds a new strategy to the MultiStrategy contract.
    * @param strategy The StrategyParams containing the strategy and its weight.
    * @dev Reverts if the strategy address is zero or if the weight is zero.
    */
-  function addStrategy(IStrategy strategy) external onlyOwner {
+  function addStrategy(IStrategy strategy) external onlyRole(VAULT_MANAGER_ROLE) {
     if (address(strategy) == address(0)) revert InvalidStrategy();
     _strategies.push(strategy);
     _weights.push(0);
@@ -179,7 +155,6 @@ abstract contract MultiStrategy is Initializable, Ownable2StepUpgradeable {
       }
     }
   }
-
   /**
    * @notice Deallocates assets from the strategies based on their current weights.
    * @param amount The total amount of assets to deallocate.
@@ -225,56 +200,35 @@ abstract contract MultiStrategy is Initializable, Ownable2StepUpgradeable {
 
   /**
    * @notice Rebalances the strategies based on their target allocations.
+   *  The caller functioin should make sure that the deltas are sorted with the positive deltas first and the negative deltas last
+   *  This is to ensure that we deploy the strategies with the highest weights first and then the strategies with the lowest weights
+   *  This is to ensure that we undeploy the strategies with the lowest weights first and then the strategies with the highest weights
+   *
+   * @param indexes The indexes of the strategies to rebalance.
+   * @param deltas The delta amounts to rebalance.
    * @dev This function checks if the last allocation was within the minimum reallocation interval
    * and adjusts the allocations of each strategy accordingly.
    */
-  function _rebalanceStrategies() internal {
-    // Calculate the total assets managed by all strategies
-    uint256 totalCapital = _totalAssets();
-    // Cache the maximum allowable difference and the total number of strategies to save gas in the loop
-    uint256 maxDifferenceAllowed = _maxDifference;
+  function _rebalanceStrategies(uint256[] memory indexes, int256[] memory deltas) internal {
     uint256 totalStrategies = _strategies.length;
-
-    int256[] memory deltas = new int256[](totalStrategies);
-    uint256[] memory indexes = new uint256[](totalStrategies);
-
-    // Calculate the target allocation for each strategy
-    for (uint256 i = 0; i < totalStrategies; ) {
-      // Calculate the target allocation for the current strategy
-      uint256 targetAllocation = (totalCapital * _weights[i]) / _totalWeight;
-      // Get the current allocation of the strategy
-      uint256 currentAllocation = IStrategy(_strategies[i]).totalAssets();
-      // Calculate the difference between current and target allocations
-      deltas[i] = int256(targetAllocation) - int256(currentAllocation);
-      indexes[i] = i;
-
-      // Sort strategies by delta in ascending order
-      for (uint256 j = i + 1; j < totalStrategies; j++) {
-        if (deltas[i] > deltas[j]) {
-          (deltas[i], deltas[j]) = (deltas[j], deltas[i]);
-          (indexes[i], indexes[j]) = (indexes[j], indexes[i]);
-        }
-      }
-      unchecked {
-        i++;
-      }
-    }
+    if(deltas.length != indexes.length) revert InvalidDeltasLength();
+    if(deltas.length != _strategies.length) revert InvalidDeltasLength();
 
     // Iterate through each strategy to adjust allocations
     for (uint256 i = 0; i < totalStrategies; i++) {
-      // If the difference is within the allowed limits, exit to the next strategy
-      if (deltas[i] > int256(maxDifferenceAllowed) && deltas[i] < -int256(maxDifferenceAllowed))
-        continue;
+      // if the delta is 0, we don't need to rebalance the strategy
+      if (deltas[i] == 0) continue;
 
+      // if the delta is positive, we need to deploy the strategy
       if (deltas[i] > 0) {
         uint256 balanceOf = IERC20(_strategies[indexes[i]].asset()).balanceOf(address(this));
         uint256 amount = uint256(deltas[i]) > balanceOf ? balanceOf : uint256(deltas[i]);
         IStrategy(_strategies[indexes[i]]).deploy(amount);
+        // if the delta is negative, we need to undeploy the strategy
       } else if (deltas[i] < 0) {
         IStrategy(_strategies[indexes[i]]).undeploy(uint256(-deltas[i]));
       }
     }
-
     // Deploy any dust balance to the highest weight strategy
     uint256 dustBalance = IERC20(_strategies[0].asset()).balanceOf(address(this));
     if (dustBalance > 0) {
@@ -294,14 +248,10 @@ abstract contract MultiStrategy is Initializable, Ownable2StepUpgradeable {
    * @notice Removes a strategy from the MultiStrategy contract.
    * @param index The index of the strategy to remove.
    * @dev Reverts if the index is out of bounds. The last strategy is moved to the removed index.
+   * This function also handles the undeployment of assets from the strategy being removed and
+   * rebalances the remaining strategies.
    */
-  /**
-   * @notice Removes a strategy from the MultiStrategy contract.
-   * @param index The index of the strategy to remove.
-   * @dev Reverts if the index is out of bounds. The last strategy is moved to the removed index.
-   * This function also handles the undeployment of assets from the strategy being removed and rebalances the remaining strategies.
-   */
-  function removeStrategy(uint256 index) external onlyOwner {
+  function removeStrategy(uint256 index) external onlyRole(VAULT_MANAGER_ROLE) {
     // Validate the index to ensure it is within bounds
     if (index >= _strategies.length) revert InvalidStrategyIndex(index);
 
@@ -317,9 +267,6 @@ abstract contract MultiStrategy is Initializable, Ownable2StepUpgradeable {
       IStrategy(_strategies[index]).undeploy(strategyAssets);
       _allocateAssets(strategyAssets);
     }
-
-    // Rebalance the remaining strategies to adjust their allocations
-    _rebalanceStrategies();
 
     // Move the last strategy to the index of the removed strategy to maintain array integrity
     uint256 lastIndex = _strategies.length - 1;

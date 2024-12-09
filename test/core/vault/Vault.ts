@@ -169,7 +169,14 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
     expect((await strategy.getPosition([0, 0]))[0]).to.equal(46158796290728189952n);
     expect((await strategy.getPosition([0, 0]))[1]).to.equal(35740737736704000000n);
     await vault.setFeeReceiver(otherAccount.address);
-    await expect(vault.rebalance())
+    await expect(
+      vault.rebalance([
+        [
+          0x01, // Harvest Command
+          '0x',
+        ],
+      ]),
+    )
       // @ts-ignore
       .to.emit(vault, 'Transfer')
       .withArgs(
@@ -311,7 +318,14 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
     await oracle.setLatestPrice(1187 * 1e6 * 0.9);
     await strategy.setMaxLoanToValue(800 * 1e6);
 
-    await expect(vault.rebalance())
+    await expect(
+      vault.rebalance([
+        [
+          0x01, // Harvest Command
+          '0x',
+        ],
+      ]),
+    )
       // @ts-ignore
       .to.emit(aave3Pool, 'Repay')
       .withArgs(
@@ -609,13 +623,6 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
     ).to.be.revertedWith('Pausable: paused');
   });
 
-  it('Rebalance Fails when vault is paused', async () => {
-    const { vault, owner } = await loadFixture(deployFunction);
-    await vault.pause();
-    // @ts-ignore
-    await expect(vault.rebalance()).to.be.revertedWith('Pausable: paused');
-  });
-
   it('Transfer ETH to contract should fail', async () => {
     const { vault, owner } = await loadFixture(deployFunction);
     // Create a transaction object
@@ -629,15 +636,6 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
       vault,
       'ETHTransferNotAllowed',
     );
-  });
-
-  it('Transfer Ownership in 2 Steps', async function () {
-    const { vault, owner, otherAccount } = await loadFixture(deployFunction);
-    await vault.transferOwnership(otherAccount.address);
-    expect(await vault.pendingOwner()).to.equal(otherAccount.address);
-    // @ts-ignore
-    await vault.connect(otherAccount).acceptOwnership();
-    expect(await vault.owner()).to.equal(otherAccount.address);
   });
 
   it('Deposit Success', async function () {
@@ -1072,7 +1070,12 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
 
   it('Rebalance - no balance', async () => {
     const { owner, vault } = await loadFixture(deployFunction);
-    await vault.rebalance();
+    await vault.rebalance([
+      [
+        0x01, // Harvest Command
+        '0x',
+      ],
+    ]);
     expect(true).to.equal(true);
   });
 
@@ -1161,7 +1164,14 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
     await vault.setPerformanceFee(100 * 1e6);
     await strategy.setHarvestPerCall(1000);
 
-    await expect(vault.rebalance())
+    await expect(
+      vault.rebalance([
+        [
+          0x01, // Harvest Command
+          '0x',
+        ],
+      ]),
+    )
       // @ts-ignore
       .to.emit(vault, 'Transfer')
       .withArgs('0x0000000000000000000000000000000000000000', otherAccount.address, 200);
@@ -1240,7 +1250,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
     const { vault, anotherAccount } = await loadFixture(deployFunction);
     // @ts-ignore
     await expect(vault.connect(anotherAccount).pause()).to.be.revertedWith(
-      /Ownable: caller is not the owner/,
+      /AccessControl: account .* is missing role/,
     );
   });
 
@@ -1252,7 +1262,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
         .connect(anotherAccount)
         // @ts-ignore
         .unpause(),
-    ).to.be.revertedWith(/Ownable: caller is not the owner/);
+    ).to.be.revertedWith(/AccessControl: account .* is missing role/);
   });
 
   it('Change Withdrawal Fee ✅', async function () {
@@ -1293,7 +1303,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
     const { vault, owner, otherAccount } = await loadFixture(deployFunction);
     // @ts-expect-error
     await expect(vault.connect(otherAccount).setFeeReceiver(owner.address)).to.be.revertedWith(
-      'Ownable: caller is not the owner',
+      /AccessControl: account .* is missing role/,
     );
   });
 
@@ -1316,7 +1326,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
         .connect(otherAccount)
         // @ts-expect-error
         .enableAccount(otherAccount.address, true),
-    ).to.be.revertedWith('Ownable: caller is not the owner');
+    ).to.be.revertedWith(/AccessControl: account .* is missing role/);
   });
 
   it('Fail to enable an address that is enabled ✅', async function () {
@@ -1352,7 +1362,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
         .connect(otherAccount)
         // @ts-ignore
         .setMaxDeposit(ethers.parseUnits('1', 17)),
-    ).to.be.revertedWith('Ownable: caller is not the owner');
+    ).to.be.revertedWith(/AccessControl: account .* is missing role/);
   });
 
   it('Change Price Max Age ✅', async function () {
@@ -1362,6 +1372,39 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
 
     // @ts-expect-error
     expect(await strategy.connect(otherAccount).getPriceMaxAge()).to.equal(3600);
+  });
+
+  it('Grant Pause Role - Governor can grant pause role to another account', async () => {
+    const { vault, anotherAccount } = await loadFixture(deployFunction);
+    await vault.grantRole(ethers.keccak256(Buffer.from('PAUSER_ROLE')), anotherAccount.address);
+    expect(
+      await vault.hasRole(ethers.keccak256(Buffer.from('PAUSER_ROLE')), anotherAccount.address),
+    ).to.be.true;
+  });
+
+  it('Grant Pause Role - Non-Pauser account cannot pause vault', async () => {
+    const { vault, anotherAccount } = await loadFixture(deployFunction);
+    await expect(vault.connect(anotherAccount).pause()).to.be.revertedWith(
+      /AccessControl: account .* is missing role .*/,
+    );
+  });
+
+  it('Grant Pause Role - Non-admin cannot grant pause role', async () => {
+    const { vault, anotherAccount } = await loadFixture(deployFunction);
+    await expect(
+      vault
+        .connect(anotherAccount)
+        .grantRole(ethers.keccak256(Buffer.from('PAUSER_ROLE')), anotherAccount.address),
+    ).to.be.revertedWith(/AccessControl: account .* is missing role .*/);
+  });
+
+  it('Grant Pause Role - Governor can revoke pause role', async () => {
+    const { vault, anotherAccount } = await loadFixture(deployFunction);
+    await vault.grantRole(ethers.keccak256(Buffer.from('PAUSER_ROLE')), anotherAccount.address);
+    await vault.revokeRole(ethers.keccak256(Buffer.from('PAUSER_ROLE')), anotherAccount.address);
+    expect(
+      await vault.hasRole(ethers.keccak256(Buffer.from('PAUSER_ROLE')), anotherAccount.address),
+    ).to.be.false;
   });
 });
 

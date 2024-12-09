@@ -1,19 +1,20 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.24;
 
-import { Ownable2StepUpgradeable } from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 import { PausableUpgradeable } from "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import { Rebase, RebaseLibrary } from "../libraries/RebaseLibrary.sol";
 import { IERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import { IVault } from "../interfaces/core/IVault.sol";
 import { SafeERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import { PERCENTAGE_PRECISION } from "./Constants.sol";
-import { ERC20PermitUpgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20PermitUpgradeable.sol";
+import { ERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20PermitUpgradeable.sol";
 import { UseWETH } from "./hooks/UseWETH.sol";
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import { AddressUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import { MathLibrary } from "../libraries/MathLibrary.sol";
 import { VaultSettings } from "./VaultSettings.sol";
+import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import { ADMIN_ROLE, VAULT_MANAGER_ROLE, PAUSER_ROLE } from "./Constants.sol";
 
 /**
  * @title BakerFi Vault Base 🧑‍🍳
@@ -26,10 +27,10 @@ import { VaultSettings } from "./VaultSettings.sol";
  * It inherits from several OpenZeppelin contracts to ensure security and upgradeability.
  */
 abstract contract VaultBase is
-  Ownable2StepUpgradeable,
+  AccessControlUpgradeable,
   PausableUpgradeable,
   ReentrancyGuardUpgradeable,
-  ERC20PermitUpgradeable,
+  ERC20Upgradeable,
   VaultSettings,
   UseWETH,
   IVault
@@ -52,7 +53,6 @@ abstract contract VaultBase is
   error InvalidReceiver();
   error NoAllowance();
 
-  bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
   uint256 private constant _MINIMUM_SHARE_BALANCE = 1000;
   uint256 private constant _ONE = 1e18;
 
@@ -89,12 +89,14 @@ abstract contract VaultBase is
     string calldata tokenSymbol,
     address weth
   ) internal {
-    __ERC20Permit_init(tokenName);
     __ERC20_init(tokenName, tokenSymbol);
     _initUseWETH(weth);
     if (initialOwner == address(0)) revert InvalidOwner();
     _initializeVaultSettings();
-    _transferOwnership(initialOwner);
+    __AccessControl_init();
+    _setupRole(ADMIN_ROLE, initialOwner);
+    _setupRole(VAULT_MANAGER_ROLE, initialOwner);
+    _setupRole(PAUSER_ROLE, initialOwner);
   }
 
   /**
@@ -116,11 +118,6 @@ abstract contract VaultBase is
   function _harvest() internal virtual returns (int256 balanceChange);
 
   /**
-   * @dev Hook that is called after harvesting.
-   */
-  function _afterHarvest() internal virtual;
-
-  /**
    * @dev Deploys the specified amount of assets.
    * @param assets The amount of assets to deploy.
    * @return The amount of assets deployed.
@@ -134,19 +131,12 @@ abstract contract VaultBase is
    */
   function _undeploy(uint256 assets) internal virtual returns (uint256);
 
-  /**
-   * @dev Rebalances the vault's assets.
-   * @return balanceChange The change in balance after rebalancing.
-   */
-  function rebalance() external override nonReentrant whenNotPaused returns (int256 balanceChange) {
+  function _harvestAndMintFees() internal {
     uint256 currentPosition = _totalAssets();
-
     if (currentPosition == 0) {
-      return 0;
+      return;
     }
-
-    balanceChange = _harvest();
-
+    int256 balanceChange = _harvest();
     if (balanceChange > 0) {
       address feeReceiver = getFeeReceiver();
       uint256 performanceFee = getPerformanceFee();
@@ -156,13 +146,9 @@ abstract contract VaultBase is
           totalSupply(),
           currentPosition * PERCENTAGE_PRECISION
         );
-
         _mint(feeReceiver, sharesToMint);
       }
     }
-    _afterHarvest();
-
-    return balanceChange;
   }
 
   /**
@@ -498,7 +484,7 @@ abstract contract VaultBase is
    * Only the Owner is able to pause the vault.
    * When the contract is paused, deposit, withdraw, and rebalance cannot be called without reverting.
    */
-  function pause() external onlyOwner {
+  function pause() external onlyRole(PAUSER_ROLE) {
     _pause();
   }
 
@@ -506,7 +492,7 @@ abstract contract VaultBase is
    * @dev Unpauses the contract.
    * Only the Owner is able to unpause the vault.
    */
-  function unpause() external onlyOwner {
+  function unpause() external onlyRole(PAUSER_ROLE) {
     _unpause();
   }
 
