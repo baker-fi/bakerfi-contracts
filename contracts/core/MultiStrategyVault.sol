@@ -1,31 +1,31 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.24;
 
-import { Rebase, RebaseLibrary } from "../libraries/RebaseLibrary.sol";
 import { IERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import { IStrategy } from "../interfaces/core/IStrategy.sol";
 import { SafeERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
-import { MathLibrary } from "../libraries/MathLibrary.sol";
 import { MultiStrategy } from "./MultiStrategy.sol";
 import { VaultBase } from "./VaultBase.sol";
-
+import { IVault } from "../interfaces/core/IVault.sol";
+import { VAULT_MANAGER_ROLE } from "./Constants.sol";
 /**
- * @title BakerFi Vault 🏦🧑‍🍳
+ * @title MultiStrategyVault 🏦🧑‍🍳
  *
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
  *
- * @dev The BakerFi vault deployed to any supported chain (Arbitrum One, Optimism, Ethereum,...)
+ * @dev The MultiStrategyVault is orchestration vault capable of managing multiple investment strategies.
  *
  * This is smart contract where the users deposit their ETH or an ERC-20 and receives a share of the pool <x>brETH.
  * A share of the pool is an ERC-20 Token (transferable) and could be used to later to withdraw their
- * owned amount of the pool that could contain (Assets + Yield). This vault could use a customized IStrategy
- * to deploy the capital and harvest an yield.
+ * owned amount of the pool that could contain (Assets + Yield).
+ * This vault could use to support multiple strategies and deploy the capital on the strategies based on
+ * set of weights defined by the vault manager.
  *
  * The Contract is able to charge a performance and withdraw fee that is send to the treasury
  * owned account when the fees are set by the deploy owner.
  *
- * The Vault is Pausable by the the governor and is using the settings contract to retrieve base
+ * The Vault is Pausable by a pauser role and is using the settings to retrieve base
  * performance, withdraw fees and other kind of settings.
  *
  * During the beta phase only whitelisted addresses are able to deposit and withdraw
@@ -34,9 +34,19 @@ import { VaultBase } from "./VaultBase.sol";
  *
  * The Vault follows the ERC-4626 Specification and can be integrated by any Aggregator
  *
+ * The rebalance function is allowing a flexible external management through the vault manager role
+ * and could be used to perform a variety of operations such as harvesting yield, rebalancing assets,
+ * changing weights, and other strategic actions that could be programmed by an external agent
+ * that have access to external information and implement healthy procedures in order to protect the
+ * vault or impreove the vault performance.
  */
 contract MultiStrategyVault is VaultBase, MultiStrategy {
   using SafeERC20Upgradeable for IERC20Upgradeable;
+
+  // Rebalance commands
+  uint8 public constant HARVEST_VAULT = 0x01; //
+  uint8 public constant REBALANCE_STRATEGIES = 0x02; //
+  uint8 public constant CHANGE_WEIGHTS = 0x03; //
 
   address internal _strategyAsset;
 
@@ -102,15 +112,6 @@ contract MultiStrategyVault is VaultBase, MultiStrategy {
   }
 
   /**
-   * @dev Executes actions after harvesting.
-   *
-   * This function is called after the harvest process to rebalance the strategies.
-   */
-  function _afterHarvest() internal virtual override {
-    _rebalanceStrategies(); // Rebalances the strategies after harvesting
-  }
-
-  /**
    * @dev Deploys assets to the strategies.
    *
    * This function allocates the specified amount of assets to the strategies
@@ -156,6 +157,46 @@ contract MultiStrategyVault is VaultBase, MultiStrategy {
 
   function _asset() internal view virtual override returns (address) {
     return _strategyAsset;
+  }
+
+  /**
+   * @dev Rebalances the vault's assets.
+   *
+   * @param commands The commands to rebalance the vault's assets.
+   *
+   * The commands are an array of RebalanceCommand structs, each containing an action and data.
+   * The action is the type of the command and the data is the data of the command.
+   *
+   * This rebalance support 3 actions:
+   *
+   * - HARVEST_VAULT: Harvests the yield from the strategies.
+   * - REBALANCE_STRATEGIES: Rebalances the strategies based on the deltas.
+   * - CHANGE_WEIGHTS: Changes the weights of the strategies.
+   *
+   * @return success Whether the rebalancing was successful.
+   */
+  function rebalance(
+    IVault.RebalanceCommand[] calldata commands
+  ) external override nonReentrant onlyRole(VAULT_MANAGER_ROLE) returns (bool success) {
+    success = true;
+    uint256 numCommands = commands.length;
+    for (uint256 i = 0; i < numCommands; ) {
+      if (commands[i].action == HARVEST_VAULT) {
+        _harvestAndMintFees();
+      } else if (commands[i].action == REBALANCE_STRATEGIES) {
+        (uint256[] memory indexes, int256[] memory deltas) = abi.decode(
+          commands[i].data,
+          (uint256[], int256[])
+        );
+        _rebalanceStrategies(indexes, deltas);
+      } else if (commands[i].action == CHANGE_WEIGHTS) {
+        uint16[] memory weights = abi.decode(commands[i].data, (uint16[]));
+        setWeights(weights);
+      }
+      unchecked {
+        i++;
+      }
+    }
   }
 
   uint256[50] private __gap;

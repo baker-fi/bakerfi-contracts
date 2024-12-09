@@ -5,6 +5,9 @@ import { IERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC
 import { IStrategy } from "../interfaces/core/IStrategy.sol";
 import { SafeERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import { VaultBase } from "./VaultBase.sol";
+import { IVault } from "../interfaces/core/IVault.sol";
+import { MathLibrary } from "../libraries/MathLibrary.sol";
+import { VAULT_MANAGER_ROLE } from "./Constants.sol";
 
 /**
  * @title BakerFi Vault 🏦🧑‍🍳
@@ -22,7 +25,7 @@ import { VaultBase } from "./VaultBase.sol";
  * The Contract is able to charge a performance and withdraw fee that is sent to the treasury
  * owned account when the fees are set by the deploy owner.
  *
- * The Vault is Pausable by the governor and is using the settings contract to retrieve base
+ * The Vault is Pausable by a pauser role and is using the settings to retrieve base
  * performance, withdraw fees, and other kinds of settings.
  *
  * During the beta phase, only whitelisted addresses are able to deposit and withdraw.
@@ -45,13 +48,16 @@ contract Vault is VaultBase {
    * @dev The address of the asset being managed by the strategy.
    */
   address internal _strategyAsset;
-
   uint8 private constant _VAULT_VERSION = 3;
+
+  using MathLibrary for uint256;
 
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() VaultBase() {
     _disableInitializers(); // Prevents the contract from being initialized again
   }
+
+  uint8 public constant HARVEST_VAULT = 0x01; //
 
   using SafeERC20Upgradeable for IERC20Upgradeable;
 
@@ -100,13 +106,6 @@ contract Vault is VaultBase {
    */
   function _harvest() internal virtual override returns (int256 balanceChange) {
     return _strategy.harvest(); // Calls the harvest function of the strategy
-  }
-  /**
-   * @dev Placeholder for any actions to be taken after harvesting
-   */
-  function _afterHarvest() internal virtual override {
-    // Placeholder for any actions to be taken after harvesting
-    // Nothing to be done here
   }
 
   /**
@@ -160,6 +159,32 @@ contract Vault is VaultBase {
 
   function _asset() internal view virtual override returns (address) {
     return _strategyAsset;
+  }
+
+  /**
+   * @dev Rebalances the strategy, prevent a liquidation and pay fees
+   * to protocol by minting shares to the fee receiver
+   *
+   * This rebalance support 1 action:
+   *
+   * - HARVEST_VAULT: Harvests the yield from the strategy
+   *
+   * @param commands The data to be passed to the rebalance function
+   * @return success The success of the rebalance operation.
+   */
+  function rebalance(
+    IVault.RebalanceCommand[] calldata commands
+  ) external override nonReentrant onlyRole(VAULT_MANAGER_ROLE) returns (bool success) {
+    success = true;
+    uint256 numCommands = commands.length;
+    for (uint256 i = 0; i < numCommands; ) {
+      if (commands[i].action == HARVEST_VAULT) {
+        _harvestAndMintFees();
+      }
+      unchecked {
+        i++;
+      }
+    }
   }
 
   uint256[50] private __gap;

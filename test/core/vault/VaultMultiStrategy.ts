@@ -63,8 +63,12 @@ describeif(network.name === 'hardhat')('MultiStrategy Vault', function () {
     const { vault, usdc, owner, park1, park2 } = await loadFixture(deployMultiStrategyVaultFixture);
     expect(await vault.asset()).to.equal(await usdc.getAddress());
     expect(await vault.totalAssets()).to.equal(0n);
-    expect(await vault.owner()).to.equal(owner.address);
-    expect(await vault.maxDifference()).to.equal(100n);
+    expect(
+      await vault.hasRole(
+        '0x0000000000000000000000000000000000000000000000000000000000000000',
+        owner.address,
+      ),
+    ).to.be.true;
     expect(await vault.strategies()).to.deep.equal([
       await park1.getAddress(),
       await park2.getAddress(),
@@ -150,7 +154,7 @@ describeif(network.name === 'hardhat')('MultiStrategy Vault', function () {
     const { vault, otherAccount } = await loadFixture(deployMultiStrategyVaultFixture);
     const weights = [10000, 0];
     await expect(vault.connect(otherAccount).setWeights(weights)).to.be.revertedWith(
-      'Ownable: caller is not the owner',
+      /AccessControl: account .* is missing role/,
     );
   });
 
@@ -198,7 +202,7 @@ describeif(network.name === 'hardhat')('MultiStrategy Vault', function () {
     const { vault, otherAccount, park1 } = await loadFixture(deployMultiStrategyVaultFixture);
     await expect(
       vault.connect(otherAccount).addStrategy(await park1.getAddress()),
-    ).to.be.revertedWith('Ownable: caller is not the owner');
+    ).to.be.revertedWith(/AccessControl: account .* is missing role/);
   });
 
   it('Remove Strategy before having assets', async () => {
@@ -219,28 +223,7 @@ describeif(network.name === 'hardhat')('MultiStrategy Vault', function () {
   it('Remove Strategy Not the owner', async () => {
     const { vault, otherAccount } = await loadFixture(deployMultiStrategyVaultFixture);
     await expect(vault.connect(otherAccount).removeStrategy(0)).to.be.revertedWith(
-      'Ownable: caller is not the owner',
-    );
-  });
-
-  it('Set Max Difference', async () => {
-    const { vault } = await loadFixture(deployMultiStrategyVaultFixture);
-    await vault.setMaxDifference(100n);
-    expect(await vault.maxDifference()).to.equal(100n);
-  });
-
-  it('Set Max Difference Not the owner', async () => {
-    const { vault, otherAccount } = await loadFixture(deployMultiStrategyVaultFixture);
-    await expect(vault.connect(otherAccount).setMaxDifference(100n)).to.be.revertedWith(
-      'Ownable: caller is not the owner',
-    );
-  });
-
-  it('Set Max Difference Reverts if the max difference is greater than 10000', async () => {
-    const { vault, owner } = await loadFixture(deployMultiStrategyVaultFixture);
-    await expect(vault.setMaxDifference(10001n)).to.be.revertedWithCustomError(
-      vault,
-      'InvalidMaxDifference',
+      /AccessControl: account .* is missing role/,
     );
   });
 
@@ -249,8 +232,23 @@ describeif(network.name === 'hardhat')('MultiStrategy Vault', function () {
     const amount = 10000n * 10n ** 18n;
     await usdc.approve(vault.target, amount);
     await vault.deposit(amount, owner.address);
-    await vault.setWeights([5000n, 5000n]);
-    await vault.rebalance();
+    //await vault.setWeights([5000n, 5000n]);
+    await vault.rebalance([
+      {
+        action: 0x03,
+        data: ethers.AbiCoder.defaultAbiCoder().encode(['uint16[]'], [[5000n, 5000n]]),
+      },
+      {
+        action: 0x02,
+        data: ethers.AbiCoder.defaultAbiCoder().encode(
+          ['uint256[]', 'int256[]'],
+          [
+            [0, 1],
+            [-2500n * 10n ** 18n, 2500n * 10n ** 18n],
+          ],
+        ),
+      },
+    ]);
     expect(await park1.totalAssets()).to.equal((amount * 5000n) / 10000n);
     expect(await park2.totalAssets()).to.equal((amount * 5000n) / 10000n);
   });
@@ -260,9 +258,22 @@ describeif(network.name === 'hardhat')('MultiStrategy Vault', function () {
     const amount = 10000n * 10n ** 18n;
     await usdc.approve(vault.target, amount);
     await vault.deposit(amount, owner.address);
-
-    await vault.setWeights([10000n, 0n]);
-    await vault.rebalance();
+    await vault.rebalance([
+      {
+        action: 0x03,
+        data: ethers.AbiCoder.defaultAbiCoder().encode(['uint16[]'], [[10000n, 0n]]),
+      },
+      {
+        action: 0x02,
+        data: ethers.AbiCoder.defaultAbiCoder().encode(
+          ['uint256[]', 'int256[]'],
+          [
+            [1, 0],
+            [-2500n * 10n ** 18n, 2500n * 10n ** 18n],
+          ],
+        ),
+      },
+    ]);
     //expect(await park1.totalAssets()).to.equal(amount);
     expect(await park2.totalAssets()).to.equal(0n);
   });
@@ -272,8 +283,22 @@ describeif(network.name === 'hardhat')('MultiStrategy Vault', function () {
     const amount = 10000n * 10n ** 18n;
     await usdc.approve(vault.target, amount);
     await vault.deposit(amount, owner.address);
-    await vault.setWeights([2500n, 7500n]);
-    await vault.rebalance();
+    await vault.rebalance([
+      {
+        action: 0x03,
+        data: ethers.AbiCoder.defaultAbiCoder().encode(['uint16[]'], [[2500n, 7500n]]),
+      },
+      {
+        action: 0x02,
+        data: ethers.AbiCoder.defaultAbiCoder().encode(
+          ['uint256[]', 'int256[]'],
+          [
+            [0, 1],
+            [-5000n * 10n ** 18n, 5000n * 10n ** 18n],
+          ],
+        ),
+      },
+    ]);
     expect(await park1.totalAssets()).to.equal((amount * 2500n) / 10000n);
     expect(await park2.totalAssets()).to.equal((amount * 7500n) / 10000n);
   });
@@ -285,7 +310,22 @@ describeif(network.name === 'hardhat')('MultiStrategy Vault', function () {
     await vault.deposit(amount, owner.address);
 
     await vault.setWeights([0, 10000n]);
-    await vault.rebalance();
+    await vault.rebalance([
+      {
+        action: 0x03,
+        data: ethers.AbiCoder.defaultAbiCoder().encode(['uint16[]'], [[0n, 10000n]]),
+      },
+      {
+        action: 0x02,
+        data: ethers.AbiCoder.defaultAbiCoder().encode(
+          ['uint256[]', 'int256[]'],
+          [
+            [0, 1],
+            [-7500n * 10n ** 18n, 7500n * 10n ** 18n],
+          ],
+        ),
+      },
+    ]);
     expect(await park1.totalAssets()).to.equal(0);
     expect(await park2.totalAssets()).to.equal(amount);
   });
@@ -304,7 +344,12 @@ describeif(network.name === 'hardhat')('MultiStrategy Vault', function () {
 
   it('Rebalance before having assets', async () => {
     const { vault, park1, usdc, owner } = await loadFixture(deployMultiStrategyVaultFixture);
-    await vault.rebalance();
+    await vault.rebalance([
+      {
+        action: 0x01,
+        data: '0x',
+      },
+    ]);
     expect(await park1.totalAssets()).to.equal(0n);
   });
 
@@ -329,7 +374,7 @@ describeif(network.name === 'hardhat')('MultiStrategy Vault', function () {
         .connect(otherAccount)
         // @ts-ignore
         .unpause(),
-    ).to.be.revertedWith(/Ownable: caller is not the owner/);
+    ).to.be.revertedWith(/AccessControl: account .* is missing role/);
   });
 
   it('Change Withdrawal Fee ✅', async function () {
@@ -343,6 +388,13 @@ describeif(network.name === 'hardhat')('MultiStrategy Vault', function () {
     await expect(vault.setWithdrawalFee(1100 * 1e6)).to.be.revertedWithCustomError(
       vault,
       'InvalidPercentage',
+    );
+  });
+
+  it('Only Fund Manager can call rebalance', async () => {
+    const { vault, otherAccount } = await loadFixture(deployMultiStrategyVaultFixture);
+    await expect(vault.connect(otherAccount).rebalance([])).to.be.revertedWith(
+      /AccessControl: account .* is missing role/,
     );
   });
 
@@ -381,7 +433,7 @@ describeif(network.name === 'hardhat')('MultiStrategy Vault', function () {
         .connect(otherAccount)
         // @ts-ignore
         .setMaxDeposit(ethers.parseUnits('1', 17)),
-    ).to.be.revertedWith('Ownable: caller is not the owner');
+    ).to.be.revertedWith(/AccessControl: account .* is missing role/);
 
     it('tokenPerAsset - No Balance', async function () {
       const { vault } = await loadFixture(deployMultiStrategyVaultFixture);
@@ -407,7 +459,7 @@ describeif(network.name === 'hardhat')('MultiStrategy Vault', function () {
     // Artificial profit
     await usdc.transfer(park1.target, 1000n * 10n ** 18n);
 
-    await expect(vault.rebalance())
+    await expect(vault.rebalance([[0x01, '0x']]))
       // @ts-ignore
       .to.emit(vault, 'Transfer')
       .withArgs(

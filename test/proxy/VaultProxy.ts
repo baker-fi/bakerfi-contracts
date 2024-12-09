@@ -11,7 +11,12 @@ describeif(network.name === 'hardhat')('Vault Proxy', function () {
     expect(await vaultProxy.symbol()).to.equal('brETH');
     expect(await vaultProxy.balanceOf(deployer.address)).to.equal(0);
     expect(await vaultProxy.totalSupply()).to.equal(0);
-    expect(await vaultProxy.owner()).to.equal(deployer.address);
+    expect(
+      await vaultProxy.hasRole(
+        '0x0000000000000000000000000000000000000000000000000000000000000000',
+        deployer.address,
+      ),
+    ).to.be.true;
   });
 });
 
