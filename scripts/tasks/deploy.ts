@@ -37,36 +37,6 @@ task('deploy:oracle:wstEthToUsdRatio', 'Deploy an oracle with Exchange Ratio')
     }
   });
 
-task('deploy:upgrade:settings', 'Upgrade the settings Contract')
-  .addParam('strategy', 'Strategy Type', 'AAVE_V3_WSTETH_ETH')
-  .setAction(async ({ strategy }, { ethers, network }) => {
-    const networkName = network.name;
-    const networkConfig = DeployConfig[networkName];
-
-    const spinner = ora(`Upgrading Settings Contract`).start();
-    try {
-      // 1. Deploy a new Instance
-      let app = await getClient(ethers);
-      const settingsReceipt = await app?.deploy('Settings', [], {
-        chainId: BigInt(network.config.chainId ?? 0),
-      });
-
-      await app?.send(
-        'BakerFiProxyAdmin',
-        networkConfig[strategy]?.proxyAdmin ?? '',
-        'upgrade',
-        [networkConfig[strategy]?.settingsProxy, settingsReceipt?.contractAddress],
-        {
-          chainId: BigInt(network.config.chainId ?? 0),
-        },
-      );
-      spinner.succeed(`New Settings Contract is ${settingsReceipt?.contractAddress}`);
-    } catch (e) {
-      console.log(e);
-      spinner.fail('Failed 💥');
-    }
-  });
-
 task('deploy:upgrade:strategy', 'Upgrade the settings Contract')
   .addParam('strategy', 'Strategy Type', 'AAVE_V3_WSTETH_ETH')
   .setAction(async ({ strategy }, { ethers, network }) => {

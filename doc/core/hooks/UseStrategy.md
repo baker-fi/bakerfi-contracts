@@ -11,18 +11,18 @@ error InvalidStrategyContract()
 ### _initUseStrategy
 
 ```solidity
-function _initUseStrategy(contract ServiceRegistry registry) internal
+function _initUseStrategy(address istrategy) internal
 ```
 
 ### strategy
 
 ```solidity
-function strategy() public view returns (contract IStrategy)
+function strategy() internal view returns (contract IStrategy)
 ```
 
 ### strategyA
 
 ```solidity
-function strategyA() public view returns (address)
+function strategyA() internal view returns (address)
 ```
 

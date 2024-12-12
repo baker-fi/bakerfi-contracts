@@ -2,14 +2,7 @@
 
 ## IStrategy
 
-This contract implements a strategy and could be used to deploy an asset receive an amplified and harvest a yield. 
-
-The Strategy could be for the user to interact with :
-
-- Flash Lend Adapter to leverage an asset position
-- Uniswap to convert between assets
-- Lend and Borrow from a Money Market
-- Interact with Oracles for accurate prices
+Deploys an Any Standard ERC-20 and harvests yield
 
 ### StrategyDeploy
 
@@ -96,7 +89,7 @@ This event provides information about the new deployment amount of the strategy.
 ### deploy
 
 ```solidity
-function deploy() external payable returns (uint256 deployedAmount)
+function deploy(uint256 amount) external returns (uint256 deployedAmount)
 ```
 
 _Deploys funds in the AAVEv3 strategy_
@@ -141,17 +134,25 @@ _Initiates the undeployment process by adjusting the contract's position and per
 | ---- | ---- | ----------- |
 | undeployedAmount | uint256 | The actual undeployed amount of ETH. |
 
-### deployed
+### totalAssets
 
 ```solidity
-function deployed(uint256 priceMaxAge) external view returns (uint256 assets)
+function totalAssets() external view returns (uint256 assets)
 ```
 
-_Retrieves the total owned assets by the Strategy in ETH_
+_Retrieves the total owned assets by the Strategy in_
 
 #### Return Values
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| assets | uint256 | The total owned assets in Ether. |
+| assets | uint256 | The total owned assets in the strategy. |
+
+### asset
+
+```solidity
+function asset() external view returns (address)
+```
+
+The Asset deployed on this strategy
 

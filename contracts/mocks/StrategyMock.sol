@@ -37,9 +37,7 @@ contract StrategyMock is IStrategy {
     return amount;
   }
 
-  function totalAssets(
-    IOracle.PriceOptions memory
-  ) external view override returns (uint256 actualAmount) {
+  function totalAssets() external view override returns (uint256 actualAmount) {
     uint256 col = IERC20Upgradeable(_asset).balanceOf(address(this));
     uint256 deb = (col * _debRatio) / 100;
     actualAmount = col >= deb ? col - deb : 0;

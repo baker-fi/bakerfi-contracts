@@ -74,11 +74,7 @@ describeif(network.name === 'hardhat')(
       await aggregator.waitForDeployment();
 
       const ChainLinkOracle = await ethers.getContractFactory('ChainLinkOracle');
-      const oracle = await ChainLinkOracle.deploy(
-        await aggregator.getAddress(),
-        0n,
-        0n,
-      );
+      const oracle = await ChainLinkOracle.deploy(await aggregator.getAddress(), 0n, 0n);
       await oracle.waitForDeployment();
       return { oracle, aggregator };
     }
@@ -143,8 +139,6 @@ describeif(network.name === 'hardhat')(
         // @ts-ignore
       ).to.be.revertedWithCustomError(oracle, 'InvalidPriceFromOracle');
     });
-
-
 
     it('Check Price after changing prices', async function () {
       const { oracle, aggregator } = await loadFixture(deployFunction);

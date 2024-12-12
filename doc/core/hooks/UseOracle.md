@@ -11,18 +11,18 @@ error InvalidOracleContract()
 ### _initUseOracle
 
 ```solidity
-function _initUseOracle(contract ServiceRegistry registry, bytes32 oracleName) internal
+function _initUseOracle(address oracleAddress) internal
 ```
 
 ### oracle
 
 ```solidity
-function oracle() public view returns (contract IOracle)
+function oracle() internal view returns (contract IOracle)
 ```
 
 ### getLastPrice
 
 ```solidity
-function getLastPrice() public view returns (struct IOracle.Price)
+function getLastPrice() internal view returns (struct IOracle.Price)
 ```
 

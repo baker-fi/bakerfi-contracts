@@ -11,6 +11,8 @@ struct Rebase {
 
 ## RebaseLibrary
 
+_Library for handling rebase operations. This library was adapted from Boring Solidity Rebase Library_
+
 ### toBase
 
 ```solidity

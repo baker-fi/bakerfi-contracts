@@ -325,4 +325,8 @@ contract AaveV3PoolMock is IPoolV3, ERC20 {
   ) external override {}
 
   function getReserveAddressById(uint16 id) external view override returns (address) {}
+
+  function mintAtokensArbitrarily(address to, uint256 amount) public {
+    _collateralAToken.mint(to, amount);
+  }
 }

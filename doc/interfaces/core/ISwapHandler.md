@@ -4,6 +4,24 @@
 
 _A contract that converts one token to another_
 
+### InvalidInputToken
+
+```solidity
+error InvalidInputToken()
+```
+
+### InvalidOutputToken
+
+```solidity
+error InvalidOutputToken()
+```
+
+### SwapFailed
+
+```solidity
+error SwapFailed()
+```
+
 ### SwapParams
 
 Params for swaps using SwapHub contract and swap handlers
@@ -20,7 +38,6 @@ struct SwapParams {
   enum ISwapHandler.SwapType mode;
   uint256 amountIn;
   uint256 amountOut;
-  uint24 feeTier;
   bytes payload;
 }
 ```
@@ -34,10 +51,10 @@ enum SwapType {
 }
 ```
 
-### _swap
+### swap
 
 ```solidity
-function _swap(struct ISwapHandler.SwapParams params) internal virtual returns (uint256 amountOut)
+function swap(struct ISwapHandler.SwapParams params) internal virtual returns (uint256 amountIn, uint256 amountOut)
 ```
 
 Execute a trade on the swap handler

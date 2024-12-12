@@ -37,8 +37,9 @@ contract UniV3RouterMock is IV3SwapRouter {
     } else {
       amountOut = (params.amountIn * _price) / PRICE_PRECISION;
     }
+
     require(IERC20(params.tokenOut).balanceOf(address(this)) >= amountOut, "No Enough Liquidity");
-    require(amountOut > params.amountOutMinimum, "Mininum Out not reached");
+    require(amountOut >= params.amountOutMinimum, "Mininum Out not reached");
     IERC20(params.tokenOut).safeTransfer(params.recipient, amountOut);
   }
 

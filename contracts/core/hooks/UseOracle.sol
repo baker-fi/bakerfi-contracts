@@ -2,7 +2,6 @@
 pragma solidity ^0.8.24;
 pragma experimental ABIEncoderV2;
 
-import { ServiceRegistry } from "../ServiceRegistry.sol";
 import { IOracle } from "../../interfaces/core/IOracle.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
@@ -11,8 +10,8 @@ abstract contract UseOracle is Initializable {
 
   error InvalidOracleContract();
 
-  function _initUseOracle(ServiceRegistry registry, bytes32 oracleName) internal onlyInitializing {
-    _oracle = IOracle(registry.getServiceFromHash(oracleName));
+  function _initUseOracle(address oracleAddress) internal onlyInitializing {
+    _oracle = IOracle(oracleAddress);
     if (address(_oracle) == address(0)) revert InvalidOracleContract();
   }
 

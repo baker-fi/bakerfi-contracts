@@ -87,7 +87,7 @@ interface IStrategy {
    *
    * @return assets The total owned assets in the strategy.
    */
-  function totalAssets(IOracle.PriceOptions memory options) external view returns (uint256 assets);
+  function totalAssets() external view returns (uint256 assets);
 
   /**
    * The Asset deployed on this strategy

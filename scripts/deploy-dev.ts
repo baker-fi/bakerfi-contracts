@@ -2,16 +2,14 @@ import { ethers, network } from 'hardhat';
 import {
   deployAaveV3,
   deployFlashLender,
-  deployServiceRegistry,
+  deployVaultRegistry,
   deployStEth,
-  deployWSTETHToUSDPythOracle,
   deployVault,
   deployWETH,
-  deployETHOracle,
   deployWStEth,
-  deploySettings,
   deployBKR,
   deployAAVEv3Strategy,
+  deployOracleMock,
 } from './common';
 
 import { AAVEv3Market, NetworkConfig, StrategyImplementation } from '../constants/types';
@@ -49,9 +47,8 @@ async function main() {
   result.push(['Proxy Admin', await proxyAdmin.getAddress()]);
 
   // 1. Deploy the Service Registry
-  const serviceRegistry = await deployServiceRegistry(owner.address);
+  const serviceRegistry = await deployVaultRegistry(owner.address);
   spinner.text = 'Deploying Registry';
-  //console.log(" Service Registry =", await serviceRegistry.getAddress());
   result.push(['Service Registry', await serviceRegistry.getAddress()]);
 
   // 3. Deploy the WETH
@@ -77,16 +74,6 @@ async function main() {
   spinner.text = 'Deploying WstETH';
   const wstETH = await deployWStEth(serviceRegistry, await stETH.getAddress());
   result.push(['WstETH', await wstETH.getAddress()]);
-
-  // Deploy Settings with a Proxy
-  spinner.text = 'Deploying Settings Proxied';
-  const { settings, proxy: settingsProxy } = await deploySettings(
-    owner.address,
-    serviceRegistry,
-    proxyAdmin,
-  );
-  result.push(['Settings', await settings.getAddress()]);
-  result.push(['Settings (Proxy)', await settingsProxy.getAddress()]);
 
   // Deploy cbETH -> ETH Uniswap Router
   spinner.text = 'Deploying Uniswap Router Mock';
@@ -132,32 +119,24 @@ async function main() {
   const aaveV3PoolMock = await deployAaveV3(wstETH, weth, serviceRegistry, AAVE_DEPOSIT);
   result.push(['AAVE v3 Mock', await aaveV3PoolMock.getAddress()]);
 
-  // 3. Deploy Pyth Mock Contract
-  spinner.text = 'Deploying Pyth Mock';
-  const PythMock = await ethers.getContractFactory('PythMock');
-  const pythMock = await PythMock.deploy();
-  await pythMock.waitForDeployment();
-  result.push(['PythMock', await pythMock.getAddress()]);
-
-  spinner.text = 'Deploying wstETH/USD Oracle';
-  const oracle = await deployWSTETHToUSDPythOracle(serviceRegistry, await pythMock.getAddress());
-  result.push(['wstETH/USD Oracle', await oracle.getAddress()]);
-
-  spinner.text = 'Deploying ETH/USD Oracle ';
-  const ethOracle = await deployETHOracle(serviceRegistry, await pythMock.getAddress());
-  result.push(['ETH/USD Oracle', await ethOracle.getAddress()]);
+  // Deploy wstETH/ETH Oracle
+  spinner.text = 'Deploying wstETH/ETH Oracle';
+  const oracle = await deployOracleMock();
+  await oracle.setDecimals(9);
+  // Price of wstETH in ETH is 1.187
+  await oracle.setLatestPrice(1187 * 1e6);
+  result.push(['WSTETH/ETH Oracle', await oracle.getAddress()]);
 
   // Deploying Proxied Strategy
   spinner.text = 'Deploying StrategyLeverageAAVEv3WstETH';
   const { strategy, proxy: strategyProxy } = await deployAAVEv3Strategy(
     owner.address,
     owner.address,
-    await serviceRegistry.getAddress(),
-    'wstETH',
-    'WETH',
-    'wstETH/USD Oracle',
-    'ETH/USD Oracle',
-    config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
+    await wstETH.getAddress(),
+    await weth.getAddress(),
+    await oracle.getAddress(),
+    await flashLender.getAddress(),
+    await aaveV3PoolMock.getAddress(),
     (config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH] as AAVEv3Market).AAVEEModeCategory,
     proxyAdmin,
   );
@@ -179,8 +158,8 @@ async function main() {
     owner.address,
     config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].sharesName,
     config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].sharesSymbol,
-    await serviceRegistry.getAddress(),
     await strategyProxy.getAddress(),
+    await weth.getAddress(),
     proxyAdmin,
   );
   result.push(['BakerFi Vault 🕋', await vault.getAddress()]);
@@ -191,6 +170,13 @@ async function main() {
     'StrategyLeverageAAVEv3',
     await (strategyProxy as any).getAddress(),
   );
+
+  await strategyProxied.enableRoute(await wstETH.getAddress(), await weth.getAddress(), {
+    router: await uniRouter.getAddress(),
+    provider: 1,
+    uniV3Tier: config.markets[StrategyImplementation.AAVE_V3_WSTETH_ETH].swapFeeTier,
+    tickSpacing: 10000,
+  });
   await strategyProxied.transferOwnership(vaultProxy);
 
   // 2. Deploy BKR

@@ -2,6 +2,12 @@
 
 ## IChainlinkAggregator
 
+### decimals
+
+```solidity
+function decimals() external view returns (uint8)
+```
+
 ### latestAnswer
 
 ```solidity

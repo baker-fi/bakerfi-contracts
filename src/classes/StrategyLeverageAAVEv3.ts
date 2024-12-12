@@ -167,4 +167,16 @@ export class StrategyLeverageAAVEv3 extends Model<AAVEv3StrategyAnyMethods> impl
   ): XPromiseEvent<Events.SetMaxLoanToValueChangedEvent> {
     return this.contract.self.getPastEvents('SetMaxLoanToValueChanged', filter);
   }
+
+  async getPriceMaxAgeChangeEvents(
+    filter: PastEventOptions,
+  ): XPromiseEvent<Events.PriceMaxAgeChangeEvent> {
+    return this.contract.self.getPastEvents('PriceMaxAgeChange', filter);
+  }
+
+  async getPriceMaxConfChangeEvents(
+    filter: PastEventOptions,
+  ): XPromiseEvent<Events.PriceMaxConfChangeEvent> {
+    return this.contract.self.getPastEvents('PriceMaxConfChange', filter);
+  }
 }

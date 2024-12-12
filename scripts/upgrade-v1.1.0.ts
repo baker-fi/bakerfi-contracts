@@ -35,35 +35,6 @@ async function main() {
   result.push(['Network Id', chainId]);
   result.push(['Owner', app.getAddress()]);
 
-  spinner.text = `Deploying new Settings Contract`;
-
-  // 1. Deploying Settings Instance
-
-  const settingsReceipt = await app?.deploy('Settings', [], {
-    chainId: BigInt(hre.network.config.chainId ?? 0),
-    minTxConfirmations: MIN_CONFIRMATIONS,
-  });
-
-  spinner.text = `Upgrading Settings Contract on Proxy`;
-
-  await app?.send(
-    'BakerFiProxyAdmin',
-    networkConfig[StrategyImplementation.AAVE_V3_WSTETH_ETH]?.proxyAdmin ?? '',
-    'upgrade',
-    [
-      networkConfig[StrategyImplementation.AAVE_V3_WSTETH_ETH]?.settingsProxy,
-      settingsReceipt.contractAddress,
-    ],
-    {
-      chainId: BigInt(hre.network.config.chainId ?? 0),
-      minTxConfirmations: MIN_CONFIRMATIONS,
-    },
-  );
-
-  result.push(['Settings Instance', settingsReceipt.contractAddress]);
-
-  // 2. Deploying Strategy Instance
-
   spinner.text = `Deploying new  Strategy Contract`;
 
   const stratReceipt = await app?.deploy('StrategyLeverageAAVEv3', [], {

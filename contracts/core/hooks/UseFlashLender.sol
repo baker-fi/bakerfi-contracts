@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: BUSL-1.1
 pragma solidity ^0.8.24;
-pragma experimental ABIEncoderV2;
 
-import { ServiceRegistry, FLASH_LENDER_CONTRACT } from "../ServiceRegistry.sol";
 import { IERC3156FlashLenderUpgradeable } from "@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashLenderUpgradeable.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
@@ -11,8 +9,8 @@ abstract contract UseFlashLender is Initializable {
 
   error InvalidFlashLenderContract();
 
-  function _initUseFlashLender(ServiceRegistry registry) internal onlyInitializing {
-    _fLender = IERC3156FlashLenderUpgradeable(registry.getServiceFromHash(FLASH_LENDER_CONTRACT));
+  function _initUseFlashLender(address iflashLender) internal onlyInitializing {
+    _fLender = IERC3156FlashLenderUpgradeable(iflashLender);
     if (address(_fLender) == address(0)) revert InvalidFlashLenderContract();
   }
 

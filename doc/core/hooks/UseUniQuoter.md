@@ -2,27 +2,27 @@
 
 ## UseUniQuoter
 
-### InvalidUniQuoterContract
+### UseUniQuoter_InvalidUniQuoterContract
 
 ```solidity
-error InvalidUniQuoterContract()
+error UseUniQuoter_InvalidUniQuoterContract()
 ```
 
 ### _initUseUniQuoter
 
 ```solidity
-function _initUseUniQuoter(contract ServiceRegistry registry) internal
+function _initUseUniQuoter(contract IQuoterV2 quoter) internal
 ```
 
 ### uniQuoter
 
 ```solidity
-function uniQuoter() public view returns (contract IQuoterV2)
+function uniQuoter() internal view returns (contract IQuoterV2)
 ```
 
 ### uniQuoterA
 
 ```solidity
-function uniQuoterA() public view returns (address)
+function uniQuoterA() internal view returns (address)
 ```
 

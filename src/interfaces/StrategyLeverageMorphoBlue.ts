@@ -85,4 +85,12 @@ export interface StrategyLeverageMorphoBlueMethods {
   transferOwnership(newOwner: string): ContractSendMethod;
 
   undeploy(amount: number): ContractSendMethod;
+
+  setPriceMaxAge(maxAge: number): ContractSendMethod;
+
+  getPriceMaxAge(): ContractCallMethod<number>;
+
+  setPriceMaxConf(confPerc: number): ContractSendMethod;
+
+  getPriceMaxConf(): ContractCallMethod<number>;
 }

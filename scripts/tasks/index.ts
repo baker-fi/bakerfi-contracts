@@ -8,23 +8,26 @@ import './settings';
 import './strategy';
 import './token';
 import './vault';
+import { StrategyImplementation } from '../../constants/types';
 
-task('bakerfi:resume', 'Generate an artifact tree').setAction(async ({}, { run }) => {
-  console.log('🧑‍🍳 BakerFi Settings resume ....');
+task('vault:resume', 'Generate an artifact tree')
+  .addParam('strategy', 'Strategy Type', StrategyImplementation.AAVE_V3_WSTETH_ETH)
+  .setAction(async (args, { run }) => {
+    console.log('🧑‍🍳 Vault Settings resume ....');
 
-  await run('vault:assets');
-  await run('strategy:getLoanToValue');
-  await run('strategy:getMaxLoanToValue');
-  await run('settings:getWithdrawalFee');
-  await run('settings:getPerformanceFee');
-  await run('settings:getPriceMaxAge');
-  await run('settings:getRebalancePriceMaxAge');
-  await run('strategy:getNrLoops');
-  await run('settings:getFeeReceiver');
-  await run('settings:getMaxDeposit');
-  await run('settings:getPriceMaxConfidence');
-  await run('strategy:getMaxSlippage');
-});
+    await run('vault:assets', args);
+    await run('strategy:getLoanToValue', args);
+    await run('strategy:getMaxLoanToValue', args);
+    await run('settings:getWithdrawalFee', args);
+    await run('settings:getPerformanceFee', args);
+    await run('settings:getPriceMaxAge', args);
+    await run('settings:getRebalancePriceMaxAge', args);
+    await run('strategy:getNrLoops', args);
+    await run('settings:getFeeReceiver', args);
+    await run('settings:getMaxDeposit', args);
+    await run('settings:getPriceMaxConfidence', args);
+    await run('strategy:getMaxSlippage', args);
+  });
 
 task('bakerfi:loop', 'Test deposit and with loop')
   .addParam('amount', 'The ETH deposited amount')

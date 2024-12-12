@@ -9,8 +9,6 @@ import { IMorpho, MarketParams, Id } from "@morpho-org/morpho-blue/src/interface
 import { MarketParamsLib } from "@morpho-org/morpho-blue/src/libraries/MarketParamsLib.sol";
 import { MorphoLib } from "@morpho-org/morpho-blue/src/libraries/periphery/MorphoLib.sol";
 import { MorphoBalancesLib } from "@morpho-org/morpho-blue/src/libraries/periphery/MorphoBalancesLib.sol";
-import { ServiceRegistry } from "../../core/ServiceRegistry.sol";
-import { MORPHO_BLUE_CONTRACT } from "../../core/ServiceRegistry.sol";
 import { SYSTEM_DECIMALS } from "../../core/Constants.sol";
 import { MathLibrary } from "../../libraries/MathLibrary.sol";
 import { SharesMathLib } from "@morpho-org/morpho-blue/src/libraries/SharesMathLib.sol";
@@ -34,7 +32,8 @@ import { SharesMathLib } from "@morpho-org/morpho-blue/src/libraries/SharesMathL
  * The strategy inherits all the business logic from StrategyLeverage
  * and could be deployed on Base and Ethereum.
  *
- */ contract StrategyLeverageMorphoBlue is Initializable, StrategyLeverage {
+ */
+contract StrategyLeverageMorphoBlue is Initializable, StrategyLeverage {
   using SafeERC20 for ERC20;
   using MorphoLib for IMorpho;
   using MorphoBalancesLib for IMorpho;
@@ -43,11 +42,11 @@ import { SharesMathLib } from "@morpho-org/morpho-blue/src/libraries/SharesMathL
   using SharesMathLib for uint256;
 
   struct StrategyLeverageMorphoParams {
-    bytes32 collateralToken; ///< The token used as collateral in the strategy.
-    bytes32 debtToken; ///< The token used as debt in the strategy.
-    bytes32 collateralOracle; ///< The oracle for the collateral token.
-    bytes32 debtOracle; ///< The oracle for the debt token.
-    uint24 swapFeeTier; ///< The fee tier for swaps.
+    address collateralToken; ///< The token used as collateral in the strategy.
+    address debtToken; ///< The token used as debt in the strategy.
+    address oracle; ///< The oracle for the collateral token.
+    address flashLender; ///< The flash lender address.
+    address morphoBlue; ///< The oracle for Morpho protocol.
     address morphoOracle; ///< The oracle for Morpho protocol.
     address irm; ///< The interest rate model (IRM) address.
     uint256 lltv; ///< The liquidation loan-to-value ratio (LLTV).
@@ -72,7 +71,6 @@ import { SharesMathLib } from "@morpho-org/morpho-blue/src/libraries/SharesMathL
    * @notice Initializes the strategy with the given parameters.
    * @param initialOwner The address of the initial owner of the strategy.
    * @param initialGovernor The address of the initial governor of the strategy.
-   * @param registry The service registry for obtaining required services.
    * @param params The parameters required for initializing the strategy.
    *
    * @dev This function sets up the strategy by initializing the base strategy and configuring Morpho Market parameters.
@@ -80,28 +78,24 @@ import { SharesMathLib } from "@morpho-org/morpho-blue/src/libraries/SharesMathL
   function initialize(
     address initialOwner,
     address initialGovernor,
-    ServiceRegistry registry,
     StrategyLeverageMorphoParams calldata params
   ) public initializer {
     // Initialize the Strategy Leverage Base
     _initializeStrategyLeverage(
       initialOwner,
       initialGovernor,
-      registry,
       params.collateralToken,
       params.debtToken,
-      params.collateralOracle,
-      params.debtOracle,
-      params.swapFeeTier
+      params.oracle,
+      params.flashLender
     );
 
     // Check if the Morpho Blue Contract exists
-    _morpho = IMorpho(registry.getServiceFromHash(MORPHO_BLUE_CONTRACT));
+    _morpho = IMorpho(params.morphoBlue);
     if (address(_morpho) == address(0)) revert InvalidMorphoBlueContract();
-
     // Initialize Market Params
-    _marketParams.loanToken = registry.getServiceFromHash(params.debtToken);
-    _marketParams.collateralToken = registry.getServiceFromHash(params.collateralToken);
+    _marketParams.loanToken = params.debtToken;
+    _marketParams.collateralToken = params.collateralToken;
     _marketParams.oracle = params.morphoOracle;
     _marketParams.irm = params.irm;
     _marketParams.lltv = params.lltv;
@@ -140,7 +134,7 @@ import { SharesMathLib } from "@morpho-org/morpho-blue/src/libraries/SharesMathL
 
   /**
    * @notice Supplies collateral to the Morpho protocol.
-   * @param amountIn The amount of the asset being supplied.
+   * @param amountIn The  amount of the asset being supplied.
    * @dev This function approves the Morpho contract to spend the asset and then transfers the asset from the user to the contract.
    */
   function _supply(uint256 amountIn) internal virtual override {

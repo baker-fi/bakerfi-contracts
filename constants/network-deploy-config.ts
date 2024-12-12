@@ -1,6 +1,5 @@
 import { feedIds } from './pyth';
 import { AAVEv3MarketNames, DeployConfig, OracleNamesEnum, StrategyImplementation } from './types';
-
 import { NetworkEnum } from './types';
 
 const Config: DeployConfig = {
@@ -12,6 +11,7 @@ const Config: DeployConfig = {
     balancerVault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8', // Validated
     weth: '0x4200000000000000000000000000000000000006', // Validated
     wstETH: '0xc1cba3fcea344f92d9239c08c0568f6f2f0ee452', // Validated
+    stETH: '0xae7ab96520de3a18e5e111b5eaab095312d7fe84',
     oracles: [
       {
         name: 'ETH/USD Oracle',
@@ -20,11 +20,10 @@ const Config: DeployConfig = {
         address: '0xEA62C6dE7ecBbAB2c43DC7031237ac79E83e3e25',
       },
       {
-        type: 'clExRate',
-        name: 'wstETH/USD Oracle',
-        rateAggregator: '0xB88BAc61a4Ca37C43a3725912B1f472c9A5bc061',
-        base: 'ETH/USD Oracle',
-        address: '0x596F76F8583ABA8BD87f0513282145B8Bc4EEce3',
+        name: 'wstETH/ETH Oracle',
+        type: 'chainlink',
+        aggregator: '0xB88BAc61a4Ca37C43a3725912B1f472c9A5bc061',
+        address: '',
       },
     ],
     markets: {
@@ -59,6 +58,9 @@ const Config: DeployConfig = {
     },
     pyth: '0x8250f4aF4B972684F7b336503E2D6dFeDeB1487a',
     morpho: '0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb',
+    chainlink: {
+      wstEthToETH: '0xB88BAc61a4Ca37C43a3725912B1f472c9A5bc061',
+    },
   },
   [NetworkEnum.BASE_DEVNET]: {
     minTxConfirmations: 0,
@@ -76,11 +78,10 @@ const Config: DeployConfig = {
         address: '0xEA62C6dE7ecBbAB2c43DC7031237ac79E83e3e25',
       },
       {
-        type: 'clExRate',
-        name: 'wstETH/USD Oracle',
-        rateAggregator: '0xB88BAc61a4Ca37C43a3725912B1f472c9A5bc061',
-        base: 'ETH/USD Oracle',
-        address: '0x596F76F8583ABA8BD87f0513282145B8Bc4EEce3',
+        name: 'wstETH/ETH Oracle',
+        type: 'chainlink',
+        aggregator: '0xB88BAc61a4Ca37C43a3725912B1f472c9A5bc061',
+        address: '',
       },
     ],
     markets: {
@@ -115,6 +116,9 @@ const Config: DeployConfig = {
     },
     pyth: '0x8250f4aF4B972684F7b336503E2D6dFeDeB1487a',
     morpho: '0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb',
+    chainlink: {
+      wstEthToETH: '0xB88BAc61a4Ca37C43a3725912B1f472c9A5bc061',
+    },
   },
   [NetworkEnum.LOCAL]: {
     minTxConfirmations: 0,
@@ -221,10 +225,9 @@ const Config: DeployConfig = {
         address: '',
       },
       {
-        type: 'clExRate',
-        name: 'wstETH/USD Oracle',
-        rateAggregator: '0xB1552C5e96B312d0Bf8b554186F846C40614a540',
-        base: 'ETH/USD Oracle',
+        name: 'wstETH/ETH Oracle',
+        type: 'chainlink',
+        aggregator: '0xb523AE262D20A936BC152e6023996e46FDC2A95D',
         address: '',
       },
     ],
@@ -255,13 +258,15 @@ const Config: DeployConfig = {
   [NetworkEnum.HARDHAT]: {
     minTxConfirmations: 0,
     owner: '0xf15CC0ccBdDA041e2508B829541917823222F364',
-    uniswapRouter02: '',
     uniswapQuoter: '',
     balancerVault: '',
     weth: '',
     wstETH: '',
     stETH: undefined,
     oracles: [],
+    uniswapRouter02: '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45',
+    uniswapV2Router02: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
+    curveRouterNG: '0x16C6521Dff6baB339122a0FE25a9116693265353',
     markets: {
       [StrategyImplementation.AAVE_V3_WSTETH_ETH]: {
         sharesName: 'AAVEv3 Bread ETH',
@@ -285,6 +290,7 @@ const Config: DeployConfig = {
     uniswapRouter02: '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45',
     balancerVault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
     weth: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+    usdc: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
     wstETH: '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0',
     morpho: '0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb',
     oracles: [
@@ -295,9 +301,8 @@ const Config: DeployConfig = {
         address: '', // Deploy Adress
       },
       {
-        name: 'wstETH/USD Oracle',
-        type: 'customExRate',
-        base: 'ETH/USD Oracle',
+        name: 'wstETH/ETH Oracle',
+        type: 'ratio',
         target: '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0', // wstETH Contract
         callData: '0x035faf82', // stEthPerToken Selector,
         address: '',
@@ -353,9 +358,14 @@ const Config: DeployConfig = {
     minTxConfirmations: 0,
     owner: '0xdD1945499B695F21f5472f10B67Aa8Dafb1b1c7c',
     uniswapRouter02: '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45',
+    uniswapV2Router02: '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D',
+    curveRouterNG: '0x16C6521Dff6baB339122a0FE25a9116693265353',
     balancerVault: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
     weth: '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+    usdt: '0xdac17f958d2ee523a2206206994597c13d831ec7',
+    usdc: '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
     wstETH: '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0',
+    stETH: '0xae7ab96520de3a18e5e111b5eaab095312d7fe84',
     morpho: '0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb',
     oracles: [
       {
@@ -365,9 +375,8 @@ const Config: DeployConfig = {
         address: '', // Deploy Adress
       },
       {
-        name: 'wstETH/USD Oracle',
-        type: 'customExRate',
-        base: 'ETH/USD Oracle',
+        name: 'wstETH/ETH Oracle',
+        type: 'ratio',
         target: '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0', // wstETH Contract
         callData: '0x035faf82', // stEthPerToken Selector,
         address: '',

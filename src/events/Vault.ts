@@ -24,3 +24,19 @@ export interface DepositEvent {
 export interface WithdrawEvent {
   returnValues: { owner: string; amount: number; shares: number };
 }
+
+export interface FeeReceiverChangedEvent {
+  returnValues: { value: number };
+}
+
+export interface PerformanceFeeChangedEvent {
+  returnValues: { value: number };
+}
+
+export interface WithdrawalFeeChangedEvent {
+  returnValues: { value: number };
+}
+
+export interface AccountWhiteListEvent {
+  returnValues: { account: string; enabled: boolean };
+}
