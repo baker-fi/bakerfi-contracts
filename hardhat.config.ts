@@ -33,18 +33,13 @@ const config: HardhatUserConfig = {
   networks: {
     hardhat: {
       accounts: devAccounts,
-      mining: {
-        auto: true,
-        interval: 2000,
-      },
-      hardfork: 'cancun',
       gas: 'auto',
     },
     local: {
       chainId: 1337,
       hardfork: 'shanghai',
       url: process.env.WEB3_RPC_LOCAL_URL || 'http://127.0.0.1:8545',
-      gasPrice: 20 * 1000000000,
+      gas: 'auto',
       accounts: STAGING_ACCOUNTS_PKEYS,
     },
     ethereum: {

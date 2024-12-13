@@ -217,8 +217,6 @@ async function deployFunction() {
 
   await pRouter.approveTokenForVault(await vault.getAddress(), await weth.getAddress());
   await pRouter.approveTokenForVault(await vault.getAddress(), await cbETH.getAddress());
-  //  await pRouter.approveTokenToSwap(await cbETH.getAddress());
-  //await pRouter.approveTokenToSwap(await weth.getAddress());
 
   return {
     cbETH,

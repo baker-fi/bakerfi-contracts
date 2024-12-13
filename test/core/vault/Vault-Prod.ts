@@ -197,7 +197,12 @@ describeif(
     await strategy.setLoanToValue(ethers.parseUnits('400', 6));
     await strategy.setMaxLoanToValue(ethers.parseUnits('400', 6));
 
-    await expect(vault.rebalance())
+    await expect(
+      vault.rebalance([
+        0x01, // Harvest Command
+        '0x',
+      ]),
+    )
       // @ts-ignore
       .to.emit(strategy, 'StrategyAmountUpdate')
       .withArgs((value) => {

@@ -10,6 +10,14 @@ import { NetworkEnum } from './types';
 
 export const deployConfigMap: { [key in NetworkEnum]?: BakerDeploy } = {
   [NetworkEnum.LOCAL]: {
+    [StrategyImplementation.FIFTY_FIFTY_ETH]: {
+      proxyAdmin: '0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e',
+      vaultRouter: '0x27F56eb75a1EBbE7e7218e8fCa5FF51E3d655f22',
+      vaultRouterProxy: '0x258b944B1e716c01725771148382EB988e4AB0a7',
+      serviceRegistry: '0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e',
+      vault: '0xca7CC58795dbF28a4f7099b740779F2197222755',
+      vaultProxy: '0x07C1F45Dc0a620E6716d8A45485B8f0A79E270F8',
+    },
     [StrategyImplementation.AAVE_V3_WSTETH_ETH]: {
       proxyAdmin: '0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e',
       serviceRegistry: '0x5bC13d5ce928Ae6e414A831D173E86fD040deBb9',

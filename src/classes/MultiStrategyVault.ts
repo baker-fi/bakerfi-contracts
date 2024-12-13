@@ -211,8 +211,8 @@ export class MultiStrategyVault extends Model<MultiStrategyVaultMethods> impleme
     return this.callTx(this.contract.methods.previewWithdraw(assets));
   }
 
-  async rebalance() {
-    return this.sendTx(this.contract.methods.rebalance());
+  async rebalance(commands: { action: number; data: string }[]) {
+    return this.sendTx(this.contract.methods.rebalance(commands));
   }
 
   async redeem(shares: number, receiver: string, holder: string) {

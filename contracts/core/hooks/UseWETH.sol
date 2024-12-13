@@ -74,10 +74,25 @@ abstract contract UseWETH is Initializable {
 
     // Check if the contract has sufficient WETH balance to unwrap
     uint256 wETHBalance = _wETH.balanceOf(address(this));
+
     if (wETHBalance < wETHAmount) revert InsufficientWETHBalance();
 
     // Unwrap the specified amount of WETH to Ether
     wETH().withdraw(wETHAmount);
+  }
+
+  /**
+   * @dev Sends native tokens to a specified address.
+   * @param to The address to send the native tokens to.
+   * @param amount The amount of native tokens to send.
+   */
+  function sendNative(address to, uint256 amount) internal virtual {
+    if (to == address(0)) revert ETHTransferNotAllowed(to);
+    if (amount == 0) revert InvalidWETHAmount();
+    if (address(this).balance < amount) revert InsufficientWETHBalance();
+
+    (bool success, ) = to.call{ value: amount }("");
+    if (!success) revert ETHTransferNotAllowed(to);
   }
 
   function wrapETH(uint256 amount) internal virtual {

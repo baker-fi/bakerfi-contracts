@@ -94,7 +94,7 @@ export interface MultiStrategyVaultMethods {
 
   previewWithdraw(assets: number): ContractCallMethod<{ shares: number }>;
 
-  rebalance(): ContractSendMethod;
+  rebalance(commands: { action: number; data: string }[]): ContractSendMethod;
 
   redeem(shares: number, receiver: string, holder: string): ContractSendMethod;
 

@@ -6,6 +6,7 @@ import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/I
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import { VAULT_MANAGER_ROLE } from "./Constants.sol";
+import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 /**
  * @title MultiStrategy
 
@@ -15,7 +16,11 @@ import { VAULT_MANAGER_ROLE } from "./Constants.sol";
  * @notice This contract is used to manage multiple strategies. The rebalancing is done based on the weights of the
  * strategies.
  */
-abstract contract MultiStrategy is Initializable, AccessControlUpgradeable {
+abstract contract MultiStrategy is
+  Initializable,
+  AccessControlUpgradeable,
+  ReentrancyGuardUpgradeable
+{
   /**
    * @notice Emitted when a new strategy is added to the MultiStrategy contract.
    * @param strategy The address of the added strategy.
@@ -31,7 +36,7 @@ abstract contract MultiStrategy is Initializable, AccessControlUpgradeable {
    * @param weights The new weights to set.
    */
   event WeightsUpdated(uint16[] indexed weights);
-  /**
+  /**x
    * @notice Emitted when the maximum difference is updated.
    * @param maxDifference The new maximum difference to set.
    */
@@ -107,7 +112,7 @@ abstract contract MultiStrategy is Initializable, AccessControlUpgradeable {
    * @param strategy The StrategyParams containing the strategy and its weight.
    * @dev Reverts if the strategy address is zero or if the weight is zero.
    */
-  function addStrategy(IStrategy strategy) external onlyRole(VAULT_MANAGER_ROLE) {
+  function addStrategy(IStrategy strategy) external nonReentrant onlyRole(VAULT_MANAGER_ROLE) {
     if (address(strategy) == address(0)) revert InvalidStrategy();
     _strategies.push(strategy);
     _weights.push(0);
@@ -211,8 +216,8 @@ abstract contract MultiStrategy is Initializable, AccessControlUpgradeable {
    */
   function _rebalanceStrategies(uint256[] memory indexes, int256[] memory deltas) internal {
     uint256 totalStrategies = _strategies.length;
-    if(deltas.length != indexes.length) revert InvalidDeltasLength();
-    if(deltas.length != _strategies.length) revert InvalidDeltasLength();
+    if (deltas.length != indexes.length) revert InvalidDeltasLength();
+    if (deltas.length != _strategies.length) revert InvalidDeltasLength();
 
     // Iterate through each strategy to adjust allocations
     for (uint256 i = 0; i < totalStrategies; i++) {
@@ -251,7 +256,7 @@ abstract contract MultiStrategy is Initializable, AccessControlUpgradeable {
    * This function also handles the undeployment of assets from the strategy being removed and
    * rebalances the remaining strategies.
    */
-  function removeStrategy(uint256 index) external onlyRole(VAULT_MANAGER_ROLE) {
+  function removeStrategy(uint256 index) external nonReentrant onlyRole(VAULT_MANAGER_ROLE) {
     // Validate the index to ensure it is within bounds
     if (index >= _strategies.length) revert InvalidStrategyIndex(index);
 

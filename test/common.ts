@@ -22,6 +22,7 @@ export const VAULT_ROUTER_COMMAND_ACTIONS = {
 
   // Permit Operations
   PULL_TOKEN_WITH_PERMIT: 0x09, // Transfer tokens using EIP-2612 permit
+  SEND_NATIVE: 0x0a, // Send native tokens to a specified address
 
   // ERC4626 Vault Operations
   ERC4626_VAULT_DEPOSIT: 0x10, // Deposit assets into an ERC4626 vault
@@ -50,4 +51,5 @@ export const VaultRouterABI = [
   'function withdrawVault(address, uint256, address, address)',
   'function convertToVaultShares(address, uint256)',
   'function convertToVaultAssets(address, uint256)',
+  'function sendNative(address, uint256)',
 ];

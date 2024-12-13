@@ -40,6 +40,7 @@ contract VaultRouter is
   UseWETH,
   MultiCommand
 {
+
   /// @notice Mapping of approved swap tokens
   mapping(IERC20 => bool) private _approvedSwapTokens;
 
@@ -88,6 +89,7 @@ contract VaultRouter is
     uint256[] memory callStack
   ) internal override returns (bool success, bytes memory output) {
     success = true;
+
     // Extract the action ID from the lowest 32 bits using bitwise AND with mask
     uint32 actionToExecute = uint32(action & Commands.THIRTY_TWO_BITS_MASK);
 
