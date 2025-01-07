@@ -174,7 +174,7 @@ contract Vault is VaultBase {
    */
   function rebalance(
     IVault.RebalanceCommand[] calldata commands
-  ) external override nonReentrant onlyRole(VAULT_MANAGER_ROLE) returns (bool success) {
+  ) external override nonReentrant onlyRole(VAULT_MANAGER_ROLE) whenNotPaused returns (bool success) {
     success = true;
     uint256 numCommands = commands.length;
     for (uint256 i = 0; i < numCommands; ) {
