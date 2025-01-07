@@ -72,10 +72,10 @@ abstract contract UseUnifiedSwapper is ISwapHandler, GovernableOwnable {
     // Check if the route is already authorized
     if (_routes[key].provider != SwapProvider.NONE) revert RouteAlreadyAuthorized();
     // Set the route information
-    if (!IERC20(tokenIn).approve(routeInfo.router, type(uint256).max - 1))
+    if (!IERC20(tokenIn).approve(routeInfo.router, type(uint256).max))
       revert FailedToApproveAllowance();
 
-    if (!IERC20(tokenOut).approve(routeInfo.router, type(uint256).max - 1))
+    if (!IERC20(tokenOut).approve(routeInfo.router, type(uint256).max))
       revert FailedToApproveAllowance();
 
     _routes[key] = routeInfo;
