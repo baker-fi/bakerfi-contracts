@@ -1079,6 +1079,18 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
     expect(true).to.equal(true);
   });
 
+  it('Rebalance - Fails when paused', async () => {
+    const { vault } = await loadFixture(deployFunction);
+
+    await vault.pause();
+    await expect(vault.rebalance([
+      [
+        0x01, // Harvest Command
+        '0x',
+      ],
+    ])).to.be.revertedWith('Pausable: paused');
+  });
+
   it('Withdraw - Invalid Receiver', async () => {
     const { owner, vault } = await loadFixture(deployFunction);
 
