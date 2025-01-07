@@ -114,6 +114,8 @@ abstract contract MultiStrategy is
    */
   function addStrategy(IStrategy strategy) external nonReentrant onlyRole(VAULT_MANAGER_ROLE) {
     if (address(strategy) == address(0)) revert InvalidStrategy();
+    if (strategy.asset() != _asset()) revert InvalidStrategy();
+
     _strategies.push(strategy);
     _weights.push(0);
     emit AddStrategy(address(strategy));
@@ -285,4 +287,6 @@ abstract contract MultiStrategy is
     _strategies.pop();
     _weights.pop();
   }
+
+  function _asset() internal virtual view returns (address);
 }
