@@ -176,9 +176,14 @@ abstract contract MultiStrategy is
       totalAssets += currentAssets[i];
     }
     totalUndeployed = 0;
-    for (uint256 i = 0; i < strategiesLength; i++) {
+    for (uint256 i = 0; i < strategiesLength; ) {
       uint256 fractAmount = (amount * currentAssets[i]) / totalAssets;
-      totalUndeployed += IStrategy(_strategies[i]).undeploy(fractAmount);
+      if (fractAmount > 0) {
+        totalUndeployed += IStrategy(_strategies[i]).undeploy(fractAmount);
+      }
+      unchecked {
+        i++;
+      }
     }
   }
 
