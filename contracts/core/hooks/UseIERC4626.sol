@@ -138,6 +138,8 @@ abstract contract UseIERC4626 is GovernableOwnable {
     address receiver,
     address owner
   ) internal virtual returns (uint256 shares) {
+    // Check if the vault address is valid
+    if (address(vault) == address(0)) revert InvalidVaultAddress();
     // Call the withdraw function of the vault to withdraw assets
     shares = vault.withdraw(assets, receiver, owner);
   }
