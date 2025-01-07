@@ -41,9 +41,6 @@ contract VaultRouter is
   MultiCommand
 {
 
-  /// @notice Mapping of approved swap tokens
-  mapping(IERC20 => bool) private _approvedSwapTokens;
-
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
     _disableInitializers();
