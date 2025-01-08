@@ -251,7 +251,7 @@ abstract contract VaultBase is
     // Check if deposit exceeds the maximum allowed per wallet
     uint256 maxDepositLocal = getMaxDeposit();
     if (maxDepositLocal > 0) {
-      uint256 depositInAssets = (balanceOf(msg.sender) * _ONE) / tokenPerAsset();
+      uint256 depositInAssets = (balanceOf(receiver) * _ONE) / tokenPerAsset();
       uint256 newBalance = assets + depositInAssets;
       if (newBalance > maxDepositLocal) revert MaxDepositReached();
     }
