@@ -27,6 +27,7 @@ contract StrategySupplyMorpho is StrategySupplyBase {
 
   error FailedToApproveAllowanceForMorpho();
   error InvalidMorphoBlueContract();
+  error InvalidAsset();
 
   MarketParams private _marketParams; // Parameters related to the market for the strategy.
   /// @notice Instance of the Morpho protocol interface.
@@ -50,6 +51,8 @@ contract StrategySupplyMorpho is StrategySupplyBase {
     if (address(_morpho) == address(0)) revert InvalidMorphoBlueContract();
 
     _marketParams = _morpho.idToMarketParams(morphoMarketId);
+
+    if (_marketParams.collateralToken != asset_) revert InvalidAsset();
 
     // Allowance approval
     if (!ERC20(asset_).approve(morphoBlue, type(uint256).max)) {
