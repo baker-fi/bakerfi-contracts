@@ -265,8 +265,10 @@ abstract contract MultiStrategy is
     // Validate the index to ensure it is within bounds
     if (index >= _strategies.length) revert InvalidStrategyIndex(index);
 
+    IStrategy strategyToRemove = _strategies[index];
+
     // Retrieve the total assets managed by the strategy to be removed
-    uint256 strategyAssets = _strategies[index].totalAssets();
+    uint256 strategyAssets = strategyToRemove.totalAssets();
 
     // Update the total weight and mark the weight of the removed strategy as zero
     _totalWeight -= _weights[index];
@@ -274,7 +276,7 @@ abstract contract MultiStrategy is
 
     // If the strategy has assets, undeploy them and allocate accordingly
     if (strategyAssets > 0) {
-      IStrategy(_strategies[index]).undeploy(strategyAssets);
+      IStrategy(strategyToRemove).undeploy(strategyAssets);
       _allocateAssets(strategyAssets);
     }
 
@@ -285,7 +287,7 @@ abstract contract MultiStrategy is
       _weights[index] = _weights[lastIndex];
     }
 
-    emit RemoveStrategy(address(_strategies[lastIndex]));
+    emit RemoveStrategy(address(strategyToRemove));
     // Remove the last strategy and weight from the arrays
     _strategies.pop();
     _weights.pop();
