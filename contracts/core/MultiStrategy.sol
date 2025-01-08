@@ -266,17 +266,18 @@ abstract contract MultiStrategy is
   function removeStrategy(uint256 index) external nonReentrant onlyRole(VAULT_MANAGER_ROLE) {
     // Validate the index to ensure it is within bounds
     if (index >= _strategies.length) revert InvalidStrategyIndex(index);
-
+    // Retrieve the strategy to be removed
+    IStrategy strategyToRemove = _strategies[index];
     // Retrieve the total assets managed by the strategy to be removed
-    uint256 strategyAssets = _strategies[index].totalAssets();
+    uint256 strategyAssets = strategyToRemove.totalAssets();
     // Remove the approval to move assets for the strategy from the vault
-    IERC20(_strategies[index].asset()).approve(address(_strategies[index]), 0);
+    IERC20(strategyToRemove.asset()).approve(address(strategyToRemove), 0);
     // Update the total weight and mark the weight of the removed strategy as zero
     _totalWeight -= _weights[index];
     _weights[index] = 0;
     // If the strategy has assets, undeploy them and allocate accordingly
     if (strategyAssets > 0) {
-      IStrategy(_strategies[index]).undeploy(strategyAssets);
+      IStrategy(strategyToRemove).undeploy(strategyAssets);
       _allocateAssets(strategyAssets);
     }
 
@@ -287,7 +288,7 @@ abstract contract MultiStrategy is
       _weights[index] = _weights[lastIndex];
     }
 
-    emit RemoveStrategy(address(_strategies[lastIndex]));
+    emit RemoveStrategy(address(strategyToRemove));
     // Remove the last strategy and weight from the arrays
     _strategies.pop();
     _weights.pop();
