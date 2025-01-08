@@ -186,15 +186,9 @@ describeif(network.name === 'hardhat')('MultiStrategy Vault', function () {
   });
 
   it('Add Strategy', async () => {
-    const { vault, owner } = await loadFixture(deployMultiStrategyVaultFixture);
-    const strategy = await deployMockERC20(
-      'Strategy',
-      'Strategy',
-      10000n * 10n ** 18n,
-      owner.address,
-    );
-    await vault.addStrategy(await strategy.getAddress());
-    expect(await vault.strategies()).to.include(await strategy.getAddress());
+    const { vault, park1} = await loadFixture(deployMultiStrategyVaultFixture);
+    await vault.addStrategy(await park1.getAddress());
+    expect(await vault.strategies()).to.include(await park1.getAddress());
     expect(await vault.weights()).to.deep.equal([7500n, 2500n, 0n]);
   });
 

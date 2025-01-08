@@ -155,7 +155,7 @@ contract MultiStrategyVault is VaultBase, MultiStrategy {
     assets = MultiStrategy._totalAssets(); // Calls the totalAssets function from MultiStrategy to get the total assets
   }
 
-  function _asset() internal view virtual override returns (address) {
+  function _asset() internal view virtual override(VaultBase, MultiStrategy) returns (address) {
     return _strategyAsset;
   }
 
