@@ -105,7 +105,7 @@ contract VaultRouter is
       actionToExecute == Commands.V2_UNISWAP_SWAP
     ) {
       output = _handleSwap(data, callStack, inputMapping, outputMapping);
-    } else if (action == Commands.PULL_TOKEN) {
+    } else if (actionToExecute == Commands.PULL_TOKEN) {
       output = _handlePullToken(data, callStack, inputMapping);
     } else if (actionToExecute == Commands.PULL_TOKEN_FROM) {
       output = _handlePullTokenFrom(data, callStack, inputMapping);
