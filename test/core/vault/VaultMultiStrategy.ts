@@ -278,6 +278,44 @@ describeif(network.name === 'hardhat')('MultiStrategy Vault', function () {
     expect(await park2.totalAssets()).to.equal(0n);
   });
 
+  it('Rebalance Fails if the deltas are not sorted', async () => {
+    const { vault, usdc, owner } = await loadFixture(deployMultiStrategyVaultFixture);
+    const amount = 10000n * 10n ** 18n;
+    await usdc.approve(vault.target, amount);
+    await vault.deposit(amount, owner.address);
+    await expect(vault.rebalance([
+      {
+        action: 0x02,
+        data: ethers.AbiCoder.defaultAbiCoder().encode(
+          ['uint256[]', 'int256[]'],
+          [
+            [0, 1],
+            [2500n * 10n ** 18n, -2500n * 10n ** 18n],
+          ],
+        ),
+      },
+    ])).to.be.revertedWithCustomError(vault, 'InvalidDeltas');
+  });
+
+  it('Rebalance Fails - Delta sum is not 0', async () => {
+    const { vault, usdc, owner } = await loadFixture(deployMultiStrategyVaultFixture);
+    const amount = 10000n * 10n ** 18n;
+    await usdc.approve(vault.target, amount);
+    await vault.deposit(amount, owner.address);
+    await expect(vault.rebalance([
+      {
+        action: 0x02,
+        data: ethers.AbiCoder.defaultAbiCoder().encode(
+          ['uint256[]', 'int256[]'],
+          [
+            [0, 1],
+            [-2500n * 10n ** 18n, -2500n * 10n ** 18n],
+          ],
+        ),
+      },
+    ])).to.be.revertedWithCustomError(vault, 'InvalidDeltas');
+  });
+
   it('Rebalance After changing weights to 25/75', async () => {
     const { vault, usdc, owner, park1, park2 } = await loadFixture(deployMultiStrategyVaultFixture);
     const amount = 10000n * 10n ** 18n;

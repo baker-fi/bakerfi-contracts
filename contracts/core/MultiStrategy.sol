@@ -48,7 +48,7 @@ abstract contract MultiStrategy is
   error InvalidDeltasLength(); // Thrown when the deltas array length is not equal to the indexes array length.
   error InvalidStrategies(); // Thrown when the strategies array length is zero.
   error InvalidWeights(); // Thrown when the weights array length is zero.
-
+  error InvalidDeltas(); // Thrown when the deltas array is not sorted with the positive deltas first and the negative deltas last
   uint16 public constant MAX_TOTAL_WEIGHT = 10000;
 
   /**
@@ -209,6 +209,28 @@ abstract contract MultiStrategy is
   }
 
   /**
+   * @notice Validates the deltas array.
+   * @param deltas The deltas array to validate.
+   * @dev This function checks if the deltas are sorted with the positive deltas first and the negative deltas last.
+   */
+  function _validateDeltas(int256[] memory deltas) internal pure {
+    uint256 deltasLen = deltas.length;
+    int256 orderCheck = type(int256).min;
+    int256 sumDeltas = 0;
+    // Check if the first delta is positive
+    if (deltas[0] > 0) revert InvalidDeltas();
+    // Verify the order of the deltas
+    for (uint256 i = 0; i < deltasLen;) {
+      if (deltas[i] < orderCheck) revert InvalidDeltas();
+      orderCheck = deltas[i];
+      sumDeltas += deltas[i];
+      unchecked {
+        i++;
+      }
+    }
+    if (sumDeltas != 0) revert InvalidDeltas();
+  }
+  /**
    * @notice Rebalances the strategies based on their target allocations.
    *  The caller functioin should make sure that the deltas are sorted with the positive deltas first and the negative deltas last
    *  This is to ensure that we deploy the strategies with the highest weights first and then the strategies with the lowest weights
@@ -221,11 +243,14 @@ abstract contract MultiStrategy is
    */
   function _rebalanceStrategies(uint256[] memory indexes, int256[] memory deltas) internal {
     uint256 totalStrategies = _strategies.length;
+    if (deltas.length == 0) return;
     if (deltas.length != indexes.length) revert InvalidDeltasLength();
     if (deltas.length != _strategies.length) revert InvalidDeltasLength();
-
+    // Validate the deltas are sorted and and the sum is 0
+    _validateDeltas(deltas);
     // Iterate through each strategy to adjust allocations
     for (uint256 i = 0; i < totalStrategies; i++) {
+
       // if the delta is 0, we don't need to rebalance the strategy
       if (deltas[i] == 0) continue;
 
