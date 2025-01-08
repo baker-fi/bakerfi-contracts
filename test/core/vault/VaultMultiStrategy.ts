@@ -254,7 +254,7 @@ describeif(network.name === 'hardhat')('MultiStrategy Vault', function () {
   });
 
   it('Rebalance After changing weights to 100/0', async () => {
-    const { vault, usdc, owner, park1, park2 } = await loadFixture(deployMultiStrategyVaultFixture);
+    const { vault, usdc, owner, park2 } = await loadFixture(deployMultiStrategyVaultFixture);
     const amount = 10000n * 10n ** 18n;
     await usdc.approve(vault.target, amount);
     await vault.deposit(amount, owner.address);
