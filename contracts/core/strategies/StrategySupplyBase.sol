@@ -120,7 +120,7 @@ abstract contract StrategySupplyBase is IStrategy, ReentrancyGuard, Ownable {
     uint256 withdrawalValue = _undeploy(amount);
 
     // Update the deployed amount
-    _deployedAmount += withdrawalValue;
+    _deployedAmount -= withdrawalValue;
 
     // Check withdrawal value matches the initial amount
     // Transfer assets to user
