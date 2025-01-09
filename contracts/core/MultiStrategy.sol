@@ -278,8 +278,7 @@ abstract contract MultiStrategy is
 
     // If the strategy has assets, undeploy them and allocate accordingly
     if (strategyAssets > 0) {
-      IStrategy(strategyToRemove).undeploy(strategyAssets);
-      _allocateAssets(strategyAssets);
+      _allocateAssets(IStrategy(strategyToRemove).undeploy(strategyAssets));
     }
 
     // Move the last strategy to the index of the removed strategy to maintain array integrity
