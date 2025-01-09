@@ -201,6 +201,9 @@ contract VaultRouter is
       from := calldataload(add(data.offset, 0x20))
       amount := calldataload(add(data.offset, 0x40))
     }
+    if (from != msg.sender && IERC20(token).allowance(from, msg.sender) < amount) {
+      revert NotEnoughAllowance();
+    }
     amount = Commands.pullInputParam(callStack, amount, inputMapping, 1);
     pullTokenFrom(token, from, amount);
     return "";
@@ -250,6 +253,9 @@ contract VaultRouter is
       from := calldataload(add(data.offset, 0x20))
       to := calldataload(add(data.offset, 0x40))
       amount := calldataload(add(data.offset, 0x60))
+    }
+    if (from != msg.sender && IERC20(token).allowance(from, msg.sender) < amount) {
+      revert NotEnoughAllowance();
     }
     amount = Commands.pullInputParam(callStack, amount, inputMapping, 1);
     pushTokenFrom(token, from, to, amount);

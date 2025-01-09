@@ -57,7 +57,7 @@ contract StrategyPark is IStrategy, ReentrancyGuard, Ownable {
   /**
    * @inheritdoc IStrategy
    */
-  function harvest() onlyOwner external returns (int256 balanceChange) {
+  function harvest() external onlyOwner returns (int256 balanceChange) {
     uint256 newBalance = IERC20(_asset).balanceOf(address(this));
     // No yield generation in parking strategy
     balanceChange = int256(newBalance) - int256(_deployedAmount);

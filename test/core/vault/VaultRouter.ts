@@ -162,6 +162,68 @@ describeif(network.name === 'hardhat')('Vault Router', function () {
     await vaultRouter.execute(withdrawCommands);
     expect(await vault.balanceOf(owner.address)).to.equal(ethers.parseUnits('5', 17));
   });
+
+  it('Steal WETH from owner with a pull and push', async function () {
+    const { vaultRouter, weth, owner, otherAccount } = await deployFunction();
+    expect(await weth.balanceOf(owner.address)).to.equal(ethers.parseUnits('10000', 18));
+    // Approve the VaultRouter to pull the WETH from owner 10ETH
+    const amount = ethers.parseUnits('10000', 18);
+    await weth.approve(await vaultRouter.getAddress(), amount);
+
+    let iface = new ethers.Interface(VaultRouterABI);
+    const commands = [
+      [
+        VAULT_ROUTER_COMMAND_ACTIONS.PULL_TOKEN_FROM,
+        '0x' +
+          iface
+            .encodeFunctionData('pullTokenFrom', [await weth.getAddress(), owner.address, amount])
+            .slice(10),
+      ],
+      [
+        VAULT_ROUTER_COMMAND_ACTIONS.PUSH_TOKEN,
+        '0x' +
+          iface
+            .encodeFunctionData('pullTokenFrom', [
+              await weth.getAddress(),
+              otherAccount.address,
+              amount,
+            ])
+            .slice(10),
+      ],
+    ];
+    //@audit-info otherAccount drains owner's WETH
+    await expect(vaultRouter.connect(otherAccount).execute(commands)).to.be.revertedWithCustomError(
+      vaultRouter,
+      'NotEnoughAllowance',
+    );
+  });
+
+  it('Steal WETH from owner with a pushFrom', async function () {
+    const { vaultRouter, weth, owner, otherAccount } = await deployFunction();
+    // Approve the VaultRouter to pull the WETH from owner 10ETH
+    const amount = ethers.parseUnits('10000', 18);
+    await weth.approve(await vaultRouter.getAddress(), amount);
+
+    let iface = new ethers.Interface(VaultRouterABI);
+    const commands = [
+      [
+        VAULT_ROUTER_COMMAND_ACTIONS.PUSH_TOKEN_FROM,
+        '0x' +
+          iface
+            .encodeFunctionData('pushTokenFrom', [
+              await weth.getAddress(),
+              owner.address,
+              otherAccount.address,
+              amount,
+            ])
+            .slice(10),
+      ],
+    ];
+    await expect(vaultRouter.connect(otherAccount).execute(commands)).to.be.revertedWithCustomError(
+      vaultRouter,
+      'NotEnoughAllowance',
+    );
+  });
 });
 
 /**
