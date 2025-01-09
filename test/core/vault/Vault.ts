@@ -1083,12 +1083,14 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
     const { vault } = await loadFixture(deployFunction);
 
     await vault.pause();
-    await expect(vault.rebalance([
-      [
-        0x01, // Harvest Command
-        '0x',
-      ],
-    ])).to.be.revertedWith('Pausable: paused');
+    await expect(
+      vault.rebalance([
+        [
+          0x01, // Harvest Command
+          '0x',
+        ],
+      ]),
+    ).to.be.revertedWith('Pausable: paused');
   });
 
   it('Withdraw - Invalid Receiver', async () => {

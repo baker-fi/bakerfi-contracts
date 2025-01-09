@@ -266,6 +266,8 @@ abstract contract MultiStrategy is
   function removeStrategy(uint256 index) external nonReentrant onlyRole(VAULT_MANAGER_ROLE) {
     // Validate the index to ensure it is within bounds
     if (index >= _strategies.length) revert InvalidStrategyIndex(index);
+    // If there is only one strategy, we don't allow to remove it for security reasons
+    if (_strategies.length == 1) revert InvalidStrategyIndex(index);
 
     IStrategy strategyToRemove = _strategies[index];
 
@@ -294,5 +296,5 @@ abstract contract MultiStrategy is
     _weights.pop();
   }
 
-  function _asset() internal virtual view returns (address);
+  function _asset() internal view virtual returns (address);
 }
