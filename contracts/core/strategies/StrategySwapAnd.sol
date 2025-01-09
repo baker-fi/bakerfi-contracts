@@ -223,7 +223,10 @@ abstract contract StrategySwapAnd is IStrategy, ReentrancyGuard, Ownable {
   /**
    * @inheritdoc IStrategy
    */
-  function harvest() external override nonReentrant returns (int256 balanceChange) {
+  function harvest() external override onlyOwner nonReentrant returns (int256 balanceChange) {
+    // Harvest the underlying strategy
+    _underlyingStrategy.harvest();
+
     uint256 newBalance = _totalAssets();
 
     balanceChange = int256(newBalance) - int256(_deployedAmount);

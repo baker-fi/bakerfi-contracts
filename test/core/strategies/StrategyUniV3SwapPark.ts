@@ -88,9 +88,17 @@ describeif(network.name === 'hardhat')('Strategy Swap and Park', function () {
   });
 
   it('Harvest wih no assets', async function () {
-    const { strategyPark } = await loadFixture(deployFixture);
-    await strategyPark.harvest();
-    expect(await strategyPark.totalAssets()).to.equal(0n);
+    const { strategySwapAndPark } = await loadFixture(deployFixture);
+    await strategySwapAndPark.harvest();
+    expect(await strategySwapAndPark.totalAssets()).to.equal(0n);
+  });
+
+
+  it('Harvest fails if not owner', async function () {
+    const { strategyPark, otherAccount } = await loadFixture(deployFixture);
+    await expect(
+      strategyPark.connect(otherAccount).harvest(),
+    ).to.be.revertedWith('Ownable: caller is not the owner');
   });
 
   async function deployFixture() {
