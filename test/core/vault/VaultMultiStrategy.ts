@@ -1,4 +1,4 @@
-import { describeif } from '../../common';
+import { describeif, VAULT_ROUTER_COMMAND_ACTIONS, VaultRouterABI } from '../../common';
 
 import '@nomicfoundation/hardhat-ethers';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
@@ -186,7 +186,7 @@ describeif(network.name === 'hardhat')('MultiStrategy Vault', function () {
   });
 
   it('Add Strategy', async () => {
-    const { vault, park1} = await loadFixture(deployMultiStrategyVaultFixture);
+    const { vault, park1 } = await loadFixture(deployMultiStrategyVaultFixture);
     await vault.addStrategy(await park1.getAddress());
     expect(await vault.strategies()).to.include(await park1.getAddress());
     expect(await vault.weights()).to.deep.equal([7500n, 2500n, 0n]);

@@ -294,5 +294,5 @@ abstract contract MultiStrategy is
     _weights.pop();
   }
 
-  function _asset() internal virtual view returns (address);
+  function _asset() internal view virtual returns (address);
 }

@@ -276,7 +276,6 @@ describeif(network.name === 'hardhat')('Vault Router Dispatch', function () {
               '0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e',
               ethers.parseUnits('1', 18),
               '0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e',
-              '0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e',
             ])
             .slice(10),
       ],
@@ -284,13 +283,12 @@ describeif(network.name === 'hardhat')('Vault Router Dispatch', function () {
     await vaultRouterMock.execute(commands);
     const callInput = await vaultRouterMock.callInput();
     const [vault, assets, receiver, owner] = ethers.AbiCoder.defaultAbiCoder().decode(
-      ['address', 'uint256', 'address', 'address'],
+      ['address', 'uint256', 'address'],
       callInput,
     );
     expect(vault).to.equal('0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e');
     expect(assets).to.equal(ethers.parseUnits('1', 18));
     expect(receiver).to.equal('0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e');
-    expect(owner).to.equal('0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e');
   });
 
   it('Dispatch withdrawVault', async function () {
@@ -305,21 +303,19 @@ describeif(network.name === 'hardhat')('Vault Router Dispatch', function () {
               '0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e',
               ethers.parseUnits('1', 18),
               '0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e',
-              '0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e',
             ])
             .slice(10),
       ],
     ];
     await vaultRouterMock.execute(commands);
     const callInput = await vaultRouterMock.callInput();
-    const [vault, assets, receiver, owner] = ethers.AbiCoder.defaultAbiCoder().decode(
-      ['address', 'uint256', 'address', 'address'],
+    const [vault, assets, receiver] = ethers.AbiCoder.defaultAbiCoder().decode(
+      ['address', 'uint256', 'address'],
       callInput,
     );
     expect(vault).to.equal('0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e');
     expect(assets).to.equal(ethers.parseUnits('1', 18));
     expect(receiver).to.equal('0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e');
-    expect(owner).to.equal('0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e');
   });
 });
 
