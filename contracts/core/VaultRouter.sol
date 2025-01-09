@@ -40,7 +40,6 @@ contract VaultRouter is
   UseWETH,
   MultiCommand
 {
-
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
     _disableInitializers();

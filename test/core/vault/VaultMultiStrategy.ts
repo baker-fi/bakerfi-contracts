@@ -186,7 +186,7 @@ describeif(network.name === 'hardhat')('MultiStrategy Vault', function () {
   });
 
   it('Add Strategy', async () => {
-    const { vault, park1} = await loadFixture(deployMultiStrategyVaultFixture);
+    const { vault, park1 } = await loadFixture(deployMultiStrategyVaultFixture);
     await vault.addStrategy(await park1.getAddress());
     expect(await vault.strategies()).to.include(await park1.getAddress());
     expect(await vault.weights()).to.deep.equal([7500n, 2500n, 0n]);
@@ -218,6 +218,19 @@ describeif(network.name === 'hardhat')('MultiStrategy Vault', function () {
     const { vault, otherAccount } = await loadFixture(deployMultiStrategyVaultFixture);
     await expect(vault.connect(otherAccount).removeStrategy(0)).to.be.revertedWith(
       /AccessControl: account .* is missing role/,
+    );
+  });
+
+  it('Remove Last Strategy  - Fails if there is only one strategy', async () => {
+    const { vault, usdc, owner } = await loadFixture(deployMultiStrategyVaultFixture);
+    const amount = 10000n * 10n ** 18n;
+    await usdc.approve(vault.target, amount);
+    await vault.deposit(amount, owner.address);
+    await vault.removeStrategy(0);
+    // Remove the last strategy
+    await expect(vault.removeStrategy(0)).to.be.revertedWithCustomError(
+      vault,
+      'InvalidStrategyIndex',
     );
   });
 
