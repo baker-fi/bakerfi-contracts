@@ -194,7 +194,7 @@ describeif(network.name === 'hardhat')('Vault Router', function () {
     //@audit-info otherAccount drains owner's WETH
     await expect(vaultRouter.connect(otherAccount).execute(commands)).to.be.revertedWithCustomError(
       vaultRouter,
-      'NotEnoughAllowance',
+      'NotAuthorized',
     );
   });
 
