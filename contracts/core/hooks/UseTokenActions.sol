@@ -31,6 +31,8 @@ abstract contract UseTokenActions is Initializable {
    */
   error NotEnoughAllowance();
 
+  error SweepFailed();
+
   /**
    * @dev Pulls a specified amount of tokens from the message sender to this contract.
    * @param token The ERC20 token to pull.
@@ -108,9 +110,29 @@ abstract contract UseTokenActions is Initializable {
 
     IERC20(token).safeTransfer(to, sweptAmount);
   }
+
+  /**
+   * @dev Sweeps all native tokens from this contract to a specified address.
+   * @param to The address to which to sweep the native tokens.
+   */
+  function sweepNative(address to) internal virtual returns (uint256 sweptAmount) {
+    // Check if the recipient address is valid
+    if (address(to) == address(0)) revert InvalidRecipient();
+    // Use SafeERC20 to transfer tokens from this contract to the specified address
+    sweptAmount = address(this).balance;
+    if (sweptAmount > 0) {
+      (bool success, ) = payable(to).call{value: sweptAmount}("");
+      if (!success) revert SweepFailed();
+    }
+    return sweptAmount;
+  }
 }
 
+
 contract UseTokenActionsMock is UseTokenActions {
+
+  receive() external payable {}
+
   function test__pullToken(IERC20 token, uint256 amount) public {
     pullToken(token, amount);
   }
@@ -129,5 +151,9 @@ contract UseTokenActionsMock is UseTokenActions {
 
   function test__sweepTokens(IERC20 token, address to) public returns (uint256) {
     return sweepTokens(token, to);
+  }
+
+  function test__sweepNative(address to) public returns (uint256) {
+    return sweepNative(to);
   }
 }

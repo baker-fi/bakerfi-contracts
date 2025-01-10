@@ -36,6 +36,11 @@ contract VaultRouterMock is VaultRouter {
     callInput = abi.encode(token, to, amount);
   }
 
+  function sweepNative(address to) internal override returns (uint256 amount) {
+    callInput = abi.encode(to);
+    return amount;
+  }
+
   function pullTokenFrom(IERC20 token, address from, uint256 amount) internal override {
     callInput = abi.encode(token, from, amount);
   }
