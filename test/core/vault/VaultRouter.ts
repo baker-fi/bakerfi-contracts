@@ -221,7 +221,7 @@ describeif(network.name === 'hardhat')('Vault Router', function () {
     ];
     await expect(vaultRouter.connect(otherAccount).execute(commands)).to.be.revertedWithCustomError(
       vaultRouter,
-      'NotEnoughAllowance',
+      'NotAuthorized',
     );
   });
 });
