@@ -5,9 +5,6 @@ import { VaultRouter } from "../core/VaultRouter.sol";
 import { ISwapHandler } from "../interfaces/core/ISwapHandler.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC4626 } from "@openzeppelin/contracts/interfaces/IERC4626.sol";
-import { IERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol";
-import { IWETH } from "../interfaces/tokens/IWETH.sol";
-import { IV3SwapRouter } from "../interfaces/uniswap/v3/IV3SwapRouter.sol";
 
 contract VaultRouterMock is VaultRouter {
   bytes public callInput;
@@ -95,15 +92,5 @@ contract VaultRouterMock is VaultRouter {
     return shares;
   }
 
-  function pullTokensWithPermit(
-    IERC20Permit token,
-    uint256 amount,
-    address owner,
-    uint256 deadline,
-    uint8 v,
-    bytes32 r,
-    bytes32 s
-  ) internal override {
-    callInput = abi.encode(token, amount, owner, deadline, v, r, s);
-  }
+
 }

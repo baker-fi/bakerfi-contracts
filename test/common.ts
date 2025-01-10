@@ -20,8 +20,7 @@ export const VAULT_ROUTER_COMMAND_ACTIONS = {
   WRAP_ETH: 0x07, // Convert ETH to WETH
   UNWRAP_ETH: 0x08, // Convert WETH back to ETH
 
-  // Permit Operations
-  PULL_TOKEN_WITH_PERMIT: 0x09, // Transfer tokens using EIP-2612 permit
+  // Native Token Operations
   SEND_NATIVE: 0x0a, // Send native tokens to a specified address
 
   // ERC4626 Vault Operations
@@ -44,7 +43,6 @@ export const VaultRouterABI = [
   'function wrapETH(uint256)',
   'function unwrapETH(uint256)',
   'function swap((address,address,uint8,uint256,uint256,bytes))',
-  'function pullTokenWithPermit(address, uint256, address, uint256, uint8, bytes32, bytes32)',
   'function depositVault(address, uint256, address)',
   'function mintVault(address, uint256, address)',
   'function redeemVault(address, uint256, address)',
