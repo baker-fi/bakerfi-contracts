@@ -121,16 +121,14 @@ abstract contract UseTokenActions is Initializable {
     // Use SafeERC20 to transfer tokens from this contract to the specified address
     sweptAmount = address(this).balance;
     if (sweptAmount > 0) {
-      (bool success, ) = payable(to).call{value: sweptAmount}("");
+      (bool success, ) = payable(to).call{ value: sweptAmount }("");
       if (!success) revert SweepFailed();
     }
     return sweptAmount;
   }
 }
 
-
 contract UseTokenActionsMock is UseTokenActions {
-
   receive() external payable {}
 
   function test__pullToken(IERC20 token, uint256 amount) public {

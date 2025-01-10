@@ -40,7 +40,6 @@ contract VaultRouter is
   UseWETH,
   MultiCommand
 {
-
   error NotAuthorized();
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
@@ -286,7 +285,7 @@ contract VaultRouter is
     return abi.encodePacked(sweptAmount);
   }
 
-/**
+  /**
    * @notice Handles the sweep tokens command.
    * @param data The encoded sweep tokens parameters.
    * @param callStack The call stack.
