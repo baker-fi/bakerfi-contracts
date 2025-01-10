@@ -256,7 +256,7 @@ contract VaultRouter is
       to := calldataload(add(data.offset, 0x40))
       amount := calldataload(add(data.offset, 0x60))
     }
-    if (from != msg.sender && IERC20(token).allowance(from, msg.sender) < amount) {
+    if (from != msg.sender) {
       revert NotEnoughAllowance();
     }
     amount = Commands.pullInputParam(callStack, amount, inputMapping, 1);
