@@ -162,7 +162,6 @@ describeif(network.name === 'hardhat')('Vault Router', function () {
     expect(await vault.balanceOf(owner.address)).to.equal(ethers.parseUnits('5', 17));
   });
 
-
   it('Steal WETH from owner with a pull and push', async function () {
     const { vaultRouter, weth, owner, otherAccount } = await deployFunction();
     expect(await weth.balanceOf(owner.address)).to.equal(ethers.parseUnits('10000', 18));
@@ -225,8 +224,6 @@ describeif(network.name === 'hardhat')('Vault Router', function () {
     );
   });
 
-
-
   it('Exploit user ERC4626 allowances should fail', async function () {
     const { vault, weth, owner, otherAccount, vaultRouter } = await deployFunction();
     // 10 ETH
@@ -260,7 +257,6 @@ describeif(network.name === 'hardhat')('Vault Router', function () {
       'ERC20: insufficient allowance',
     );
   });
-
 });
 
 /**

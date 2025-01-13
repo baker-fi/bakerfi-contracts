@@ -40,7 +40,6 @@ contract VaultRouter is
   UseWETH,
   MultiCommand
 {
-
   error NotAuthorized();
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
