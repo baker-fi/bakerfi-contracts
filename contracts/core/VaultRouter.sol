@@ -449,12 +449,11 @@ contract VaultRouter is
     IERC4626 vault;
     uint256 shares;
     address receiver;
-    address owner;
+    address owner = msg.sender;
     assembly {
       vault := calldataload(data.offset)
       shares := calldataload(add(data.offset, 0x20))
       receiver := calldataload(add(data.offset, 0x40))
-      owner := calldataload(add(data.offset, 0x60))
     }
     shares = Commands.pullInputParam(callStack, shares, inputMapping, 1);
     uint256 assets = redeemVault(vault, shares, receiver, owner);
@@ -478,12 +477,11 @@ contract VaultRouter is
     IERC4626 vault;
     uint256 assets;
     address receiver;
-    address owner;
+    address owner = msg.sender;
     assembly {
       vault := calldataload(data.offset)
       assets := calldataload(add(data.offset, 0x20))
       receiver := calldataload(add(data.offset, 0x40))
-      owner := calldataload(add(data.offset, 0x60))
     }
     assets = Commands.pullInputParam(callStack, assets, inputMapping, 1);
     uint256 shares = withdrawVault(vault, assets, receiver, owner);

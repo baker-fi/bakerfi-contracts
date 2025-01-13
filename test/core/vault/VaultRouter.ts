@@ -127,7 +127,6 @@ describeif(network.name === 'hardhat')('Vault Router', function () {
               await vault.getAddress(),
               ethers.parseUnits('5', 17),
               await vaultRouter.getAddress(),
-              owner.address,
             ])
             .slice(10),
       ],
