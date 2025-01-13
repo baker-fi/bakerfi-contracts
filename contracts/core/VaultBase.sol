@@ -54,7 +54,6 @@ abstract contract VaultBase is
   error NoAllowance();
 
   uint256 private constant _MINIMUM_SHARE_BALANCE = 1000;
- // uint256 private constant _ONE = 1e18;
 
   /**
    * @dev Modifier to restrict access to whitelisted accounts.
@@ -90,7 +89,6 @@ abstract contract VaultBase is
     address weth
   ) internal {
     __ERC20_init(tokenName, tokenSymbol);
-
     _initUseWETH(weth);
     if (initialOwner == address(0)) revert InvalidOwner();
     _initializeVaultSettings();
@@ -107,7 +105,6 @@ abstract contract VaultBase is
   function decimals() public view override(ERC20Upgradeable, IERC20MetadataUpgradeable) returns (uint8) {
     return ERC20Upgradeable(_asset()).decimals();
   }
-
 
   /**
    * @dev Returns the decimals of the share asset.
