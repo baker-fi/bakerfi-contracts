@@ -118,6 +118,8 @@ abstract contract MultiStrategy is
 
     _strategies.push(strategy);
     _weights.push(0);
+    // Approve the strategy to move assets from the vault
+    IERC20(strategy.asset()).approve(address(strategy), type(uint256).max);
     emit AddStrategy(address(strategy));
   }
 
@@ -295,14 +297,13 @@ abstract contract MultiStrategy is
     if (_strategies.length == 1) revert InvalidStrategyIndex(index);
 
     IStrategy strategyToRemove = _strategies[index];
-
     // Retrieve the total assets managed by the strategy to be removed
     uint256 strategyAssets = strategyToRemove.totalAssets();
-
+    // Remove the approval to move assets for the strategy from the vault
+    IERC20(strategyToRemove.asset()).approve(address(strategyToRemove), 0);
     // Update the total weight and mark the weight of the removed strategy as zero
     _totalWeight -= _weights[index];
     _weights[index] = 0;
-
     // If the strategy has assets, undeploy them and allocate accordingly
     if (strategyAssets > 0) {
       _allocateAssets(IStrategy(strategyToRemove).undeploy(strategyAssets));
