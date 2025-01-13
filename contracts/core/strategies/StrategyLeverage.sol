@@ -109,7 +109,7 @@ abstract contract StrategyLeverage is
   address internal _collateralToken;
   // Debt IERC20 Token address used on this
   address internal _debtToken;
-  // Oracle used to get the price of the collateral and debt
+  // Oracle used to get the price of the collateralToken/debt: Example WSETH/ETH, ETH/USDC
   IOracle private _oracle;
   // Two Empty Slots to keep the storage layout consistent
   uint256[1] internal _emptySlots;
