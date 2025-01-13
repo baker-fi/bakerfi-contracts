@@ -187,19 +187,21 @@ describeif(network.name === 'hardhat')('Vault Router Dispatch', function () {
               '0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e',
               ethers.parseUnits('1', 18),
               '0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e',
+              ethers.parseUnits('1', 18),
             ])
             .slice(10),
       ],
     ];
     await vaultRouterMock.execute(commands);
     const callInput = await vaultRouterMock.callInput();
-    const [vault, assets, receiver] = ethers.AbiCoder.defaultAbiCoder().decode(
-      ['address', 'uint256', 'address'],
+    const [vault, assets, receiver, minShares] = ethers.AbiCoder.defaultAbiCoder().decode(
+      ['address', 'uint256', 'address', 'uint256'],
       callInput,
     );
     expect(vault).to.equal('0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e');
     expect(assets).to.equal(ethers.parseUnits('1', 18));
     expect(receiver).to.equal('0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e');
+    expect(minShares).to.equal(ethers.parseUnits('1', 18));
   });
 
   it('Dispatch mintVault', async function () {
@@ -214,22 +216,25 @@ describeif(network.name === 'hardhat')('Vault Router Dispatch', function () {
               '0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e',
               ethers.parseUnits('1', 18),
               '0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e',
+              ethers.parseUnits('1', 18),
             ])
             .slice(10),
       ],
     ];
     await vaultRouterMock.execute(commands);
     const callInput = await vaultRouterMock.callInput();
-    const [vault, assets, receiver] = ethers.AbiCoder.defaultAbiCoder().decode(
-      ['address', 'uint256', 'address'],
+    const [vault, assets, receiver, maxAssets] = ethers.AbiCoder.defaultAbiCoder().decode(
+      ['address', 'uint256', 'address', 'uint256'],
       callInput,
     );
     expect(vault).to.equal('0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e');
     expect(assets).to.equal(ethers.parseUnits('1', 18));
     expect(receiver).to.equal('0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e');
+    expect(maxAssets).to.equal(ethers.parseUnits('1', 18));
   });
 
   it('Dispatch redeemVault', async function () {
+    const [owner] = await ethers.getSigners();
     const vaultRouterMock = await deployVaultRouterMockFunction();
     let iface = new ethers.Interface(VaultRouterABI);
     const commands = [
@@ -241,22 +246,26 @@ describeif(network.name === 'hardhat')('Vault Router Dispatch', function () {
               '0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e',
               ethers.parseUnits('1', 18),
               '0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e',
+              ethers.parseUnits('1', 18),
             ])
             .slice(10),
       ],
     ];
     await vaultRouterMock.execute(commands);
     const callInput = await vaultRouterMock.callInput();
-    const [vault, assets, receiver, owner] = ethers.AbiCoder.defaultAbiCoder().decode(
-      ['address', 'uint256', 'address'],
+    const [vault, assets, receiver, ownerReceived, minAssets] = ethers.AbiCoder.defaultAbiCoder().decode(
+      ['address', 'uint256', 'address', 'address', 'uint256'],
       callInput,
     );
     expect(vault).to.equal('0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e');
     expect(assets).to.equal(ethers.parseUnits('1', 18));
     expect(receiver).to.equal('0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e');
+    expect(ownerReceived).to.equal(owner.address);
+    expect(minAssets).to.equal(ethers.parseUnits('1', 18));
   });
 
   it('Dispatch withdrawVault', async function () {
+    const [owner] = await ethers.getSigners();
     const vaultRouterMock = await deployVaultRouterMockFunction();
     let iface = new ethers.Interface(VaultRouterABI);
     const commands = [
@@ -268,23 +277,27 @@ describeif(network.name === 'hardhat')('Vault Router Dispatch', function () {
               '0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e',
               ethers.parseUnits('1', 18),
               '0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e',
+              ethers.parseUnits('1', 18),
             ])
             .slice(10),
       ],
     ];
     await vaultRouterMock.execute(commands);
     const callInput = await vaultRouterMock.callInput();
-    const [vault, assets, receiver] = ethers.AbiCoder.defaultAbiCoder().decode(
-      ['address', 'uint256', 'address'],
+    const [vault, assets, receiver, ownerReceived, maxShares] = ethers.AbiCoder.defaultAbiCoder().decode(
+      ['address', 'uint256', 'address', 'address', 'uint256'],
       callInput,
     );
     expect(vault).to.equal('0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e');
     expect(assets).to.equal(ethers.parseUnits('1', 18));
     expect(receiver).to.equal('0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e');
+    expect(ownerReceived).to.equal(owner.address);
+    expect(maxShares).to.equal(ethers.parseUnits('1', 18));
   });
 });
 
 async function deployVaultRouterMockFunction() {
+
   const VaultRouterMock = await ethers.getContractFactory('VaultRouterMock');
   const vaultRouterMock = await VaultRouterMock.deploy();
   await vaultRouterMock.waitForDeployment();
