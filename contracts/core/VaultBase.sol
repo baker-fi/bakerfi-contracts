@@ -15,7 +15,7 @@ import { MathLibrary } from "../libraries/MathLibrary.sol";
 import { VaultSettings } from "./VaultSettings.sol";
 import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import { ADMIN_ROLE, VAULT_MANAGER_ROLE, PAUSER_ROLE } from "./Constants.sol";
-
+import { IERC20MetadataUpgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
 /**
  * @title BakerFi Vault Base 🧑‍🍳
  *
@@ -54,7 +54,7 @@ abstract contract VaultBase is
   error NoAllowance();
 
   uint256 private constant _MINIMUM_SHARE_BALANCE = 1000;
-  uint256 private constant _ONE = 1e18;
+ // uint256 private constant _ONE = 1e18;
 
   /**
    * @dev Modifier to restrict access to whitelisted accounts.
@@ -90,6 +90,7 @@ abstract contract VaultBase is
     address weth
   ) internal {
     __ERC20_init(tokenName, tokenSymbol);
+
     _initUseWETH(weth);
     if (initialOwner == address(0)) revert InvalidOwner();
     _initializeVaultSettings();
@@ -97,6 +98,23 @@ abstract contract VaultBase is
     _setupRole(ADMIN_ROLE, initialOwner);
     _setupRole(VAULT_MANAGER_ROLE, initialOwner);
     _setupRole(PAUSER_ROLE, initialOwner);
+  }
+
+  /**
+   * @dev Returns the decimals of the share asset.
+   * @return The decimals of the asset.
+   */
+  function decimals() public view override(ERC20Upgradeable, IERC20MetadataUpgradeable) returns (uint8) {
+    return ERC20Upgradeable(_asset()).decimals();
+  }
+
+
+  /**
+   * @dev Returns the decimals of the share asset.
+   * @return The decimals of the asset.
+   */
+  function _ONE() private view returns (uint256) {
+    return 10 ** decimals();
   }
 
   /**
@@ -251,7 +269,7 @@ abstract contract VaultBase is
     // Check if deposit exceeds the maximum allowed per wallet
     uint256 maxDepositLocal = getMaxDeposit();
     if (maxDepositLocal > 0) {
-      uint256 depositInAssets = (balanceOf(receiver) * _ONE) / tokenPerAsset();
+      uint256 depositInAssets = (balanceOf(receiver) * _ONE()) / tokenPerAsset();
       uint256 newBalance = assets + depositInAssets;
       if (newBalance > maxDepositLocal) revert MaxDepositReached();
     }
@@ -470,13 +488,14 @@ abstract contract VaultBase is
    * @return rate The calculated token-to-ETH exchange rate.
    */
   function tokenPerAsset() public view returns (uint256) {
+
     uint256 totalAssetsValue = totalAssets();
 
     if (totalSupply() == 0 || totalAssetsValue == 0) {
-      return _ONE;
+      return _ONE();
     }
 
-    return (totalSupply() * _ONE) / totalAssetsValue;
+    return (totalSupply() * _ONE()) / totalAssetsValue;
   }
 
   /**

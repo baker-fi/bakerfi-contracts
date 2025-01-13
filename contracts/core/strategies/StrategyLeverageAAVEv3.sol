@@ -2,7 +2,6 @@
 pragma solidity ^0.8.24;
 
 import { StrategyLeverage } from "./StrategyLeverage.sol";
-import { SYSTEM_DECIMALS } from "../../core/Constants.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -68,7 +67,7 @@ contract StrategyLeverageAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
   /**
    * Get the Current Position on AAVE v3 Money Market
    *
-   * @return collateralBalance The Collateral Balance Amount
+   * @return collateralBalance The Collateral Balance Amount with the native decimals
    * @return debtBalance The Debt Token Balance Amount
    *
    * @dev !Important: No Conversion to USD Done
@@ -83,11 +82,7 @@ contract StrategyLeverageAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
     DataTypes.ReserveData memory debtReserve = (aaveV3().getReserveData(_debtToken));
     DataTypes.ReserveData memory collateralReserve = (aaveV3().getReserveData(_collateralToken));
     debtBalance = ERC20(debtReserve.variableDebtTokenAddress).balanceOf(address(this));
-    uint8 debtDecimals = ERC20(debtReserve.variableDebtTokenAddress).decimals();
-    uint8 collateralDecimals = ERC20(collateralReserve.aTokenAddress).decimals();
     collateralBalance = ERC20(collateralReserve.aTokenAddress).balanceOf(address(this));
-    debtBalance = debtBalance.toDecimals(debtDecimals, SYSTEM_DECIMALS);
-    collateralBalance = collateralBalance.toDecimals(collateralDecimals, SYSTEM_DECIMALS);
   }
 
   /**

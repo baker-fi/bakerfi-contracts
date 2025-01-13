@@ -16,7 +16,7 @@ import { AddressUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/Ad
 import { StrategyLeverageSettings } from "./StrategyLeverageSettings.sol";
 import { MathLibrary } from "../../libraries/MathLibrary.sol";
 import { EmptySlot } from "../EmptySlot.sol";
-
+import { ERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 /**
  * @title Base Recursive Staking Strategy
  *
@@ -744,6 +744,10 @@ abstract contract StrategyLeverage is
       _oracle.getPrecision(),
       roundUp
     );
+    amountOut = amountOut.toDecimals(
+      ERC20Upgradeable(_collateralToken).decimals(),
+      ERC20Upgradeable(_debtToken).decimals()
+    );
   }
 
   /**
@@ -763,6 +767,10 @@ abstract contract StrategyLeverage is
       _oracle.getPrecision(),
       _oracle.getSafeLatestPrice(priceOptions).price,
       roundUp
+    );
+    amountOut = amountOut.toDecimals(
+      ERC20Upgradeable(_debtToken).decimals(),
+      ERC20Upgradeable(_collateralToken).decimals()
     );
   }
 
