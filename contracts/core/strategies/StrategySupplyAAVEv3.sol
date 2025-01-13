@@ -59,7 +59,6 @@ contract StrategySupplyAAVEv3 is StrategySupplyBase {
    */
   function _getBalance() internal view virtual override returns (uint256) {
     DataTypes.ReserveData memory reserve = (_aavev3.getReserveData(_asset));
-    uint256 reserveBalance = ERC20(reserve.aTokenAddress).balanceOf(address(this));
-    return reserveBalance;
+    return ERC20(reserve.aTokenAddress).balanceOf(address(this));
   }
 }
