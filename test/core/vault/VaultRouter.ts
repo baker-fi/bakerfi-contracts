@@ -127,7 +127,6 @@ describeif(network.name === 'hardhat')('Vault Router', function () {
               await vault.getAddress(),
               ethers.parseUnits('5', 17),
               await vaultRouter.getAddress(),
-              owner.address,
             ])
             .slice(10),
       ],
@@ -162,6 +161,7 @@ describeif(network.name === 'hardhat')('Vault Router', function () {
     await vaultRouter.execute(withdrawCommands);
     expect(await vault.balanceOf(owner.address)).to.equal(ethers.parseUnits('5', 17));
   });
+
 
   it('Steal WETH from owner with a pull and push', async function () {
     const { vaultRouter, weth, owner, otherAccount } = await deployFunction();
@@ -224,6 +224,43 @@ describeif(network.name === 'hardhat')('Vault Router', function () {
       'NotAuthorized',
     );
   });
+
+
+
+  it('Exploit user ERC4626 allowances should fail', async function () {
+    const { vault, weth, owner, otherAccount, vaultRouter } = await deployFunction();
+    // 10 ETH
+    const amount = 10n * 10n ** 18n;
+    // Wrap 10 ETH
+    await weth.deposit?.call('', { value: amount });
+    await weth.approve(await vault.getAddress(), amount);
+    // Deposit 10K USDC on the Vault
+    await vault.deposit(amount, owner.address);
+    // Check that the owner has the shares
+    expect(await vault.balanceOf(owner.address)).to.equal(amount);
+    // Approve the VaultRouter to spend vault shares from owner
+    await vault.approve(await vaultRouter.getAddress(), ethers.MaxUint256);
+    let iface = new ethers.Interface(VaultRouterABI);
+    // Redeem 10K shares from the Vault
+    const commands = [
+      [
+        VAULT_ROUTER_COMMAND_ACTIONS.ERC4626_VAULT_REDEEM,
+        '0x' +
+          iface
+            .encodeFunctionData('redeemVault', [
+              await vault.getAddress(),
+              amount,
+              await otherAccount.getAddress(),
+            ])
+            .slice(10),
+      ],
+    ];
+
+    await expect(vaultRouter.connect(otherAccount).execute(commands)).to.be.revertedWith(
+      'ERC20: insufficient allowance',
+    );
+  });
+
 });
 
 /**
