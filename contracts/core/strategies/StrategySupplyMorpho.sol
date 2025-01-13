@@ -27,6 +27,7 @@ contract StrategySupplyMorpho is StrategySupplyBase {
 
   error FailedToApproveAllowanceForMorpho();
   error InvalidMorphoBlueContract();
+  error InvalidAsset();
 
   MarketParams private _marketParams; // Parameters related to the market for the strategy.
   /// @notice Instance of the Morpho protocol interface.
@@ -51,6 +52,8 @@ contract StrategySupplyMorpho is StrategySupplyBase {
 
     _marketParams = _morpho.idToMarketParams(morphoMarketId);
 
+    if (_marketParams.loanToken != asset_) revert InvalidAsset();
+
     // Allowance approval
     if (!ERC20(asset_).approve(morphoBlue, type(uint256).max)) {
       revert FailedToApproveAllowanceForMorpho();
@@ -71,11 +74,8 @@ contract StrategySupplyMorpho is StrategySupplyBase {
   function _undeploy(uint256 amount) internal override returns (uint256) {
     Id id = _marketParams.id();
     uint256 assetsWithdrawn = 0;
-    uint256 totalSupplyAssets = _morpho.totalSupplyAssets(id);
-    uint256 totalSupplyShares = _morpho.totalSupplyShares(id);
-
     uint256 shares = _morpho.supplyShares(id, address(this));
-    uint256 assetsMax = shares.toAssetsDown(totalSupplyAssets, totalSupplyShares);
+    uint256 assetsMax = _morpho.expectedSupplyAssets(_marketParams, address(this));
 
     if (amount >= assetsMax) {
       (assetsWithdrawn, ) = _morpho.withdraw(

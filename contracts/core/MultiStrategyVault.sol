@@ -155,7 +155,7 @@ contract MultiStrategyVault is VaultBase, MultiStrategy {
     assets = MultiStrategy._totalAssets(); // Calls the totalAssets function from MultiStrategy to get the total assets
   }
 
-  function _asset() internal view virtual override returns (address) {
+  function _asset() internal view virtual override(VaultBase, MultiStrategy) returns (address) {
     return _strategyAsset;
   }
 
@@ -177,7 +177,14 @@ contract MultiStrategyVault is VaultBase, MultiStrategy {
    */
   function rebalance(
     IVault.RebalanceCommand[] calldata commands
-  ) external override nonReentrant onlyRole(VAULT_MANAGER_ROLE) whenNotPaused returns (bool success) {
+  )
+    external
+    override
+    nonReentrant
+    onlyRole(VAULT_MANAGER_ROLE)
+    whenNotPaused
+    returns (bool success)
+  {
     success = true;
     uint256 numCommands = commands.length;
     for (uint256 i = 0; i < numCommands; ) {

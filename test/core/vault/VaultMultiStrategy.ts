@@ -1,4 +1,4 @@
-import { describeif } from '../../common';
+import { describeif, VAULT_ROUTER_COMMAND_ACTIONS, VaultRouterABI } from '../../common';
 
 import '@nomicfoundation/hardhat-ethers';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
@@ -186,15 +186,9 @@ describeif(network.name === 'hardhat')('MultiStrategy Vault', function () {
   });
 
   it('Add Strategy', async () => {
-    const { vault, owner } = await loadFixture(deployMultiStrategyVaultFixture);
-    const strategy = await deployMockERC20(
-      'Strategy',
-      'Strategy',
-      10000n * 10n ** 18n,
-      owner.address,
-    );
-    await vault.addStrategy(await strategy.getAddress());
-    expect(await vault.strategies()).to.include(await strategy.getAddress());
+    const { vault, park1 } = await loadFixture(deployMultiStrategyVaultFixture);
+    await vault.addStrategy(await park1.getAddress());
+    expect(await vault.strategies()).to.include(await park1.getAddress());
     expect(await vault.weights()).to.deep.equal([7500n, 2500n, 0n]);
   });
 
@@ -227,6 +221,19 @@ describeif(network.name === 'hardhat')('MultiStrategy Vault', function () {
     );
   });
 
+  it('Remove Last Strategy  - Fails if there is only one strategy', async () => {
+    const { vault, usdc, owner } = await loadFixture(deployMultiStrategyVaultFixture);
+    const amount = 10000n * 10n ** 18n;
+    await usdc.approve(vault.target, amount);
+    await vault.deposit(amount, owner.address);
+    await vault.removeStrategy(0);
+    // Remove the last strategy
+    await expect(vault.removeStrategy(0)).to.be.revertedWithCustomError(
+      vault,
+      'InvalidStrategyIndex',
+    );
+  });
+
   it('Rebalance After changing weights to 50/50', async () => {
     const { vault, usdc, owner, park1, park2 } = await loadFixture(deployMultiStrategyVaultFixture);
     const amount = 10000n * 10n ** 18n;
@@ -254,7 +261,7 @@ describeif(network.name === 'hardhat')('MultiStrategy Vault', function () {
   });
 
   it('Rebalance After changing weights to 100/0', async () => {
-    const { vault, usdc, owner, park1, park2 } = await loadFixture(deployMultiStrategyVaultFixture);
+    const { vault, usdc, owner, park2 } = await loadFixture(deployMultiStrategyVaultFixture);
     const amount = 10000n * 10n ** 18n;
     await usdc.approve(vault.target, amount);
     await vault.deposit(amount, owner.address);
@@ -276,6 +283,44 @@ describeif(network.name === 'hardhat')('MultiStrategy Vault', function () {
     ]);
     //expect(await park1.totalAssets()).to.equal(amount);
     expect(await park2.totalAssets()).to.equal(0n);
+  });
+
+  it('Rebalance Fails if the deltas are not sorted', async () => {
+    const { vault, usdc, owner } = await loadFixture(deployMultiStrategyVaultFixture);
+    const amount = 10000n * 10n ** 18n;
+    await usdc.approve(vault.target, amount);
+    await vault.deposit(amount, owner.address);
+    await expect(vault.rebalance([
+      {
+        action: 0x02,
+        data: ethers.AbiCoder.defaultAbiCoder().encode(
+          ['uint256[]', 'int256[]'],
+          [
+            [0, 1],
+            [2500n * 10n ** 18n, -2500n * 10n ** 18n],
+          ],
+        ),
+      },
+    ])).to.be.revertedWithCustomError(vault, 'InvalidDeltas');
+  });
+
+  it('Rebalance Fails - Delta sum is not 0', async () => {
+    const { vault, usdc, owner } = await loadFixture(deployMultiStrategyVaultFixture);
+    const amount = 10000n * 10n ** 18n;
+    await usdc.approve(vault.target, amount);
+    await vault.deposit(amount, owner.address);
+    await expect(vault.rebalance([
+      {
+        action: 0x02,
+        data: ethers.AbiCoder.defaultAbiCoder().encode(
+          ['uint256[]', 'int256[]'],
+          [
+            [0, 1],
+            [-2500n * 10n ** 18n, -2500n * 10n ** 18n],
+          ],
+        ),
+      },
+    ])).to.be.revertedWithCustomError(vault, 'InvalidDeltas');
   });
 
   it('Rebalance After changing weights to 25/75', async () => {
