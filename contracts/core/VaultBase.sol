@@ -102,7 +102,12 @@ abstract contract VaultBase is
    * @dev Returns the decimals of the share asset.
    * @return The decimals of the asset.
    */
-  function decimals() public view override(ERC20Upgradeable, IERC20MetadataUpgradeable) returns (uint8) {
+  function decimals()
+    public
+    view
+    override(ERC20Upgradeable, IERC20MetadataUpgradeable)
+    returns (uint8)
+  {
     return ERC20Upgradeable(_asset()).decimals();
   }
 
@@ -485,7 +490,6 @@ abstract contract VaultBase is
    * @return rate The calculated token-to-ETH exchange rate.
    */
   function tokenPerAsset() public view returns (uint256) {
-
     uint256 totalAssetsValue = totalAssets();
 
     if (totalSupply() == 0 || totalAssetsValue == 0) {

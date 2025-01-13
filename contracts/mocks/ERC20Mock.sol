@@ -6,7 +6,6 @@ import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 
 contract ERC20Mock is ERC20, ERC20Permit, Ownable {
-
   uint8 private _decimals;
 
   constructor(

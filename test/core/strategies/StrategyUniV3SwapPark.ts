@@ -93,12 +93,11 @@ describeif(network.name === 'hardhat')('Strategy Swap and Park', function () {
     expect(await strategySwapAndPark.totalAssets()).to.equal(0n);
   });
 
-
   it('Harvest fails if not owner', async function () {
     const { strategyPark, otherAccount } = await loadFixture(deployFixture);
-    await expect(
-      strategyPark.connect(otherAccount).harvest(),
-    ).to.be.revertedWith('Ownable: caller is not the owner');
+    await expect(strategyPark.connect(otherAccount).harvest()).to.be.revertedWith(
+      'Ownable: caller is not the owner',
+    );
   });
 
   async function deployFixture() {

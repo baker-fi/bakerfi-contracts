@@ -7,17 +7,16 @@ import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/I
 import { IOracle } from "../interfaces/core/IOracle.sol";
 
 contract StrategyLeverageMock is Initializable, StrategyLeverage {
+  uint256 private _supplyed = 0;
+  uint256 private _borrowed = 0;
 
-    uint256 private _supplyed = 0;
-    uint256 private _borrowed = 0;
-
-    function initialize(
-        address initialOwner,
-        address initialGovernor,
-        address collateralToken,
-        address debtToken,
-        address oracle,
-        address flashLender
+  function initialize(
+    address initialOwner,
+    address initialGovernor,
+    address collateralToken,
+    address debtToken,
+    address oracle,
+    address flashLender
   ) public initializer {
     _initializeStrategyLeverage(
       initialOwner,
@@ -29,7 +28,7 @@ contract StrategyLeverageMock is Initializable, StrategyLeverage {
     );
   }
 
-   function getBalances()
+  function getBalances()
     public
     view
     virtual
@@ -40,11 +39,11 @@ contract StrategyLeverageMock is Initializable, StrategyLeverage {
     debtBalance = _borrowed;
   }
 
-   function _supply(uint256 amountIn) internal virtual override {
+  function _supply(uint256 amountIn) internal virtual override {
     _supplyed += amountIn;
   }
 
-   function _supplyAndBorrow(uint256 collateral, uint256 debt) internal virtual override {
+  function _supplyAndBorrow(uint256 collateral, uint256 debt) internal virtual override {
     _supply(collateral);
     _borrowed += debt;
   }
@@ -58,23 +57,16 @@ contract StrategyLeverageMock is Initializable, StrategyLeverage {
   }
 
   function _convertToCollateral(uint256 amount) internal virtual override returns (uint256) {
-
     uint256 collateralAmount = _toCollateral(
-        IOracle.PriceOptions({ maxAge: 0, maxConf: 0 }),
-        amount,
-        false
+      IOracle.PriceOptions({ maxAge: 0, maxConf: 0 }),
+      amount,
+      false
     );
 
     return collateralAmount;
   }
 
   function _convertToDebt(uint256 amount) internal virtual override returns (uint256) {
-    return _toDebt(
-        IOracle.PriceOptions({ maxAge: 0, maxConf: 0 }),
-        amount,
-        false
-    );
+    return _toDebt(IOracle.PriceOptions({ maxAge: 0, maxConf: 0 }), amount, false);
   }
-
-
 }

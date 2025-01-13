@@ -160,7 +160,8 @@ abstract contract StrategySwapAnd is IStrategy, ReentrancyGuard, Ownable {
   ) internal view returns (uint256 amountOut_) {
     IOracle.Price memory price = _oracle.getSafeLatestPrice(options);
     amountOut_ = (amount * _oracle.getPrecision()) / price.price;
-    amountOut_ = MathLibrary.toDecimals(amountOut_,
+    amountOut_ = MathLibrary.toDecimals(
+      amountOut_,
       ERC20(address(_asset)).decimals(),
       ERC20(_underlyingStrategy.asset()).decimals()
     );
