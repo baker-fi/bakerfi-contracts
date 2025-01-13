@@ -31,13 +31,7 @@ import { IERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/IER
  * - Token transfers.
  * - ERC4626 vaults operations
  */
-contract VaultRouter is
-  UseUnifiedSwapper,
-  UseTokenActions,
-  UseIERC4626,
-  UseWETH,
-  MultiCommand
-{
+contract VaultRouter is UseUnifiedSwapper, UseTokenActions, UseIERC4626, UseWETH, MultiCommand {
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
     _disableInitializers();

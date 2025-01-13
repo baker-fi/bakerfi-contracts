@@ -95,6 +95,4 @@ contract VaultRouterMock is VaultRouter {
     callInput = abi.encode(vault, assets, receiver, owner, maxShares);
     return shares;
   }
-
-
 }
