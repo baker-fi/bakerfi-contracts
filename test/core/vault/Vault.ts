@@ -833,6 +833,8 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
     await weth.approve(await vault.getAddress(), firstAmount);
     await vault.deposit(firstAmount, owner.address);
     expect(await vault.previewWithdraw(withdrawAmount)).to.equal(ethers.parseUnits('99', 16));
+    await vault.setWithdrawalFee(0);
+    expect(await vault.previewWithdraw(withdrawAmount)).to.equal(withdrawAmount);
   });
 
   it('Withdraw Success', async function () {
@@ -981,6 +983,10 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
     expect(await vault.previewRedeem(ethers.parseUnits('5', 18))).to.equal(
       ethers.parseUnits('495', 16),
     );
+    await vault.setWithdrawalFee(0);
+    expect(await vault.previewRedeem(ethers.parseUnits('5', 18))).to.equal(
+      ethers.parseUnits('5', 18),
+    );
   });
 
   it('Redeem Sucess', async function () {
@@ -1006,6 +1012,22 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
       )
       .emit(vault, 'Transfer')
       .withArgs(owner.address, '0x0000000000000000000000000000000000000000', balanceOf);
+  });
+
+  it("When Paused - maxDeposit, maxReddemm, maxMint, maxWithdraw should be 9", async function () {
+    const { owner, vault } = await loadFixture(deployFunction);
+    await vault.pause();
+    expect(await vault.maxDeposit(owner.address)).to.equal(0n);
+    expect(await vault.maxRedeem(owner.address)).to.equal(0n);
+    expect(await vault.maxMint(owner.address)).to.equal(0n);
+    expect(await vault.maxWithdraw(owner.address)).to.equal(0n);
+  });
+
+  it("No Deposit limit - maxDeposit should be 9", async function () {
+    const { owner, vault } = await loadFixture(deployFunction);
+    await vault.setMaxDeposit(0);
+    expect(await vault.maxDeposit(owner.address)).to.equal(ethers.MaxUint256);
+    expect(await vault.maxMint(owner.address)).to.equal(ethers.MaxUint256);
   });
 
   it('Redeem Sucess - In Name of ', async function () {
