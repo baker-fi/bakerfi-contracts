@@ -130,7 +130,7 @@ abstract contract StrategySupplyBase is IStrategy, ReentrancyGuard, Ownable {
     emit StrategyUndeploy(msg.sender, withdrawalValue);
     emit StrategyAmountUpdate(balance);
 
-    return amount;
+    return withdrawalValue;
   }
 
   /**
