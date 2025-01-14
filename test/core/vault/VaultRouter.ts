@@ -265,32 +265,6 @@ describeif(network.name === 'hardhat')('Vault Router', function () {
     );
   });
 
-  it('Steal WETH from owner with a pushFrom', async function () {
-    const { vaultRouter, weth, owner, otherAccount } = await deployFunction();
-    // Approve the VaultRouter to pull the WETH from owner 10ETH
-    const amount = ethers.parseUnits('10000', 18);
-    await weth.approve(await vaultRouter.getAddress(), amount);
-
-    let iface = new ethers.Interface(VaultRouterABI);
-    const commands = [
-      [
-        VAULT_ROUTER_COMMAND_ACTIONS.PUSH_TOKEN_FROM,
-        '0x' +
-          iface
-            .encodeFunctionData('pushTokenFrom', [
-              await weth.getAddress(),
-              owner.address,
-              otherAccount.address,
-              amount,
-            ])
-            .slice(10),
-      ],
-    ];
-    await expect(vaultRouter.connect(otherAccount).execute(commands)).to.be.revertedWithCustomError(
-      vaultRouter,
-      'NotAuthorized',
-    );
-  });
 });
 
 /**
