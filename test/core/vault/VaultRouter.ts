@@ -223,7 +223,6 @@ describeif(network.name === 'hardhat')('Vault Router', function () {
       'NotAuthorized',
     );
   });
-
   it('Exploit user ERC4626 allowances should fail', async function () {
     const { vault, weth, owner, otherAccount, vaultRouter } = await deployFunction();
     // 10 ETH
@@ -250,7 +249,7 @@ describeif(network.name === 'hardhat')('Vault Router', function () {
         VAULT_ROUTER_COMMAND_ACTIONS.PUSH_TOKEN,
         '0x' +
           iface
-            .encodeFunctionData('pullTokenFrom', [
+            .encodeFunctionData('pushToken', [
               await weth.getAddress(),
               otherAccount.address,
               amount,
