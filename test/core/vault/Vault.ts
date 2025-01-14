@@ -832,7 +832,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
 
     await weth.approve(await vault.getAddress(), firstAmount);
     await vault.deposit(firstAmount, owner.address);
-    expect(await vault.previewWithdraw(withdrawAmount)).to.equal(withdrawAmount);
+    expect(await vault.previewWithdraw(withdrawAmount)).to.equal(ethers.parseUnits('99', 16));
   });
 
   it('Withdraw Success', async function () {
@@ -979,7 +979,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
     await vault.deposit(depositAmount, owner.address);
 
     expect(await vault.previewRedeem(ethers.parseUnits('5', 18))).to.equal(
-      ethers.parseUnits('5', 18),
+      ethers.parseUnits('495', 16),
     );
   });
 

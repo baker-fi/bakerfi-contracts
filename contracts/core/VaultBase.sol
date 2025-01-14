@@ -158,7 +158,7 @@ abstract contract VaultBase is
   function maxMint(address receiver) external view override returns (uint256 maxShares) {
     uint256 maxAssets = _maxDepositFor(receiver);
     maxShares = this.convertToShares(maxAssets);
-    maxAssets == 0 || maxAssets == type(uint256).max ? maxAssets : _convertToShares(maxAssets);
+    maxAssets == 0 || maxAssets == type(uint256).max ? maxAssets : _convertToShares(maxAssets, false);
   }
 
   /**
@@ -167,7 +167,7 @@ abstract contract VaultBase is
    * @return assets The amount of assets corresponding to the shares.
    */
   function previewMint(uint256 shares) external view override returns (uint256 assets) {
-    assets = this.convertToAssets(shares);
+    assets = _convertToAssets(shares, true);
   }
 
   /**
@@ -320,7 +320,8 @@ abstract contract VaultBase is
    * @return shares The number of shares corresponding to the assets.
    */
   function previewWithdraw(uint256 assets) external view override returns (uint256 shares) {
-    shares = this.convertToShares(assets);
+    uint256 fee = assets.mulDivUp(getWithdrawalFee(), PERCENTAGE_PRECISION);
+    shares = _convertToShares(assets - fee, true);
   }
 
   /**
@@ -380,7 +381,9 @@ abstract contract VaultBase is
    * @return assets The amount of assets corresponding to the shares.
    */
   function previewRedeem(uint256 shares) external view override returns (uint256 assets) {
-    assets = this.convertToAssets(shares);
+    assets = _convertToAssets(shares, true);
+    uint256 fee = assets.mulDivUp(getWithdrawalFee(), PERCENTAGE_PRECISION);
+    assets -= fee;
   }
 
   /**
@@ -476,7 +479,7 @@ abstract contract VaultBase is
    * @return shares The calculated number of shares.
    */
   function convertToShares(uint256 assets) external view override returns (uint256 shares) {
-    return _convertToShares(assets);
+    return _convertToShares(assets, false);
   }
 
   /**
@@ -484,9 +487,9 @@ abstract contract VaultBase is
    * @param assets The amount of assets to be converted to shares.
    * @return shares The calculated number of shares.
    */
-  function _convertToShares(uint256 assets) internal view returns (uint256 shares) {
+  function _convertToShares(uint256 assets, bool roundUp) internal view returns (uint256 shares) {
     Rebase memory total = Rebase(totalAssets(), totalSupply());
-    shares = total.toBase(assets, false);
+    shares = total.toBase(assets, roundUp);
   }
 
   /**
@@ -495,8 +498,12 @@ abstract contract VaultBase is
    * @return assets The calculated amount of assets.
    */
   function convertToAssets(uint256 shares) external view override returns (uint256 assets) {
+    return _convertToAssets(shares, false);
+  }
+
+  function _convertToAssets(uint256 shares, bool roundUp) internal view returns (uint256 assets) {
     Rebase memory total = Rebase(totalAssets(), totalSupply());
-    assets = total.toElastic(shares, false);
+    assets = total.toElastic(shares, roundUp);
   }
 
   /**
