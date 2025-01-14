@@ -1014,7 +1014,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
       .withArgs(owner.address, '0x0000000000000000000000000000000000000000', balanceOf);
   });
 
-  it('When Paused - maxDeposit, maxReddemm, maxMint, maxWithdraw should be 9', async function () {
+  it('When Paused - maxDeposit, maxReddemm, maxMint, maxWithdraw should be 0', async function () {
     const { owner, vault } = await loadFixture(deployFunction);
     await vault.pause();
     expect(await vault.maxDeposit(owner.address)).to.equal(0n);
@@ -1023,7 +1023,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
     expect(await vault.maxWithdraw(owner.address)).to.equal(0n);
   });
 
-  it('No Deposit limit - maxDeposit should be 9', async function () {
+  it('No Deposit limit - maxDeposit should be unlimited', async function () {
     const { owner, vault } = await loadFixture(deployFunction);
     await vault.setMaxDeposit(0);
     expect(await vault.maxDeposit(owner.address)).to.equal(ethers.MaxUint256);
