@@ -76,6 +76,23 @@ describeif(network.name === 'hardhat')('UseTokenActions', function () {
     await useTokenActions.test__sweepTokens(await bkr.getAddress(), otherAccount.address);
     expect(await bkr.balanceOf(otherAccount.address)).to.equal(ethers.parseUnits('100', 18));
   });
+
+  it('test__sweepNative', async function () {
+    const { useTokenActions, owner, otherAccount } = await deployFunction();
+    const useTokenActionsAddress = await useTokenActions.getAddress();
+    // Send 10 000 ETH to the useTokenActions contract
+    await owner.sendTransaction({
+      to: useTokenActionsAddress,
+      value: ethers.parseEther('10'),
+    });
+    expect(await ethers.provider.getBalance(useTokenActionsAddress)).to.equal(
+      ethers.parseEther('10'),
+    );
+    await expect(useTokenActions.test__sweepNative(otherAccount.address)).to.changeEtherBalances(
+      [useTokenActionsAddress, otherAccount.address],
+      [ethers.parseEther('-10'), ethers.parseEther('10')],
+    );
+  });
 });
 
 async function deployFunction() {
