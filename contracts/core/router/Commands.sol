@@ -19,6 +19,7 @@ library Commands {
   uint8 public constant WRAP_ETH = 0x07; // Command to wrap ETH into WETH.
   uint8 public constant UNWRAP_ETH = 0x08; // Command to unwrap WETH back into ETH.
   uint8 public constant SEND_NATIVE = 0x0A; // Command to send native tokens to a specified address.
+  uint8 public constant SWEEP_NATIVE = 0x0B; // Command to sweep native asset the contract.
 
   // ERC4626 Vault Commands
   uint8 public constant ERC4626_VAULT_DEPOSIT = 0x10; // Command to deposit assets into an ERC4626 vault.

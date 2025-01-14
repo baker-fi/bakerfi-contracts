@@ -110,6 +110,8 @@ contract VaultRouter is
       output = _handlePushTokenFrom(data, callStack, inputMapping);
     } else if (actionToExecute == Commands.SWEEP_TOKENS) {
       output = _handleSweepTokens(data, callStack, outputMapping);
+    } else if (actionToExecute == Commands.SWEEP_NATIVE) {
+      output = _handleSweepNative(data, callStack, outputMapping);
     } else if (actionToExecute == Commands.WRAP_ETH) {
       output = _handleWrapETH(data, callStack, inputMapping);
     } else if (actionToExecute == Commands.UNWRAP_ETH) {
@@ -278,6 +280,28 @@ contract VaultRouter is
     Commands.pushOutputParam(callStack, sweptAmount, outputMapping, 1);
     return abi.encodePacked(sweptAmount);
   }
+
+  /**
+   * @notice Handles the sweep tokens command.
+   * @param data The encoded sweep tokens parameters.
+   * @param callStack The call stack.
+   * @param outputMapping The output mapping.
+   * @return output The encoded output values.
+   */
+  function _handleSweepNative(
+    bytes calldata data,
+    uint256[] memory callStack,
+    uint32 outputMapping
+  ) private returns (bytes memory) {
+    address to;
+    assembly {
+      to := calldataload(data.offset)
+    }
+    uint256 sweptAmount = sweepNative(to);
+    Commands.pushOutputParam(callStack, sweptAmount, outputMapping, 1);
+    return abi.encodePacked(sweptAmount);
+  }
+
   /**
    * @notice Handles the wrap ETH command.
    * @param data The encoded wrap ETH parameters.

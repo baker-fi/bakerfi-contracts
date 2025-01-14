@@ -286,6 +286,24 @@ describeif(network.name === 'hardhat')('Vault Router Dispatch', function () {
     expect(assets).to.equal(ethers.parseUnits('1', 18));
     expect(receiver).to.equal('0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e');
   });
+
+  it('Dispatch sweepNative', async function () {
+    const vaultRouterMock = await deployVaultRouterMockFunction();
+    let iface = new ethers.Interface(VaultRouterABI);
+    const commands = [
+      [
+        VAULT_ROUTER_COMMAND_ACTIONS.SWEEP_NATIVE,
+        '0x' +
+          iface
+            .encodeFunctionData('sweepNative', ['0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e'])
+            .slice(10),
+      ],
+    ];
+    await vaultRouterMock.execute(commands);
+    const callInput = await vaultRouterMock.callInput();
+    const [to] = ethers.AbiCoder.defaultAbiCoder().decode(['address'], callInput);
+    expect(to).to.equal('0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e');
+  });
 });
 
 async function deployVaultRouterMockFunction() {

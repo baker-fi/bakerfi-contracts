@@ -182,7 +182,7 @@ describeif(network.name === 'hardhat')('Vault Router', function () {
         VAULT_ROUTER_COMMAND_ACTIONS.PUSH_TOKEN,
         '0x' +
           iface
-            .encodeFunctionData('pullTokenFrom', [
+            .encodeFunctionData('pushToken', [
               await weth.getAddress(),
               otherAccount.address,
               amount,
@@ -223,7 +223,6 @@ describeif(network.name === 'hardhat')('Vault Router', function () {
       'NotAuthorized',
     );
   });
-
   it('Exploit user ERC4626 allowances should fail', async function () {
     const { vault, weth, owner, otherAccount, vaultRouter } = await deployFunction();
     // 10 ETH
@@ -238,25 +237,33 @@ describeif(network.name === 'hardhat')('Vault Router', function () {
     // Approve the VaultRouter to spend vault shares from owner
     await vault.approve(await vaultRouter.getAddress(), ethers.MaxUint256);
     let iface = new ethers.Interface(VaultRouterABI);
-    // Redeem 10K shares from the Vault
     const commands = [
       [
-        VAULT_ROUTER_COMMAND_ACTIONS.ERC4626_VAULT_REDEEM,
+        VAULT_ROUTER_COMMAND_ACTIONS.PULL_TOKEN_FROM,
         '0x' +
           iface
-            .encodeFunctionData('redeemVault', [
-              await vault.getAddress(),
+            .encodeFunctionData('pullTokenFrom', [await weth.getAddress(), owner.address, amount])
+            .slice(10),
+      ],
+      [
+        VAULT_ROUTER_COMMAND_ACTIONS.PUSH_TOKEN,
+        '0x' +
+          iface
+            .encodeFunctionData('pushToken', [
+              await weth.getAddress(),
+              otherAccount.address,
               amount,
-              await otherAccount.getAddress(),
             ])
             .slice(10),
       ],
     ];
-
-    await expect(vaultRouter.connect(otherAccount).execute(commands)).to.be.revertedWith(
-      'ERC20: insufficient allowance',
+    //@audit-info otherAccount drains owner's WETH
+    await expect(vaultRouter.connect(otherAccount).execute(commands)).to.be.revertedWithCustomError(
+      vaultRouter,
+      'NotAuthorized',
     );
   });
+
 });
 
 /**
