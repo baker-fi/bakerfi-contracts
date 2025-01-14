@@ -31,7 +31,14 @@ import { IERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/IER
  * - Token transfers.
  * - ERC4626 vaults operations
  */
-contract VaultRouter is UseUnifiedSwapper, UseTokenActions, UseIERC4626, UseWETH, MultiCommand {
+contract VaultRouter is
+  UseUnifiedSwapper,
+  UseTokenActions,
+  UseIERC4626,
+  UseWETH,
+  MultiCommand
+{
+  error NotAuthorized();
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
     _disableInitializers();
@@ -103,6 +110,8 @@ contract VaultRouter is UseUnifiedSwapper, UseTokenActions, UseIERC4626, UseWETH
       output = _handlePushTokenFrom(data, callStack, inputMapping);
     } else if (actionToExecute == Commands.SWEEP_TOKENS) {
       output = _handleSweepTokens(data, callStack, outputMapping);
+    } else if (actionToExecute == Commands.SWEEP_NATIVE) {
+      output = _handleSweepNative(data, callStack, outputMapping);
     } else if (actionToExecute == Commands.WRAP_ETH) {
       output = _handleWrapETH(data, callStack, inputMapping);
     } else if (actionToExecute == Commands.UNWRAP_ETH) {
@@ -191,6 +200,8 @@ contract VaultRouter is UseUnifiedSwapper, UseTokenActions, UseIERC4626, UseWETH
       from := calldataload(add(data.offset, 0x20))
       amount := calldataload(add(data.offset, 0x40))
     }
+    if (from != msg.sender) revert NotAuthorized();
+
     amount = Commands.pullInputParam(callStack, amount, inputMapping, 1);
     pullTokenFrom(token, from, amount);
     return "";
@@ -241,6 +252,8 @@ contract VaultRouter is UseUnifiedSwapper, UseTokenActions, UseIERC4626, UseWETH
       to := calldataload(add(data.offset, 0x40))
       amount := calldataload(add(data.offset, 0x60))
     }
+    if (from != msg.sender) revert NotAuthorized();
+
     amount = Commands.pullInputParam(callStack, amount, inputMapping, 1);
     pushTokenFrom(token, from, to, amount);
     return "";
@@ -267,6 +280,28 @@ contract VaultRouter is UseUnifiedSwapper, UseTokenActions, UseIERC4626, UseWETH
     Commands.pushOutputParam(callStack, sweptAmount, outputMapping, 1);
     return abi.encodePacked(sweptAmount);
   }
+
+  /**
+   * @notice Handles the sweep tokens command.
+   * @param data The encoded sweep tokens parameters.
+   * @param callStack The call stack.
+   * @param outputMapping The output mapping.
+   * @return output The encoded output values.
+   */
+  function _handleSweepNative(
+    bytes calldata data,
+    uint256[] memory callStack,
+    uint32 outputMapping
+  ) private returns (bytes memory) {
+    address to;
+    assembly {
+      to := calldataload(data.offset)
+    }
+    uint256 sweptAmount = sweepNative(to);
+    Commands.pushOutputParam(callStack, sweptAmount, outputMapping, 1);
+    return abi.encodePacked(sweptAmount);
+  }
+
   /**
    * @notice Handles the wrap ETH command.
    * @param data The encoded wrap ETH parameters.
