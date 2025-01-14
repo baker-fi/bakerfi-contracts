@@ -87,7 +87,7 @@ abstract contract UseTokenActions is Initializable {
     if (address(token) == address(0)) revert InvalidToken();
     // Check if the recipient address is valid
     if (address(to) == address(0)) revert InvalidRecipient();
-
+    // Check if the allowance is enough , spender is the Token Actions contract
     if (token.allowance(from, address(this)) < amount) revert NotEnoughAllowance();
     // Use SafeERC20 to transfer tokens from the specified address to another specified address
     IERC20(token).safeTransferFrom(from, to, amount);

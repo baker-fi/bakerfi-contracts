@@ -97,15 +97,19 @@ describeif(network.name === 'hardhat')('Vault Router Dispatch', function () {
   it('Dispatch pushTokenFrom', async function () {
     const vaultRouterMock = await deployVaultRouterMockFunction();
     let iface = new ethers.Interface(VaultRouterABI);
+    const [owner, otherAccount] = await ethers.getSigners();
+    const WETH = await ethers.getContractFactory('WETH');
+    const wethMock = await WETH.deploy();
+    await wethMock.waitForDeployment();
     const commands = [
       [
         VAULT_ROUTER_COMMAND_ACTIONS.PUSH_TOKEN_FROM,
         '0x' +
           iface
             .encodeFunctionData('pushTokenFrom', [
-              '0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e', //token
-              '0x263DB851A4de374488F90fa07c0ab9BDDaFF1F0E', //from
-              '0x2cd1ca4fA7646189c87058E2C0A5d3902B4ADb43', //to
+              await wethMock.getAddress(), //token
+              owner.address, //from
+              otherAccount.address, //to
               ethers.parseUnits('1', 18), //amount
             ])
             .slice(10),
@@ -117,9 +121,9 @@ describeif(network.name === 'hardhat')('Vault Router Dispatch', function () {
       ['address', 'address', 'address', 'uint256'],
       callInput,
     );
-    expect(token).to.equal('0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e');
-    expect(from).to.equal('0x263DB851A4de374488F90fa07c0ab9BDDaFF1F0E');
-    expect(to).to.equal('0x2cd1ca4fA7646189c87058E2C0A5d3902B4ADb43');
+    expect(token).to.equal(await wethMock.getAddress());
+    expect(from).to.equal(owner.address);
+    expect(to).to.equal(otherAccount.address);
     expect(amount).to.equal(ethers.parseUnits('1', 18));
   });
 
@@ -288,5 +292,6 @@ async function deployVaultRouterMockFunction() {
   const VaultRouterMock = await ethers.getContractFactory('VaultRouterMock');
   const vaultRouterMock = await VaultRouterMock.deploy();
   await vaultRouterMock.waitForDeployment();
+
   return vaultRouterMock;
 }

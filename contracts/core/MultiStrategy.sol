@@ -224,7 +224,7 @@ abstract contract MultiStrategy is
     // Check if the first delta is positive
     if (deltas[0] > 0) revert InvalidDeltas();
     // Verify the order of the deltas
-    for (uint256 i = 0; i < deltasLen;) {
+    for (uint256 i = 0; i < deltasLen; ) {
       if (deltas[i] < orderCheck) revert InvalidDeltas();
       orderCheck = deltas[i];
       sumDeltas += deltas[i];
@@ -254,7 +254,6 @@ abstract contract MultiStrategy is
     _validateDeltas(deltas);
     // Iterate through each strategy to adjust allocations
     for (uint256 i = 0; i < totalStrategies; i++) {
-
       // if the delta is 0, we don't need to rebalance the strategy
       if (deltas[i] == 0) continue;
 

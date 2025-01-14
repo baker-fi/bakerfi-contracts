@@ -38,6 +38,7 @@ contract VaultRouter is
   UseWETH,
   MultiCommand
 {
+  error NotAuthorized();
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
     _disableInitializers();
@@ -197,6 +198,8 @@ contract VaultRouter is
       from := calldataload(add(data.offset, 0x20))
       amount := calldataload(add(data.offset, 0x40))
     }
+    if (from != msg.sender) revert NotAuthorized();
+
     amount = Commands.pullInputParam(callStack, amount, inputMapping, 1);
     pullTokenFrom(token, from, amount);
     return "";
@@ -247,6 +250,8 @@ contract VaultRouter is
       to := calldataload(add(data.offset, 0x40))
       amount := calldataload(add(data.offset, 0x60))
     }
+    if (from != msg.sender) revert NotAuthorized();
+
     amount = Commands.pullInputParam(callStack, amount, inputMapping, 1);
     pushTokenFrom(token, from, to, amount);
     return "";
