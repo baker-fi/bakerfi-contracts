@@ -290,18 +290,20 @@ describeif(network.name === 'hardhat')('MultiStrategy Vault', function () {
     const amount = 10000n * 10n ** 18n;
     await usdc.approve(vault.target, amount);
     await vault.deposit(amount, owner.address);
-    await expect(vault.rebalance([
-      {
-        action: 0x02,
-        data: ethers.AbiCoder.defaultAbiCoder().encode(
-          ['uint256[]', 'int256[]'],
-          [
-            [0, 1],
-            [2500n * 10n ** 18n, -2500n * 10n ** 18n],
-          ],
-        ),
-      },
-    ])).to.be.revertedWithCustomError(vault, 'InvalidDeltas');
+    await expect(
+      vault.rebalance([
+        {
+          action: 0x02,
+          data: ethers.AbiCoder.defaultAbiCoder().encode(
+            ['uint256[]', 'int256[]'],
+            [
+              [0, 1],
+              [2500n * 10n ** 18n, -2500n * 10n ** 18n],
+            ],
+          ),
+        },
+      ]),
+    ).to.be.revertedWithCustomError(vault, 'InvalidDeltas');
   });
 
   it('Rebalance Fails - Delta sum is not 0', async () => {
@@ -309,18 +311,20 @@ describeif(network.name === 'hardhat')('MultiStrategy Vault', function () {
     const amount = 10000n * 10n ** 18n;
     await usdc.approve(vault.target, amount);
     await vault.deposit(amount, owner.address);
-    await expect(vault.rebalance([
-      {
-        action: 0x02,
-        data: ethers.AbiCoder.defaultAbiCoder().encode(
-          ['uint256[]', 'int256[]'],
-          [
-            [0, 1],
-            [-2500n * 10n ** 18n, -2500n * 10n ** 18n],
-          ],
-        ),
-      },
-    ])).to.be.revertedWithCustomError(vault, 'InvalidDeltas');
+    await expect(
+      vault.rebalance([
+        {
+          action: 0x02,
+          data: ethers.AbiCoder.defaultAbiCoder().encode(
+            ['uint256[]', 'int256[]'],
+            [
+              [0, 1],
+              [-2500n * 10n ** 18n, -2500n * 10n ** 18n],
+            ],
+          ),
+        },
+      ]),
+    ).to.be.revertedWithCustomError(vault, 'InvalidDeltas');
   });
 
   it('Rebalance After changing weights to 25/75', async () => {

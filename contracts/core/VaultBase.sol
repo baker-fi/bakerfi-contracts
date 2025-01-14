@@ -158,7 +158,9 @@ abstract contract VaultBase is
   function maxMint(address receiver) external view override returns (uint256 maxShares) {
     uint256 maxAssets = _maxDepositFor(receiver);
     maxShares = this.convertToShares(maxAssets);
-    maxAssets == 0 || maxAssets == type(uint256).max ? maxAssets : _convertToShares(maxAssets, false);
+    maxAssets == 0 || maxAssets == type(uint256).max
+      ? maxAssets
+      : _convertToShares(maxAssets, false);
   }
 
   /**
@@ -232,7 +234,6 @@ abstract contract VaultBase is
     IERC20Upgradeable(_asset()).safeTransferFrom(msg.sender, address(this), assets);
     return _depositInternal(assets, receiver);
   }
-
 
   /**
    * @dev Returns the maximum amount of assets that can be deposited for a given receiver.

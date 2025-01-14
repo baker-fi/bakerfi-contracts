@@ -87,7 +87,7 @@ abstract contract StrategySupplyBase is IStrategy, ReentrancyGuard, Ownable {
   /**
    * @inheritdoc IStrategy
    */
-  function harvest() onlyOwner external returns (int256 balanceChange) {
+  function harvest() external onlyOwner returns (int256 balanceChange) {
     // Get Balance
     uint256 newBalance = getBalance();
 
