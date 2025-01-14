@@ -179,41 +179,6 @@ describeif(network.name === 'hardhat')('Vault Router Dispatch', function () {
     expect(amount).to.equal(ethers.parseUnits('1', 18));
   });
 
-  it('Dispatch permit', async function () {
-    const vaultRouterMock = await deployVaultRouterMockFunction();
-    let iface = new ethers.Interface(VaultRouterABI);
-    const commands = [
-      [
-        VAULT_ROUTER_COMMAND_ACTIONS.PULL_TOKEN_WITH_PERMIT,
-        '0x' +
-          iface
-            .encodeFunctionData('pullTokenWithPermit', [
-              '0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e',
-              ethers.parseUnits('1', 18),
-              '0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e',
-              168000000,
-              1,
-              '0x0000000000000000000000000000000000000000000000000000000000000003',
-              '0x0000000000000000000000000000000000000000000000000000000000000003',
-            ])
-            .slice(10),
-      ],
-    ];
-    await vaultRouterMock.execute(commands);
-    const callInput = await vaultRouterMock.callInput();
-    const [token, amount, owner, deadline, v, r, s] = ethers.AbiCoder.defaultAbiCoder().decode(
-      ['address', 'uint256', 'address', 'uint256', 'uint8', 'bytes32', 'bytes32'],
-      callInput,
-    );
-    expect(token).to.equal('0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e');
-    expect(amount).to.equal(ethers.parseUnits('1', 18));
-    expect(owner).to.equal('0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e');
-    expect(deadline).to.equal(168000000);
-    expect(v).to.equal(1);
-    expect(r).to.equal('0x0000000000000000000000000000000000000000000000000000000000000003');
-    expect(s).to.equal('0x0000000000000000000000000000000000000000000000000000000000000003');
-  });
-
   it('Dispatch depositVault', async function () {
     const vaultRouterMock = await deployVaultRouterMockFunction();
     let iface = new ethers.Interface(VaultRouterABI);

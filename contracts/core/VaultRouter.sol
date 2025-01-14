@@ -11,7 +11,6 @@ import { ISwapHandler } from "../interfaces/core/ISwapHandler.sol";
 import { UseTokenActions } from "./hooks/UseTokenActions.sol";
 import { Commands } from "./router/Commands.sol";
 import { MultiCommand } from "./MultiCommand.sol";
-import { UsePermitTransfers } from "./hooks/UsePermitTransfers.sol";
 import { IERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol";
 
 /**
@@ -35,7 +34,6 @@ import { IERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/IER
 contract VaultRouter is
   UseUnifiedSwapper,
   UseTokenActions,
-  UsePermitTransfers,
   UseIERC4626,
   UseWETH,
   MultiCommand
@@ -118,8 +116,6 @@ contract VaultRouter is
       output = _handleWrapETH(data, callStack, inputMapping);
     } else if (actionToExecute == Commands.UNWRAP_ETH) {
       output = _handleUnwrapETH(data, callStack, inputMapping);
-    } else if (actionToExecute == Commands.PULL_TOKEN_WITH_PERMIT) {
-      output = _handlePullTokenWithPermit(data, callStack, inputMapping);
     } else if (actionToExecute == Commands.ERC4626_VAULT_DEPOSIT) {
       output = _handleVaultDeposit(data, callStack, inputMapping, outputMapping);
     } else if (actionToExecute == Commands.ERC4626_VAULT_MINT) {
@@ -346,38 +342,7 @@ contract VaultRouter is
     unwrapETH(amount);
     return "";
   }
-  /**
-   * @notice Handles the pull token with permit command.
-   * @param data The encoded pull token with permit parameters.
-   * @param callStack The call stack.
-   * @param inputMapping The input mapping.
-   * @return output The encoded output values.
-   */
-  function _handlePullTokenWithPermit(
-    bytes calldata data,
-    uint256[] memory callStack,
-    uint32 inputMapping
-  ) private returns (bytes memory) {
-    IERC20Permit token;
-    uint256 amount;
-    address owner;
-    uint256 deadline;
-    uint8 v;
-    bytes32 r;
-    bytes32 s;
-    assembly {
-      token := calldataload(data.offset)
-      amount := calldataload(add(data.offset, 0x20))
-      owner := calldataload(add(data.offset, 0x40))
-      deadline := calldataload(add(data.offset, 0x60))
-      v := calldataload(add(data.offset, 0x80))
-      r := calldataload(add(data.offset, 0xa0))
-      s := calldataload(add(data.offset, 0xc0))
-    }
-    amount = Commands.pullInputParam(callStack, amount, inputMapping, 1);
-    pullTokensWithPermit(token, amount, owner, deadline, v, r, s);
-    return "";
-  }
+
   /**
    * @notice Handles the deposit to vault command.
    * @param data The encoded deposit to vault parameters.
