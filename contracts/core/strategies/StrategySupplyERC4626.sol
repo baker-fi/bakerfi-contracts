@@ -45,20 +45,20 @@ contract StrategySupplyERC4626 is StrategySupplyBase {
    * @inheritdoc StrategySupplyBase
    */
   function _deploy(uint256 amount) internal override returns (uint256) {
-    return _vault.deposit(amount, address(this));
+    return _vault.convertToAssets(_vault.deposit(amount, address(this)));
   }
 
   /**
    * @inheritdoc StrategySupplyBase
    */
   function _undeploy(uint256 amount) internal override returns (uint256) {
-    return _vault.withdraw(amount, address(this), address(this));
+    return _vault.convertToAssets(_vault.withdraw(amount, address(this), address(this)));
   }
 
   /**
    * @inheritdoc StrategySupplyBase
    */
   function _getBalance() internal view override returns (uint256) {
-    return _vault.balanceOf(address(this));
+    return _vault.convertToAssets(_vault.balanceOf(address(this)));
   }
 }
