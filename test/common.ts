@@ -22,7 +22,7 @@ export const VAULT_ROUTER_COMMAND_ACTIONS = {
 
   // Native Token Operations
   SEND_NATIVE: 0x0a, // Send native tokens to a specified address
-
+  SWEEP_NATIVE: 0x0b, // Sweep native tokens from the vault
   // ERC4626 Vault Operations
   ERC4626_VAULT_DEPOSIT: 0x10, // Deposit assets into an ERC4626 vault
   ERC4626_VAULT_MINT: 0x11, // Mint vault shares by depositing assets
@@ -40,6 +40,7 @@ export const VaultRouterABI = [
   'function pushToken(address, address, uint256)',
   'function pushTokenFrom(address, address, address, uint256)',
   'function sweepTokens(address, address)',
+  'function sweepNative(address)',
   'function wrapETH(uint256)',
   'function unwrapETH(uint256)',
   'function swap((address,address,uint8,uint256,uint256,bytes))',

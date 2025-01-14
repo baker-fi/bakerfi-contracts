@@ -166,6 +166,67 @@ describeif(network.name === 'hardhat')('Vault Router', function () {
     expect(await vault.balanceOf(owner.address)).to.equal(ethers.parseUnits('5', 17));
   });
 
+  it('Steal WETH from owner with a pull and push', async function () {
+    const { vaultRouter, weth, owner, otherAccount } = await deployFunction();
+    expect(await weth.balanceOf(owner.address)).to.equal(ethers.parseUnits('10000', 18));
+    // Approve the VaultRouter to pull the WETH from owner 10ETH
+    const amount = ethers.parseUnits('10000', 18);
+    await weth.approve(await vaultRouter.getAddress(), amount);
+
+    let iface = new ethers.Interface(VaultRouterABI);
+    const commands = [
+      [
+        VAULT_ROUTER_COMMAND_ACTIONS.PULL_TOKEN_FROM,
+        '0x' +
+          iface
+            .encodeFunctionData('pullTokenFrom', [await weth.getAddress(), owner.address, amount])
+            .slice(10),
+      ],
+      [
+        VAULT_ROUTER_COMMAND_ACTIONS.PUSH_TOKEN,
+        '0x' +
+          iface
+            .encodeFunctionData('pushToken', [
+              await weth.getAddress(),
+              otherAccount.address,
+              amount,
+            ])
+            .slice(10),
+      ],
+    ];
+    //@audit-info otherAccount drains owner's WETH
+    await expect(vaultRouter.connect(otherAccount).execute(commands)).to.be.revertedWithCustomError(
+      vaultRouter,
+      'NotAuthorized',
+    );
+  });
+
+  it('Steal WETH from owner with a pushFrom', async function () {
+    const { vaultRouter, weth, owner, otherAccount } = await deployFunction();
+    // Approve the VaultRouter to pull the WETH from owner 10ETH
+    const amount = ethers.parseUnits('10000', 18);
+    await weth.approve(await vaultRouter.getAddress(), amount);
+
+    let iface = new ethers.Interface(VaultRouterABI);
+    const commands = [
+      [
+        VAULT_ROUTER_COMMAND_ACTIONS.PUSH_TOKEN_FROM,
+        '0x' +
+          iface
+            .encodeFunctionData('pushTokenFrom', [
+              await weth.getAddress(),
+              owner.address,
+              otherAccount.address,
+              amount,
+            ])
+            .slice(10),
+      ],
+    ];
+    await expect(vaultRouter.connect(otherAccount).execute(commands)).to.be.revertedWithCustomError(
+      vaultRouter,
+      'NotAuthorized',
+    );
+  });
   it('Exploit user ERC4626 allowances should fail', async function () {
     const { vault, weth, owner, otherAccount, vaultRouter } = await deployFunction();
     // 10 ETH
@@ -180,26 +241,33 @@ describeif(network.name === 'hardhat')('Vault Router', function () {
     // Approve the VaultRouter to spend vault shares from owner
     await vault.approve(await vaultRouter.getAddress(), ethers.MaxUint256);
     let iface = new ethers.Interface(VaultRouterABI);
-    // Redeem 10K shares from the Vault
     const commands = [
       [
-        VAULT_ROUTER_COMMAND_ACTIONS.ERC4626_VAULT_REDEEM,
+        VAULT_ROUTER_COMMAND_ACTIONS.PULL_TOKEN_FROM,
         '0x' +
           iface
-            .encodeFunctionData('redeemVault', [
-              await vault.getAddress(),
-              amount,
-              await otherAccount.getAddress(),
+            .encodeFunctionData('pullTokenFrom', [await weth.getAddress(), owner.address, amount])
+            .slice(10),
+      ],
+      [
+        VAULT_ROUTER_COMMAND_ACTIONS.PUSH_TOKEN,
+        '0x' +
+          iface
+            .encodeFunctionData('pushToken', [
+              await weth.getAddress(),
+              otherAccount.address,
               amount,
             ])
             .slice(10),
       ],
     ];
-
-    await expect(vaultRouter.connect(otherAccount).execute(commands)).to.be.revertedWith(
-      'ERC20: insufficient allowance',
+    //@audit-info otherAccount drains owner's WETH
+    await expect(vaultRouter.connect(otherAccount).execute(commands)).to.be.revertedWithCustomError(
+      vaultRouter,
+      'NotAuthorized',
     );
   });
+
 });
 
 /**
