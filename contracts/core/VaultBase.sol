@@ -183,8 +183,12 @@ abstract contract VaultBase is
    * @dev Returns the maximum number of shares that can be minted.
    * @return maxShares The maximum number of shares.
    */
-  function maxMint(address) external pure override returns (uint256 maxShares) {
-    return type(uint256).max;
+  function maxMint(address receiver) external view override returns (uint256 maxShares) {
+    uint256 maxAssets = _maxDepositFor(receiver);
+    maxShares = this.convertToShares(maxAssets);
+    maxAssets == 0 || maxAssets == type(uint256).max
+      ? maxAssets
+      : _convertToShares(maxAssets, false);
   }
 
   /**
@@ -193,7 +197,7 @@ abstract contract VaultBase is
    * @return assets The amount of assets corresponding to the shares.
    */
   function previewMint(uint256 shares) external view override returns (uint256 assets) {
-    assets = this.convertToAssets(shares);
+    assets = _convertToAssets(shares, true);
   }
 
   /**
@@ -216,8 +220,8 @@ abstract contract VaultBase is
    * @dev Returns the maximum amount of assets that can be deposited.
    * @return maxAssets The maximum amount of assets.
    */
-  function maxDeposit(address) external pure override returns (uint256 maxAssets) {
-    return type(uint256).max;
+  function maxDeposit(address receiver) external view override returns (uint256 maxAssets) {
+    return _maxDepositFor(receiver);
   }
 
   /**
@@ -260,6 +264,39 @@ abstract contract VaultBase is
   }
 
   /**
+   * @dev Returns the maximum amount of assets that can be deposited for a given receiver.
+   * @param receiver The address of the receiver.
+   * @return maxAssets The maximum amount of assets that can be deposited.
+   */
+  /**
+   * @dev Calculates the maximum amount of assets that can be deposited for a given receiver.
+   *
+   * This function first retrieves the maximum deposit limit set for the vault.
+   * It then calculates the current value of assets held by the receiver in terms of the vault's token.
+   *
+   * The steps are as follows:
+   * 1. Retrieve the maximum deposit limit using the `getMaxDeposit()` function.
+   * 2. Calculate the total value of assets held by the receiver by multiplying their share balance
+   *    (obtained from `balanceOf(receiver)`) by a constant `_ONE`, and then dividing by the
+   *    current token-to-asset exchange rate (obtained from `tokenPerAsset()`).
+   * 3. If the maximum deposit limit is greater than zero, check if the current value of assets held
+   *    by the receiver exceeds this limit. If it does, return 0, indicating no additional deposits
+   *    can be made. Otherwise, return the difference between the maximum deposit limit and the
+   *    current value of assets held by the receiver.
+   * 4. If the maximum deposit limit is zero, return the maximum possible value for a uint256,
+   *    indicating that there is no limit on deposits.
+   */
+  function _maxDepositFor(address receiver) internal view returns (uint256) {
+    uint256 maxDepositLocal = getMaxDeposit();
+    uint256 depositInAssets = (balanceOf(receiver) * _ONE) / tokenPerAsset();
+    if (paused()) return 0;
+    if (maxDepositLocal > 0) {
+      return depositInAssets > maxDepositLocal ? 0 : maxDepositLocal - depositInAssets;
+    }
+    return type(uint256).max;
+  }
+
+  /**
    * @dev Internal function to handle the deposit logic.
    * @param assets The amount of assets to deposit.
    * @param receiver The address of the receiver.
@@ -276,13 +313,9 @@ abstract contract VaultBase is
       revert InvalidAssetsState();
     }
 
-    // Check if deposit exceeds the maximum allowed per wallet
-    uint256 maxDepositLocal = getMaxDeposit();
-    if (maxDepositLocal > 0) {
-      uint256 depositInAssets = (balanceOf(receiver) * _ONE()) / tokenPerAsset();
-      uint256 newBalance = assets + depositInAssets;
-      if (newBalance > maxDepositLocal) revert MaxDepositReached();
-    }
+    uint256 maxDepositForReceiver = _maxDepositFor(receiver);
+    // Check if deposit exceeds the maximum allowed per the receiver
+    if (maxDepositForReceiver == 0 || assets > maxDepositForReceiver) revert MaxDepositReached();
 
     uint256 deployedAmount = _deploy(assets);
 
@@ -307,6 +340,7 @@ abstract contract VaultBase is
    * @return maxAssets The maximum amount of assets that can be withdrawn.
    */
   function maxWithdraw(address shareHolder) external view override returns (uint256 maxAssets) {
+    if (paused()) return 0;
     maxAssets = this.convertToAssets(balanceOf(shareHolder));
   }
 
@@ -316,7 +350,8 @@ abstract contract VaultBase is
    * @return shares The number of shares corresponding to the assets.
    */
   function previewWithdraw(uint256 assets) external view override returns (uint256 shares) {
-    shares = this.convertToShares(assets);
+    uint256 fee = assets.mulDivUp(getWithdrawalFee(), PERCENTAGE_PRECISION);
+    shares = _convertToShares(assets - fee, true);
   }
 
   /**
@@ -366,6 +401,7 @@ abstract contract VaultBase is
    * @return maxShares The maximum number of shares that can be redeemed.
    */
   function maxRedeem(address shareHolder) external view override returns (uint256 maxShares) {
+    if (paused()) return 0;
     maxShares = balanceOf(shareHolder);
   }
 
@@ -375,7 +411,9 @@ abstract contract VaultBase is
    * @return assets The amount of assets corresponding to the shares.
    */
   function previewRedeem(uint256 shares) external view override returns (uint256 assets) {
-    assets = this.convertToAssets(shares);
+    assets = _convertToAssets(shares, true);
+    uint256 fee = assets.mulDivUp(getWithdrawalFee(), PERCENTAGE_PRECISION);
+    assets -= fee;
   }
 
   /**
@@ -471,8 +509,17 @@ abstract contract VaultBase is
    * @return shares The calculated number of shares.
    */
   function convertToShares(uint256 assets) external view override returns (uint256 shares) {
+    return _convertToShares(assets, false);
+  }
+
+  /**
+   * @dev Internal function to convert assets to shares.
+   * @param assets The amount of assets to be converted to shares.
+   * @return shares The calculated number of shares.
+   */
+  function _convertToShares(uint256 assets, bool roundUp) internal view returns (uint256 shares) {
     Rebase memory total = Rebase(totalAssets(), totalSupply());
-    shares = total.toBase(assets, false);
+    shares = total.toBase(assets, roundUp);
   }
 
   /**
@@ -481,8 +528,12 @@ abstract contract VaultBase is
    * @return assets The calculated amount of assets.
    */
   function convertToAssets(uint256 shares) external view override returns (uint256 assets) {
+    return _convertToAssets(shares, false);
+  }
+
+  function _convertToAssets(uint256 shares, bool roundUp) internal view returns (uint256 assets) {
     Rebase memory total = Rebase(totalAssets(), totalSupply());
-    assets = total.toElastic(shares, false);
+    assets = total.toElastic(shares, roundUp);
   }
 
   /**
