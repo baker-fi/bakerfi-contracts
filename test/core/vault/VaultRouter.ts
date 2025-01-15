@@ -32,6 +32,7 @@ describeif(network.name === 'hardhat')('Vault Router', function () {
               await vault.getAddress(),
               ethers.parseUnits('1', 18),
               owner.address,
+              ethers.parseUnits('1', 18),
             ])
             .slice(10),
       ],
@@ -77,6 +78,7 @@ describeif(network.name === 'hardhat')('Vault Router', function () {
               await vault.getAddress(),
               ethers.parseUnits('1', 18),
               owner.address,
+              ethers.parseUnits('1', 18),
             ])
             .slice(10),
       ],
@@ -109,6 +111,7 @@ describeif(network.name === 'hardhat')('Vault Router', function () {
               await vault.getAddress(),
               ethers.parseUnits('1', 18),
               owner.address,
+              ethers.parseUnits('1', 18),
             ])
             .slice(10),
       ],
@@ -127,6 +130,7 @@ describeif(network.name === 'hardhat')('Vault Router', function () {
               await vault.getAddress(),
               ethers.parseUnits('5', 17),
               await vaultRouter.getAddress(),
+              ethers.parseUnits('5', 17),
             ])
             .slice(10),
       ],

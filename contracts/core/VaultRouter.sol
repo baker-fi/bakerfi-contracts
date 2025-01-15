@@ -360,13 +360,15 @@ contract VaultRouter is
     IERC4626 vault;
     uint256 assets;
     address receiver;
+    uint256 minShares;
     assembly {
       vault := calldataload(data.offset)
       assets := calldataload(add(data.offset, 0x20))
       receiver := calldataload(add(data.offset, 0x40))
+      minShares := calldataload(add(data.offset, 0x60))
     }
     assets = Commands.pullInputParam(callStack, assets, inputMapping, 1);
-    uint256 shares = depositVault(vault, assets, receiver);
+    uint256 shares = depositVault(vault, assets, receiver, minShares);
     Commands.pushOutputParam(callStack, shares, outputMapping, 1);
     return abi.encodePacked(shares);
   }
@@ -387,13 +389,15 @@ contract VaultRouter is
     IERC4626 vault;
     uint256 shares;
     address receiver;
+    uint256 maxAssets;
     assembly {
       vault := calldataload(data.offset)
       shares := calldataload(add(data.offset, 0x20))
       receiver := calldataload(add(data.offset, 0x40))
+      maxAssets := calldataload(add(data.offset, 0x60))
     }
     shares = Commands.pullInputParam(callStack, shares, inputMapping, 1);
-    uint256 assets = mintVault(vault, shares, receiver);
+    uint256 assets = mintVault(vault, shares, receiver, maxAssets);
     Commands.pushOutputParam(callStack, assets, outputMapping, 1);
     return abi.encodePacked(assets);
   }
@@ -415,13 +419,15 @@ contract VaultRouter is
     uint256 shares;
     address receiver;
     address owner = msg.sender;
+    uint256 minAssets;
     assembly {
       vault := calldataload(data.offset)
       shares := calldataload(add(data.offset, 0x20))
       receiver := calldataload(add(data.offset, 0x40))
+      minAssets := calldataload(add(data.offset, 0x60))
     }
     shares = Commands.pullInputParam(callStack, shares, inputMapping, 1);
-    uint256 assets = redeemVault(vault, shares, receiver, owner);
+    uint256 assets = redeemVault(vault, shares, receiver, owner, minAssets);
     Commands.pushOutputParam(callStack, assets, outputMapping, 1);
     return abi.encodePacked(assets);
   }
@@ -443,13 +449,15 @@ contract VaultRouter is
     uint256 assets;
     address receiver;
     address owner = msg.sender;
+    uint256 maxShares;
     assembly {
       vault := calldataload(data.offset)
       assets := calldataload(add(data.offset, 0x20))
       receiver := calldataload(add(data.offset, 0x40))
+      maxShares := calldataload(add(data.offset, 0x60))
     }
     assets = Commands.pullInputParam(callStack, assets, inputMapping, 1);
-    uint256 shares = withdrawVault(vault, assets, receiver, owner);
+    uint256 shares = withdrawVault(vault, assets, receiver, owner, maxShares);
     Commands.pushOutputParam(callStack, shares, outputMapping, 1);
     return abi.encodePacked(shares);
   }
