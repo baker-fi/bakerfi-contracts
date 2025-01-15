@@ -25,7 +25,12 @@ task('router:deposit', 'Deposit')
           VAULT_ROUTER_COMMAND_ACTIONS.ERC4626_VAULT_DEPOSIT,
           '0x' +
             iface
-              .encodeFunctionData('depositVault', [vaultAddress, amount, owner.address])
+              .encodeFunctionData('depositVault', [
+                vaultAddress,
+                amount,
+                owner.address,
+                amount * (1 + 0.10),
+              ])
               .slice(10),
         ],
       ];
@@ -66,6 +71,7 @@ task('router:withdraw', 'Deposit')
                 amount,
                 vaultRouterAddress,
                 owner.address,
+                amount * (1 + 0.10),
               ])
               .slice(10),
         ],
