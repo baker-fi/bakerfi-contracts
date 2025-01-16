@@ -517,10 +517,13 @@ describeif(network.name === 'hardhat')('MultiStrategy Vault', function () {
         9090909090909090910n,
       );
     expect(await vault.totalAssets()).to.equal(11000n * 10n ** 18n);
-    expect(await vault.tokenPerAsset()).to.equal(909917355371900826n);
+    // Increase by 10% de token per asset
+    expect(await vault.tokenPerAsset()).to.equal(1099000908265213442n);
     const balanceFees =
-      ((await vault.balanceOf(otherAccount.address)) * 10n ** 18n) / (await vault.tokenPerAsset());
-    expect(balanceFees).to.equal(9990917347865576754n);
+      (BigInt(await vault.balanceOf(otherAccount.address)) *
+        BigInt(await vault.tokenPerAsset())) /
+      10n ** 18n;
+    expect(balanceFees).to.equal(9990917347865576746n);
   });
 
   it('Deposit Reverts if the amount is 0', async () => {

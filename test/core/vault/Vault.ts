@@ -113,7 +113,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
     expect(await vault.totalAssets()).to.equal(8961040769649332196n);
     expect((await strategy.getPosition([0, 0]))[2]).to.equal(782042601n);
     expect(await vault.totalSupply()).to.equal(8961040768967475200n);
-    expect(await vault.tokenPerAsset()).to.equal(999999999923908727n);
+    expect(await vault.tokenPerAsset()).to.equal(1000000000076091272n);
   });
 
   it('Deposit - 0 ETH', async function () {

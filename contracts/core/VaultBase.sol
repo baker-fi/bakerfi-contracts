@@ -209,7 +209,14 @@ abstract contract VaultBase is
   function mint(
     uint256 shares,
     address receiver
-  ) external override nonReentrant whenNotPaused onlyReceiverWhiteListed(receiver) returns (uint256 assets) {
+  )
+    external
+    override
+    nonReentrant
+    whenNotPaused
+    onlyReceiverWhiteListed(receiver)
+    returns (uint256 assets)
+  {
     if (shares == 0) revert InvalidAmount();
     assets = this.convertToAssets(shares);
     IERC20Upgradeable(_asset()).safeTransferFrom(msg.sender, address(this), assets);
@@ -240,7 +247,14 @@ abstract contract VaultBase is
    */
   function depositNative(
     address receiver
-  ) external payable nonReentrant whenNotPaused onlyReceiverWhiteListed(receiver) returns (uint256 shares) {
+  )
+    external
+    payable
+    nonReentrant
+    whenNotPaused
+    onlyReceiverWhiteListed(receiver)
+    returns (uint256 shares)
+  {
     if (msg.value == 0) revert InvalidAmount();
     if (_asset() != wETHA()) revert InvalidAsset();
     //  Wrap ETH
@@ -257,7 +271,14 @@ abstract contract VaultBase is
   function deposit(
     uint256 assets,
     address receiver
-  ) external override nonReentrant whenNotPaused onlyReceiverWhiteListed(receiver) returns (uint256 shares) {
+  )
+    external
+    override
+    nonReentrant
+    whenNotPaused
+    onlyReceiverWhiteListed(receiver)
+    returns (uint256 shares)
+  {
     if (assets == 0) revert InvalidAmount();
     IERC20Upgradeable(_asset()).safeTransferFrom(msg.sender, address(this), assets);
     return _depositInternal(assets, receiver);
@@ -288,7 +309,7 @@ abstract contract VaultBase is
    */
   function _maxDepositFor(address receiver) internal view returns (uint256) {
     uint256 maxDepositLocal = getMaxDeposit();
-    uint256 depositInAssets = (balanceOf(receiver) * _ONE()) / tokenPerAsset();
+    uint256 depositInAssets = _convertToAssets(balanceOf(receiver), false);
     if (paused()) return 0;
     if (maxDepositLocal > 0) {
       return depositInAssets > maxDepositLocal ? 0 : maxDepositLocal - depositInAssets;
@@ -555,7 +576,7 @@ abstract contract VaultBase is
       return _ONE();
     }
 
-    return (totalSupply() * _ONE()) / totalAssetsValue;
+    return (totalAssetsValue * _ONE()) / totalSupply();
   }
 
   /**
