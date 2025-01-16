@@ -15,7 +15,7 @@ import { MathLibrary } from "../libraries/MathLibrary.sol";
 import { VaultSettings } from "./VaultSettings.sol";
 import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import { ADMIN_ROLE, VAULT_MANAGER_ROLE, PAUSER_ROLE } from "./Constants.sol";
-
+import { IERC20MetadataUpgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
 /**
  * @title BakerFi Vault Base 🧑‍🍳
  *
@@ -54,7 +54,6 @@ abstract contract VaultBase is
   error NoAllowance();
 
   uint256 private constant _MINIMUM_SHARE_BALANCE = 1000;
-  uint256 private constant _ONE = 1e18;
 
   /**
    * @dev Modifier to restrict access to whitelisted accounts.
@@ -105,6 +104,27 @@ abstract contract VaultBase is
     _setupRole(ADMIN_ROLE, initialOwner);
     _setupRole(VAULT_MANAGER_ROLE, initialOwner);
     _setupRole(PAUSER_ROLE, initialOwner);
+  }
+
+  /**
+   * @dev Returns the decimals of the share asset.
+   * @return The decimals of the asset.
+   */
+  function decimals()
+    public
+    view
+    override(ERC20Upgradeable, IERC20MetadataUpgradeable)
+    returns (uint8)
+  {
+    return ERC20Upgradeable(_asset()).decimals();
+  }
+
+  /**
+   * @dev Returns the decimals of the share asset.
+   * @return The decimals of the asset.
+   */
+  function _ONE() private view returns (uint256) {
+    return 10 ** decimals();
   }
 
   /**
@@ -268,7 +288,7 @@ abstract contract VaultBase is
    */
   function _maxDepositFor(address receiver) internal view returns (uint256) {
     uint256 maxDepositLocal = getMaxDeposit();
-    uint256 depositInAssets = (balanceOf(receiver) * _ONE) / tokenPerAsset();
+    uint256 depositInAssets = (balanceOf(receiver) * _ONE()) / tokenPerAsset();
     if (paused()) return 0;
     if (maxDepositLocal > 0) {
       return depositInAssets > maxDepositLocal ? 0 : maxDepositLocal - depositInAssets;
@@ -532,10 +552,10 @@ abstract contract VaultBase is
     uint256 totalAssetsValue = totalAssets();
 
     if (totalSupply() == 0 || totalAssetsValue == 0) {
-      return _ONE;
+      return _ONE();
     }
 
-    return (totalSupply() * _ONE) / totalAssetsValue;
+    return (totalSupply() * _ONE()) / totalAssetsValue;
   }
 
   /**

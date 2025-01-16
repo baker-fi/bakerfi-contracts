@@ -9,7 +9,6 @@ import { IMorpho, MarketParams, Id } from "@morpho-org/morpho-blue/src/interface
 import { MarketParamsLib } from "@morpho-org/morpho-blue/src/libraries/MarketParamsLib.sol";
 import { MorphoLib } from "@morpho-org/morpho-blue/src/libraries/periphery/MorphoLib.sol";
 import { MorphoBalancesLib } from "@morpho-org/morpho-blue/src/libraries/periphery/MorphoBalancesLib.sol";
-import { SYSTEM_DECIMALS } from "../../core/Constants.sol";
 import { MathLibrary } from "../../libraries/MathLibrary.sol";
 import { SharesMathLib } from "@morpho-org/morpho-blue/src/libraries/SharesMathLib.sol";
 
@@ -120,16 +119,8 @@ contract StrategyLeverageMorphoBlue is Initializable, StrategyLeverage {
     returns (uint256 collateralBalance, uint256 debtBalance)
   {
     Id marketId = _marketParams.id();
-
-    uint256 totalSupplyAssets = _morpho.collateral(marketId, address(this));
-    // !Important this returns the round up quantity
-    uint256 totalBorrowAssets = _morpho.expectedBorrowAssets(_marketParams, address(this));
-
-    uint8 debtDecimals = ERC20(_marketParams.loanToken).decimals();
-    uint8 collateralDecimals = ERC20(_marketParams.collateralToken).decimals();
-
-    debtBalance = totalBorrowAssets.toDecimals(debtDecimals, SYSTEM_DECIMALS);
-    collateralBalance = totalSupplyAssets.toDecimals(collateralDecimals, SYSTEM_DECIMALS);
+    collateralBalance = _morpho.collateral(marketId, address(this));
+    debtBalance = _morpho.expectedBorrowAssets(_marketParams, address(this));
   }
 
   /**

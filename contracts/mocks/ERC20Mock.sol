@@ -6,6 +6,8 @@ import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { ERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 
 contract ERC20Mock is ERC20, ERC20Permit, Ownable {
+  uint8 private _decimals;
+
   constructor(
     string memory name,
     string memory symbol,
@@ -14,5 +16,14 @@ contract ERC20Mock is ERC20, ERC20Permit, Ownable {
   ) ERC20(name, symbol) ERC20Permit(name) Ownable() {
     _mint(owner, _cap);
     _transferOwnership(owner);
+    _decimals = 18;
+  }
+
+  function decimals() public view override returns (uint8) {
+    return _decimals;
+  }
+
+  function setDecimals(uint8 decimals_) external {
+    _decimals = decimals_;
   }
 }

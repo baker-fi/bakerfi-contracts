@@ -27,8 +27,6 @@ uint8 constant MAX_LOOPS = 20; // 100%
  */
 uint256 constant PERCENTAGE_PRECISION = 1e9;
 address constant ETH = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
-uint8 constant SYSTEM_DECIMALS = 18;
-
 bytes32 constant ADMIN_ROLE = 0x00;
 bytes32 constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 bytes32 constant VAULT_MANAGER_ROLE = keccak256("VAULT_MANAGER_ROLE");
