@@ -288,7 +288,7 @@ abstract contract VaultBase is
    */
   function _maxDepositFor(address receiver) internal view returns (uint256) {
     uint256 maxDepositLocal = getMaxDeposit();
-    uint256 depositInAssets = (balanceOf(receiver) * _ONE) / tokenPerAsset();
+    uint256 depositInAssets = (balanceOf(receiver) * _ONE()) / tokenPerAsset();
     if (paused()) return 0;
     if (maxDepositLocal > 0) {
       return depositInAssets > maxDepositLocal ? 0 : maxDepositLocal - depositInAssets;
