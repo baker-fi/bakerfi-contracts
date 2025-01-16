@@ -29,7 +29,7 @@ task('router:deposit', 'Deposit')
                 vaultAddress,
                 amount,
                 owner.address,
-                amount * (1 + 0.10),
+                amount * (1 + 0.1),
               ])
               .slice(10),
         ],
@@ -71,7 +71,7 @@ task('router:withdraw', 'Deposit')
                 amount,
                 vaultRouterAddress,
                 owner.address,
-                amount * (1 + 0.10),
+                amount * (1 + 0.1),
               ])
               .slice(10),
         ],

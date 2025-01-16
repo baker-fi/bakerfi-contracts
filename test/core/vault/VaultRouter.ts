@@ -267,7 +267,6 @@ describeif(network.name === 'hardhat')('Vault Router', function () {
       'NotAuthorized',
     );
   });
-
 });
 
 /**
