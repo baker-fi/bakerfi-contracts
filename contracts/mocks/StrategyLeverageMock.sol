@@ -2,7 +2,6 @@
 pragma solidity ^0.8.24;
 
 import { StrategyLeverage } from "../core/strategies/StrategyLeverage.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import { IOracle } from "../interfaces/core/IOracle.sol";
 
@@ -52,7 +51,7 @@ contract StrategyLeverageMock is Initializable, StrategyLeverage {
     _borrowed -= amount;
   }
 
-  function _withdraw(uint256 amount, address to) internal virtual override {
+  function _withdraw(uint256 amount, address) internal virtual override {
     _supplyed -= amount;
   }
 
