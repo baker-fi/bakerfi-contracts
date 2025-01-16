@@ -35,7 +35,12 @@ describeif(network.name === 'hardhat')('UseIERC4626', function () {
     const { owner, useIERC4626, vault, weth } = await deployFunction();
     await useIERC4626.approveTokenForVault(vault, weth);
     await weth.transfer(await useIERC4626.getAddress(), ethers.parseUnits('1', 18));
-    await useIERC4626.test__depositVault(vault, ethers.parseUnits('1', 18), owner.address);
+    await useIERC4626.test__depositVault(
+      vault,
+      ethers.parseUnits('1', 18),
+      owner.address,
+      ethers.parseUnits('1', 18),
+    );
     expect(await vault.balanceOf(owner.address)).to.equal(ethers.parseUnits('1', 18));
   });
 
@@ -43,7 +48,12 @@ describeif(network.name === 'hardhat')('UseIERC4626', function () {
     const { owner, useIERC4626, vault, weth } = await deployFunction();
     await useIERC4626.approveTokenForVault(vault, weth);
     await weth.transfer(await useIERC4626.getAddress(), ethers.parseUnits('1', 18));
-    await useIERC4626.test__mintVault(vault, ethers.parseUnits('1', 18), owner.address);
+    await useIERC4626.test__mintVault(
+      vault,
+      ethers.parseUnits('1', 18),
+      owner.address,
+      ethers.parseUnits('1', 18),
+    );
     expect(await vault.balanceOf(owner.address)).to.equal(ethers.parseUnits('1', 18));
   });
 
@@ -51,13 +61,19 @@ describeif(network.name === 'hardhat')('UseIERC4626', function () {
     const { owner, useIERC4626, vault, weth } = await deployFunction();
     await useIERC4626.approveTokenForVault(vault, weth);
     await weth.transfer(await useIERC4626.getAddress(), ethers.parseUnits('1', 18));
-    await useIERC4626.test__depositVault(vault, ethers.parseUnits('1', 18), owner.address);
+    await useIERC4626.test__depositVault(
+      vault,
+      ethers.parseUnits('1', 18),
+      owner.address,
+      ethers.parseUnits('1', 18),
+    );
     await vault.approve(await useIERC4626.getAddress(), ethers.parseUnits('1000', 18));
     await useIERC4626.test__withdrawVault(
       vault,
       ethers.parseUnits('1', 18),
       owner.address,
       owner.address,
+      ethers.parseUnits('1', 18),
     );
     expect(await vault.balanceOf(owner.address)).to.equal(0);
   });
@@ -66,13 +82,19 @@ describeif(network.name === 'hardhat')('UseIERC4626', function () {
     const { owner, useIERC4626, vault, weth } = await deployFunction();
     await useIERC4626.approveTokenForVault(vault, weth);
     await weth.transfer(await useIERC4626.getAddress(), ethers.parseUnits('1', 18));
-    await useIERC4626.test__depositVault(vault, ethers.parseUnits('1', 18), owner.address);
+    await useIERC4626.test__depositVault(
+      vault,
+      ethers.parseUnits('1', 18),
+      owner.address,
+      ethers.parseUnits('1', 18),
+    );
     await vault.approve(await useIERC4626.getAddress(), ethers.parseUnits('1000', 18));
     await useIERC4626.test__redeemVault(
       vault,
       ethers.parseUnits('1', 18),
       owner.address,
       owner.address,
+      ethers.parseUnits('1', 18),
     );
     expect(await vault.balanceOf(owner.address)).to.equal(0);
   });

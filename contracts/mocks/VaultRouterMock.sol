@@ -62,18 +62,20 @@ contract VaultRouterMock is VaultRouter {
   function depositVault(
     IERC4626 vault,
     uint256 assets,
-    address receiver
+    address receiver,
+    uint256 minShares
   ) internal override returns (uint256 shares) {
-    callInput = abi.encode(vault, assets, receiver);
+    callInput = abi.encode(vault, assets, receiver, minShares);
     return shares;
   }
 
   function mintVault(
     IERC4626 vault,
     uint256 shares,
-    address receiver
+    address receiver,
+    uint256 maxAssets
   ) internal override returns (uint256 assets) {
-    callInput = abi.encode(vault, shares, receiver);
+    callInput = abi.encode(vault, shares, receiver, maxAssets);
     return assets;
   }
 
@@ -81,9 +83,10 @@ contract VaultRouterMock is VaultRouter {
     IERC4626 vault,
     uint256 shares,
     address receiver,
-    address owner
+    address owner,
+    uint256 minAssets
   ) internal override returns (uint256 assets) {
-    callInput = abi.encode(vault, shares, receiver, owner);
+    callInput = abi.encode(vault, shares, receiver, owner, minAssets);
     return assets;
   }
 
@@ -91,9 +94,10 @@ contract VaultRouterMock is VaultRouter {
     IERC4626 vault,
     uint256 assets,
     address receiver,
-    address owner
+    address owner,
+    uint256 maxShares
   ) internal override returns (uint256 shares) {
-    callInput = abi.encode(vault, assets, receiver, owner);
+    callInput = abi.encode(vault, assets, receiver, owner, maxShares);
     return shares;
   }
 }
