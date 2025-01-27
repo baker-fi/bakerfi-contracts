@@ -3,6 +3,7 @@ import 'hardhat-flat-exporter';
 import 'hardhat-contract-sizer';
 import 'solidity-coverage';
 import 'hardhat-gas-reporter';
+import '@typechain/hardhat'
 import '@nomicfoundation/hardhat-ethers';
 import '@nomicfoundation/hardhat-chai-matchers';
 import '@nomicfoundation/hardhat-toolbox';
@@ -15,6 +16,7 @@ import 'solidity-docgen';
 import './scripts/tasks/';
 import 'hardhat-storage-layout-changes';
 import '@nomiclabs/hardhat-solhint';
+
 
 const devAccounts: HardhatNetworkAccountUserConfig[] = STAGING_ACCOUNTS_PKEYS.map((key) => {
   return { privateKey: key, balance: '1000000000000000000000000' };
@@ -187,10 +189,16 @@ const config: HardhatUserConfig = {
       arbitrumOne: process.env.ARBSCAN_API_KEY || '',
     },
   },
-
   storageLayoutChanges: {
     contracts: ['Vault', 'StrategyLeverageAAVEv3', 'StrategyLeverageMorphoBlue'],
     fullPath: false,
+  },
+  typechain: {
+    outDir: 'src/types',
+    target: 'ethers-v6',
+    alwaysGenerateOverloads: false, // should overloads with full signatures like deposit(uint256) be generated always, even if there are no overloads?
+    dontOverrideCompile: false, // defaults to false
+    externalArtifacts: [], // Add this line
   },
 };
 

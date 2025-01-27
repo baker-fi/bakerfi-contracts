@@ -169,12 +169,13 @@ export abstract class ContractClientBase<ContractTree extends ContractTreeType>
       nonce: await this._provider.getTransactionCount(this.getAddress()),
       chainId: options?.chainId ?? 1,
       ...(await this.buildFeeOptions(options)),
+      gasLimit: 2000000,
     });
     const estimatedGas = await this._provider.estimateGas({
       ...baseTx.toJSON(),
       from: this.getAddress(),
     });
-    baseTx.gasLimit = options?.gasLimit ?? estimatedGas * 2n;
+    baseTx.gasLimit = estimatedGas * 2n;
     const signedTx = await this.sign(baseTx);
     return await this.broadcastTx(signedTx, options);
   }

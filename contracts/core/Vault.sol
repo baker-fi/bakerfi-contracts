@@ -48,7 +48,7 @@ contract Vault is VaultBase {
    * @dev The address of the asset being managed by the strategy.
    */
   address internal _strategyAsset;
-  uint8 private constant _VAULT_VERSION = 3;
+  uint8 private constant _VAULT_VERSION = 4;
 
   using MathLibrary for uint256;
 
@@ -94,6 +94,44 @@ contract Vault is VaultBase {
     _strategy = strategy; // Sets the strategy for the vault
   }
 
+  /**
+   * @dev Initializes the contract with specified parameters.
+   *
+   * This function is designed to be called only once during the contract deployment.
+   * It sets up the initial state of the contract, including ERC20 and ERC20Permit
+   * initializations, ownership transfer, and configuration of the VaultRegistry
+   * and Strategy.
+   *
+   * This initializer function allows the migration from v1.1.1, v1.3.0 to v4.0.0
+   *
+   * @param initialOwner The address that will be set as the initial owner of the contract.
+   * @param tokenName The name of the token.
+   * @param tokenSymbol The symbol of the token.
+   * @param lstrategyAsset The address of the asset.
+   * @param lstrategy The IStrategy contract to be set as the strategy for this contract.
+   * @param lfeeReceiver The address of the fee receiver.
+   *
+   * Emits an {OwnershipTransferred} event and initializes ERC20 and ERC20Permit features.
+   * It also ensures that the initialOwner is a valid address and sets up the VaultRegistry
+   * and Strategy for the contract.
+   */
+  function initializeV4(
+    address initialOwner,
+    string calldata tokenName,
+    string calldata tokenSymbol,
+    address lstrategyAsset,
+    address lstrategy,
+    address lfeeReceiver
+  ) public reinitializer(_VAULT_VERSION) {
+    _initializeBase(initialOwner, tokenName, tokenSymbol, lstrategyAsset);
+    _initUseWETH(lstrategyAsset);
+    _strategy = IStrategy(lstrategy);
+    _strategyAsset = lstrategyAsset;
+    _setFeeReceiver(lfeeReceiver);
+    _setMaxDeposit(0);
+    _setPerformanceFee(0);
+    _setWithdrawalFee(0);
+  }
   /**
    * @dev Function to rebalance the strategy, prevent a liquidation and pay fees
    * to the protocol by minting shares to the fee receiver.

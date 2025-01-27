@@ -19,6 +19,7 @@ export type BakerDeployConfig = {
   proxyAdmin?: string;
   serviceRegistry: string;
   flashLender?: string;
+  oracle?: string;
   collateralOracle?: string;
   debtOracle?: string;
   strategy?: string;

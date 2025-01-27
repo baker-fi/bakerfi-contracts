@@ -2,12 +2,14 @@
   "name": "@baker-fi/sdk",
   "version": "1.4.0-beta.3",
   "description": "",
-  "main": "dist/src/index.js",
-  "module": "dist/src/index.js",
+  "main": "dist/src/types/index.js",
+  "module": "dist/src/types/index.js",
   "files": [
     "files",
     "artifacts/contracts",
     "dist",
+    "src/contract-blob.json",
+    "src/contract-selectors.json",
     "README.md"
   ],
   "scripts": {
@@ -54,7 +56,8 @@
     "@openzeppelin/contracts": "^4.9.2",
     "@openzeppelin/contracts-upgradeable": "^4.9.2",
     "@pythnetwork/price-service-client": "^1.9.0",
-    "@taikai/dappkit-launchpad": "^0.0.19",
+    "@typechain/ethers-v6": "^0.5.1",
+    "@typechain/hardhat": "^9.1.0",
     "@types/chai": "^4.3.19",
     "@types/mocha": "^10.0.7",
     "@types/node": "^20.3.2",
@@ -74,10 +77,10 @@
     "prettier-plugin-solidity": "^1.4.1",
     "solhint-plugin-prettier": "^0.0.5",
     "solidity-docgen": "^0.6.0-beta.36",
-    "ts-node": "^10.9.1"
+    "ts-node": "^10.9.1",
+    "typechain": "^8.3.2"
   },
   "dependencies": {
-    "@taikai/dappkit": "^2.3.3",
     "ethers-decode-error": "^2.1.2"
   },
   "contractSizer": {

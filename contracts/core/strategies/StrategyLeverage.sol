@@ -163,6 +163,18 @@ abstract contract StrategyLeverage is
   }
 
   /**
+   * @dev Internal function to upgrade from v1.1.0 to v4.0.0
+   *
+   * Set the deployed assets and reset the pending amount and flash loan args hash
+   * @param deployedAssets The amount of assets deployed in the strategy
+   */
+  function _upgradeFromV1(uint256 deployedAssets) internal {
+    _deployedAssets = deployedAssets;
+    _pendingAmount = 0;
+    _flashLoanArgsHash = 0;
+  }
+
+  /**
    * @dev Fallback function to receive Ether.
    *
    *  This function is automatically called when the contract receives Ether
@@ -881,11 +893,11 @@ abstract contract StrategyLeverage is
     revert InvalidOwner();
   }
 
-  function getCollateralOracle() public view returns (address oracle) {
+  function getOracle() public view returns (address oracle) {
     oracle = address(_oracle);
   }
 
-  function setDebtOracle(IOracle oracle) public onlyGovernor {
+  function setOracle(IOracle oracle) public onlyGovernor {
     _oracle = oracle;
   }
 

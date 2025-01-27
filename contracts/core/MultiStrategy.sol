@@ -7,6 +7,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import { VAULT_MANAGER_ROLE } from "./Constants.sol";
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+
 /**
  * @title MultiStrategy
 
@@ -16,11 +17,7 @@ import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/
  * @notice This contract is used to manage multiple strategies. The rebalancing is done based on the weights of the
  * strategies.
  */
-abstract contract MultiStrategy is
-  Initializable,
-  AccessControlUpgradeable,
-  ReentrancyGuardUpgradeable
-{
+abstract contract MultiStrategy is Initializable, ReentrancyGuardUpgradeable {
   /**
    * @notice Emitted when a new strategy is added to the MultiStrategy contract.
    * @param strategy The address of the added strategy.
@@ -90,7 +87,7 @@ abstract contract MultiStrategy is
    * @param iweights The new weights to set.
    * @dev Reverts if the weights array length is not equal to the strategies array length.
    */
-  function setWeights(uint16[] memory iweights) public onlyRole(VAULT_MANAGER_ROLE) {
+  function _setWeights(uint16[] memory iweights) internal {
     if (iweights.length != _strategies.length) revert InvalidWeightsLength();
     _weights = iweights;
     _totalWeight = 0;
@@ -112,7 +109,7 @@ abstract contract MultiStrategy is
    * @param strategy The StrategyParams containing the strategy and its weight.
    * @dev Reverts if the strategy address is zero or if the weight is zero.
    */
-  function addStrategy(IStrategy strategy) external nonReentrant onlyRole(VAULT_MANAGER_ROLE) {
+  function _addStrategy(IStrategy strategy) internal nonReentrant {
     if (address(strategy) == address(0)) revert InvalidStrategy();
     if (strategy.asset() != _asset()) revert InvalidStrategy();
 
@@ -289,7 +286,7 @@ abstract contract MultiStrategy is
    * This function also handles the undeployment of assets from the strategy being removed and
    * rebalances the remaining strategies.
    */
-  function removeStrategy(uint256 index) external nonReentrant onlyRole(VAULT_MANAGER_ROLE) {
+  function _removeStrategy(uint256 index) internal nonReentrant {
     // Validate the index to ensure it is within bounds
     if (index >= _strategies.length) revert InvalidStrategyIndex(index);
     // If there is only one strategy, we don't allow to remove it for security reasons

@@ -520,8 +520,7 @@ describeif(network.name === 'hardhat')('MultiStrategy Vault', function () {
     // Increase by 10% de token per asset
     expect(await vault.tokenPerAsset()).to.equal(1099000908265213442n);
     const balanceFees =
-      (BigInt(await vault.balanceOf(otherAccount.address)) *
-        BigInt(await vault.tokenPerAsset())) /
+      (BigInt(await vault.balanceOf(otherAccount.address)) * BigInt(await vault.tokenPerAsset())) /
       10n ** 18n;
     expect(balanceFees).to.equal(9990917347865576746n);
   });

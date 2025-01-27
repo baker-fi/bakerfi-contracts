@@ -106,6 +106,35 @@ contract StrategyLeverageMorphoBlue is Initializable, StrategyLeverage {
   }
 
   /**
+   * @dev Initializes the strategy with the specified parameters.
+   * @param initialOwner The address of the initial owner of the strategy.
+   * @param initialGovernor The address of the initial governor of the strategy.
+   * @param flashLender The address of the flash lender.
+   * @param collateralToken The address of the collateral token.
+   * @param debtToken The address of the debt token.
+   * @param oracle The address of the oracle.
+   *
+   * This initializer function allows the migration from v1.3.0 to v4.0.0
+   */
+  function initializeV4(
+    address initialOwner,
+    address initialGovernor,
+    address flashLender,
+    address collateralToken,
+    address debtToken,
+    address oracle
+  ) public reinitializer(4) {
+    _initializeStrategyLeverage(
+      initialOwner,
+      initialGovernor,
+      collateralToken,
+      debtToken,
+      oracle,
+      flashLender
+    );
+  }
+
+  /**
    * @notice Retrieves the current collateral and debt balances.
    * @return collateralBalance The current collateral balance of the strategy.
    * @return debtBalance The current debt balance of the strategy.

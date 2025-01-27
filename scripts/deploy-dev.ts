@@ -10,6 +10,9 @@ import {
   deployBKR,
   deployAAVEv3Strategy,
   deployOracleMock,
+  deployVaultRouter,
+  deployPythMock,
+  deployETHOracle,
 } from './common';
 
 import { AAVEv3Market, NetworkConfig, StrategyImplementation } from '../constants/types';
@@ -119,6 +122,10 @@ async function main() {
   const aaveV3PoolMock = await deployAaveV3(wstETH, weth, serviceRegistry, AAVE_DEPOSIT);
   result.push(['AAVE v3 Mock', await aaveV3PoolMock.getAddress()]);
 
+  // Pyth Mockf for Price Update Testing
+  const pyth = await deployPythMock(serviceRegistry);
+  result.push(['Pyth Mock', await pyth.getAddress()]);
+
   // Deploy wstETH/ETH Oracle
   spinner.text = 'Deploying wstETH/ETH Oracle';
   const oracle = await deployOracleMock();
@@ -126,6 +133,10 @@ async function main() {
   // Price of wstETH in ETH is 1.187
   await oracle.setLatestPrice(1187 * 1e6);
   result.push(['WSTETH/ETH Oracle', await oracle.getAddress()]);
+
+  // Udpated ETH/USD Oracle with Pyth Infra
+  const ethOracle = await deployETHOracle(serviceRegistry, pyth);
+  result.push(['ETH/USD Oracle', await ethOracle.getAddress()]);
 
   // Deploying Proxied Strategy
   spinner.text = 'Deploying StrategyLeverageAAVEv3WstETH';
@@ -178,6 +189,22 @@ async function main() {
     tickSpacing: 10000,
   });
   await strategyProxied.transferOwnership(vaultProxy);
+
+  // Deploy Vault Router
+  spinner.text = 'Deploying Vault Router';
+  const { vaultRouter: vaultRouterImpl, proxy: vaultRouterProxy } = await deployVaultRouter(
+    owner.address,
+    await weth.getAddress(),
+    proxyAdmin,
+  );
+  result.push(['Vault Impl', await vaultRouterImpl.getAddress()]);
+  result.push(['Vault Router', await vaultRouterProxy.getAddress()]);
+  const vaultRouter = await ethers.getContractAt(
+    'VaultRouter',
+    await vaultRouterProxy.getAddress(),
+  );
+  await vaultRouter.approveTokenForVault(await vaultProxy.getAddress(), await weth.getAddress());
+  await vaultRouter.approveTokenForVault(await vaultProxy.getAddress(), await wstETH.getAddress());
 
   // 2. Deploy BKR
   spinner.text = 'Deploying BKR';

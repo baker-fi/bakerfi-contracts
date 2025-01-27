@@ -39,7 +39,17 @@ contract StrategyLeverageAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
   constructor() {
     _disableInitializers();
   }
-
+  /**
+   * @dev Initializes the strategy with the specified parameters.
+   * @param initialOwner The address of the initial owner of the strategy.
+   * @param initialGovernor The address of the initial governor of the strategy.
+   * @param collateralToken The address of the collateral token.
+   * @param debtToken The address of the debt token.
+   * @param oracle The address of the oracle.
+   * @param flashLender The address of the flash lender.
+   * @param aaveV3Pool The address of the AAVE v3 pool.
+   * @param eModeCategory The eMode category.
+   */
   // solhint-disable no-empty-blocks
   function initialize(
     address initialOwner,
@@ -62,6 +72,47 @@ contract StrategyLeverageAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
     _initUseAAVEv3(aaveV3Pool);
     aaveV3().setUserEMode(eModeCategory);
     if (aaveV3().getUserEMode(address(this)) != eModeCategory) revert InvalidAAVEEMode();
+  }
+
+  /**
+   * @dev Initializes the strategy with the specified parameters.
+   * @param initialOwner The address of the initial owner of the strategy.
+   * @param initialGovernor The address of the initial governor of the strategy.
+   * @param flashLender The address of the flash lender.
+   * @param collateralToken The address of the collateral token.
+   * @param debtToken The address of the debt token.
+   * @param oracle The address of the oracle.
+   * @param aaveV3Pool The address of the AAVE v3 pool.
+   *
+   * This initializer function allows the migration from v1.1.1, v1.3.0 to v4.0.0
+   */
+  function initializeV4(
+    address initialOwner,
+    address initialGovernor,
+    address flashLender,
+    address collateralToken,
+    address debtToken,
+    address oracle,
+    address aaveV3Pool,
+    uint8 fromVersion
+  ) public reinitializer(4) {
+    uint256 deployedAssets;
+    uint DEPLOYED_ASSETS_SLOT = 163;
+    assembly {
+      deployedAssets := sload(DEPLOYED_ASSETS_SLOT)
+    }
+    _initializeStrategyLeverage(
+      initialOwner,
+      initialGovernor,
+      collateralToken,
+      debtToken,
+      oracle,
+      flashLender
+    );
+    _initUseAAVEv3(aaveV3Pool);
+    if (fromVersion == 1) {
+      _upgradeFromV1(deployedAssets);
+    }
   }
 
   /**

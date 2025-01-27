@@ -16,8 +16,9 @@ import { VaultSettings } from "./VaultSettings.sol";
 import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import { ADMIN_ROLE, VAULT_MANAGER_ROLE, PAUSER_ROLE } from "./Constants.sol";
 import { IERC20MetadataUpgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
-/**
- * @title BakerFi Vault Base 🧑‍🍳
+import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+
+/* @title BakerFi Vault Base 🧑‍🍳
  *
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
@@ -26,13 +27,25 @@ import { IERC20MetadataUpgradeable } from "@openzeppelin/contracts-upgradeable/t
  * for managing assets, deposits, withdrawals, and rebalancing strategies.
  * It inherits from several OpenZeppelin contracts to ensure security and upgradeability.
  */
+
+contract EmptyAdapter {
+  uint256[100] private _emptySlot;
+}
+
+contract EmptyAdapter2 {
+  uint256[48] private _emptySlot;
+}
+
 abstract contract VaultBase is
-  AccessControlUpgradeable,
+  Initializable,
+  EmptyAdapter,
   PausableUpgradeable,
   ReentrancyGuardUpgradeable,
   ERC20Upgradeable,
   VaultSettings,
+  EmptyAdapter2,
   UseWETH,
+  AccessControlUpgradeable,
   IVault
 {
   using RebaseLibrary for Rebase;
@@ -95,7 +108,7 @@ abstract contract VaultBase is
     string calldata tokenName,
     string calldata tokenSymbol,
     address weth
-  ) internal {
+  ) internal onlyInitializing {
     __ERC20_init(tokenName, tokenSymbol);
     _initUseWETH(weth);
     if (initialOwner == address(0)) revert InvalidOwner();
@@ -594,6 +607,74 @@ abstract contract VaultBase is
    */
   function unpause() external onlyRole(PAUSER_ROLE) {
     _unpause();
+  }
+
+  /**
+   * @dev Enables or disables an account in the whitelist.
+   *
+   * This function can only be called by the owner and is used to enable or disable an account
+   * in the whitelist. Emits an {AccountWhiteList} event upon successful update.
+   *
+   * @param account The address of the account to be enabled or disabled.
+   * @param enabled A boolean indicating whether the account should be enabled (true) or disabled (false) in the whitelist.
+   *
+   * Requirements:
+   * - The caller must be the owner of the contract.
+   */
+  function enableAccount(address account, bool enabled) external onlyRole(ADMIN_ROLE) {
+    _enableAccount(account, enabled);
+  }
+  /**
+   * @dev Sets the performance fee percentage.
+   *
+   * This function can only be called by the owner and is used to update the performance fee percentage.
+   * Emits a {PerformanceFeeChanged} event upon successful update.
+   *
+   * @param fee The new performance fee percentage to be set.
+   *
+   * Requirements:
+   * - The caller must be the owner of the contract.
+   * - The new performance fee percentage must be a valid percentage value.
+   */
+  function setPerformanceFee(uint256 fee) external onlyRole(ADMIN_ROLE) {
+    _setPerformanceFee(fee);
+  }
+  /**
+   * @dev Sets the withdrawal fee percentage.
+   *
+   * This function can only be called by the owner and is used to update the withdrawal fee percentage.
+   * Emits a {WithdrawalFeeChanged} event upon successful update.
+   *
+   * @param fee The new withdrawal fee percentage to be set.
+   *
+   * Requirements:
+   * - The caller must be the owner of the contract.
+   * - The new withdrawal fee percentage must be a valid percentage value.
+   */
+  function setWithdrawalFee(uint256 fee) external onlyRole(ADMIN_ROLE) {
+    _setWithdrawalFee(fee);
+  }
+  /**
+   * @dev Sets the fee receiver address.
+   *
+   * This function can only be called by the owner and is used to update the fee receiver address.
+   * Emits a {FeeReceiverChanged} event upon successful update.
+   *
+   * @param receiver The new fee receiver address to be set.
+   *
+   * Requirements:
+   * - The caller must be the owner of the contract.
+   * - The new fee receiver address must not be the zero address.
+   */
+  function setFeeReceiver(address receiver) external onlyRole(ADMIN_ROLE) {
+    _setFeeReceiver(receiver);
+  }
+  /**
+   * @notice Sets the maximum deposit allowed in ETH.
+   * @param value The maximum deposit value to be set in ETH.
+   */
+  function setMaxDeposit(uint256 value) external onlyRole(ADMIN_ROLE) {
+    _setMaxDeposit(value);
   }
 
   /**

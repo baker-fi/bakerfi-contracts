@@ -2,11 +2,9 @@
 pragma solidity ^0.8.24;
 
 import { PERCENTAGE_PRECISION } from "./Constants.sol";
-import { IVaultSettings } from "../interfaces/core/IVaultSettings.sol";
 import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-import { ADMIN_ROLE } from "./Constants.sol";
+
 /**
  * @title BakerFI Settings(⚙️) Contract
  *
@@ -23,7 +21,7 @@ import { ADMIN_ROLE } from "./Constants.sol";
  * the fees, basic configuration parameters and the list of whitelisted adresess that can
  * interact with the system
  */
-contract VaultSettings is Initializable, AccessControlUpgradeable, IVaultSettings {
+contract VaultSettings is Initializable {
   error InvalidOwner();
   error WhiteListAlreadyEnabled();
   error WhiteListFailedToAdd();
@@ -34,9 +32,48 @@ contract VaultSettings is Initializable, AccessControlUpgradeable, IVaultSetting
   error InvalidMaxLoanToValue();
   error InvalidAddress();
 
-  // Gap before the roles to keep the storage layout consistent with version 1.3
-  uint256[103] private __gapBefore;
-  // Role definitions
+  /**
+   * @dev Emitted when the withdrawal fee is changed.
+   *
+   * This event provides information about the updated withdrawal fee.
+   *
+   * @param value The new withdrawal fee percentage.
+   */
+  event WithdrawalFeeChanged(uint256 indexed value);
+
+  /**
+   * @dev Emitted when the performance fee is changed.
+   *
+   * This event provides information about the updated performance fee.
+   *
+   * @param value The new performance fee percentage.
+   */
+  event PerformanceFeeChanged(uint256 indexed value);
+
+  /**
+   * @dev Emitted when the fee receiver address is changed.
+   *
+   * This event provides information about the updated fee receiver address.
+   *
+   * @param value The new fee receiver address.
+   */
+  event FeeReceiverChanged(address indexed value);
+
+  /**
+   * @dev Emitted when an account is added or removed from the whitelist.
+   *
+   * This event provides information about whether an account is enabled or disabled in the whitelist.
+   *
+   * @param account The address of the account affected by the whitelist change.
+   * @param enabled A boolean indicating whether the account is enabled (true) or disabled (false) in the whitelist.
+   */
+  event AccountWhiteList(address indexed account, bool enabled);
+
+  /**
+   * @dev Emitted when the Maximum Deposit ETH is changed
+   * @param value The new amount that is allowed to be deposited
+   */
+  event MaxDepositChanged(uint256 indexed value);
 
   using EnumerableSet for EnumerableSet.AddressSet;
   /**
@@ -62,17 +99,18 @@ contract VaultSettings is Initializable, AccessControlUpgradeable, IVaultSetting
    * If set to the zero address, there is no fee receiver.
    */
   address private _feeReceiver; // No Fee Receiver
+
+  /**
+   * @dev Max Allowed Deposit per Wallet
+   */
+  uint256 private _maxDeposit;
+
   /**
    * @dev The set of enabled accounts.
    *
    * This private state variable is an EnumerableSet of addresses representing the set of enabled accounts.
    */
   EnumerableSet.AddressSet private _enabledAccounts;
-
-  /**
-   * @dev Max Allowed Deposit per Wallet
-   */
-  uint256 private _maxDeposit;
 
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
@@ -105,7 +143,7 @@ contract VaultSettings is Initializable, AccessControlUpgradeable, IVaultSetting
    * Requirements:
    * - The caller must be the owner of the contract.
    */
-  function enableAccount(address account, bool enabled) public onlyRole(ADMIN_ROLE) {
+  function _enableAccount(address account, bool enabled) internal {
     if (enabled) {
       if (_enabledAccounts.contains(account)) revert WhiteListAlreadyEnabled();
       if (!_enabledAccounts.add(account)) revert WhiteListFailedToAdd();
@@ -141,7 +179,7 @@ contract VaultSettings is Initializable, AccessControlUpgradeable, IVaultSetting
    * - The caller must be the owner of the contract.
    * - The new withdrawal fee percentage must be a valid percentage value.
    */
-  function setWithdrawalFee(uint256 fee) public onlyRole(ADMIN_ROLE) {
+  function _setWithdrawalFee(uint256 fee) internal {
     if (fee >= PERCENTAGE_PRECISION) revert InvalidPercentage();
     _withdrawalFee = fee;
     emit WithdrawalFeeChanged(_withdrawalFee);
@@ -170,7 +208,7 @@ contract VaultSettings is Initializable, AccessControlUpgradeable, IVaultSetting
    * - The caller must be the owner of the contract.
    * - The new performance fee percentage must be a valid percentage value.
    */
-  function setPerformanceFee(uint256 fee) external onlyRole(ADMIN_ROLE) {
+  function _setPerformanceFee(uint256 fee) internal {
     if (fee >= PERCENTAGE_PRECISION) revert InvalidPercentage();
     _performanceFee = fee;
     emit PerformanceFeeChanged(_performanceFee);
@@ -198,7 +236,7 @@ contract VaultSettings is Initializable, AccessControlUpgradeable, IVaultSetting
    * - The caller must be the owner of the contract.
    * - The new fee receiver address must not be the zero address.
    */
-  function setFeeReceiver(address receiver) external onlyRole(ADMIN_ROLE) {
+  function _setFeeReceiver(address receiver) internal {
     if (receiver == address(0)) revert InvalidAddress();
     _feeReceiver = receiver;
     emit FeeReceiverChanged(_feeReceiver);
@@ -226,7 +264,7 @@ contract VaultSettings is Initializable, AccessControlUpgradeable, IVaultSetting
    * @notice Sets the maximum deposit allowed in ETH.
    * @param value The maximum deposit value to be set in ETH.
    */
-  function setMaxDeposit(uint256 value) external onlyRole(ADMIN_ROLE) {
+  function _setMaxDeposit(uint256 value) internal {
     _maxDeposit = value;
     emit MaxDepositChanged(value);
   }

@@ -1,6 +1,12 @@
 import { ethers, network } from 'hardhat';
 import ora from 'ora';
-import { deployVaultRegistry, deployParkStrategy, deployWETH, deployBKR } from './common';
+import {
+  deployVaultRegistry,
+  deployVaultRouter,
+  deployParkStrategy,
+  deployWETH,
+  deployBKR,
+} from './common';
 
 /**
  * @dev Deploy the Multi Strategy Vault and Vault Router
@@ -78,26 +84,6 @@ async function main() {
   spinner.succeed('🧑‍🍳 BakerFi Served 🍰');
   console.table(result);
   process.exit(0);
-}
-
-async function deployVaultRouter(result, owner, proxyAdmin, weth) {
-  const VaultRouter = await ethers.getContractFactory('VaultRouter');
-  const router = await VaultRouter.deploy();
-  await router.waitForDeployment();
-  result.push(['Vault Router (Instance)', await router.getAddress()]);
-
-  const BakerFiProxy = await ethers.getContractFactory('BakerFiProxy');
-  const proxy = await BakerFiProxy.deploy(
-    await router.getAddress(),
-    await proxyAdmin.getAddress(),
-    VaultRouter.interface.encodeFunctionData('initialize', [
-      owner.address,
-      await weth.getAddress(),
-    ]),
-  );
-  await proxy.waitForDeployment();
-  result.push(['Vault Router (Proxy)', await proxy.getAddress()]);
-  return proxy;
 }
 
 async function deployVault(result, owner, proxyAdmin, park1Strategy, park2Strategy, weth) {
