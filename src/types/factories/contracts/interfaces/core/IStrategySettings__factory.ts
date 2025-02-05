@@ -2,11 +2,11 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
+import { Contract, Interface, type ContractRunner } from 'ethers';
 import type {
   IStrategySettings,
   IStrategySettingsInterface,
-} from "../../../../contracts/interfaces/core/IStrategySettings";
+} from '../../../../contracts/interfaces/core/IStrategySettings';
 
 const _abi = [
   {
@@ -14,78 +14,78 @@ const _abi = [
     inputs: [
       {
         indexed: true,
-        internalType: "uint256",
-        name: "value",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'value',
+        type: 'uint256',
       },
     ],
-    name: "PriceMaxAgeChanged",
-    type: "event",
+    name: 'PriceMaxAgeChanged',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: "uint256",
-        name: "value",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'value',
+        type: 'uint256',
       },
     ],
-    name: "PriceMaxConfChanged",
-    type: "event",
+    name: 'PriceMaxConfChanged',
+    type: 'event',
   },
   {
     inputs: [],
-    name: "getPriceMaxAge",
+    name: 'getPriceMaxAge',
     outputs: [
       {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "getPriceMaxConf",
+    name: 'getPriceMaxConf',
     outputs: [
       {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "value",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'value',
+        type: 'uint256',
       },
     ],
-    name: "setPriceMaxAge",
+    name: 'setPriceMaxAge',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "value",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'value',
+        type: 'uint256',
       },
     ],
-    name: "setPriceMaxConf",
+    name: 'setPriceMaxConf',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
 ] as const;
 
@@ -94,10 +94,7 @@ export class IStrategySettings__factory {
   static createInterface(): IStrategySettingsInterface {
     return new Interface(_abi) as IStrategySettingsInterface;
   }
-  static connect(
-    address: string,
-    runner?: ContractRunner | null
-  ): IStrategySettings {
+  static connect(address: string, runner?: ContractRunner | null): IStrategySettings {
     return new Contract(address, _abi, runner) as unknown as IStrategySettings;
   }
 }

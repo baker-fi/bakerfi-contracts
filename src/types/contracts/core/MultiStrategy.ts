@@ -13,7 +13,7 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
@@ -21,50 +21,31 @@ import type {
   TypedLogDescription,
   TypedListener,
   TypedContractMethod,
-} from "../../common";
+} from '../../common';
 
 export interface MultiStrategyInterface extends Interface {
   getFunction(
-    nameOrSignature:
-      | "MAX_TOTAL_WEIGHT"
-      | "strategies"
-      | "totalWeight"
-      | "weights"
+    nameOrSignature: 'MAX_TOTAL_WEIGHT' | 'strategies' | 'totalWeight' | 'weights',
   ): FunctionFragment;
 
   getEvent(
     nameOrSignatureOrTopic:
-      | "AddStrategy"
-      | "Initialized"
-      | "MaxDifferenceUpdated"
-      | "RemoveStrategy"
-      | "WeightsUpdated"
+      | 'AddStrategy'
+      | 'Initialized'
+      | 'MaxDifferenceUpdated'
+      | 'RemoveStrategy'
+      | 'WeightsUpdated',
   ): EventFragment;
 
-  encodeFunctionData(
-    functionFragment: "MAX_TOTAL_WEIGHT",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "strategies",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "totalWeight",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "weights", values?: undefined): string;
+  encodeFunctionData(functionFragment: 'MAX_TOTAL_WEIGHT', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'strategies', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'totalWeight', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'weights', values?: undefined): string;
 
-  decodeFunctionResult(
-    functionFragment: "MAX_TOTAL_WEIGHT",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "strategies", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "totalWeight",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "weights", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'MAX_TOTAL_WEIGHT', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'strategies', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'totalWeight', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'weights', data: BytesLike): Result;
 }
 
 export namespace AddStrategyEvent {
@@ -136,95 +117,83 @@ export interface MultiStrategy extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
-  MAX_TOTAL_WEIGHT: TypedContractMethod<[], [bigint], "view">;
+  MAX_TOTAL_WEIGHT: TypedContractMethod<[], [bigint], 'view'>;
 
-  strategies: TypedContractMethod<[], [string[]], "view">;
+  strategies: TypedContractMethod<[], [string[]], 'view'>;
 
-  totalWeight: TypedContractMethod<[], [bigint], "view">;
+  totalWeight: TypedContractMethod<[], [bigint], 'view'>;
 
-  weights: TypedContractMethod<[], [bigint[]], "view">;
+  weights: TypedContractMethod<[], [bigint[]], 'view'>;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
-  getFunction(
-    nameOrSignature: "MAX_TOTAL_WEIGHT"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "strategies"
-  ): TypedContractMethod<[], [string[]], "view">;
-  getFunction(
-    nameOrSignature: "totalWeight"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "weights"
-  ): TypedContractMethod<[], [bigint[]], "view">;
+  getFunction(nameOrSignature: 'MAX_TOTAL_WEIGHT'): TypedContractMethod<[], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'strategies'): TypedContractMethod<[], [string[]], 'view'>;
+  getFunction(nameOrSignature: 'totalWeight'): TypedContractMethod<[], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'weights'): TypedContractMethod<[], [bigint[]], 'view'>;
 
   getEvent(
-    key: "AddStrategy"
+    key: 'AddStrategy',
   ): TypedContractEvent<
     AddStrategyEvent.InputTuple,
     AddStrategyEvent.OutputTuple,
     AddStrategyEvent.OutputObject
   >;
   getEvent(
-    key: "Initialized"
+    key: 'Initialized',
   ): TypedContractEvent<
     InitializedEvent.InputTuple,
     InitializedEvent.OutputTuple,
     InitializedEvent.OutputObject
   >;
   getEvent(
-    key: "MaxDifferenceUpdated"
+    key: 'MaxDifferenceUpdated',
   ): TypedContractEvent<
     MaxDifferenceUpdatedEvent.InputTuple,
     MaxDifferenceUpdatedEvent.OutputTuple,
     MaxDifferenceUpdatedEvent.OutputObject
   >;
   getEvent(
-    key: "RemoveStrategy"
+    key: 'RemoveStrategy',
   ): TypedContractEvent<
     RemoveStrategyEvent.InputTuple,
     RemoveStrategyEvent.OutputTuple,
     RemoveStrategyEvent.OutputObject
   >;
   getEvent(
-    key: "WeightsUpdated"
+    key: 'WeightsUpdated',
   ): TypedContractEvent<
     WeightsUpdatedEvent.InputTuple,
     WeightsUpdatedEvent.OutputTuple,
@@ -232,7 +201,7 @@ export interface MultiStrategy extends BaseContract {
   >;
 
   filters: {
-    "AddStrategy(address)": TypedContractEvent<
+    'AddStrategy(address)': TypedContractEvent<
       AddStrategyEvent.InputTuple,
       AddStrategyEvent.OutputTuple,
       AddStrategyEvent.OutputObject
@@ -243,7 +212,7 @@ export interface MultiStrategy extends BaseContract {
       AddStrategyEvent.OutputObject
     >;
 
-    "Initialized(uint8)": TypedContractEvent<
+    'Initialized(uint8)': TypedContractEvent<
       InitializedEvent.InputTuple,
       InitializedEvent.OutputTuple,
       InitializedEvent.OutputObject
@@ -254,7 +223,7 @@ export interface MultiStrategy extends BaseContract {
       InitializedEvent.OutputObject
     >;
 
-    "MaxDifferenceUpdated(uint256)": TypedContractEvent<
+    'MaxDifferenceUpdated(uint256)': TypedContractEvent<
       MaxDifferenceUpdatedEvent.InputTuple,
       MaxDifferenceUpdatedEvent.OutputTuple,
       MaxDifferenceUpdatedEvent.OutputObject
@@ -265,7 +234,7 @@ export interface MultiStrategy extends BaseContract {
       MaxDifferenceUpdatedEvent.OutputObject
     >;
 
-    "RemoveStrategy(address)": TypedContractEvent<
+    'RemoveStrategy(address)': TypedContractEvent<
       RemoveStrategyEvent.InputTuple,
       RemoveStrategyEvent.OutputTuple,
       RemoveStrategyEvent.OutputObject
@@ -276,7 +245,7 @@ export interface MultiStrategy extends BaseContract {
       RemoveStrategyEvent.OutputObject
     >;
 
-    "WeightsUpdated(uint16[])": TypedContractEvent<
+    'WeightsUpdated(uint16[])': TypedContractEvent<
       WeightsUpdatedEvent.InputTuple,
       WeightsUpdatedEvent.OutputTuple,
       WeightsUpdatedEvent.OutputObject

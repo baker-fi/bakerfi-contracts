@@ -2,64 +2,61 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
-import type {
-  MultiCommand,
-  MultiCommandInterface,
-} from "../../../contracts/core/MultiCommand";
+import { Contract, Interface, type ContractRunner } from 'ethers';
+import type { MultiCommand, MultiCommandInterface } from '../../../contracts/core/MultiCommand';
 
 const _abi = [
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "commandIndex",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'commandIndex',
+        type: 'uint256',
       },
       {
-        internalType: "bytes",
-        name: "message",
-        type: "bytes",
+        internalType: 'bytes',
+        name: 'message',
+        type: 'bytes',
       },
     ],
-    name: "ExecutionFailed",
-    type: "error",
+    name: 'ExecutionFailed',
+    type: 'error',
   },
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "action",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'action',
+        type: 'uint256',
       },
     ],
-    name: "InvalidCommand",
-    type: "error",
+    name: 'InvalidCommand',
+    type: 'error',
   },
   {
     inputs: [
       {
         components: [
           {
-            internalType: "uint256",
-            name: "action",
-            type: "uint256",
+            internalType: 'uint256',
+            name: 'action',
+            type: 'uint256',
           },
           {
-            internalType: "bytes",
-            name: "data",
-            type: "bytes",
+            internalType: 'bytes',
+            name: 'data',
+            type: 'bytes',
           },
         ],
-        internalType: "struct Command[]",
-        name: "commands",
-        type: "tuple[]",
+        internalType: 'struct Command[]',
+        name: 'commands',
+        type: 'tuple[]',
       },
     ],
-    name: "execute",
+    name: 'execute',
     outputs: [],
-    stateMutability: "payable",
-    type: "function",
+    stateMutability: 'payable',
+    type: 'function',
   },
 ] as const;
 
@@ -68,10 +65,7 @@ export class MultiCommand__factory {
   static createInterface(): MultiCommandInterface {
     return new Interface(_abi) as MultiCommandInterface;
   }
-  static connect(
-    address: string,
-    runner?: ContractRunner | null
-  ): MultiCommand {
+  static connect(address: string, runner?: ContractRunner | null): MultiCommand {
     return new Contract(address, _abi, runner) as unknown as MultiCommand;
   }
 }

@@ -13,7 +13,7 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
@@ -21,86 +21,58 @@ import type {
   TypedLogDescription,
   TypedListener,
   TypedContractMethod,
-} from "../../common";
+} from '../../common';
 
 export interface WETHInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "allowance"
-      | "approve"
-      | "balanceOf"
-      | "decimals"
-      | "deposit"
-      | "name"
-      | "symbol"
-      | "totalSupply"
-      | "transfer"
-      | "transferFrom"
-      | "withdraw"
+      | 'allowance'
+      | 'approve'
+      | 'balanceOf'
+      | 'decimals'
+      | 'deposit'
+      | 'name'
+      | 'symbol'
+      | 'totalSupply'
+      | 'transfer'
+      | 'transferFrom'
+      | 'withdraw',
   ): FunctionFragment;
 
   getEvent(
-    nameOrSignatureOrTopic: "Approval" | "Deposit" | "Transfer" | "Withdrawal"
+    nameOrSignatureOrTopic: 'Approval' | 'Deposit' | 'Transfer' | 'Withdrawal',
   ): EventFragment;
 
+  encodeFunctionData(functionFragment: 'allowance', values: [AddressLike, AddressLike]): string;
+  encodeFunctionData(functionFragment: 'approve', values: [AddressLike, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'balanceOf', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'decimals', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'deposit', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'name', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'symbol', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'totalSupply', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'transfer', values: [AddressLike, BigNumberish]): string;
   encodeFunctionData(
-    functionFragment: "allowance",
-    values: [AddressLike, AddressLike]
+    functionFragment: 'transferFrom',
+    values: [AddressLike, AddressLike, BigNumberish],
   ): string;
-  encodeFunctionData(
-    functionFragment: "approve",
-    values: [AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "balanceOf",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
-  encodeFunctionData(functionFragment: "deposit", values?: undefined): string;
-  encodeFunctionData(functionFragment: "name", values?: undefined): string;
-  encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "totalSupply",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transfer",
-    values: [AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferFrom",
-    values: [AddressLike, AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "withdraw",
-    values: [BigNumberish]
-  ): string;
+  encodeFunctionData(functionFragment: 'withdraw', values: [BigNumberish]): string;
 
-  decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "totalSupply",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "transfer", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "transferFrom",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'allowance', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'approve', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'balanceOf', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'decimals', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'deposit', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'name', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'symbol', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'totalSupply', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transfer', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transferFrom', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'withdraw', data: BytesLike): Result;
 }
 
 export namespace ApprovalEvent {
-  export type InputTuple = [
-    src: AddressLike,
-    guy: AddressLike,
-    wad: BigNumberish
-  ];
+  export type InputTuple = [src: AddressLike, guy: AddressLike, wad: BigNumberish];
   export type OutputTuple = [src: string, guy: string, wad: bigint];
   export interface OutputObject {
     src: string;
@@ -127,11 +99,7 @@ export namespace DepositEvent {
 }
 
 export namespace TransferEvent {
-  export type InputTuple = [
-    src: AddressLike,
-    dst: AddressLike,
-    wad: BigNumberish
-  ];
+  export type InputTuple = [src: AddressLike, dst: AddressLike, wad: BigNumberish];
   export type OutputTuple = [src: string, dst: string, wad: bigint];
   export interface OutputObject {
     src: string;
@@ -166,155 +134,117 @@ export interface WETH extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
-  allowance: TypedContractMethod<
-    [arg0: AddressLike, arg1: AddressLike],
-    [bigint],
-    "view"
-  >;
+  allowance: TypedContractMethod<[arg0: AddressLike, arg1: AddressLike], [bigint], 'view'>;
 
-  approve: TypedContractMethod<
-    [guy: AddressLike, wad: BigNumberish],
-    [boolean],
-    "nonpayable"
-  >;
+  approve: TypedContractMethod<[guy: AddressLike, wad: BigNumberish], [boolean], 'nonpayable'>;
 
-  balanceOf: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  balanceOf: TypedContractMethod<[arg0: AddressLike], [bigint], 'view'>;
 
-  decimals: TypedContractMethod<[], [bigint], "view">;
+  decimals: TypedContractMethod<[], [bigint], 'view'>;
 
-  deposit: TypedContractMethod<[], [void], "payable">;
+  deposit: TypedContractMethod<[], [void], 'payable'>;
 
-  name: TypedContractMethod<[], [string], "view">;
+  name: TypedContractMethod<[], [string], 'view'>;
 
-  symbol: TypedContractMethod<[], [string], "view">;
+  symbol: TypedContractMethod<[], [string], 'view'>;
 
-  totalSupply: TypedContractMethod<[], [bigint], "view">;
+  totalSupply: TypedContractMethod<[], [bigint], 'view'>;
 
-  transfer: TypedContractMethod<
-    [dst: AddressLike, wad: BigNumberish],
-    [boolean],
-    "nonpayable"
-  >;
+  transfer: TypedContractMethod<[dst: AddressLike, wad: BigNumberish], [boolean], 'nonpayable'>;
 
   transferFrom: TypedContractMethod<
     [src: AddressLike, dst: AddressLike, wad: BigNumberish],
     [boolean],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  withdraw: TypedContractMethod<[wad: BigNumberish], [void], "nonpayable">;
+  withdraw: TypedContractMethod<[wad: BigNumberish], [void], 'nonpayable'>;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
   getFunction(
-    nameOrSignature: "allowance"
-  ): TypedContractMethod<
-    [arg0: AddressLike, arg1: AddressLike],
-    [bigint],
-    "view"
-  >;
+    nameOrSignature: 'allowance',
+  ): TypedContractMethod<[arg0: AddressLike, arg1: AddressLike], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "approve"
-  ): TypedContractMethod<
-    [guy: AddressLike, wad: BigNumberish],
-    [boolean],
-    "nonpayable"
-  >;
+    nameOrSignature: 'approve',
+  ): TypedContractMethod<[guy: AddressLike, wad: BigNumberish], [boolean], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "balanceOf"
-  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+    nameOrSignature: 'balanceOf',
+  ): TypedContractMethod<[arg0: AddressLike], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'decimals'): TypedContractMethod<[], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'deposit'): TypedContractMethod<[], [void], 'payable'>;
+  getFunction(nameOrSignature: 'name'): TypedContractMethod<[], [string], 'view'>;
+  getFunction(nameOrSignature: 'symbol'): TypedContractMethod<[], [string], 'view'>;
+  getFunction(nameOrSignature: 'totalSupply'): TypedContractMethod<[], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "decimals"
-  ): TypedContractMethod<[], [bigint], "view">;
+    nameOrSignature: 'transfer',
+  ): TypedContractMethod<[dst: AddressLike, wad: BigNumberish], [boolean], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "deposit"
-  ): TypedContractMethod<[], [void], "payable">;
-  getFunction(
-    nameOrSignature: "name"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "symbol"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "totalSupply"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "transfer"
-  ): TypedContractMethod<
-    [dst: AddressLike, wad: BigNumberish],
-    [boolean],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "transferFrom"
+    nameOrSignature: 'transferFrom',
   ): TypedContractMethod<
     [src: AddressLike, dst: AddressLike, wad: BigNumberish],
     [boolean],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "withdraw"
-  ): TypedContractMethod<[wad: BigNumberish], [void], "nonpayable">;
+    nameOrSignature: 'withdraw',
+  ): TypedContractMethod<[wad: BigNumberish], [void], 'nonpayable'>;
 
   getEvent(
-    key: "Approval"
+    key: 'Approval',
   ): TypedContractEvent<
     ApprovalEvent.InputTuple,
     ApprovalEvent.OutputTuple,
     ApprovalEvent.OutputObject
   >;
   getEvent(
-    key: "Deposit"
+    key: 'Deposit',
   ): TypedContractEvent<
     DepositEvent.InputTuple,
     DepositEvent.OutputTuple,
     DepositEvent.OutputObject
   >;
   getEvent(
-    key: "Transfer"
+    key: 'Transfer',
   ): TypedContractEvent<
     TransferEvent.InputTuple,
     TransferEvent.OutputTuple,
     TransferEvent.OutputObject
   >;
   getEvent(
-    key: "Withdrawal"
+    key: 'Withdrawal',
   ): TypedContractEvent<
     WithdrawalEvent.InputTuple,
     WithdrawalEvent.OutputTuple,
@@ -322,7 +252,7 @@ export interface WETH extends BaseContract {
   >;
 
   filters: {
-    "Approval(address,address,uint256)": TypedContractEvent<
+    'Approval(address,address,uint256)': TypedContractEvent<
       ApprovalEvent.InputTuple,
       ApprovalEvent.OutputTuple,
       ApprovalEvent.OutputObject
@@ -333,7 +263,7 @@ export interface WETH extends BaseContract {
       ApprovalEvent.OutputObject
     >;
 
-    "Deposit(address,uint256)": TypedContractEvent<
+    'Deposit(address,uint256)': TypedContractEvent<
       DepositEvent.InputTuple,
       DepositEvent.OutputTuple,
       DepositEvent.OutputObject
@@ -344,7 +274,7 @@ export interface WETH extends BaseContract {
       DepositEvent.OutputObject
     >;
 
-    "Transfer(address,address,uint256)": TypedContractEvent<
+    'Transfer(address,address,uint256)': TypedContractEvent<
       TransferEvent.InputTuple,
       TransferEvent.OutputTuple,
       TransferEvent.OutputObject
@@ -355,7 +285,7 @@ export interface WETH extends BaseContract {
       TransferEvent.OutputObject
     >;
 
-    "Withdrawal(address,uint256)": TypedContractEvent<
+    'Withdrawal(address,uint256)': TypedContractEvent<
       WithdrawalEvent.InputTuple,
       WithdrawalEvent.OutputTuple,
       WithdrawalEvent.OutputObject

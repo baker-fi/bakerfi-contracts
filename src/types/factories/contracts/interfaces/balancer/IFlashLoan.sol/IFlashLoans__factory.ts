@@ -2,40 +2,40 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
+import { Contract, Interface, type ContractRunner } from 'ethers';
 import type {
   IFlashLoans,
   IFlashLoansInterface,
-} from "../../../../../contracts/interfaces/balancer/IFlashLoan.sol/IFlashLoans";
+} from '../../../../../contracts/interfaces/balancer/IFlashLoan.sol/IFlashLoans';
 
 const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "recipient",
-        type: "address",
+        internalType: 'address',
+        name: 'recipient',
+        type: 'address',
       },
       {
-        internalType: "address[]",
-        name: "tokens",
-        type: "address[]",
+        internalType: 'address[]',
+        name: 'tokens',
+        type: 'address[]',
       },
       {
-        internalType: "uint256[]",
-        name: "amounts",
-        type: "uint256[]",
+        internalType: 'uint256[]',
+        name: 'amounts',
+        type: 'uint256[]',
       },
       {
-        internalType: "bytes",
-        name: "userData",
-        type: "bytes",
+        internalType: 'bytes',
+        name: 'userData',
+        type: 'bytes',
       },
     ],
-    name: "flashLoan",
+    name: 'flashLoan',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
 ] as const;
 

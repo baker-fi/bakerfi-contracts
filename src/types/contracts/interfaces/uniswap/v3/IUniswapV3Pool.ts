@@ -12,14 +12,14 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
   TypedEventLog,
   TypedListener,
   TypedContractMethod,
-} from "../../../../common";
+} from '../../../../common';
 
 export declare namespace IUniswapV3Pool {
   export type Slot0Struct = {
@@ -39,7 +39,7 @@ export declare namespace IUniswapV3Pool {
     observationCardinality: bigint,
     observationCardinalityNext: bigint,
     feeProtocol: bigint,
-    unlocked: boolean
+    unlocked: boolean,
   ] & {
     sqrtPriceX96: bigint;
     tick: bigint;
@@ -52,18 +52,18 @@ export declare namespace IUniswapV3Pool {
 }
 
 export interface IUniswapV3PoolInterface extends Interface {
-  getFunction(nameOrSignature: "fee" | "flash" | "slot0"): FunctionFragment;
+  getFunction(nameOrSignature: 'fee' | 'flash' | 'slot0'): FunctionFragment;
 
-  encodeFunctionData(functionFragment: "fee", values?: undefined): string;
+  encodeFunctionData(functionFragment: 'fee', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "flash",
-    values: [AddressLike, BigNumberish, BigNumberish, BytesLike]
+    functionFragment: 'flash',
+    values: [AddressLike, BigNumberish, BigNumberish, BytesLike],
   ): string;
-  encodeFunctionData(functionFragment: "slot0", values?: undefined): string;
+  encodeFunctionData(functionFragment: 'slot0', values?: undefined): string;
 
-  decodeFunctionResult(functionFragment: "fee", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "flash", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "slot0", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'fee', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'flash', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'slot0', data: BytesLike): Result;
 }
 
 export interface IUniswapV3Pool extends BaseContract {
@@ -75,77 +75,61 @@ export interface IUniswapV3Pool extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
-  fee: TypedContractMethod<[], [bigint], "view">;
+  fee: TypedContractMethod<[], [bigint], 'view'>;
 
   flash: TypedContractMethod<
-    [
-      recipient: AddressLike,
-      amount0: BigNumberish,
-      amount1: BigNumberish,
-      data: BytesLike
-    ],
+    [recipient: AddressLike, amount0: BigNumberish, amount1: BigNumberish, data: BytesLike],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  slot0: TypedContractMethod<[], [IUniswapV3Pool.Slot0StructOutput], "view">;
+  slot0: TypedContractMethod<[], [IUniswapV3Pool.Slot0StructOutput], 'view'>;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
+  getFunction(nameOrSignature: 'fee'): TypedContractMethod<[], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "fee"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "flash"
+    nameOrSignature: 'flash',
   ): TypedContractMethod<
-    [
-      recipient: AddressLike,
-      amount0: BigNumberish,
-      amount1: BigNumberish,
-      data: BytesLike
-    ],
+    [recipient: AddressLike, amount0: BigNumberish, amount1: BigNumberish, data: BytesLike],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "slot0"
-  ): TypedContractMethod<[], [IUniswapV3Pool.Slot0StructOutput], "view">;
+    nameOrSignature: 'slot0',
+  ): TypedContractMethod<[], [IUniswapV3Pool.Slot0StructOutput], 'view'>;
 
   filters: {};
 }

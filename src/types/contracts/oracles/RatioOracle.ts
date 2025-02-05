@@ -12,14 +12,14 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
   TypedEventLog,
   TypedListener,
   TypedContractMethod,
-} from "../../common";
+} from '../../common';
 
 export declare namespace RatioOracle {
   export type CallStruct = { target: AddressLike; callData: BytesLike };
@@ -51,34 +51,19 @@ export declare namespace IOracle {
 
 export interface RatioOracleInterface extends Interface {
   getFunction(
-    nameOrSignature: "getLatestPrice" | "getPrecision" | "getSafeLatestPrice"
+    nameOrSignature: 'getLatestPrice' | 'getPrecision' | 'getSafeLatestPrice',
   ): FunctionFragment;
 
+  encodeFunctionData(functionFragment: 'getLatestPrice', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'getPrecision', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "getLatestPrice",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getPrecision",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getSafeLatestPrice",
-    values: [IOracle.PriceOptionsStruct]
+    functionFragment: 'getSafeLatestPrice',
+    values: [IOracle.PriceOptionsStruct],
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "getLatestPrice",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getPrecision",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getSafeLatestPrice",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: 'getLatestPrice', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getPrecision', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getSafeLatestPrice', data: BytesLike): Result;
 }
 
 export interface RatioOracle extends BaseContract {
@@ -90,66 +75,60 @@ export interface RatioOracle extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
-  getLatestPrice: TypedContractMethod<[], [IOracle.PriceStructOutput], "view">;
+  getLatestPrice: TypedContractMethod<[], [IOracle.PriceStructOutput], 'view'>;
 
-  getPrecision: TypedContractMethod<[], [bigint], "view">;
+  getPrecision: TypedContractMethod<[], [bigint], 'view'>;
 
   getSafeLatestPrice: TypedContractMethod<
     [priceOptions: IOracle.PriceOptionsStruct],
     [IOracle.PriceStructOutput],
-    "view"
+    'view'
   >;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
   getFunction(
-    nameOrSignature: "getLatestPrice"
-  ): TypedContractMethod<[], [IOracle.PriceStructOutput], "view">;
+    nameOrSignature: 'getLatestPrice',
+  ): TypedContractMethod<[], [IOracle.PriceStructOutput], 'view'>;
+  getFunction(nameOrSignature: 'getPrecision'): TypedContractMethod<[], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "getPrecision"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "getSafeLatestPrice"
+    nameOrSignature: 'getSafeLatestPrice',
   ): TypedContractMethod<
     [priceOptions: IOracle.PriceOptionsStruct],
     [IOracle.PriceStructOutput],
-    "view"
+    'view'
   >;
 
   filters: {};

@@ -2,35 +2,35 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
+import { Contract, Interface, type ContractRunner } from 'ethers';
 import type {
   IUniswapV3SwapCallback,
   IUniswapV3SwapCallbackInterface,
-} from "../../../../../../contracts/interfaces/uniswap/v3/IV3SwapRouter.sol/IUniswapV3SwapCallback";
+} from '../../../../../../contracts/interfaces/uniswap/v3/IV3SwapRouter.sol/IUniswapV3SwapCallback';
 
 const _abi = [
   {
     inputs: [
       {
-        internalType: "int256",
-        name: "amount0Delta",
-        type: "int256",
+        internalType: 'int256',
+        name: 'amount0Delta',
+        type: 'int256',
       },
       {
-        internalType: "int256",
-        name: "amount1Delta",
-        type: "int256",
+        internalType: 'int256',
+        name: 'amount1Delta',
+        type: 'int256',
       },
       {
-        internalType: "bytes",
-        name: "data",
-        type: "bytes",
+        internalType: 'bytes',
+        name: 'data',
+        type: 'bytes',
       },
     ],
-    name: "uniswapV3SwapCallback",
+    name: 'uniswapV3SwapCallback',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
 ] as const;
 
@@ -39,14 +39,7 @@ export class IUniswapV3SwapCallback__factory {
   static createInterface(): IUniswapV3SwapCallbackInterface {
     return new Interface(_abi) as IUniswapV3SwapCallbackInterface;
   }
-  static connect(
-    address: string,
-    runner?: ContractRunner | null
-  ): IUniswapV3SwapCallback {
-    return new Contract(
-      address,
-      _abi,
-      runner
-    ) as unknown as IUniswapV3SwapCallback;
+  static connect(address: string, runner?: ContractRunner | null): IUniswapV3SwapCallback {
+    return new Contract(address, _abi, runner) as unknown as IUniswapV3SwapCallback;
   }
 }

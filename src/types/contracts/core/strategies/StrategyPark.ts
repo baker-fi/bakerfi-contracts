@@ -13,7 +13,7 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
@@ -21,72 +21,48 @@ import type {
   TypedLogDescription,
   TypedListener,
   TypedContractMethod,
-} from "../../../common";
+} from '../../../common';
 
 export interface StrategyParkInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "asset"
-      | "deploy"
-      | "harvest"
-      | "owner"
-      | "renounceOwnership"
-      | "totalAssets"
-      | "transferOwnership"
-      | "undeploy"
+      | 'asset'
+      | 'deploy'
+      | 'harvest'
+      | 'owner'
+      | 'renounceOwnership'
+      | 'totalAssets'
+      | 'transferOwnership'
+      | 'undeploy',
   ): FunctionFragment;
 
   getEvent(
     nameOrSignatureOrTopic:
-      | "OwnershipTransferred"
-      | "StrategyAmountUpdate"
-      | "StrategyDeploy"
-      | "StrategyLoss"
-      | "StrategyProfit"
-      | "StrategyUndeploy"
+      | 'OwnershipTransferred'
+      | 'StrategyAmountUpdate'
+      | 'StrategyDeploy'
+      | 'StrategyLoss'
+      | 'StrategyProfit'
+      | 'StrategyUndeploy',
   ): EventFragment;
 
-  encodeFunctionData(functionFragment: "asset", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "deploy",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "harvest", values?: undefined): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "totalAssets",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "undeploy",
-    values: [BigNumberish]
-  ): string;
+  encodeFunctionData(functionFragment: 'asset', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'deploy', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'harvest', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'owner', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'renounceOwnership', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'totalAssets', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'transferOwnership', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'undeploy', values: [BigNumberish]): string;
 
-  decodeFunctionResult(functionFragment: "asset", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "deploy", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "harvest", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "totalAssets",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "undeploy", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'asset', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'deploy', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'harvest', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'renounceOwnership', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'totalAssets', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transferOwnership', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'undeploy', data: BytesLike): Result;
 }
 
 export namespace OwnershipTransferredEvent {
@@ -173,126 +149,108 @@ export interface StrategyPark extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
-  asset: TypedContractMethod<[], [string], "view">;
+  asset: TypedContractMethod<[], [string], 'view'>;
 
-  deploy: TypedContractMethod<[amount: BigNumberish], [bigint], "nonpayable">;
+  deploy: TypedContractMethod<[amount: BigNumberish], [bigint], 'nonpayable'>;
 
-  harvest: TypedContractMethod<[], [bigint], "nonpayable">;
+  harvest: TypedContractMethod<[], [bigint], 'nonpayable'>;
 
-  owner: TypedContractMethod<[], [string], "view">;
+  owner: TypedContractMethod<[], [string], 'view'>;
 
-  renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
+  renounceOwnership: TypedContractMethod<[], [void], 'nonpayable'>;
 
-  totalAssets: TypedContractMethod<[], [bigint], "view">;
+  totalAssets: TypedContractMethod<[], [bigint], 'view'>;
 
-  transferOwnership: TypedContractMethod<
-    [newOwner: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+  transferOwnership: TypedContractMethod<[newOwner: AddressLike], [void], 'nonpayable'>;
 
-  undeploy: TypedContractMethod<[amount: BigNumberish], [bigint], "nonpayable">;
+  undeploy: TypedContractMethod<[amount: BigNumberish], [bigint], 'nonpayable'>;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
+  getFunction(nameOrSignature: 'asset'): TypedContractMethod<[], [string], 'view'>;
   getFunction(
-    nameOrSignature: "asset"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: 'deploy',
+  ): TypedContractMethod<[amount: BigNumberish], [bigint], 'nonpayable'>;
+  getFunction(nameOrSignature: 'harvest'): TypedContractMethod<[], [bigint], 'nonpayable'>;
+  getFunction(nameOrSignature: 'owner'): TypedContractMethod<[], [string], 'view'>;
+  getFunction(nameOrSignature: 'renounceOwnership'): TypedContractMethod<[], [void], 'nonpayable'>;
+  getFunction(nameOrSignature: 'totalAssets'): TypedContractMethod<[], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "deploy"
-  ): TypedContractMethod<[amount: BigNumberish], [bigint], "nonpayable">;
+    nameOrSignature: 'transferOwnership',
+  ): TypedContractMethod<[newOwner: AddressLike], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "harvest"
-  ): TypedContractMethod<[], [bigint], "nonpayable">;
-  getFunction(
-    nameOrSignature: "owner"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "renounceOwnership"
-  ): TypedContractMethod<[], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "totalAssets"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "transferOwnership"
-  ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "undeploy"
-  ): TypedContractMethod<[amount: BigNumberish], [bigint], "nonpayable">;
+    nameOrSignature: 'undeploy',
+  ): TypedContractMethod<[amount: BigNumberish], [bigint], 'nonpayable'>;
 
   getEvent(
-    key: "OwnershipTransferred"
+    key: 'OwnershipTransferred',
   ): TypedContractEvent<
     OwnershipTransferredEvent.InputTuple,
     OwnershipTransferredEvent.OutputTuple,
     OwnershipTransferredEvent.OutputObject
   >;
   getEvent(
-    key: "StrategyAmountUpdate"
+    key: 'StrategyAmountUpdate',
   ): TypedContractEvent<
     StrategyAmountUpdateEvent.InputTuple,
     StrategyAmountUpdateEvent.OutputTuple,
     StrategyAmountUpdateEvent.OutputObject
   >;
   getEvent(
-    key: "StrategyDeploy"
+    key: 'StrategyDeploy',
   ): TypedContractEvent<
     StrategyDeployEvent.InputTuple,
     StrategyDeployEvent.OutputTuple,
     StrategyDeployEvent.OutputObject
   >;
   getEvent(
-    key: "StrategyLoss"
+    key: 'StrategyLoss',
   ): TypedContractEvent<
     StrategyLossEvent.InputTuple,
     StrategyLossEvent.OutputTuple,
     StrategyLossEvent.OutputObject
   >;
   getEvent(
-    key: "StrategyProfit"
+    key: 'StrategyProfit',
   ): TypedContractEvent<
     StrategyProfitEvent.InputTuple,
     StrategyProfitEvent.OutputTuple,
     StrategyProfitEvent.OutputObject
   >;
   getEvent(
-    key: "StrategyUndeploy"
+    key: 'StrategyUndeploy',
   ): TypedContractEvent<
     StrategyUndeployEvent.InputTuple,
     StrategyUndeployEvent.OutputTuple,
@@ -300,7 +258,7 @@ export interface StrategyPark extends BaseContract {
   >;
 
   filters: {
-    "OwnershipTransferred(address,address)": TypedContractEvent<
+    'OwnershipTransferred(address,address)': TypedContractEvent<
       OwnershipTransferredEvent.InputTuple,
       OwnershipTransferredEvent.OutputTuple,
       OwnershipTransferredEvent.OutputObject
@@ -311,7 +269,7 @@ export interface StrategyPark extends BaseContract {
       OwnershipTransferredEvent.OutputObject
     >;
 
-    "StrategyAmountUpdate(uint256)": TypedContractEvent<
+    'StrategyAmountUpdate(uint256)': TypedContractEvent<
       StrategyAmountUpdateEvent.InputTuple,
       StrategyAmountUpdateEvent.OutputTuple,
       StrategyAmountUpdateEvent.OutputObject
@@ -322,7 +280,7 @@ export interface StrategyPark extends BaseContract {
       StrategyAmountUpdateEvent.OutputObject
     >;
 
-    "StrategyDeploy(address,uint256)": TypedContractEvent<
+    'StrategyDeploy(address,uint256)': TypedContractEvent<
       StrategyDeployEvent.InputTuple,
       StrategyDeployEvent.OutputTuple,
       StrategyDeployEvent.OutputObject
@@ -333,7 +291,7 @@ export interface StrategyPark extends BaseContract {
       StrategyDeployEvent.OutputObject
     >;
 
-    "StrategyLoss(uint256)": TypedContractEvent<
+    'StrategyLoss(uint256)': TypedContractEvent<
       StrategyLossEvent.InputTuple,
       StrategyLossEvent.OutputTuple,
       StrategyLossEvent.OutputObject
@@ -344,7 +302,7 @@ export interface StrategyPark extends BaseContract {
       StrategyLossEvent.OutputObject
     >;
 
-    "StrategyProfit(uint256)": TypedContractEvent<
+    'StrategyProfit(uint256)': TypedContractEvent<
       StrategyProfitEvent.InputTuple,
       StrategyProfitEvent.OutputTuple,
       StrategyProfitEvent.OutputObject
@@ -355,7 +313,7 @@ export interface StrategyPark extends BaseContract {
       StrategyProfitEvent.OutputObject
     >;
 
-    "StrategyUndeploy(address,uint256)": TypedContractEvent<
+    'StrategyUndeploy(address,uint256)': TypedContractEvent<
       StrategyUndeployEvent.InputTuple,
       StrategyUndeployEvent.OutputTuple,
       StrategyUndeployEvent.OutputObject

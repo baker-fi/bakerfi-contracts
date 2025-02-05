@@ -2,11 +2,11 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
+import { Contract, Interface, type ContractRunner } from 'ethers';
 import type {
   ITransparentUpgradeableProxy,
   ITransparentUpgradeableProxyInterface,
-} from "../../../../../../@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol/ITransparentUpgradeableProxy";
+} from '../../../../../../@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol/ITransparentUpgradeableProxy';
 
 const _abi = [
   {
@@ -14,115 +14,115 @@ const _abi = [
     inputs: [
       {
         indexed: false,
-        internalType: "address",
-        name: "previousAdmin",
-        type: "address",
+        internalType: 'address',
+        name: 'previousAdmin',
+        type: 'address',
       },
       {
         indexed: false,
-        internalType: "address",
-        name: "newAdmin",
-        type: "address",
+        internalType: 'address',
+        name: 'newAdmin',
+        type: 'address',
       },
     ],
-    name: "AdminChanged",
-    type: "event",
+    name: 'AdminChanged',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: "address",
-        name: "beacon",
-        type: "address",
+        internalType: 'address',
+        name: 'beacon',
+        type: 'address',
       },
     ],
-    name: "BeaconUpgraded",
-    type: "event",
+    name: 'BeaconUpgraded',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: "address",
-        name: "implementation",
-        type: "address",
+        internalType: 'address',
+        name: 'implementation',
+        type: 'address',
       },
     ],
-    name: "Upgraded",
-    type: "event",
+    name: 'Upgraded',
+    type: 'event',
   },
   {
     inputs: [],
-    name: "admin",
+    name: 'admin',
     outputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    name: "changeAdmin",
+    name: 'changeAdmin',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "implementation",
+    name: 'implementation',
     outputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    name: "upgradeTo",
+    name: 'upgradeTo',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
       {
-        internalType: "bytes",
-        name: "",
-        type: "bytes",
+        internalType: 'bytes',
+        name: '',
+        type: 'bytes',
       },
     ],
-    name: "upgradeToAndCall",
+    name: 'upgradeToAndCall',
     outputs: [],
-    stateMutability: "payable",
-    type: "function",
+    stateMutability: 'payable',
+    type: 'function',
   },
 ] as const;
 
@@ -131,14 +131,7 @@ export class ITransparentUpgradeableProxy__factory {
   static createInterface(): ITransparentUpgradeableProxyInterface {
     return new Interface(_abi) as ITransparentUpgradeableProxyInterface;
   }
-  static connect(
-    address: string,
-    runner?: ContractRunner | null
-  ): ITransparentUpgradeableProxy {
-    return new Contract(
-      address,
-      _abi,
-      runner
-    ) as unknown as ITransparentUpgradeableProxy;
+  static connect(address: string, runner?: ContractRunner | null): ITransparentUpgradeableProxy {
+    return new Contract(address, _abi, runner) as unknown as ITransparentUpgradeableProxy;
   }
 }

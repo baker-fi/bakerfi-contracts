@@ -2,25 +2,25 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
+import { Contract, Interface, type ContractRunner } from 'ethers';
 import type {
   IERC1822Proxiable,
   IERC1822ProxiableInterface,
-} from "../../../../../@openzeppelin/contracts/interfaces/draft-IERC1822.sol/IERC1822Proxiable";
+} from '../../../../../@openzeppelin/contracts/interfaces/draft-IERC1822.sol/IERC1822Proxiable';
 
 const _abi = [
   {
     inputs: [],
-    name: "proxiableUUID",
+    name: 'proxiableUUID',
     outputs: [
       {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
+        internalType: 'bytes32',
+        name: '',
+        type: 'bytes32',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
 ] as const;
 
@@ -29,10 +29,7 @@ export class IERC1822Proxiable__factory {
   static createInterface(): IERC1822ProxiableInterface {
     return new Interface(_abi) as IERC1822ProxiableInterface;
   }
-  static connect(
-    address: string,
-    runner?: ContractRunner | null
-  ): IERC1822Proxiable {
+  static connect(address: string, runner?: ContractRunner | null): IERC1822Proxiable {
     return new Contract(address, _abi, runner) as unknown as IERC1822Proxiable;
   }
 }

@@ -2,133 +2,130 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
-import type {
-  ExRateOracle,
-  ExRateOracleInterface,
-} from "../../../contracts/oracles/ExRateOracle";
+import { Contract, Interface, type ContractRunner } from 'ethers';
+import type { ExRateOracle, ExRateOracleInterface } from '../../../contracts/oracles/ExRateOracle';
 
 const _abi = [
   {
     inputs: [],
-    name: "InvalidPriceFromOracle",
-    type: "error",
+    name: 'InvalidPriceFromOracle',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InvalidPriceUpdatedAt",
-    type: "error",
+    name: 'InvalidPriceUpdatedAt',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "PriceOutdated",
-    type: "error",
+    name: 'PriceOutdated',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "getLatestPrice",
+    name: 'getLatestPrice',
     outputs: [
       {
         components: [
           {
-            internalType: "uint256",
-            name: "price",
-            type: "uint256",
+            internalType: 'uint256',
+            name: 'price',
+            type: 'uint256',
           },
           {
-            internalType: "uint256",
-            name: "lastUpdate",
-            type: "uint256",
+            internalType: 'uint256',
+            name: 'lastUpdate',
+            type: 'uint256',
           },
         ],
-        internalType: "struct IOracle.Price",
-        name: "",
-        type: "tuple",
+        internalType: 'struct IOracle.Price',
+        name: '',
+        type: 'tuple',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "getPrecision",
+    name: 'getPrecision',
     outputs: [
       {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
       },
     ],
-    stateMutability: "pure",
-    type: "function",
+    stateMutability: 'pure',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "getRatio",
+    name: 'getRatio',
     outputs: [
       {
         components: [
           {
-            internalType: "uint256",
-            name: "price",
-            type: "uint256",
+            internalType: 'uint256',
+            name: 'price',
+            type: 'uint256',
           },
           {
-            internalType: "uint256",
-            name: "lastUpdate",
-            type: "uint256",
+            internalType: 'uint256',
+            name: 'lastUpdate',
+            type: 'uint256',
           },
         ],
-        internalType: "struct IOracle.Price",
-        name: "ratio",
-        type: "tuple",
+        internalType: 'struct IOracle.Price',
+        name: 'ratio',
+        type: 'tuple',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
       {
         components: [
           {
-            internalType: "uint256",
-            name: "maxAge",
-            type: "uint256",
+            internalType: 'uint256',
+            name: 'maxAge',
+            type: 'uint256',
           },
           {
-            internalType: "uint256",
-            name: "maxConf",
-            type: "uint256",
+            internalType: 'uint256',
+            name: 'maxConf',
+            type: 'uint256',
           },
         ],
-        internalType: "struct IOracle.PriceOptions",
-        name: "priceOptions",
-        type: "tuple",
+        internalType: 'struct IOracle.PriceOptions',
+        name: 'priceOptions',
+        type: 'tuple',
       },
     ],
-    name: "getSafeLatestPrice",
+    name: 'getSafeLatestPrice',
     outputs: [
       {
         components: [
           {
-            internalType: "uint256",
-            name: "price",
-            type: "uint256",
+            internalType: 'uint256',
+            name: 'price',
+            type: 'uint256',
           },
           {
-            internalType: "uint256",
-            name: "lastUpdate",
-            type: "uint256",
+            internalType: 'uint256',
+            name: 'lastUpdate',
+            type: 'uint256',
           },
         ],
-        internalType: "struct IOracle.Price",
-        name: "price",
-        type: "tuple",
+        internalType: 'struct IOracle.Price',
+        name: 'price',
+        type: 'tuple',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
 ] as const;
 
@@ -137,10 +134,7 @@ export class ExRateOracle__factory {
   static createInterface(): ExRateOracleInterface {
     return new Interface(_abi) as ExRateOracleInterface;
   }
-  static connect(
-    address: string,
-    runner?: ContractRunner | null
-  ): ExRateOracle {
+  static connect(address: string, runner?: ContractRunner | null): ExRateOracle {
     return new Contract(address, _abi, runner) as unknown as ExRateOracle;
   }
 }

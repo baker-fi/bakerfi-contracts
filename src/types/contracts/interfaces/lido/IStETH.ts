@@ -13,7 +13,7 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
@@ -21,117 +21,62 @@ import type {
   TypedLogDescription,
   TypedListener,
   TypedContractMethod,
-} from "../../../common";
+} from '../../../common';
 
 export interface IStETHInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "allowance"
-      | "approve"
-      | "balanceOf"
-      | "burnShares"
-      | "getPooledEthByShares"
-      | "getSharesByPooledEth"
-      | "getTotalPooledEther"
-      | "getTotalShares"
-      | "sharesOf"
-      | "submit"
-      | "totalSupply"
-      | "transfer"
-      | "transferFrom"
+      | 'allowance'
+      | 'approve'
+      | 'balanceOf'
+      | 'burnShares'
+      | 'getPooledEthByShares'
+      | 'getSharesByPooledEth'
+      | 'getTotalPooledEther'
+      | 'getTotalShares'
+      | 'sharesOf'
+      | 'submit'
+      | 'totalSupply'
+      | 'transfer'
+      | 'transferFrom',
   ): FunctionFragment;
 
-  getEvent(nameOrSignatureOrTopic: "Approval" | "Transfer"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Approval' | 'Transfer'): EventFragment;
 
+  encodeFunctionData(functionFragment: 'allowance', values: [AddressLike, AddressLike]): string;
+  encodeFunctionData(functionFragment: 'approve', values: [AddressLike, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'balanceOf', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'burnShares', values: [AddressLike, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'getPooledEthByShares', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'getSharesByPooledEth', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'getTotalPooledEther', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'getTotalShares', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'sharesOf', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'submit', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'totalSupply', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'transfer', values: [AddressLike, BigNumberish]): string;
   encodeFunctionData(
-    functionFragment: "allowance",
-    values: [AddressLike, AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "approve",
-    values: [AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "balanceOf",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "burnShares",
-    values: [AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getPooledEthByShares",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getSharesByPooledEth",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getTotalPooledEther",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getTotalShares",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "sharesOf",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(functionFragment: "submit", values: [AddressLike]): string;
-  encodeFunctionData(
-    functionFragment: "totalSupply",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transfer",
-    values: [AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferFrom",
-    values: [AddressLike, AddressLike, BigNumberish]
+    functionFragment: 'transferFrom',
+    values: [AddressLike, AddressLike, BigNumberish],
   ): string;
 
-  decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "burnShares", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getPooledEthByShares",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getSharesByPooledEth",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getTotalPooledEther",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getTotalShares",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "sharesOf", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "submit", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "totalSupply",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "transfer", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "transferFrom",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: 'allowance', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'approve', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'balanceOf', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'burnShares', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getPooledEthByShares', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getSharesByPooledEth', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getTotalPooledEther', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getTotalShares', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'sharesOf', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'submit', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'totalSupply', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transfer', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transferFrom', data: BytesLike): Result;
 }
 
 export namespace ApprovalEvent {
-  export type InputTuple = [
-    owner: AddressLike,
-    spender: AddressLike,
-    value: BigNumberish
-  ];
+  export type InputTuple = [owner: AddressLike, spender: AddressLike, value: BigNumberish];
   export type OutputTuple = [owner: string, spender: string, value: bigint];
   export interface OutputObject {
     owner: string;
@@ -145,11 +90,7 @@ export namespace ApprovalEvent {
 }
 
 export namespace TransferEvent {
-  export type InputTuple = [
-    from: AddressLike,
-    to: AddressLike,
-    value: BigNumberish
-  ];
+  export type InputTuple = [from: AddressLike, to: AddressLike, value: BigNumberish];
   export type OutputTuple = [from: string, to: string, value: bigint];
   export interface OutputObject {
     from: string;
@@ -171,167 +112,129 @@ export interface IStETH extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
-  allowance: TypedContractMethod<
-    [owner: AddressLike, spender: AddressLike],
-    [bigint],
-    "view"
-  >;
+  allowance: TypedContractMethod<[owner: AddressLike, spender: AddressLike], [bigint], 'view'>;
 
   approve: TypedContractMethod<
     [spender: AddressLike, amount: BigNumberish],
     [boolean],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  balanceOf: TypedContractMethod<[account: AddressLike], [bigint], "view">;
+  balanceOf: TypedContractMethod<[account: AddressLike], [bigint], 'view'>;
 
   burnShares: TypedContractMethod<
     [_account: AddressLike, _sharesAmount: BigNumberish],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  getPooledEthByShares: TypedContractMethod<
-    [_sharesAmount: BigNumberish],
-    [bigint],
-    "view"
-  >;
+  getPooledEthByShares: TypedContractMethod<[_sharesAmount: BigNumberish], [bigint], 'view'>;
 
-  getSharesByPooledEth: TypedContractMethod<
-    [_ethAmount: BigNumberish],
-    [bigint],
-    "view"
-  >;
+  getSharesByPooledEth: TypedContractMethod<[_ethAmount: BigNumberish], [bigint], 'view'>;
 
-  getTotalPooledEther: TypedContractMethod<[], [bigint], "view">;
+  getTotalPooledEther: TypedContractMethod<[], [bigint], 'view'>;
 
-  getTotalShares: TypedContractMethod<[], [bigint], "view">;
+  getTotalShares: TypedContractMethod<[], [bigint], 'view'>;
 
-  sharesOf: TypedContractMethod<[account: AddressLike], [bigint], "view">;
+  sharesOf: TypedContractMethod<[account: AddressLike], [bigint], 'view'>;
 
-  submit: TypedContractMethod<[referral: AddressLike], [bigint], "payable">;
+  submit: TypedContractMethod<[referral: AddressLike], [bigint], 'payable'>;
 
-  totalSupply: TypedContractMethod<[], [bigint], "view">;
+  totalSupply: TypedContractMethod<[], [bigint], 'view'>;
 
-  transfer: TypedContractMethod<
-    [to: AddressLike, amount: BigNumberish],
-    [boolean],
-    "nonpayable"
-  >;
+  transfer: TypedContractMethod<[to: AddressLike, amount: BigNumberish], [boolean], 'nonpayable'>;
 
   transferFrom: TypedContractMethod<
     [from: AddressLike, to: AddressLike, amount: BigNumberish],
     [boolean],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
   getFunction(
-    nameOrSignature: "allowance"
-  ): TypedContractMethod<
-    [owner: AddressLike, spender: AddressLike],
-    [bigint],
-    "view"
-  >;
+    nameOrSignature: 'allowance',
+  ): TypedContractMethod<[owner: AddressLike, spender: AddressLike], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "approve"
-  ): TypedContractMethod<
-    [spender: AddressLike, amount: BigNumberish],
-    [boolean],
-    "nonpayable"
-  >;
+    nameOrSignature: 'approve',
+  ): TypedContractMethod<[spender: AddressLike, amount: BigNumberish], [boolean], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "balanceOf"
-  ): TypedContractMethod<[account: AddressLike], [bigint], "view">;
+    nameOrSignature: 'balanceOf',
+  ): TypedContractMethod<[account: AddressLike], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "burnShares"
+    nameOrSignature: 'burnShares',
   ): TypedContractMethod<
     [_account: AddressLike, _sharesAmount: BigNumberish],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "getPooledEthByShares"
-  ): TypedContractMethod<[_sharesAmount: BigNumberish], [bigint], "view">;
+    nameOrSignature: 'getPooledEthByShares',
+  ): TypedContractMethod<[_sharesAmount: BigNumberish], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "getSharesByPooledEth"
-  ): TypedContractMethod<[_ethAmount: BigNumberish], [bigint], "view">;
+    nameOrSignature: 'getSharesByPooledEth',
+  ): TypedContractMethod<[_ethAmount: BigNumberish], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'getTotalPooledEther'): TypedContractMethod<[], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'getTotalShares'): TypedContractMethod<[], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "getTotalPooledEther"
-  ): TypedContractMethod<[], [bigint], "view">;
+    nameOrSignature: 'sharesOf',
+  ): TypedContractMethod<[account: AddressLike], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "getTotalShares"
-  ): TypedContractMethod<[], [bigint], "view">;
+    nameOrSignature: 'submit',
+  ): TypedContractMethod<[referral: AddressLike], [bigint], 'payable'>;
+  getFunction(nameOrSignature: 'totalSupply'): TypedContractMethod<[], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "sharesOf"
-  ): TypedContractMethod<[account: AddressLike], [bigint], "view">;
+    nameOrSignature: 'transfer',
+  ): TypedContractMethod<[to: AddressLike, amount: BigNumberish], [boolean], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "submit"
-  ): TypedContractMethod<[referral: AddressLike], [bigint], "payable">;
-  getFunction(
-    nameOrSignature: "totalSupply"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "transfer"
-  ): TypedContractMethod<
-    [to: AddressLike, amount: BigNumberish],
-    [boolean],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "transferFrom"
+    nameOrSignature: 'transferFrom',
   ): TypedContractMethod<
     [from: AddressLike, to: AddressLike, amount: BigNumberish],
     [boolean],
-    "nonpayable"
+    'nonpayable'
   >;
 
   getEvent(
-    key: "Approval"
+    key: 'Approval',
   ): TypedContractEvent<
     ApprovalEvent.InputTuple,
     ApprovalEvent.OutputTuple,
     ApprovalEvent.OutputObject
   >;
   getEvent(
-    key: "Transfer"
+    key: 'Transfer',
   ): TypedContractEvent<
     TransferEvent.InputTuple,
     TransferEvent.OutputTuple,
@@ -339,7 +242,7 @@ export interface IStETH extends BaseContract {
   >;
 
   filters: {
-    "Approval(address,address,uint256)": TypedContractEvent<
+    'Approval(address,address,uint256)': TypedContractEvent<
       ApprovalEvent.InputTuple,
       ApprovalEvent.OutputTuple,
       ApprovalEvent.OutputObject
@@ -350,7 +253,7 @@ export interface IStETH extends BaseContract {
       ApprovalEvent.OutputObject
     >;
 
-    "Transfer(address,address,uint256)": TypedContractEvent<
+    'Transfer(address,address,uint256)': TypedContractEvent<
       TransferEvent.InputTuple,
       TransferEvent.OutputTuple,
       TransferEvent.OutputObject

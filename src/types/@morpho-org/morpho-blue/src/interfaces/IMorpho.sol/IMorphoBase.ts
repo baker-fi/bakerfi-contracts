@@ -12,14 +12,14 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
   TypedEventLog,
   TypedListener,
   TypedContractMethod,
-} from "../../../../../common";
+} from '../../../../../common';
 
 export type MarketParamsStruct = {
   loanToken: AddressLike;
@@ -34,7 +34,7 @@ export type MarketParamsStructOutput = [
   collateralToken: string,
   oracle: string,
   irm: string,
-  lltv: bigint
+  lltv: bigint,
 ] & {
   loanToken: string;
   collateralToken: string;
@@ -56,7 +56,7 @@ export type AuthorizationStructOutput = [
   authorized: string,
   isAuthorized: boolean,
   nonce: bigint,
-  deadline: bigint
+  deadline: bigint,
 ] & {
   authorizer: string;
   authorized: string;
@@ -76,219 +76,114 @@ export type SignatureStructOutput = [v: bigint, r: string, s: string] & {
 export interface IMorphoBaseInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "DOMAIN_SEPARATOR"
-      | "accrueInterest"
-      | "borrow"
-      | "createMarket"
-      | "enableIrm"
-      | "enableLltv"
-      | "extSloads"
-      | "feeRecipient"
-      | "flashLoan"
-      | "isAuthorized"
-      | "isIrmEnabled"
-      | "isLltvEnabled"
-      | "liquidate"
-      | "nonce"
-      | "owner"
-      | "repay"
-      | "setAuthorization"
-      | "setAuthorizationWithSig"
-      | "setFee"
-      | "setFeeRecipient"
-      | "setOwner"
-      | "supply"
-      | "supplyCollateral"
-      | "withdraw"
-      | "withdrawCollateral"
+      | 'DOMAIN_SEPARATOR'
+      | 'accrueInterest'
+      | 'borrow'
+      | 'createMarket'
+      | 'enableIrm'
+      | 'enableLltv'
+      | 'extSloads'
+      | 'feeRecipient'
+      | 'flashLoan'
+      | 'isAuthorized'
+      | 'isIrmEnabled'
+      | 'isLltvEnabled'
+      | 'liquidate'
+      | 'nonce'
+      | 'owner'
+      | 'repay'
+      | 'setAuthorization'
+      | 'setAuthorizationWithSig'
+      | 'setFee'
+      | 'setFeeRecipient'
+      | 'setOwner'
+      | 'supply'
+      | 'supplyCollateral'
+      | 'withdraw'
+      | 'withdrawCollateral',
   ): FunctionFragment;
 
+  encodeFunctionData(functionFragment: 'DOMAIN_SEPARATOR', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'accrueInterest', values: [MarketParamsStruct]): string;
   encodeFunctionData(
-    functionFragment: "DOMAIN_SEPARATOR",
-    values?: undefined
+    functionFragment: 'borrow',
+    values: [MarketParamsStruct, BigNumberish, BigNumberish, AddressLike, AddressLike],
+  ): string;
+  encodeFunctionData(functionFragment: 'createMarket', values: [MarketParamsStruct]): string;
+  encodeFunctionData(functionFragment: 'enableIrm', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'enableLltv', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'extSloads', values: [BytesLike[]]): string;
+  encodeFunctionData(functionFragment: 'feeRecipient', values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: 'flashLoan',
+    values: [AddressLike, BigNumberish, BytesLike],
+  ): string;
+  encodeFunctionData(functionFragment: 'isAuthorized', values: [AddressLike, AddressLike]): string;
+  encodeFunctionData(functionFragment: 'isIrmEnabled', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'isLltvEnabled', values: [BigNumberish]): string;
+  encodeFunctionData(
+    functionFragment: 'liquidate',
+    values: [MarketParamsStruct, AddressLike, BigNumberish, BigNumberish, BytesLike],
+  ): string;
+  encodeFunctionData(functionFragment: 'nonce', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'owner', values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: 'repay',
+    values: [MarketParamsStruct, BigNumberish, BigNumberish, AddressLike, BytesLike],
+  ): string;
+  encodeFunctionData(functionFragment: 'setAuthorization', values: [AddressLike, boolean]): string;
+  encodeFunctionData(
+    functionFragment: 'setAuthorizationWithSig',
+    values: [AuthorizationStruct, SignatureStruct],
   ): string;
   encodeFunctionData(
-    functionFragment: "accrueInterest",
-    values: [MarketParamsStruct]
+    functionFragment: 'setFee',
+    values: [MarketParamsStruct, BigNumberish],
+  ): string;
+  encodeFunctionData(functionFragment: 'setFeeRecipient', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'setOwner', values: [AddressLike]): string;
+  encodeFunctionData(
+    functionFragment: 'supply',
+    values: [MarketParamsStruct, BigNumberish, BigNumberish, AddressLike, BytesLike],
   ): string;
   encodeFunctionData(
-    functionFragment: "borrow",
-    values: [
-      MarketParamsStruct,
-      BigNumberish,
-      BigNumberish,
-      AddressLike,
-      AddressLike
-    ]
+    functionFragment: 'supplyCollateral',
+    values: [MarketParamsStruct, BigNumberish, AddressLike, BytesLike],
   ): string;
   encodeFunctionData(
-    functionFragment: "createMarket",
-    values: [MarketParamsStruct]
+    functionFragment: 'withdraw',
+    values: [MarketParamsStruct, BigNumberish, BigNumberish, AddressLike, AddressLike],
   ): string;
   encodeFunctionData(
-    functionFragment: "enableIrm",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "enableLltv",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "extSloads",
-    values: [BytesLike[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "feeRecipient",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "flashLoan",
-    values: [AddressLike, BigNumberish, BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isAuthorized",
-    values: [AddressLike, AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isIrmEnabled",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isLltvEnabled",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "liquidate",
-    values: [
-      MarketParamsStruct,
-      AddressLike,
-      BigNumberish,
-      BigNumberish,
-      BytesLike
-    ]
-  ): string;
-  encodeFunctionData(functionFragment: "nonce", values: [AddressLike]): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "repay",
-    values: [
-      MarketParamsStruct,
-      BigNumberish,
-      BigNumberish,
-      AddressLike,
-      BytesLike
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setAuthorization",
-    values: [AddressLike, boolean]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setAuthorizationWithSig",
-    values: [AuthorizationStruct, SignatureStruct]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setFee",
-    values: [MarketParamsStruct, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setFeeRecipient",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setOwner",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "supply",
-    values: [
-      MarketParamsStruct,
-      BigNumberish,
-      BigNumberish,
-      AddressLike,
-      BytesLike
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "supplyCollateral",
-    values: [MarketParamsStruct, BigNumberish, AddressLike, BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "withdraw",
-    values: [
-      MarketParamsStruct,
-      BigNumberish,
-      BigNumberish,
-      AddressLike,
-      AddressLike
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "withdrawCollateral",
-    values: [MarketParamsStruct, BigNumberish, AddressLike, AddressLike]
+    functionFragment: 'withdrawCollateral',
+    values: [MarketParamsStruct, BigNumberish, AddressLike, AddressLike],
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "DOMAIN_SEPARATOR",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "accrueInterest",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "borrow", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "createMarket",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "enableIrm", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "enableLltv", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "extSloads", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "feeRecipient",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "flashLoan", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "isAuthorized",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isIrmEnabled",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isLltvEnabled",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "liquidate", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "nonce", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "repay", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setAuthorization",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setAuthorizationWithSig",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "setFee", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setFeeRecipient",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "setOwner", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "supply", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "supplyCollateral",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "withdrawCollateral",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: 'DOMAIN_SEPARATOR', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'accrueInterest', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'borrow', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'createMarket', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'enableIrm', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'enableLltv', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'extSloads', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'feeRecipient', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'flashLoan', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'isAuthorized', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'isIrmEnabled', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'isLltvEnabled', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'liquidate', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'nonce', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'repay', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setAuthorization', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setAuthorizationWithSig', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setFee', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setFeeRecipient', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setOwner', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'supply', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'supplyCollateral', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'withdraw', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'withdrawCollateral', data: BytesLike): Result;
 }
 
 export interface IMorphoBase extends BaseContract {
@@ -300,47 +195,41 @@ export interface IMorphoBase extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
-  DOMAIN_SEPARATOR: TypedContractMethod<[], [string], "view">;
+  DOMAIN_SEPARATOR: TypedContractMethod<[], [string], 'view'>;
 
-  accrueInterest: TypedContractMethod<
-    [marketParams: MarketParamsStruct],
-    [void],
-    "nonpayable"
-  >;
+  accrueInterest: TypedContractMethod<[marketParams: MarketParamsStruct], [void], 'nonpayable'>;
 
   borrow: TypedContractMethod<
     [
@@ -348,41 +237,37 @@ export interface IMorphoBase extends BaseContract {
       assets: BigNumberish,
       shares: BigNumberish,
       onBehalf: AddressLike,
-      receiver: AddressLike
+      receiver: AddressLike,
     ],
     [[bigint, bigint] & { assetsBorrowed: bigint; sharesBorrowed: bigint }],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  createMarket: TypedContractMethod<
-    [marketParams: MarketParamsStruct],
-    [void],
-    "nonpayable"
-  >;
+  createMarket: TypedContractMethod<[marketParams: MarketParamsStruct], [void], 'nonpayable'>;
 
-  enableIrm: TypedContractMethod<[irm: AddressLike], [void], "nonpayable">;
+  enableIrm: TypedContractMethod<[irm: AddressLike], [void], 'nonpayable'>;
 
-  enableLltv: TypedContractMethod<[lltv: BigNumberish], [void], "nonpayable">;
+  enableLltv: TypedContractMethod<[lltv: BigNumberish], [void], 'nonpayable'>;
 
-  extSloads: TypedContractMethod<[slots: BytesLike[]], [string[]], "view">;
+  extSloads: TypedContractMethod<[slots: BytesLike[]], [string[]], 'view'>;
 
-  feeRecipient: TypedContractMethod<[], [string], "view">;
+  feeRecipient: TypedContractMethod<[], [string], 'view'>;
 
   flashLoan: TypedContractMethod<
     [token: AddressLike, assets: BigNumberish, data: BytesLike],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
   isAuthorized: TypedContractMethod<
     [authorizer: AddressLike, authorized: AddressLike],
     [boolean],
-    "view"
+    'view'
   >;
 
-  isIrmEnabled: TypedContractMethod<[irm: AddressLike], [boolean], "view">;
+  isIrmEnabled: TypedContractMethod<[irm: AddressLike], [boolean], 'view'>;
 
-  isLltvEnabled: TypedContractMethod<[lltv: BigNumberish], [boolean], "view">;
+  isLltvEnabled: TypedContractMethod<[lltv: BigNumberish], [boolean], 'view'>;
 
   liquidate: TypedContractMethod<
     [
@@ -390,15 +275,15 @@ export interface IMorphoBase extends BaseContract {
       borrower: AddressLike,
       seizedAssets: BigNumberish,
       repaidShares: BigNumberish,
-      data: BytesLike
+      data: BytesLike,
     ],
     [[bigint, bigint]],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  nonce: TypedContractMethod<[authorizer: AddressLike], [bigint], "view">;
+  nonce: TypedContractMethod<[authorizer: AddressLike], [bigint], 'view'>;
 
-  owner: TypedContractMethod<[], [string], "view">;
+  owner: TypedContractMethod<[], [string], 'view'>;
 
   repay: TypedContractMethod<
     [
@@ -406,37 +291,33 @@ export interface IMorphoBase extends BaseContract {
       assets: BigNumberish,
       shares: BigNumberish,
       onBehalf: AddressLike,
-      data: BytesLike
+      data: BytesLike,
     ],
     [[bigint, bigint] & { assetsRepaid: bigint; sharesRepaid: bigint }],
-    "nonpayable"
+    'nonpayable'
   >;
 
   setAuthorization: TypedContractMethod<
     [authorized: AddressLike, newIsAuthorized: boolean],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
   setAuthorizationWithSig: TypedContractMethod<
     [authorization: AuthorizationStruct, signature: SignatureStruct],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
   setFee: TypedContractMethod<
     [marketParams: MarketParamsStruct, newFee: BigNumberish],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  setFeeRecipient: TypedContractMethod<
-    [newFeeRecipient: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+  setFeeRecipient: TypedContractMethod<[newFeeRecipient: AddressLike], [void], 'nonpayable'>;
 
-  setOwner: TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
+  setOwner: TypedContractMethod<[newOwner: AddressLike], [void], 'nonpayable'>;
 
   supply: TypedContractMethod<
     [
@@ -444,10 +325,10 @@ export interface IMorphoBase extends BaseContract {
       assets: BigNumberish,
       shares: BigNumberish,
       onBehalf: AddressLike,
-      data: BytesLike
+      data: BytesLike,
     ],
     [[bigint, bigint] & { assetsSupplied: bigint; sharesSupplied: bigint }],
-    "nonpayable"
+    'nonpayable'
   >;
 
   supplyCollateral: TypedContractMethod<
@@ -455,10 +336,10 @@ export interface IMorphoBase extends BaseContract {
       marketParams: MarketParamsStruct,
       assets: BigNumberish,
       onBehalf: AddressLike,
-      data: BytesLike
+      data: BytesLike,
     ],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
   withdraw: TypedContractMethod<
@@ -467,10 +348,10 @@ export interface IMorphoBase extends BaseContract {
       assets: BigNumberish,
       shares: BigNumberish,
       onBehalf: AddressLike,
-      receiver: AddressLike
+      receiver: AddressLike,
     ],
     [[bigint, bigint] & { assetsWithdrawn: bigint; sharesWithdrawn: bigint }],
-    "nonpayable"
+    'nonpayable'
   >;
 
   withdrawCollateral: TypedContractMethod<
@@ -478,186 +359,162 @@ export interface IMorphoBase extends BaseContract {
       marketParams: MarketParamsStruct,
       assets: BigNumberish,
       onBehalf: AddressLike,
-      receiver: AddressLike
+      receiver: AddressLike,
     ],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
+  getFunction(nameOrSignature: 'DOMAIN_SEPARATOR'): TypedContractMethod<[], [string], 'view'>;
   getFunction(
-    nameOrSignature: "DOMAIN_SEPARATOR"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: 'accrueInterest',
+  ): TypedContractMethod<[marketParams: MarketParamsStruct], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "accrueInterest"
-  ): TypedContractMethod<
-    [marketParams: MarketParamsStruct],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "borrow"
+    nameOrSignature: 'borrow',
   ): TypedContractMethod<
     [
       marketParams: MarketParamsStruct,
       assets: BigNumberish,
       shares: BigNumberish,
       onBehalf: AddressLike,
-      receiver: AddressLike
+      receiver: AddressLike,
     ],
     [[bigint, bigint] & { assetsBorrowed: bigint; sharesBorrowed: bigint }],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "createMarket"
-  ): TypedContractMethod<
-    [marketParams: MarketParamsStruct],
-    [void],
-    "nonpayable"
-  >;
+    nameOrSignature: 'createMarket',
+  ): TypedContractMethod<[marketParams: MarketParamsStruct], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "enableIrm"
-  ): TypedContractMethod<[irm: AddressLike], [void], "nonpayable">;
+    nameOrSignature: 'enableIrm',
+  ): TypedContractMethod<[irm: AddressLike], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "enableLltv"
-  ): TypedContractMethod<[lltv: BigNumberish], [void], "nonpayable">;
+    nameOrSignature: 'enableLltv',
+  ): TypedContractMethod<[lltv: BigNumberish], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "extSloads"
-  ): TypedContractMethod<[slots: BytesLike[]], [string[]], "view">;
+    nameOrSignature: 'extSloads',
+  ): TypedContractMethod<[slots: BytesLike[]], [string[]], 'view'>;
+  getFunction(nameOrSignature: 'feeRecipient'): TypedContractMethod<[], [string], 'view'>;
   getFunction(
-    nameOrSignature: "feeRecipient"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "flashLoan"
+    nameOrSignature: 'flashLoan',
   ): TypedContractMethod<
     [token: AddressLike, assets: BigNumberish, data: BytesLike],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "isAuthorized"
-  ): TypedContractMethod<
-    [authorizer: AddressLike, authorized: AddressLike],
-    [boolean],
-    "view"
-  >;
+    nameOrSignature: 'isAuthorized',
+  ): TypedContractMethod<[authorizer: AddressLike, authorized: AddressLike], [boolean], 'view'>;
   getFunction(
-    nameOrSignature: "isIrmEnabled"
-  ): TypedContractMethod<[irm: AddressLike], [boolean], "view">;
+    nameOrSignature: 'isIrmEnabled',
+  ): TypedContractMethod<[irm: AddressLike], [boolean], 'view'>;
   getFunction(
-    nameOrSignature: "isLltvEnabled"
-  ): TypedContractMethod<[lltv: BigNumberish], [boolean], "view">;
+    nameOrSignature: 'isLltvEnabled',
+  ): TypedContractMethod<[lltv: BigNumberish], [boolean], 'view'>;
   getFunction(
-    nameOrSignature: "liquidate"
+    nameOrSignature: 'liquidate',
   ): TypedContractMethod<
     [
       marketParams: MarketParamsStruct,
       borrower: AddressLike,
       seizedAssets: BigNumberish,
       repaidShares: BigNumberish,
-      data: BytesLike
+      data: BytesLike,
     ],
     [[bigint, bigint]],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "nonce"
-  ): TypedContractMethod<[authorizer: AddressLike], [bigint], "view">;
+    nameOrSignature: 'nonce',
+  ): TypedContractMethod<[authorizer: AddressLike], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'owner'): TypedContractMethod<[], [string], 'view'>;
   getFunction(
-    nameOrSignature: "owner"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "repay"
+    nameOrSignature: 'repay',
   ): TypedContractMethod<
     [
       marketParams: MarketParamsStruct,
       assets: BigNumberish,
       shares: BigNumberish,
       onBehalf: AddressLike,
-      data: BytesLike
+      data: BytesLike,
     ],
     [[bigint, bigint] & { assetsRepaid: bigint; sharesRepaid: bigint }],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "setAuthorization"
-  ): TypedContractMethod<
-    [authorized: AddressLike, newIsAuthorized: boolean],
-    [void],
-    "nonpayable"
-  >;
+    nameOrSignature: 'setAuthorization',
+  ): TypedContractMethod<[authorized: AddressLike, newIsAuthorized: boolean], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "setAuthorizationWithSig"
+    nameOrSignature: 'setAuthorizationWithSig',
   ): TypedContractMethod<
     [authorization: AuthorizationStruct, signature: SignatureStruct],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "setFee"
+    nameOrSignature: 'setFee',
   ): TypedContractMethod<
     [marketParams: MarketParamsStruct, newFee: BigNumberish],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "setFeeRecipient"
-  ): TypedContractMethod<[newFeeRecipient: AddressLike], [void], "nonpayable">;
+    nameOrSignature: 'setFeeRecipient',
+  ): TypedContractMethod<[newFeeRecipient: AddressLike], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "setOwner"
-  ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
+    nameOrSignature: 'setOwner',
+  ): TypedContractMethod<[newOwner: AddressLike], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "supply"
+    nameOrSignature: 'supply',
   ): TypedContractMethod<
     [
       marketParams: MarketParamsStruct,
       assets: BigNumberish,
       shares: BigNumberish,
       onBehalf: AddressLike,
-      data: BytesLike
+      data: BytesLike,
     ],
     [[bigint, bigint] & { assetsSupplied: bigint; sharesSupplied: bigint }],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "supplyCollateral"
+    nameOrSignature: 'supplyCollateral',
   ): TypedContractMethod<
     [
       marketParams: MarketParamsStruct,
       assets: BigNumberish,
       onBehalf: AddressLike,
-      data: BytesLike
+      data: BytesLike,
     ],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "withdraw"
+    nameOrSignature: 'withdraw',
   ): TypedContractMethod<
     [
       marketParams: MarketParamsStruct,
       assets: BigNumberish,
       shares: BigNumberish,
       onBehalf: AddressLike,
-      receiver: AddressLike
+      receiver: AddressLike,
     ],
     [[bigint, bigint] & { assetsWithdrawn: bigint; sharesWithdrawn: bigint }],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "withdrawCollateral"
+    nameOrSignature: 'withdrawCollateral',
   ): TypedContractMethod<
     [
       marketParams: MarketParamsStruct,
       assets: BigNumberish,
       onBehalf: AddressLike,
-      receiver: AddressLike
+      receiver: AddressLike,
     ],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
   filters: {};

@@ -12,14 +12,14 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
   TypedEventLog,
   TypedListener,
   TypedContractMethod,
-} from "../../../../../common";
+} from '../../../../../common';
 
 export declare namespace ISwapHandler {
   export type SwapParamsStruct = {
@@ -37,7 +37,7 @@ export declare namespace ISwapHandler {
     mode: bigint,
     amountIn: bigint,
     amountOut: bigint,
-    payload: string
+    payload: string,
   ] & {
     underlyingIn: string;
     underlyingOut: string;
@@ -50,28 +50,22 @@ export declare namespace ISwapHandler {
 
 export interface UseAeroSwapperMockInterface extends Interface {
   getFunction(
-    nameOrSignature: "aeroRouter" | "test__swap" | "test_allowRouterSpend"
+    nameOrSignature: 'aeroRouter' | 'test__swap' | 'test_allowRouterSpend',
   ): FunctionFragment;
 
+  encodeFunctionData(functionFragment: 'aeroRouter', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "aeroRouter",
-    values?: undefined
+    functionFragment: 'test__swap',
+    values: [ISwapHandler.SwapParamsStruct],
   ): string;
   encodeFunctionData(
-    functionFragment: "test__swap",
-    values: [ISwapHandler.SwapParamsStruct]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "test_allowRouterSpend",
-    values: [AddressLike, BigNumberish]
+    functionFragment: 'test_allowRouterSpend',
+    values: [AddressLike, BigNumberish],
   ): string;
 
-  decodeFunctionResult(functionFragment: "aeroRouter", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "test__swap", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "test_allowRouterSpend",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: 'aeroRouter', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'test__swap', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'test_allowRouterSpend', data: BytesLike): Result;
 }
 
 export interface UseAeroSwapperMock extends BaseContract {
@@ -83,75 +77,65 @@ export interface UseAeroSwapperMock extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
-  aeroRouter: TypedContractMethod<[], [string], "view">;
+  aeroRouter: TypedContractMethod<[], [string], 'view'>;
 
   test__swap: TypedContractMethod<
     [params: ISwapHandler.SwapParamsStruct],
     [[bigint, bigint] & { amountIn: bigint; amountOut: bigint }],
-    "nonpayable"
+    'nonpayable'
   >;
 
   test_allowRouterSpend: TypedContractMethod<
     [token: AddressLike, amount: BigNumberish],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
+  getFunction(nameOrSignature: 'aeroRouter'): TypedContractMethod<[], [string], 'view'>;
   getFunction(
-    nameOrSignature: "aeroRouter"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "test__swap"
+    nameOrSignature: 'test__swap',
   ): TypedContractMethod<
     [params: ISwapHandler.SwapParamsStruct],
     [[bigint, bigint] & { amountIn: bigint; amountOut: bigint }],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "test_allowRouterSpend"
-  ): TypedContractMethod<
-    [token: AddressLike, amount: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+    nameOrSignature: 'test_allowRouterSpend',
+  ): TypedContractMethod<[token: AddressLike, amount: BigNumberish], [void], 'nonpayable'>;
 
   filters: {};
 }

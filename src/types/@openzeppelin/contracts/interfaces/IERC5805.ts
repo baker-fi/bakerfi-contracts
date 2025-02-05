@@ -13,7 +13,7 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
@@ -21,92 +21,52 @@ import type {
   TypedLogDescription,
   TypedListener,
   TypedContractMethod,
-} from "../../../common";
+} from '../../../common';
 
 export interface IERC5805Interface extends Interface {
   getFunction(
     nameOrSignature:
-      | "CLOCK_MODE"
-      | "clock"
-      | "delegate"
-      | "delegateBySig"
-      | "delegates"
-      | "getPastTotalSupply"
-      | "getPastVotes"
-      | "getVotes"
+      | 'CLOCK_MODE'
+      | 'clock'
+      | 'delegate'
+      | 'delegateBySig'
+      | 'delegates'
+      | 'getPastTotalSupply'
+      | 'getPastVotes'
+      | 'getVotes',
   ): FunctionFragment;
 
-  getEvent(
-    nameOrSignatureOrTopic: "DelegateChanged" | "DelegateVotesChanged"
-  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'DelegateChanged' | 'DelegateVotesChanged'): EventFragment;
 
+  encodeFunctionData(functionFragment: 'CLOCK_MODE', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'clock', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'delegate', values: [AddressLike]): string;
   encodeFunctionData(
-    functionFragment: "CLOCK_MODE",
-    values?: undefined
+    functionFragment: 'delegateBySig',
+    values: [AddressLike, BigNumberish, BigNumberish, BigNumberish, BytesLike, BytesLike],
   ): string;
-  encodeFunctionData(functionFragment: "clock", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "delegate",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "delegateBySig",
-    values: [
-      AddressLike,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      BytesLike,
-      BytesLike
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "delegates",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getPastTotalSupply",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getPastVotes",
-    values: [AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getVotes",
-    values: [AddressLike]
-  ): string;
+  encodeFunctionData(functionFragment: 'delegates', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'getPastTotalSupply', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'getPastVotes', values: [AddressLike, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'getVotes', values: [AddressLike]): string;
 
-  decodeFunctionResult(functionFragment: "CLOCK_MODE", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "clock", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "delegate", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "delegateBySig",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "delegates", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getPastTotalSupply",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getPastVotes",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "getVotes", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'CLOCK_MODE', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'clock', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'delegate', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'delegateBySig', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'delegates', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getPastTotalSupply', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getPastVotes', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getVotes', data: BytesLike): Result;
 }
 
 export namespace DelegateChangedEvent {
   export type InputTuple = [
     delegator: AddressLike,
     fromDelegate: AddressLike,
-    toDelegate: AddressLike
+    toDelegate: AddressLike,
   ];
-  export type OutputTuple = [
-    delegator: string,
-    fromDelegate: string,
-    toDelegate: string
-  ];
+  export type OutputTuple = [delegator: string, fromDelegate: string, toDelegate: string];
   export interface OutputObject {
     delegator: string;
     fromDelegate: string;
@@ -122,13 +82,9 @@ export namespace DelegateVotesChangedEvent {
   export type InputTuple = [
     delegate: AddressLike,
     previousBalance: BigNumberish,
-    newBalance: BigNumberish
+    newBalance: BigNumberish,
   ];
-  export type OutputTuple = [
-    delegate: string,
-    previousBalance: bigint,
-    newBalance: bigint
-  ];
+  export type OutputTuple = [delegate: string, previousBalance: bigint, newBalance: bigint];
   export interface OutputObject {
     delegate: string;
     previousBalance: bigint;
@@ -149,45 +105,43 @@ export interface IERC5805 extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
-  CLOCK_MODE: TypedContractMethod<[], [string], "view">;
+  CLOCK_MODE: TypedContractMethod<[], [string], 'view'>;
 
-  clock: TypedContractMethod<[], [bigint], "view">;
+  clock: TypedContractMethod<[], [bigint], 'view'>;
 
-  delegate: TypedContractMethod<[delegatee: AddressLike], [void], "nonpayable">;
+  delegate: TypedContractMethod<[delegatee: AddressLike], [void], 'nonpayable'>;
 
   delegateBySig: TypedContractMethod<
     [
@@ -196,43 +150,33 @@ export interface IERC5805 extends BaseContract {
       expiry: BigNumberish,
       v: BigNumberish,
       r: BytesLike,
-      s: BytesLike
+      s: BytesLike,
     ],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  delegates: TypedContractMethod<[account: AddressLike], [string], "view">;
+  delegates: TypedContractMethod<[account: AddressLike], [string], 'view'>;
 
-  getPastTotalSupply: TypedContractMethod<
-    [timepoint: BigNumberish],
-    [bigint],
-    "view"
-  >;
+  getPastTotalSupply: TypedContractMethod<[timepoint: BigNumberish], [bigint], 'view'>;
 
   getPastVotes: TypedContractMethod<
     [account: AddressLike, timepoint: BigNumberish],
     [bigint],
-    "view"
+    'view'
   >;
 
-  getVotes: TypedContractMethod<[account: AddressLike], [bigint], "view">;
+  getVotes: TypedContractMethod<[account: AddressLike], [bigint], 'view'>;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
+  getFunction(nameOrSignature: 'CLOCK_MODE'): TypedContractMethod<[], [string], 'view'>;
+  getFunction(nameOrSignature: 'clock'): TypedContractMethod<[], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "CLOCK_MODE"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: 'delegate',
+  ): TypedContractMethod<[delegatee: AddressLike], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "clock"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "delegate"
-  ): TypedContractMethod<[delegatee: AddressLike], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "delegateBySig"
+    nameOrSignature: 'delegateBySig',
   ): TypedContractMethod<
     [
       delegatee: AddressLike,
@@ -240,37 +184,33 @@ export interface IERC5805 extends BaseContract {
       expiry: BigNumberish,
       v: BigNumberish,
       r: BytesLike,
-      s: BytesLike
+      s: BytesLike,
     ],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "delegates"
-  ): TypedContractMethod<[account: AddressLike], [string], "view">;
+    nameOrSignature: 'delegates',
+  ): TypedContractMethod<[account: AddressLike], [string], 'view'>;
   getFunction(
-    nameOrSignature: "getPastTotalSupply"
-  ): TypedContractMethod<[timepoint: BigNumberish], [bigint], "view">;
+    nameOrSignature: 'getPastTotalSupply',
+  ): TypedContractMethod<[timepoint: BigNumberish], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "getPastVotes"
-  ): TypedContractMethod<
-    [account: AddressLike, timepoint: BigNumberish],
-    [bigint],
-    "view"
-  >;
+    nameOrSignature: 'getPastVotes',
+  ): TypedContractMethod<[account: AddressLike, timepoint: BigNumberish], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "getVotes"
-  ): TypedContractMethod<[account: AddressLike], [bigint], "view">;
+    nameOrSignature: 'getVotes',
+  ): TypedContractMethod<[account: AddressLike], [bigint], 'view'>;
 
   getEvent(
-    key: "DelegateChanged"
+    key: 'DelegateChanged',
   ): TypedContractEvent<
     DelegateChangedEvent.InputTuple,
     DelegateChangedEvent.OutputTuple,
     DelegateChangedEvent.OutputObject
   >;
   getEvent(
-    key: "DelegateVotesChanged"
+    key: 'DelegateVotesChanged',
   ): TypedContractEvent<
     DelegateVotesChangedEvent.InputTuple,
     DelegateVotesChangedEvent.OutputTuple,
@@ -278,7 +218,7 @@ export interface IERC5805 extends BaseContract {
   >;
 
   filters: {
-    "DelegateChanged(address,address,address)": TypedContractEvent<
+    'DelegateChanged(address,address,address)': TypedContractEvent<
       DelegateChangedEvent.InputTuple,
       DelegateChangedEvent.OutputTuple,
       DelegateChangedEvent.OutputObject
@@ -289,7 +229,7 @@ export interface IERC5805 extends BaseContract {
       DelegateChangedEvent.OutputObject
     >;
 
-    "DelegateVotesChanged(address,uint256,uint256)": TypedContractEvent<
+    'DelegateVotesChanged(address,uint256,uint256)': TypedContractEvent<
       DelegateVotesChangedEvent.InputTuple,
       DelegateVotesChangedEvent.OutputTuple,
       DelegateVotesChangedEvent.OutputObject

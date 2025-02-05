@@ -12,14 +12,14 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
   TypedEventLog,
   TypedListener,
   TypedContractMethod,
-} from "../../../common";
+} from '../../../common';
 
 export declare namespace IVault {
   export type SingleSwapStruct = {
@@ -37,7 +37,7 @@ export declare namespace IVault {
     assetIn: string,
     assetOut: string,
     amount: bigint,
-    userData: string
+    userData: string,
   ] & {
     poolId: string;
     kind: bigint;
@@ -58,7 +58,7 @@ export declare namespace IVault {
     sender: string,
     fromInternalBalance: boolean,
     recipient: string,
-    toInternalBalance: boolean
+    toInternalBalance: boolean,
   ] & {
     sender: string;
     fromInternalBalance: boolean;
@@ -69,42 +69,27 @@ export declare namespace IVault {
 
 export interface IVaultInterface extends Interface {
   getFunction(
-    nameOrSignature:
-      | "flashLoan"
-      | "getProtocolFeesCollector"
-      | "querySwap"
-      | "swap"
+    nameOrSignature: 'flashLoan' | 'getProtocolFeesCollector' | 'querySwap' | 'swap',
   ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "flashLoan",
-    values: [AddressLike, AddressLike[], BigNumberish[], BytesLike]
+    functionFragment: 'flashLoan',
+    values: [AddressLike, AddressLike[], BigNumberish[], BytesLike],
+  ): string;
+  encodeFunctionData(functionFragment: 'getProtocolFeesCollector', values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: 'querySwap',
+    values: [IVault.SingleSwapStruct, IVault.FundManagementStruct],
   ): string;
   encodeFunctionData(
-    functionFragment: "getProtocolFeesCollector",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "querySwap",
-    values: [IVault.SingleSwapStruct, IVault.FundManagementStruct]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "swap",
-    values: [
-      IVault.SingleSwapStruct,
-      IVault.FundManagementStruct,
-      BigNumberish,
-      BigNumberish
-    ]
+    functionFragment: 'swap',
+    values: [IVault.SingleSwapStruct, IVault.FundManagementStruct, BigNumberish, BigNumberish],
   ): string;
 
-  decodeFunctionResult(functionFragment: "flashLoan", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getProtocolFeesCollector",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "querySwap", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "swap", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'flashLoan', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getProtocolFeesCollector', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'querySwap', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'swap', data: BytesLike): Result;
 }
 
 export interface IVault extends BaseContract {
@@ -116,57 +101,50 @@ export interface IVault extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
   flashLoan: TypedContractMethod<
-    [
-      recipient: AddressLike,
-      tokens: AddressLike[],
-      amounts: BigNumberish[],
-      userData: BytesLike
-    ],
+    [recipient: AddressLike, tokens: AddressLike[], amounts: BigNumberish[], userData: BytesLike],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  getProtocolFeesCollector: TypedContractMethod<[], [string], "view">;
+  getProtocolFeesCollector: TypedContractMethod<[], [string], 'view'>;
 
   querySwap: TypedContractMethod<
     [singleSwap: IVault.SingleSwapStruct, funds: IVault.FundManagementStruct],
     [bigint],
-    "view"
+    'view'
   >;
 
   swap: TypedContractMethod<
@@ -174,49 +152,42 @@ export interface IVault extends BaseContract {
       singleSwap: IVault.SingleSwapStruct,
       funds: IVault.FundManagementStruct,
       limit: BigNumberish,
-      deadline: BigNumberish
+      deadline: BigNumberish,
     ],
     [bigint],
-    "payable"
+    'payable'
   >;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
   getFunction(
-    nameOrSignature: "flashLoan"
+    nameOrSignature: 'flashLoan',
   ): TypedContractMethod<
-    [
-      recipient: AddressLike,
-      tokens: AddressLike[],
-      amounts: BigNumberish[],
-      userData: BytesLike
-    ],
+    [recipient: AddressLike, tokens: AddressLike[], amounts: BigNumberish[], userData: BytesLike],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "getProtocolFeesCollector"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: 'getProtocolFeesCollector',
+  ): TypedContractMethod<[], [string], 'view'>;
   getFunction(
-    nameOrSignature: "querySwap"
+    nameOrSignature: 'querySwap',
   ): TypedContractMethod<
     [singleSwap: IVault.SingleSwapStruct, funds: IVault.FundManagementStruct],
     [bigint],
-    "view"
+    'view'
   >;
   getFunction(
-    nameOrSignature: "swap"
+    nameOrSignature: 'swap',
   ): TypedContractMethod<
     [
       singleSwap: IVault.SingleSwapStruct,
       funds: IVault.FundManagementStruct,
       limit: BigNumberish,
-      deadline: BigNumberish
+      deadline: BigNumberish,
     ],
     [bigint],
-    "payable"
+    'payable'
   >;
 
   filters: {};

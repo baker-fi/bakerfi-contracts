@@ -11,14 +11,14 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
   TypedEventLog,
   TypedListener,
   TypedContractMethod,
-} from "../../../common";
+} from '../../../common';
 
 export type RebaseStruct = { elastic: BigNumberish; base: BigNumberish };
 
@@ -28,19 +28,19 @@ export type RebaseStructOutput = [elastic: bigint, base: bigint] & {
 };
 
 export interface TestRebaseLibraryInterface extends Interface {
-  getFunction(nameOrSignature: "toBase" | "toElastic"): FunctionFragment;
+  getFunction(nameOrSignature: 'toBase' | 'toElastic'): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "toBase",
-    values: [RebaseStruct, BigNumberish, boolean]
+    functionFragment: 'toBase',
+    values: [RebaseStruct, BigNumberish, boolean],
   ): string;
   encodeFunctionData(
-    functionFragment: "toElastic",
-    values: [RebaseStruct, BigNumberish, boolean]
+    functionFragment: 'toElastic',
+    values: [RebaseStruct, BigNumberish, boolean],
   ): string;
 
-  decodeFunctionResult(functionFragment: "toBase", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "toElastic", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'toBase', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'toElastic', data: BytesLike): Result;
 }
 
 export interface TestRebaseLibrary extends BaseContract {
@@ -52,69 +52,65 @@ export interface TestRebaseLibrary extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
   toBase: TypedContractMethod<
     [total: RebaseStruct, elastic: BigNumberish, roundUp: boolean],
     [bigint],
-    "view"
+    'view'
   >;
 
   toElastic: TypedContractMethod<
     [total: RebaseStruct, base: BigNumberish, roundUp: boolean],
     [bigint],
-    "view"
+    'view'
   >;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
   getFunction(
-    nameOrSignature: "toBase"
+    nameOrSignature: 'toBase',
   ): TypedContractMethod<
     [total: RebaseStruct, elastic: BigNumberish, roundUp: boolean],
     [bigint],
-    "view"
+    'view'
   >;
   getFunction(
-    nameOrSignature: "toElastic"
+    nameOrSignature: 'toElastic',
   ): TypedContractMethod<
     [total: RebaseStruct, base: BigNumberish, roundUp: boolean],
     [bigint],
-    "view"
+    'view'
   >;
 
   filters: {};

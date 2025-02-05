@@ -2,11 +2,11 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
+import { Contract, Interface, type ContractRunner } from 'ethers';
 import type {
   ContextUpgradeable,
   ContextUpgradeableInterface,
-} from "../../../../@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable";
+} from '../../../../@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable';
 
 const _abi = [
   {
@@ -14,13 +14,13 @@ const _abi = [
     inputs: [
       {
         indexed: false,
-        internalType: "uint8",
-        name: "version",
-        type: "uint8",
+        internalType: 'uint8',
+        name: 'version',
+        type: 'uint8',
       },
     ],
-    name: "Initialized",
-    type: "event",
+    name: 'Initialized',
+    type: 'event',
   },
 ] as const;
 
@@ -29,10 +29,7 @@ export class ContextUpgradeable__factory {
   static createInterface(): ContextUpgradeableInterface {
     return new Interface(_abi) as ContextUpgradeableInterface;
   }
-  static connect(
-    address: string,
-    runner?: ContractRunner | null
-  ): ContextUpgradeable {
+  static connect(address: string, runner?: ContractRunner | null): ContextUpgradeable {
     return new Contract(address, _abi, runner) as unknown as ContextUpgradeable;
   }
 }

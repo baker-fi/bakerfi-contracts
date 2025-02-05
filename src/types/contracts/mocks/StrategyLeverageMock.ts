@@ -13,7 +13,7 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
@@ -21,7 +21,7 @@ import type {
   TypedLogDescription,
   TypedListener,
   TypedContractMethod,
-} from "../../common";
+} from '../../common';
 
 export declare namespace UseUnifiedSwapper {
   export type RouteInfoStruct = {
@@ -35,7 +35,7 @@ export declare namespace UseUnifiedSwapper {
     provider: bigint,
     router: string,
     uniV3Tier: bigint,
-    tickSpacing: bigint
+    tickSpacing: bigint,
   ] & {
     provider: bigint;
     router: string;
@@ -59,290 +59,142 @@ export declare namespace IOracle {
 export interface StrategyLeverageMockInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "asset"
-      | "deploy"
-      | "disableRoute"
-      | "enableRoute"
-      | "getBalances"
-      | "getCollateralAsset"
-      | "getDebAsset"
-      | "getLoanToValue"
-      | "getMaxLoanToValue"
-      | "getMaxSlippage"
-      | "getNrLoops"
-      | "getOracle"
-      | "getPosition"
-      | "getPriceMaxAge"
-      | "getPriceMaxConf"
-      | "governor"
-      | "harvest"
-      | "initialize"
-      | "isRouteEnabled"
-      | "onFlashLoan"
-      | "owner"
-      | "renounceOwnership"
-      | "setLoanToValue"
-      | "setMaxLoanToValue"
-      | "setMaxSlippage"
-      | "setNrLoops"
-      | "setOracle"
-      | "setPriceMaxAge"
-      | "setPriceMaxConf"
-      | "totalAssets"
-      | "transferGovernorship"
-      | "transferOwnership"
-      | "undeploy"
+      | 'asset'
+      | 'deploy'
+      | 'disableRoute'
+      | 'enableRoute'
+      | 'getBalances'
+      | 'getCollateralAsset'
+      | 'getDebAsset'
+      | 'getLoanToValue'
+      | 'getMaxLoanToValue'
+      | 'getMaxSlippage'
+      | 'getNrLoops'
+      | 'getOracle'
+      | 'getPosition'
+      | 'getPriceMaxAge'
+      | 'getPriceMaxConf'
+      | 'governor'
+      | 'harvest'
+      | 'initialize'
+      | 'isRouteEnabled'
+      | 'onFlashLoan'
+      | 'owner'
+      | 'renounceOwnership'
+      | 'setLoanToValue'
+      | 'setMaxLoanToValue'
+      | 'setMaxSlippage'
+      | 'setNrLoops'
+      | 'setOracle'
+      | 'setPriceMaxAge'
+      | 'setPriceMaxConf'
+      | 'totalAssets'
+      | 'transferGovernorship'
+      | 'transferOwnership'
+      | 'undeploy',
   ): FunctionFragment;
 
   getEvent(
     nameOrSignatureOrTopic:
-      | "GovernshipTransferred"
-      | "Initialized"
-      | "LoanToValueChanged"
-      | "MaxLoanToValueChanged"
-      | "MaxSlippageChanged"
-      | "NrLoopsChanged"
-      | "OwnershipTransferred"
-      | "PriceMaxAgeChanged"
-      | "PriceMaxConfChanged"
-      | "StrategyAmountUpdate"
-      | "StrategyDeploy"
-      | "StrategyLoss"
-      | "StrategyProfit"
-      | "StrategyUndeploy"
+      | 'GovernshipTransferred'
+      | 'Initialized'
+      | 'LoanToValueChanged'
+      | 'MaxLoanToValueChanged'
+      | 'MaxSlippageChanged'
+      | 'NrLoopsChanged'
+      | 'OwnershipTransferred'
+      | 'PriceMaxAgeChanged'
+      | 'PriceMaxConfChanged'
+      | 'StrategyAmountUpdate'
+      | 'StrategyDeploy'
+      | 'StrategyLoss'
+      | 'StrategyProfit'
+      | 'StrategyUndeploy',
   ): EventFragment;
 
-  encodeFunctionData(functionFragment: "asset", values?: undefined): string;
+  encodeFunctionData(functionFragment: 'asset', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'deploy', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'disableRoute', values: [AddressLike, AddressLike]): string;
   encodeFunctionData(
-    functionFragment: "deploy",
-    values: [BigNumberish]
+    functionFragment: 'enableRoute',
+    values: [AddressLike, AddressLike, UseUnifiedSwapper.RouteInfoStruct],
+  ): string;
+  encodeFunctionData(functionFragment: 'getBalances', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'getCollateralAsset', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'getDebAsset', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'getLoanToValue', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'getMaxLoanToValue', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'getMaxSlippage', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'getNrLoops', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'getOracle', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'getPosition', values: [IOracle.PriceOptionsStruct]): string;
+  encodeFunctionData(functionFragment: 'getPriceMaxAge', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'getPriceMaxConf', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'governor', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'harvest', values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: 'initialize',
+    values: [AddressLike, AddressLike, AddressLike, AddressLike, AddressLike, AddressLike],
   ): string;
   encodeFunctionData(
-    functionFragment: "disableRoute",
-    values: [AddressLike, AddressLike]
+    functionFragment: 'isRouteEnabled',
+    values: [AddressLike, AddressLike],
   ): string;
   encodeFunctionData(
-    functionFragment: "enableRoute",
-    values: [AddressLike, AddressLike, UseUnifiedSwapper.RouteInfoStruct]
+    functionFragment: 'onFlashLoan',
+    values: [AddressLike, AddressLike, BigNumberish, BigNumberish, BytesLike],
   ): string;
-  encodeFunctionData(
-    functionFragment: "getBalances",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getCollateralAsset",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getDebAsset",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getLoanToValue",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getMaxLoanToValue",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getMaxSlippage",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getNrLoops",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "getOracle", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "getPosition",
-    values: [IOracle.PriceOptionsStruct]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getPriceMaxAge",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getPriceMaxConf",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "governor", values?: undefined): string;
-  encodeFunctionData(functionFragment: "harvest", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "initialize",
-    values: [
-      AddressLike,
-      AddressLike,
-      AddressLike,
-      AddressLike,
-      AddressLike,
-      AddressLike
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isRouteEnabled",
-    values: [AddressLike, AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "onFlashLoan",
-    values: [AddressLike, AddressLike, BigNumberish, BigNumberish, BytesLike]
-  ): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setLoanToValue",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setMaxLoanToValue",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setMaxSlippage",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setNrLoops",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setOracle",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setPriceMaxAge",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setPriceMaxConf",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "totalAssets",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferGovernorship",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "undeploy",
-    values: [BigNumberish]
-  ): string;
+  encodeFunctionData(functionFragment: 'owner', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'renounceOwnership', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'setLoanToValue', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'setMaxLoanToValue', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'setMaxSlippage', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'setNrLoops', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'setOracle', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'setPriceMaxAge', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'setPriceMaxConf', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'totalAssets', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'transferGovernorship', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'transferOwnership', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'undeploy', values: [BigNumberish]): string;
 
-  decodeFunctionResult(functionFragment: "asset", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "deploy", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "disableRoute",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "enableRoute",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getBalances",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getCollateralAsset",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getDebAsset",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getLoanToValue",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getMaxLoanToValue",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getMaxSlippage",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "getNrLoops", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getOracle", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getPosition",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getPriceMaxAge",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getPriceMaxConf",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "governor", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "harvest", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "isRouteEnabled",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "onFlashLoan",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setLoanToValue",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setMaxLoanToValue",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setMaxSlippage",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "setNrLoops", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "setOracle", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setPriceMaxAge",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setPriceMaxConf",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "totalAssets",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferGovernorship",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "undeploy", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'asset', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'deploy', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'disableRoute', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'enableRoute', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getBalances', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getCollateralAsset', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getDebAsset', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getLoanToValue', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getMaxLoanToValue', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getMaxSlippage', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getNrLoops', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getOracle', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getPosition', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getPriceMaxAge', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getPriceMaxConf', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'governor', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'harvest', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'initialize', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'isRouteEnabled', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'onFlashLoan', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'renounceOwnership', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setLoanToValue', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setMaxLoanToValue', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setMaxSlippage', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setNrLoops', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setOracle', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setPriceMaxAge', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setPriceMaxConf', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'totalAssets', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transferGovernorship', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transferOwnership', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'undeploy', data: BytesLike): Result;
 }
 
 export namespace GovernshipTransferredEvent {
-  export type InputTuple = [
-    previousGovernor: AddressLike,
-    newGovernor: AddressLike
-  ];
+  export type InputTuple = [previousGovernor: AddressLike, newGovernor: AddressLike];
   export type OutputTuple = [previousGovernor: string, newGovernor: string];
   export interface OutputObject {
     previousGovernor: string;
@@ -522,79 +374,73 @@ export interface StrategyLeverageMock extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
-  asset: TypedContractMethod<[], [string], "view">;
+  asset: TypedContractMethod<[], [string], 'view'>;
 
-  deploy: TypedContractMethod<[amount: BigNumberish], [bigint], "nonpayable">;
+  deploy: TypedContractMethod<[amount: BigNumberish], [bigint], 'nonpayable'>;
 
   disableRoute: TypedContractMethod<
     [tokenIn: AddressLike, tokenOut: AddressLike],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
   enableRoute: TypedContractMethod<
-    [
-      tokenIn: AddressLike,
-      tokenOut: AddressLike,
-      routeInfo: UseUnifiedSwapper.RouteInfoStruct
-    ],
+    [tokenIn: AddressLike, tokenOut: AddressLike, routeInfo: UseUnifiedSwapper.RouteInfoStruct],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
   getBalances: TypedContractMethod<
     [],
     [[bigint, bigint] & { collateralBalance: bigint; debtBalance: bigint }],
-    "view"
+    'view'
   >;
 
-  getCollateralAsset: TypedContractMethod<[], [string], "view">;
+  getCollateralAsset: TypedContractMethod<[], [string], 'view'>;
 
-  getDebAsset: TypedContractMethod<[], [string], "view">;
+  getDebAsset: TypedContractMethod<[], [string], 'view'>;
 
-  getLoanToValue: TypedContractMethod<[], [bigint], "view">;
+  getLoanToValue: TypedContractMethod<[], [bigint], 'view'>;
 
-  getMaxLoanToValue: TypedContractMethod<[], [bigint], "view">;
+  getMaxLoanToValue: TypedContractMethod<[], [bigint], 'view'>;
 
-  getMaxSlippage: TypedContractMethod<[], [bigint], "view">;
+  getMaxSlippage: TypedContractMethod<[], [bigint], 'view'>;
 
-  getNrLoops: TypedContractMethod<[], [bigint], "view">;
+  getNrLoops: TypedContractMethod<[], [bigint], 'view'>;
 
-  getOracle: TypedContractMethod<[], [string], "view">;
+  getOracle: TypedContractMethod<[], [string], 'view'>;
 
   getPosition: TypedContractMethod<
     [priceOptions: IOracle.PriceOptionsStruct],
@@ -603,18 +449,18 @@ export interface StrategyLeverageMock extends BaseContract {
         totalCollateralInAsset: bigint;
         totalDebtInAsset: bigint;
         loanToValue: bigint;
-      }
+      },
     ],
-    "view"
+    'view'
   >;
 
-  getPriceMaxAge: TypedContractMethod<[], [bigint], "view">;
+  getPriceMaxAge: TypedContractMethod<[], [bigint], 'view'>;
 
-  getPriceMaxConf: TypedContractMethod<[], [bigint], "view">;
+  getPriceMaxConf: TypedContractMethod<[], [bigint], 'view'>;
 
-  governor: TypedContractMethod<[], [string], "view">;
+  governor: TypedContractMethod<[], [string], 'view'>;
 
-  harvest: TypedContractMethod<[], [bigint], "nonpayable">;
+  harvest: TypedContractMethod<[], [bigint], 'nonpayable'>;
 
   initialize: TypedContractMethod<
     [
@@ -623,16 +469,16 @@ export interface StrategyLeverageMock extends BaseContract {
       collateralToken: AddressLike,
       debtToken: AddressLike,
       oracle: AddressLike,
-      flashLender: AddressLike
+      flashLender: AddressLike,
     ],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
   isRouteEnabled: TypedContractMethod<
     [tokenIn: AddressLike, tokenOut: AddressLike],
     [boolean],
-    "view"
+    'view'
   >;
 
   onFlashLoan: TypedContractMethod<
@@ -641,153 +487,85 @@ export interface StrategyLeverageMock extends BaseContract {
       token: AddressLike,
       amount: BigNumberish,
       fee: BigNumberish,
-      callData: BytesLike
+      callData: BytesLike,
     ],
     [string],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  owner: TypedContractMethod<[], [string], "view">;
+  owner: TypedContractMethod<[], [string], 'view'>;
 
-  renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
+  renounceOwnership: TypedContractMethod<[], [void], 'nonpayable'>;
 
-  setLoanToValue: TypedContractMethod<
-    [loanToValue: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  setLoanToValue: TypedContractMethod<[loanToValue: BigNumberish], [void], 'nonpayable'>;
 
-  setMaxLoanToValue: TypedContractMethod<
-    [maxLoanToValue: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  setMaxLoanToValue: TypedContractMethod<[maxLoanToValue: BigNumberish], [void], 'nonpayable'>;
 
-  setMaxSlippage: TypedContractMethod<
-    [slippage: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  setMaxSlippage: TypedContractMethod<[slippage: BigNumberish], [void], 'nonpayable'>;
 
-  setNrLoops: TypedContractMethod<
-    [nrLoops: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  setNrLoops: TypedContractMethod<[nrLoops: BigNumberish], [void], 'nonpayable'>;
 
-  setOracle: TypedContractMethod<[oracle: AddressLike], [void], "nonpayable">;
+  setOracle: TypedContractMethod<[oracle: AddressLike], [void], 'nonpayable'>;
 
-  setPriceMaxAge: TypedContractMethod<
-    [value: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  setPriceMaxAge: TypedContractMethod<[value: BigNumberish], [void], 'nonpayable'>;
 
-  setPriceMaxConf: TypedContractMethod<
-    [value: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  setPriceMaxConf: TypedContractMethod<[value: BigNumberish], [void], 'nonpayable'>;
 
-  totalAssets: TypedContractMethod<[], [bigint], "view">;
+  totalAssets: TypedContractMethod<[], [bigint], 'view'>;
 
-  transferGovernorship: TypedContractMethod<
-    [_newGovernor: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+  transferGovernorship: TypedContractMethod<[_newGovernor: AddressLike], [void], 'nonpayable'>;
 
-  transferOwnership: TypedContractMethod<
-    [newOwner: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+  transferOwnership: TypedContractMethod<[newOwner: AddressLike], [void], 'nonpayable'>;
 
-  undeploy: TypedContractMethod<[amount: BigNumberish], [bigint], "nonpayable">;
+  undeploy: TypedContractMethod<[amount: BigNumberish], [bigint], 'nonpayable'>;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
+  getFunction(nameOrSignature: 'asset'): TypedContractMethod<[], [string], 'view'>;
   getFunction(
-    nameOrSignature: "asset"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: 'deploy',
+  ): TypedContractMethod<[amount: BigNumberish], [bigint], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "deploy"
-  ): TypedContractMethod<[amount: BigNumberish], [bigint], "nonpayable">;
+    nameOrSignature: 'disableRoute',
+  ): TypedContractMethod<[tokenIn: AddressLike, tokenOut: AddressLike], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "disableRoute"
+    nameOrSignature: 'enableRoute',
   ): TypedContractMethod<
-    [tokenIn: AddressLike, tokenOut: AddressLike],
+    [tokenIn: AddressLike, tokenOut: AddressLike, routeInfo: UseUnifiedSwapper.RouteInfoStruct],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "enableRoute"
-  ): TypedContractMethod<
-    [
-      tokenIn: AddressLike,
-      tokenOut: AddressLike,
-      routeInfo: UseUnifiedSwapper.RouteInfoStruct
-    ],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "getBalances"
+    nameOrSignature: 'getBalances',
   ): TypedContractMethod<
     [],
     [[bigint, bigint] & { collateralBalance: bigint; debtBalance: bigint }],
-    "view"
+    'view'
   >;
-  getFunction(
-    nameOrSignature: "getCollateralAsset"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "getDebAsset"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "getLoanToValue"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "getMaxLoanToValue"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "getMaxSlippage"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "getNrLoops"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "getOracle"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "getPosition"
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'getCollateralAsset'): TypedContractMethod<[], [string], 'view'>;
+  getFunction(nameOrSignature: 'getDebAsset'): TypedContractMethod<[], [string], 'view'>;
+  getFunction(nameOrSignature: 'getLoanToValue'): TypedContractMethod<[], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'getMaxLoanToValue'): TypedContractMethod<[], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'getMaxSlippage'): TypedContractMethod<[], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'getNrLoops'): TypedContractMethod<[], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'getOracle'): TypedContractMethod<[], [string], 'view'>;
+  getFunction(nameOrSignature: 'getPosition'): TypedContractMethod<
     [priceOptions: IOracle.PriceOptionsStruct],
     [
       [bigint, bigint, bigint] & {
         totalCollateralInAsset: bigint;
         totalDebtInAsset: bigint;
         loanToValue: bigint;
-      }
+      },
     ],
-    "view"
+    'view'
   >;
+  getFunction(nameOrSignature: 'getPriceMaxAge'): TypedContractMethod<[], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'getPriceMaxConf'): TypedContractMethod<[], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'governor'): TypedContractMethod<[], [string], 'view'>;
+  getFunction(nameOrSignature: 'harvest'): TypedContractMethod<[], [bigint], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "getPriceMaxAge"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "getPriceMaxConf"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "governor"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "harvest"
-  ): TypedContractMethod<[], [bigint], "nonpayable">;
-  getFunction(
-    nameOrSignature: "initialize"
+    nameOrSignature: 'initialize',
   ): TypedContractMethod<
     [
       initialOwner: AddressLike,
@@ -795,164 +573,154 @@ export interface StrategyLeverageMock extends BaseContract {
       collateralToken: AddressLike,
       debtToken: AddressLike,
       oracle: AddressLike,
-      flashLender: AddressLike
+      flashLender: AddressLike,
     ],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "isRouteEnabled"
-  ): TypedContractMethod<
-    [tokenIn: AddressLike, tokenOut: AddressLike],
-    [boolean],
-    "view"
-  >;
+    nameOrSignature: 'isRouteEnabled',
+  ): TypedContractMethod<[tokenIn: AddressLike, tokenOut: AddressLike], [boolean], 'view'>;
   getFunction(
-    nameOrSignature: "onFlashLoan"
+    nameOrSignature: 'onFlashLoan',
   ): TypedContractMethod<
     [
       initiator: AddressLike,
       token: AddressLike,
       amount: BigNumberish,
       fee: BigNumberish,
-      callData: BytesLike
+      callData: BytesLike,
     ],
     [string],
-    "nonpayable"
+    'nonpayable'
   >;
+  getFunction(nameOrSignature: 'owner'): TypedContractMethod<[], [string], 'view'>;
+  getFunction(nameOrSignature: 'renounceOwnership'): TypedContractMethod<[], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "owner"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: 'setLoanToValue',
+  ): TypedContractMethod<[loanToValue: BigNumberish], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "renounceOwnership"
-  ): TypedContractMethod<[], [void], "nonpayable">;
+    nameOrSignature: 'setMaxLoanToValue',
+  ): TypedContractMethod<[maxLoanToValue: BigNumberish], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "setLoanToValue"
-  ): TypedContractMethod<[loanToValue: BigNumberish], [void], "nonpayable">;
+    nameOrSignature: 'setMaxSlippage',
+  ): TypedContractMethod<[slippage: BigNumberish], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "setMaxLoanToValue"
-  ): TypedContractMethod<[maxLoanToValue: BigNumberish], [void], "nonpayable">;
+    nameOrSignature: 'setNrLoops',
+  ): TypedContractMethod<[nrLoops: BigNumberish], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "setMaxSlippage"
-  ): TypedContractMethod<[slippage: BigNumberish], [void], "nonpayable">;
+    nameOrSignature: 'setOracle',
+  ): TypedContractMethod<[oracle: AddressLike], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "setNrLoops"
-  ): TypedContractMethod<[nrLoops: BigNumberish], [void], "nonpayable">;
+    nameOrSignature: 'setPriceMaxAge',
+  ): TypedContractMethod<[value: BigNumberish], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "setOracle"
-  ): TypedContractMethod<[oracle: AddressLike], [void], "nonpayable">;
+    nameOrSignature: 'setPriceMaxConf',
+  ): TypedContractMethod<[value: BigNumberish], [void], 'nonpayable'>;
+  getFunction(nameOrSignature: 'totalAssets'): TypedContractMethod<[], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "setPriceMaxAge"
-  ): TypedContractMethod<[value: BigNumberish], [void], "nonpayable">;
+    nameOrSignature: 'transferGovernorship',
+  ): TypedContractMethod<[_newGovernor: AddressLike], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "setPriceMaxConf"
-  ): TypedContractMethod<[value: BigNumberish], [void], "nonpayable">;
+    nameOrSignature: 'transferOwnership',
+  ): TypedContractMethod<[newOwner: AddressLike], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "totalAssets"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "transferGovernorship"
-  ): TypedContractMethod<[_newGovernor: AddressLike], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "transferOwnership"
-  ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "undeploy"
-  ): TypedContractMethod<[amount: BigNumberish], [bigint], "nonpayable">;
+    nameOrSignature: 'undeploy',
+  ): TypedContractMethod<[amount: BigNumberish], [bigint], 'nonpayable'>;
 
   getEvent(
-    key: "GovernshipTransferred"
+    key: 'GovernshipTransferred',
   ): TypedContractEvent<
     GovernshipTransferredEvent.InputTuple,
     GovernshipTransferredEvent.OutputTuple,
     GovernshipTransferredEvent.OutputObject
   >;
   getEvent(
-    key: "Initialized"
+    key: 'Initialized',
   ): TypedContractEvent<
     InitializedEvent.InputTuple,
     InitializedEvent.OutputTuple,
     InitializedEvent.OutputObject
   >;
   getEvent(
-    key: "LoanToValueChanged"
+    key: 'LoanToValueChanged',
   ): TypedContractEvent<
     LoanToValueChangedEvent.InputTuple,
     LoanToValueChangedEvent.OutputTuple,
     LoanToValueChangedEvent.OutputObject
   >;
   getEvent(
-    key: "MaxLoanToValueChanged"
+    key: 'MaxLoanToValueChanged',
   ): TypedContractEvent<
     MaxLoanToValueChangedEvent.InputTuple,
     MaxLoanToValueChangedEvent.OutputTuple,
     MaxLoanToValueChangedEvent.OutputObject
   >;
   getEvent(
-    key: "MaxSlippageChanged"
+    key: 'MaxSlippageChanged',
   ): TypedContractEvent<
     MaxSlippageChangedEvent.InputTuple,
     MaxSlippageChangedEvent.OutputTuple,
     MaxSlippageChangedEvent.OutputObject
   >;
   getEvent(
-    key: "NrLoopsChanged"
+    key: 'NrLoopsChanged',
   ): TypedContractEvent<
     NrLoopsChangedEvent.InputTuple,
     NrLoopsChangedEvent.OutputTuple,
     NrLoopsChangedEvent.OutputObject
   >;
   getEvent(
-    key: "OwnershipTransferred"
+    key: 'OwnershipTransferred',
   ): TypedContractEvent<
     OwnershipTransferredEvent.InputTuple,
     OwnershipTransferredEvent.OutputTuple,
     OwnershipTransferredEvent.OutputObject
   >;
   getEvent(
-    key: "PriceMaxAgeChanged"
+    key: 'PriceMaxAgeChanged',
   ): TypedContractEvent<
     PriceMaxAgeChangedEvent.InputTuple,
     PriceMaxAgeChangedEvent.OutputTuple,
     PriceMaxAgeChangedEvent.OutputObject
   >;
   getEvent(
-    key: "PriceMaxConfChanged"
+    key: 'PriceMaxConfChanged',
   ): TypedContractEvent<
     PriceMaxConfChangedEvent.InputTuple,
     PriceMaxConfChangedEvent.OutputTuple,
     PriceMaxConfChangedEvent.OutputObject
   >;
   getEvent(
-    key: "StrategyAmountUpdate"
+    key: 'StrategyAmountUpdate',
   ): TypedContractEvent<
     StrategyAmountUpdateEvent.InputTuple,
     StrategyAmountUpdateEvent.OutputTuple,
     StrategyAmountUpdateEvent.OutputObject
   >;
   getEvent(
-    key: "StrategyDeploy"
+    key: 'StrategyDeploy',
   ): TypedContractEvent<
     StrategyDeployEvent.InputTuple,
     StrategyDeployEvent.OutputTuple,
     StrategyDeployEvent.OutputObject
   >;
   getEvent(
-    key: "StrategyLoss"
+    key: 'StrategyLoss',
   ): TypedContractEvent<
     StrategyLossEvent.InputTuple,
     StrategyLossEvent.OutputTuple,
     StrategyLossEvent.OutputObject
   >;
   getEvent(
-    key: "StrategyProfit"
+    key: 'StrategyProfit',
   ): TypedContractEvent<
     StrategyProfitEvent.InputTuple,
     StrategyProfitEvent.OutputTuple,
     StrategyProfitEvent.OutputObject
   >;
   getEvent(
-    key: "StrategyUndeploy"
+    key: 'StrategyUndeploy',
   ): TypedContractEvent<
     StrategyUndeployEvent.InputTuple,
     StrategyUndeployEvent.OutputTuple,
@@ -960,7 +728,7 @@ export interface StrategyLeverageMock extends BaseContract {
   >;
 
   filters: {
-    "GovernshipTransferred(address,address)": TypedContractEvent<
+    'GovernshipTransferred(address,address)': TypedContractEvent<
       GovernshipTransferredEvent.InputTuple,
       GovernshipTransferredEvent.OutputTuple,
       GovernshipTransferredEvent.OutputObject
@@ -971,7 +739,7 @@ export interface StrategyLeverageMock extends BaseContract {
       GovernshipTransferredEvent.OutputObject
     >;
 
-    "Initialized(uint8)": TypedContractEvent<
+    'Initialized(uint8)': TypedContractEvent<
       InitializedEvent.InputTuple,
       InitializedEvent.OutputTuple,
       InitializedEvent.OutputObject
@@ -982,7 +750,7 @@ export interface StrategyLeverageMock extends BaseContract {
       InitializedEvent.OutputObject
     >;
 
-    "LoanToValueChanged(uint256)": TypedContractEvent<
+    'LoanToValueChanged(uint256)': TypedContractEvent<
       LoanToValueChangedEvent.InputTuple,
       LoanToValueChangedEvent.OutputTuple,
       LoanToValueChangedEvent.OutputObject
@@ -993,7 +761,7 @@ export interface StrategyLeverageMock extends BaseContract {
       LoanToValueChangedEvent.OutputObject
     >;
 
-    "MaxLoanToValueChanged(uint256)": TypedContractEvent<
+    'MaxLoanToValueChanged(uint256)': TypedContractEvent<
       MaxLoanToValueChangedEvent.InputTuple,
       MaxLoanToValueChangedEvent.OutputTuple,
       MaxLoanToValueChangedEvent.OutputObject
@@ -1004,7 +772,7 @@ export interface StrategyLeverageMock extends BaseContract {
       MaxLoanToValueChangedEvent.OutputObject
     >;
 
-    "MaxSlippageChanged(uint256)": TypedContractEvent<
+    'MaxSlippageChanged(uint256)': TypedContractEvent<
       MaxSlippageChangedEvent.InputTuple,
       MaxSlippageChangedEvent.OutputTuple,
       MaxSlippageChangedEvent.OutputObject
@@ -1015,7 +783,7 @@ export interface StrategyLeverageMock extends BaseContract {
       MaxSlippageChangedEvent.OutputObject
     >;
 
-    "NrLoopsChanged(uint256)": TypedContractEvent<
+    'NrLoopsChanged(uint256)': TypedContractEvent<
       NrLoopsChangedEvent.InputTuple,
       NrLoopsChangedEvent.OutputTuple,
       NrLoopsChangedEvent.OutputObject
@@ -1026,7 +794,7 @@ export interface StrategyLeverageMock extends BaseContract {
       NrLoopsChangedEvent.OutputObject
     >;
 
-    "OwnershipTransferred(address,address)": TypedContractEvent<
+    'OwnershipTransferred(address,address)': TypedContractEvent<
       OwnershipTransferredEvent.InputTuple,
       OwnershipTransferredEvent.OutputTuple,
       OwnershipTransferredEvent.OutputObject
@@ -1037,7 +805,7 @@ export interface StrategyLeverageMock extends BaseContract {
       OwnershipTransferredEvent.OutputObject
     >;
 
-    "PriceMaxAgeChanged(uint256)": TypedContractEvent<
+    'PriceMaxAgeChanged(uint256)': TypedContractEvent<
       PriceMaxAgeChangedEvent.InputTuple,
       PriceMaxAgeChangedEvent.OutputTuple,
       PriceMaxAgeChangedEvent.OutputObject
@@ -1048,7 +816,7 @@ export interface StrategyLeverageMock extends BaseContract {
       PriceMaxAgeChangedEvent.OutputObject
     >;
 
-    "PriceMaxConfChanged(uint256)": TypedContractEvent<
+    'PriceMaxConfChanged(uint256)': TypedContractEvent<
       PriceMaxConfChangedEvent.InputTuple,
       PriceMaxConfChangedEvent.OutputTuple,
       PriceMaxConfChangedEvent.OutputObject
@@ -1059,7 +827,7 @@ export interface StrategyLeverageMock extends BaseContract {
       PriceMaxConfChangedEvent.OutputObject
     >;
 
-    "StrategyAmountUpdate(uint256)": TypedContractEvent<
+    'StrategyAmountUpdate(uint256)': TypedContractEvent<
       StrategyAmountUpdateEvent.InputTuple,
       StrategyAmountUpdateEvent.OutputTuple,
       StrategyAmountUpdateEvent.OutputObject
@@ -1070,7 +838,7 @@ export interface StrategyLeverageMock extends BaseContract {
       StrategyAmountUpdateEvent.OutputObject
     >;
 
-    "StrategyDeploy(address,uint256)": TypedContractEvent<
+    'StrategyDeploy(address,uint256)': TypedContractEvent<
       StrategyDeployEvent.InputTuple,
       StrategyDeployEvent.OutputTuple,
       StrategyDeployEvent.OutputObject
@@ -1081,7 +849,7 @@ export interface StrategyLeverageMock extends BaseContract {
       StrategyDeployEvent.OutputObject
     >;
 
-    "StrategyLoss(uint256)": TypedContractEvent<
+    'StrategyLoss(uint256)': TypedContractEvent<
       StrategyLossEvent.InputTuple,
       StrategyLossEvent.OutputTuple,
       StrategyLossEvent.OutputObject
@@ -1092,7 +860,7 @@ export interface StrategyLeverageMock extends BaseContract {
       StrategyLossEvent.OutputObject
     >;
 
-    "StrategyProfit(uint256)": TypedContractEvent<
+    'StrategyProfit(uint256)': TypedContractEvent<
       StrategyProfitEvent.InputTuple,
       StrategyProfitEvent.OutputTuple,
       StrategyProfitEvent.OutputObject
@@ -1103,7 +871,7 @@ export interface StrategyLeverageMock extends BaseContract {
       StrategyProfitEvent.OutputObject
     >;
 
-    "StrategyUndeploy(address,uint256)": TypedContractEvent<
+    'StrategyUndeploy(address,uint256)': TypedContractEvent<
       StrategyUndeployEvent.InputTuple,
       StrategyUndeployEvent.OutputTuple,
       StrategyUndeployEvent.OutputObject

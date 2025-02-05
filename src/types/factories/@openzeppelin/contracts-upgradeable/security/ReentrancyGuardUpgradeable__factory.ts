@@ -2,11 +2,11 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
+import { Contract, Interface, type ContractRunner } from 'ethers';
 import type {
   ReentrancyGuardUpgradeable,
   ReentrancyGuardUpgradeableInterface,
-} from "../../../../@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable";
+} from '../../../../@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable';
 
 const _abi = [
   {
@@ -14,13 +14,13 @@ const _abi = [
     inputs: [
       {
         indexed: false,
-        internalType: "uint8",
-        name: "version",
-        type: "uint8",
+        internalType: 'uint8',
+        name: 'version',
+        type: 'uint8',
       },
     ],
-    name: "Initialized",
-    type: "event",
+    name: 'Initialized',
+    type: 'event',
   },
 ] as const;
 
@@ -29,14 +29,7 @@ export class ReentrancyGuardUpgradeable__factory {
   static createInterface(): ReentrancyGuardUpgradeableInterface {
     return new Interface(_abi) as ReentrancyGuardUpgradeableInterface;
   }
-  static connect(
-    address: string,
-    runner?: ContractRunner | null
-  ): ReentrancyGuardUpgradeable {
-    return new Contract(
-      address,
-      _abi,
-      runner
-    ) as unknown as ReentrancyGuardUpgradeable;
+  static connect(address: string, runner?: ContractRunner | null): ReentrancyGuardUpgradeable {
+    return new Contract(address, _abi, runner) as unknown as ReentrancyGuardUpgradeable;
   }
 }

@@ -3,7 +3,7 @@ import 'hardhat-flat-exporter';
 import 'hardhat-contract-sizer';
 import 'solidity-coverage';
 import 'hardhat-gas-reporter';
-import '@typechain/hardhat'
+import '@typechain/hardhat';
 import '@nomicfoundation/hardhat-ethers';
 import '@nomicfoundation/hardhat-chai-matchers';
 import '@nomicfoundation/hardhat-toolbox';
@@ -16,7 +16,6 @@ import 'solidity-docgen';
 import './scripts/tasks/';
 import 'hardhat-storage-layout-changes';
 import '@nomiclabs/hardhat-solhint';
-
 
 const devAccounts: HardhatNetworkAccountUserConfig[] = STAGING_ACCOUNTS_PKEYS.map((key) => {
   return { privateKey: key, balance: '1000000000000000000000000' };

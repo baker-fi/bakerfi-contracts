@@ -2,27 +2,27 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
+import { Contract, Interface, type ContractRunner } from 'ethers';
 import type {
   ISwapHandler,
   ISwapHandlerInterface,
-} from "../../../../contracts/interfaces/core/ISwapHandler";
+} from '../../../../contracts/interfaces/core/ISwapHandler';
 
 const _abi = [
   {
     inputs: [],
-    name: "InvalidInputToken",
-    type: "error",
+    name: 'InvalidInputToken',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InvalidOutputToken",
-    type: "error",
+    name: 'InvalidOutputToken',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "SwapFailed",
-    type: "error",
+    name: 'SwapFailed',
+    type: 'error',
   },
 ] as const;
 
@@ -31,10 +31,7 @@ export class ISwapHandler__factory {
   static createInterface(): ISwapHandlerInterface {
     return new Interface(_abi) as ISwapHandlerInterface;
   }
-  static connect(
-    address: string,
-    runner?: ContractRunner | null
-  ): ISwapHandler {
+  static connect(address: string, runner?: ContractRunner | null): ISwapHandler {
     return new Contract(address, _abi, runner) as unknown as ISwapHandler;
   }
 }

@@ -12,27 +12,24 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
   TypedEventLog,
   TypedListener,
   TypedContractMethod,
-} from "../../../common";
+} from '../../../common';
 
 export interface IERC3156FlashBorrowerInterface extends Interface {
-  getFunction(nameOrSignature: "onFlashLoan"): FunctionFragment;
+  getFunction(nameOrSignature: 'onFlashLoan'): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "onFlashLoan",
-    values: [AddressLike, AddressLike, BigNumberish, BigNumberish, BytesLike]
+    functionFragment: 'onFlashLoan',
+    values: [AddressLike, AddressLike, BigNumberish, BigNumberish, BytesLike],
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "onFlashLoan",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: 'onFlashLoan', data: BytesLike): Result;
 }
 
 export interface IERC3156FlashBorrower extends BaseContract {
@@ -44,39 +41,37 @@ export interface IERC3156FlashBorrower extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
   onFlashLoan: TypedContractMethod<
     [
@@ -84,28 +79,26 @@ export interface IERC3156FlashBorrower extends BaseContract {
       token: AddressLike,
       amount: BigNumberish,
       fee: BigNumberish,
-      data: BytesLike
+      data: BytesLike,
     ],
     [string],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
   getFunction(
-    nameOrSignature: "onFlashLoan"
+    nameOrSignature: 'onFlashLoan',
   ): TypedContractMethod<
     [
       initiator: AddressLike,
       token: AddressLike,
       amount: BigNumberish,
       fee: BigNumberish,
-      data: BytesLike
+      data: BytesLike,
     ],
     [string],
-    "nonpayable"
+    'nonpayable'
   >;
 
   filters: {};

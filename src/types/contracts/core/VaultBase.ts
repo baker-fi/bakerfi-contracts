@@ -13,7 +13,7 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
@@ -21,7 +21,7 @@ import type {
   TypedLogDescription,
   TypedListener,
   TypedContractMethod,
-} from "../../common";
+} from '../../common';
 
 export declare namespace IVault {
   export type RebalanceCommandStruct = {
@@ -38,418 +38,205 @@ export declare namespace IVault {
 export interface VaultBaseInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "DEFAULT_ADMIN_ROLE"
-      | "_initializeVaultSettings"
-      | "allowance"
-      | "approve"
-      | "asset"
-      | "balanceOf"
-      | "convertToAssets"
-      | "convertToShares"
-      | "decimals"
-      | "decreaseAllowance"
-      | "deposit"
-      | "depositNative"
-      | "enableAccount"
-      | "getFeeReceiver"
-      | "getMaxDeposit"
-      | "getPerformanceFee"
-      | "getRoleAdmin"
-      | "getWithdrawalFee"
-      | "grantRole"
-      | "hasRole"
-      | "increaseAllowance"
-      | "isAccountEnabled"
-      | "maxDeposit"
-      | "maxMint"
-      | "maxRedeem"
-      | "maxWithdraw"
-      | "mint"
-      | "name"
-      | "pause"
-      | "paused"
-      | "previewDeposit"
-      | "previewMint"
-      | "previewRedeem"
-      | "previewWithdraw"
-      | "rebalance"
-      | "redeem"
-      | "redeemNative"
-      | "renounceRole"
-      | "revokeRole"
-      | "setFeeReceiver"
-      | "setMaxDeposit"
-      | "setPerformanceFee"
-      | "setWithdrawalFee"
-      | "supportsInterface"
-      | "symbol"
-      | "tokenPerAsset"
-      | "totalAssets"
-      | "totalSupply"
-      | "transfer"
-      | "transferFrom"
-      | "unpause"
-      | "withdraw"
-      | "withdrawNative"
+      | 'DEFAULT_ADMIN_ROLE'
+      | '_initializeVaultSettings'
+      | 'allowance'
+      | 'approve'
+      | 'asset'
+      | 'balanceOf'
+      | 'convertToAssets'
+      | 'convertToShares'
+      | 'decimals'
+      | 'decreaseAllowance'
+      | 'deposit'
+      | 'depositNative'
+      | 'enableAccount'
+      | 'getFeeReceiver'
+      | 'getMaxDeposit'
+      | 'getPerformanceFee'
+      | 'getRoleAdmin'
+      | 'getWithdrawalFee'
+      | 'grantRole'
+      | 'hasRole'
+      | 'increaseAllowance'
+      | 'isAccountEnabled'
+      | 'maxDeposit'
+      | 'maxMint'
+      | 'maxRedeem'
+      | 'maxWithdraw'
+      | 'mint'
+      | 'name'
+      | 'pause'
+      | 'paused'
+      | 'previewDeposit'
+      | 'previewMint'
+      | 'previewRedeem'
+      | 'previewWithdraw'
+      | 'rebalance'
+      | 'redeem'
+      | 'redeemNative'
+      | 'renounceRole'
+      | 'revokeRole'
+      | 'setFeeReceiver'
+      | 'setMaxDeposit'
+      | 'setPerformanceFee'
+      | 'setWithdrawalFee'
+      | 'supportsInterface'
+      | 'symbol'
+      | 'tokenPerAsset'
+      | 'totalAssets'
+      | 'totalSupply'
+      | 'transfer'
+      | 'transferFrom'
+      | 'unpause'
+      | 'withdraw'
+      | 'withdrawNative',
   ): FunctionFragment;
 
   getEvent(
     nameOrSignatureOrTopic:
-      | "AccountWhiteList"
-      | "Approval"
-      | "Deposit"
-      | "FeeReceiverChanged"
-      | "Initialized"
-      | "MaxDepositChanged"
-      | "Paused"
-      | "PerformanceFeeChanged"
-      | "RoleAdminChanged"
-      | "RoleGranted"
-      | "RoleRevoked"
-      | "Transfer"
-      | "Unpaused"
-      | "Withdraw"
-      | "WithdrawalFeeChanged"
+      | 'AccountWhiteList'
+      | 'Approval'
+      | 'Deposit'
+      | 'FeeReceiverChanged'
+      | 'Initialized'
+      | 'MaxDepositChanged'
+      | 'Paused'
+      | 'PerformanceFeeChanged'
+      | 'RoleAdminChanged'
+      | 'RoleGranted'
+      | 'RoleRevoked'
+      | 'Transfer'
+      | 'Unpaused'
+      | 'Withdraw'
+      | 'WithdrawalFeeChanged',
   ): EventFragment;
 
+  encodeFunctionData(functionFragment: 'DEFAULT_ADMIN_ROLE', values?: undefined): string;
+  encodeFunctionData(functionFragment: '_initializeVaultSettings', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'allowance', values: [AddressLike, AddressLike]): string;
+  encodeFunctionData(functionFragment: 'approve', values: [AddressLike, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'asset', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'balanceOf', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'convertToAssets', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'convertToShares', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'decimals', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "DEFAULT_ADMIN_ROLE",
-    values?: undefined
+    functionFragment: 'decreaseAllowance',
+    values: [AddressLike, BigNumberish],
+  ): string;
+  encodeFunctionData(functionFragment: 'deposit', values: [BigNumberish, AddressLike]): string;
+  encodeFunctionData(functionFragment: 'depositNative', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'enableAccount', values: [AddressLike, boolean]): string;
+  encodeFunctionData(functionFragment: 'getFeeReceiver', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'getMaxDeposit', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'getPerformanceFee', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'getRoleAdmin', values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: 'getWithdrawalFee', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'grantRole', values: [BytesLike, AddressLike]): string;
+  encodeFunctionData(functionFragment: 'hasRole', values: [BytesLike, AddressLike]): string;
+  encodeFunctionData(
+    functionFragment: 'increaseAllowance',
+    values: [AddressLike, BigNumberish],
+  ): string;
+  encodeFunctionData(functionFragment: 'isAccountEnabled', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'maxDeposit', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'maxMint', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'maxRedeem', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'maxWithdraw', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'mint', values: [BigNumberish, AddressLike]): string;
+  encodeFunctionData(functionFragment: 'name', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'pause', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'paused', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'previewDeposit', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'previewMint', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'previewRedeem', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'previewWithdraw', values: [BigNumberish]): string;
+  encodeFunctionData(
+    functionFragment: 'rebalance',
+    values: [IVault.RebalanceCommandStruct[]],
   ): string;
   encodeFunctionData(
-    functionFragment: "_initializeVaultSettings",
-    values?: undefined
+    functionFragment: 'redeem',
+    values: [BigNumberish, AddressLike, AddressLike],
   ): string;
+  encodeFunctionData(functionFragment: 'redeemNative', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'renounceRole', values: [BytesLike, AddressLike]): string;
+  encodeFunctionData(functionFragment: 'revokeRole', values: [BytesLike, AddressLike]): string;
+  encodeFunctionData(functionFragment: 'setFeeReceiver', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'setMaxDeposit', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'setPerformanceFee', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'setWithdrawalFee', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'supportsInterface', values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: 'symbol', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'tokenPerAsset', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'totalAssets', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'totalSupply', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'transfer', values: [AddressLike, BigNumberish]): string;
   encodeFunctionData(
-    functionFragment: "allowance",
-    values: [AddressLike, AddressLike]
+    functionFragment: 'transferFrom',
+    values: [AddressLike, AddressLike, BigNumberish],
   ): string;
+  encodeFunctionData(functionFragment: 'unpause', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "approve",
-    values: [AddressLike, BigNumberish]
+    functionFragment: 'withdraw',
+    values: [BigNumberish, AddressLike, AddressLike],
   ): string;
-  encodeFunctionData(functionFragment: "asset", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "balanceOf",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "convertToAssets",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "convertToShares",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "decreaseAllowance",
-    values: [AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "deposit",
-    values: [BigNumberish, AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "depositNative",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "enableAccount",
-    values: [AddressLike, boolean]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getFeeReceiver",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getMaxDeposit",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getPerformanceFee",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getRoleAdmin",
-    values: [BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getWithdrawalFee",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "grantRole",
-    values: [BytesLike, AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "hasRole",
-    values: [BytesLike, AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "increaseAllowance",
-    values: [AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isAccountEnabled",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "maxDeposit",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "maxMint",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "maxRedeem",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "maxWithdraw",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "mint",
-    values: [BigNumberish, AddressLike]
-  ): string;
-  encodeFunctionData(functionFragment: "name", values?: undefined): string;
-  encodeFunctionData(functionFragment: "pause", values?: undefined): string;
-  encodeFunctionData(functionFragment: "paused", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "previewDeposit",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "previewMint",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "previewRedeem",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "previewWithdraw",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "rebalance",
-    values: [IVault.RebalanceCommandStruct[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "redeem",
-    values: [BigNumberish, AddressLike, AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "redeemNative",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "renounceRole",
-    values: [BytesLike, AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "revokeRole",
-    values: [BytesLike, AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setFeeReceiver",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setMaxDeposit",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setPerformanceFee",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setWithdrawalFee",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "supportsInterface",
-    values: [BytesLike]
-  ): string;
-  encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "tokenPerAsset",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "totalAssets",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "totalSupply",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transfer",
-    values: [AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferFrom",
-    values: [AddressLike, AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "unpause", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "withdraw",
-    values: [BigNumberish, AddressLike, AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "withdrawNative",
-    values: [BigNumberish]
-  ): string;
+  encodeFunctionData(functionFragment: 'withdrawNative', values: [BigNumberish]): string;
 
-  decodeFunctionResult(
-    functionFragment: "DEFAULT_ADMIN_ROLE",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "_initializeVaultSettings",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "asset", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "convertToAssets",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "convertToShares",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "decreaseAllowance",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "depositNative",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "enableAccount",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getFeeReceiver",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getMaxDeposit",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getPerformanceFee",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getRoleAdmin",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getWithdrawalFee",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "increaseAllowance",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isAccountEnabled",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "maxDeposit", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "maxMint", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "maxRedeem", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "maxWithdraw",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "paused", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "previewDeposit",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "previewMint",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "previewRedeem",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "previewWithdraw",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "rebalance", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "redeem", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "redeemNative",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceRole",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setFeeReceiver",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setMaxDeposit",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setPerformanceFee",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setWithdrawalFee",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "supportsInterface",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenPerAsset",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "totalAssets",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "totalSupply",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "transfer", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "transferFrom",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "withdrawNative",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: 'DEFAULT_ADMIN_ROLE', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: '_initializeVaultSettings', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'allowance', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'approve', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'asset', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'balanceOf', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'convertToAssets', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'convertToShares', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'decimals', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'decreaseAllowance', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'deposit', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'depositNative', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'enableAccount', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getFeeReceiver', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getMaxDeposit', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getPerformanceFee', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getRoleAdmin', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getWithdrawalFee', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'grantRole', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'hasRole', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'increaseAllowance', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'isAccountEnabled', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'maxDeposit', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'maxMint', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'maxRedeem', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'maxWithdraw', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'mint', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'name', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'pause', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'paused', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'previewDeposit', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'previewMint', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'previewRedeem', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'previewWithdraw', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'rebalance', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'redeem', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'redeemNative', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'renounceRole', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'revokeRole', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setFeeReceiver', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setMaxDeposit', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setPerformanceFee', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setWithdrawalFee', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'supportsInterface', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'symbol', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'tokenPerAsset', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'totalAssets', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'totalSupply', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transfer', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transferFrom', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'unpause', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'withdraw', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'withdrawNative', data: BytesLike): Result;
 }
 
 export namespace AccountWhiteListEvent {
@@ -466,11 +253,7 @@ export namespace AccountWhiteListEvent {
 }
 
 export namespace ApprovalEvent {
-  export type InputTuple = [
-    owner: AddressLike,
-    spender: AddressLike,
-    value: BigNumberish
-  ];
+  export type InputTuple = [owner: AddressLike, spender: AddressLike, value: BigNumberish];
   export type OutputTuple = [owner: string, spender: string, value: bigint];
   export interface OutputObject {
     owner: string;
@@ -488,14 +271,9 @@ export namespace DepositEvent {
     sender: AddressLike,
     owner: AddressLike,
     assets: BigNumberish,
-    shares: BigNumberish
+    shares: BigNumberish,
   ];
-  export type OutputTuple = [
-    sender: string,
-    owner: string,
-    assets: bigint,
-    shares: bigint
-  ];
+  export type OutputTuple = [sender: string, owner: string, assets: bigint, shares: bigint];
   export interface OutputObject {
     sender: string;
     owner: string;
@@ -569,16 +347,8 @@ export namespace PerformanceFeeChangedEvent {
 }
 
 export namespace RoleAdminChangedEvent {
-  export type InputTuple = [
-    role: BytesLike,
-    previousAdminRole: BytesLike,
-    newAdminRole: BytesLike
-  ];
-  export type OutputTuple = [
-    role: string,
-    previousAdminRole: string,
-    newAdminRole: string
-  ];
+  export type InputTuple = [role: BytesLike, previousAdminRole: BytesLike, newAdminRole: BytesLike];
+  export type OutputTuple = [role: string, previousAdminRole: string, newAdminRole: string];
   export interface OutputObject {
     role: string;
     previousAdminRole: string;
@@ -591,11 +361,7 @@ export namespace RoleAdminChangedEvent {
 }
 
 export namespace RoleGrantedEvent {
-  export type InputTuple = [
-    role: BytesLike,
-    account: AddressLike,
-    sender: AddressLike
-  ];
+  export type InputTuple = [role: BytesLike, account: AddressLike, sender: AddressLike];
   export type OutputTuple = [role: string, account: string, sender: string];
   export interface OutputObject {
     role: string;
@@ -609,11 +375,7 @@ export namespace RoleGrantedEvent {
 }
 
 export namespace RoleRevokedEvent {
-  export type InputTuple = [
-    role: BytesLike,
-    account: AddressLike,
-    sender: AddressLike
-  ];
+  export type InputTuple = [role: BytesLike, account: AddressLike, sender: AddressLike];
   export type OutputTuple = [role: string, account: string, sender: string];
   export interface OutputObject {
     role: string;
@@ -627,11 +389,7 @@ export namespace RoleRevokedEvent {
 }
 
 export namespace TransferEvent {
-  export type InputTuple = [
-    from: AddressLike,
-    to: AddressLike,
-    value: BigNumberish
-  ];
+  export type InputTuple = [from: AddressLike, to: AddressLike, value: BigNumberish];
   export type OutputTuple = [from: string, to: string, value: bigint];
   export interface OutputObject {
     from: string;
@@ -662,14 +420,14 @@ export namespace WithdrawEvent {
     receiver: AddressLike,
     owner: AddressLike,
     assets: BigNumberish,
-    shares: BigNumberish
+    shares: BigNumberish,
   ];
   export type OutputTuple = [
     sender: string,
     receiver: string,
     owner: string,
     assets: bigint,
-    shares: bigint
+    shares: bigint,
   ];
   export interface OutputObject {
     sender: string;
@@ -705,590 +463,424 @@ export interface VaultBase extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
-  DEFAULT_ADMIN_ROLE: TypedContractMethod<[], [string], "view">;
+  DEFAULT_ADMIN_ROLE: TypedContractMethod<[], [string], 'view'>;
 
-  _initializeVaultSettings: TypedContractMethod<[], [void], "nonpayable">;
+  _initializeVaultSettings: TypedContractMethod<[], [void], 'nonpayable'>;
 
-  allowance: TypedContractMethod<
-    [owner: AddressLike, spender: AddressLike],
-    [bigint],
-    "view"
-  >;
+  allowance: TypedContractMethod<[owner: AddressLike, spender: AddressLike], [bigint], 'view'>;
 
   approve: TypedContractMethod<
     [spender: AddressLike, amount: BigNumberish],
     [boolean],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  asset: TypedContractMethod<[], [string], "view">;
+  asset: TypedContractMethod<[], [string], 'view'>;
 
-  balanceOf: TypedContractMethod<[account: AddressLike], [bigint], "view">;
+  balanceOf: TypedContractMethod<[account: AddressLike], [bigint], 'view'>;
 
-  convertToAssets: TypedContractMethod<
-    [shares: BigNumberish],
-    [bigint],
-    "view"
-  >;
+  convertToAssets: TypedContractMethod<[shares: BigNumberish], [bigint], 'view'>;
 
-  convertToShares: TypedContractMethod<
-    [assets: BigNumberish],
-    [bigint],
-    "view"
-  >;
+  convertToShares: TypedContractMethod<[assets: BigNumberish], [bigint], 'view'>;
 
-  decimals: TypedContractMethod<[], [bigint], "view">;
+  decimals: TypedContractMethod<[], [bigint], 'view'>;
 
   decreaseAllowance: TypedContractMethod<
     [spender: AddressLike, subtractedValue: BigNumberish],
     [boolean],
-    "nonpayable"
+    'nonpayable'
   >;
 
   deposit: TypedContractMethod<
     [assets: BigNumberish, receiver: AddressLike],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  depositNative: TypedContractMethod<
-    [receiver: AddressLike],
-    [bigint],
-    "payable"
-  >;
+  depositNative: TypedContractMethod<[receiver: AddressLike], [bigint], 'payable'>;
 
   enableAccount: TypedContractMethod<
     [account: AddressLike, enabled: boolean],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  getFeeReceiver: TypedContractMethod<[], [string], "view">;
+  getFeeReceiver: TypedContractMethod<[], [string], 'view'>;
 
-  getMaxDeposit: TypedContractMethod<[], [bigint], "view">;
+  getMaxDeposit: TypedContractMethod<[], [bigint], 'view'>;
 
-  getPerformanceFee: TypedContractMethod<[], [bigint], "view">;
+  getPerformanceFee: TypedContractMethod<[], [bigint], 'view'>;
 
-  getRoleAdmin: TypedContractMethod<[role: BytesLike], [string], "view">;
+  getRoleAdmin: TypedContractMethod<[role: BytesLike], [string], 'view'>;
 
-  getWithdrawalFee: TypedContractMethod<[], [bigint], "view">;
+  getWithdrawalFee: TypedContractMethod<[], [bigint], 'view'>;
 
-  grantRole: TypedContractMethod<
-    [role: BytesLike, account: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+  grantRole: TypedContractMethod<[role: BytesLike, account: AddressLike], [void], 'nonpayable'>;
 
-  hasRole: TypedContractMethod<
-    [role: BytesLike, account: AddressLike],
-    [boolean],
-    "view"
-  >;
+  hasRole: TypedContractMethod<[role: BytesLike, account: AddressLike], [boolean], 'view'>;
 
   increaseAllowance: TypedContractMethod<
     [spender: AddressLike, addedValue: BigNumberish],
     [boolean],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  isAccountEnabled: TypedContractMethod<
-    [account: AddressLike],
-    [boolean],
-    "view"
-  >;
+  isAccountEnabled: TypedContractMethod<[account: AddressLike], [boolean], 'view'>;
 
-  maxDeposit: TypedContractMethod<[receiver: AddressLike], [bigint], "view">;
+  maxDeposit: TypedContractMethod<[receiver: AddressLike], [bigint], 'view'>;
 
-  maxMint: TypedContractMethod<[receiver: AddressLike], [bigint], "view">;
+  maxMint: TypedContractMethod<[receiver: AddressLike], [bigint], 'view'>;
 
-  maxRedeem: TypedContractMethod<[shareHolder: AddressLike], [bigint], "view">;
+  maxRedeem: TypedContractMethod<[shareHolder: AddressLike], [bigint], 'view'>;
 
-  maxWithdraw: TypedContractMethod<
-    [shareHolder: AddressLike],
-    [bigint],
-    "view"
-  >;
+  maxWithdraw: TypedContractMethod<[shareHolder: AddressLike], [bigint], 'view'>;
 
-  mint: TypedContractMethod<
-    [shares: BigNumberish, receiver: AddressLike],
-    [bigint],
-    "nonpayable"
-  >;
+  mint: TypedContractMethod<[shares: BigNumberish, receiver: AddressLike], [bigint], 'nonpayable'>;
 
-  name: TypedContractMethod<[], [string], "view">;
+  name: TypedContractMethod<[], [string], 'view'>;
 
-  pause: TypedContractMethod<[], [void], "nonpayable">;
+  pause: TypedContractMethod<[], [void], 'nonpayable'>;
 
-  paused: TypedContractMethod<[], [boolean], "view">;
+  paused: TypedContractMethod<[], [boolean], 'view'>;
 
-  previewDeposit: TypedContractMethod<[assets: BigNumberish], [bigint], "view">;
+  previewDeposit: TypedContractMethod<[assets: BigNumberish], [bigint], 'view'>;
 
-  previewMint: TypedContractMethod<[shares: BigNumberish], [bigint], "view">;
+  previewMint: TypedContractMethod<[shares: BigNumberish], [bigint], 'view'>;
 
-  previewRedeem: TypedContractMethod<[shares: BigNumberish], [bigint], "view">;
+  previewRedeem: TypedContractMethod<[shares: BigNumberish], [bigint], 'view'>;
 
-  previewWithdraw: TypedContractMethod<
-    [assets: BigNumberish],
-    [bigint],
-    "view"
-  >;
+  previewWithdraw: TypedContractMethod<[assets: BigNumberish], [bigint], 'view'>;
 
   rebalance: TypedContractMethod<
     [commands: IVault.RebalanceCommandStruct[]],
     [boolean],
-    "nonpayable"
+    'nonpayable'
   >;
 
   redeem: TypedContractMethod<
     [shares: BigNumberish, receiver: AddressLike, holder: AddressLike],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  redeemNative: TypedContractMethod<
-    [shares: BigNumberish],
-    [bigint],
-    "nonpayable"
-  >;
+  redeemNative: TypedContractMethod<[shares: BigNumberish], [bigint], 'nonpayable'>;
 
-  renounceRole: TypedContractMethod<
-    [role: BytesLike, account: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+  renounceRole: TypedContractMethod<[role: BytesLike, account: AddressLike], [void], 'nonpayable'>;
 
-  revokeRole: TypedContractMethod<
-    [role: BytesLike, account: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+  revokeRole: TypedContractMethod<[role: BytesLike, account: AddressLike], [void], 'nonpayable'>;
 
-  setFeeReceiver: TypedContractMethod<
-    [receiver: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+  setFeeReceiver: TypedContractMethod<[receiver: AddressLike], [void], 'nonpayable'>;
 
-  setMaxDeposit: TypedContractMethod<
-    [value: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  setMaxDeposit: TypedContractMethod<[value: BigNumberish], [void], 'nonpayable'>;
 
-  setPerformanceFee: TypedContractMethod<
-    [fee: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  setPerformanceFee: TypedContractMethod<[fee: BigNumberish], [void], 'nonpayable'>;
 
-  setWithdrawalFee: TypedContractMethod<
-    [fee: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  setWithdrawalFee: TypedContractMethod<[fee: BigNumberish], [void], 'nonpayable'>;
 
-  supportsInterface: TypedContractMethod<
-    [interfaceId: BytesLike],
-    [boolean],
-    "view"
-  >;
+  supportsInterface: TypedContractMethod<[interfaceId: BytesLike], [boolean], 'view'>;
 
-  symbol: TypedContractMethod<[], [string], "view">;
+  symbol: TypedContractMethod<[], [string], 'view'>;
 
-  tokenPerAsset: TypedContractMethod<[], [bigint], "view">;
+  tokenPerAsset: TypedContractMethod<[], [bigint], 'view'>;
 
-  totalAssets: TypedContractMethod<[], [bigint], "view">;
+  totalAssets: TypedContractMethod<[], [bigint], 'view'>;
 
-  totalSupply: TypedContractMethod<[], [bigint], "view">;
+  totalSupply: TypedContractMethod<[], [bigint], 'view'>;
 
-  transfer: TypedContractMethod<
-    [to: AddressLike, amount: BigNumberish],
-    [boolean],
-    "nonpayable"
-  >;
+  transfer: TypedContractMethod<[to: AddressLike, amount: BigNumberish], [boolean], 'nonpayable'>;
 
   transferFrom: TypedContractMethod<
     [from: AddressLike, to: AddressLike, amount: BigNumberish],
     [boolean],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  unpause: TypedContractMethod<[], [void], "nonpayable">;
+  unpause: TypedContractMethod<[], [void], 'nonpayable'>;
 
   withdraw: TypedContractMethod<
     [assets: BigNumberish, receiver: AddressLike, holder: AddressLike],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  withdrawNative: TypedContractMethod<
-    [assets: BigNumberish],
-    [bigint],
-    "nonpayable"
-  >;
+  withdrawNative: TypedContractMethod<[assets: BigNumberish], [bigint], 'nonpayable'>;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
+  getFunction(nameOrSignature: 'DEFAULT_ADMIN_ROLE'): TypedContractMethod<[], [string], 'view'>;
   getFunction(
-    nameOrSignature: "DEFAULT_ADMIN_ROLE"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: '_initializeVaultSettings',
+  ): TypedContractMethod<[], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "_initializeVaultSettings"
-  ): TypedContractMethod<[], [void], "nonpayable">;
+    nameOrSignature: 'allowance',
+  ): TypedContractMethod<[owner: AddressLike, spender: AddressLike], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "allowance"
-  ): TypedContractMethod<
-    [owner: AddressLike, spender: AddressLike],
-    [bigint],
-    "view"
-  >;
+    nameOrSignature: 'approve',
+  ): TypedContractMethod<[spender: AddressLike, amount: BigNumberish], [boolean], 'nonpayable'>;
+  getFunction(nameOrSignature: 'asset'): TypedContractMethod<[], [string], 'view'>;
   getFunction(
-    nameOrSignature: "approve"
-  ): TypedContractMethod<
-    [spender: AddressLike, amount: BigNumberish],
-    [boolean],
-    "nonpayable"
-  >;
+    nameOrSignature: 'balanceOf',
+  ): TypedContractMethod<[account: AddressLike], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "asset"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: 'convertToAssets',
+  ): TypedContractMethod<[shares: BigNumberish], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "balanceOf"
-  ): TypedContractMethod<[account: AddressLike], [bigint], "view">;
+    nameOrSignature: 'convertToShares',
+  ): TypedContractMethod<[assets: BigNumberish], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'decimals'): TypedContractMethod<[], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "convertToAssets"
-  ): TypedContractMethod<[shares: BigNumberish], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "convertToShares"
-  ): TypedContractMethod<[assets: BigNumberish], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "decimals"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "decreaseAllowance"
+    nameOrSignature: 'decreaseAllowance',
   ): TypedContractMethod<
     [spender: AddressLike, subtractedValue: BigNumberish],
     [boolean],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "deposit"
-  ): TypedContractMethod<
-    [assets: BigNumberish, receiver: AddressLike],
-    [bigint],
-    "nonpayable"
-  >;
+    nameOrSignature: 'deposit',
+  ): TypedContractMethod<[assets: BigNumberish, receiver: AddressLike], [bigint], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "depositNative"
-  ): TypedContractMethod<[receiver: AddressLike], [bigint], "payable">;
+    nameOrSignature: 'depositNative',
+  ): TypedContractMethod<[receiver: AddressLike], [bigint], 'payable'>;
   getFunction(
-    nameOrSignature: "enableAccount"
-  ): TypedContractMethod<
-    [account: AddressLike, enabled: boolean],
-    [void],
-    "nonpayable"
-  >;
+    nameOrSignature: 'enableAccount',
+  ): TypedContractMethod<[account: AddressLike, enabled: boolean], [void], 'nonpayable'>;
+  getFunction(nameOrSignature: 'getFeeReceiver'): TypedContractMethod<[], [string], 'view'>;
+  getFunction(nameOrSignature: 'getMaxDeposit'): TypedContractMethod<[], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'getPerformanceFee'): TypedContractMethod<[], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "getFeeReceiver"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: 'getRoleAdmin',
+  ): TypedContractMethod<[role: BytesLike], [string], 'view'>;
+  getFunction(nameOrSignature: 'getWithdrawalFee'): TypedContractMethod<[], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "getMaxDeposit"
-  ): TypedContractMethod<[], [bigint], "view">;
+    nameOrSignature: 'grantRole',
+  ): TypedContractMethod<[role: BytesLike, account: AddressLike], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "getPerformanceFee"
-  ): TypedContractMethod<[], [bigint], "view">;
+    nameOrSignature: 'hasRole',
+  ): TypedContractMethod<[role: BytesLike, account: AddressLike], [boolean], 'view'>;
   getFunction(
-    nameOrSignature: "getRoleAdmin"
-  ): TypedContractMethod<[role: BytesLike], [string], "view">;
+    nameOrSignature: 'increaseAllowance',
+  ): TypedContractMethod<[spender: AddressLike, addedValue: BigNumberish], [boolean], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "getWithdrawalFee"
-  ): TypedContractMethod<[], [bigint], "view">;
+    nameOrSignature: 'isAccountEnabled',
+  ): TypedContractMethod<[account: AddressLike], [boolean], 'view'>;
   getFunction(
-    nameOrSignature: "grantRole"
-  ): TypedContractMethod<
-    [role: BytesLike, account: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+    nameOrSignature: 'maxDeposit',
+  ): TypedContractMethod<[receiver: AddressLike], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "hasRole"
-  ): TypedContractMethod<
-    [role: BytesLike, account: AddressLike],
-    [boolean],
-    "view"
-  >;
+    nameOrSignature: 'maxMint',
+  ): TypedContractMethod<[receiver: AddressLike], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "increaseAllowance"
-  ): TypedContractMethod<
-    [spender: AddressLike, addedValue: BigNumberish],
-    [boolean],
-    "nonpayable"
-  >;
+    nameOrSignature: 'maxRedeem',
+  ): TypedContractMethod<[shareHolder: AddressLike], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "isAccountEnabled"
-  ): TypedContractMethod<[account: AddressLike], [boolean], "view">;
+    nameOrSignature: 'maxWithdraw',
+  ): TypedContractMethod<[shareHolder: AddressLike], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "maxDeposit"
-  ): TypedContractMethod<[receiver: AddressLike], [bigint], "view">;
+    nameOrSignature: 'mint',
+  ): TypedContractMethod<[shares: BigNumberish, receiver: AddressLike], [bigint], 'nonpayable'>;
+  getFunction(nameOrSignature: 'name'): TypedContractMethod<[], [string], 'view'>;
+  getFunction(nameOrSignature: 'pause'): TypedContractMethod<[], [void], 'nonpayable'>;
+  getFunction(nameOrSignature: 'paused'): TypedContractMethod<[], [boolean], 'view'>;
   getFunction(
-    nameOrSignature: "maxMint"
-  ): TypedContractMethod<[receiver: AddressLike], [bigint], "view">;
+    nameOrSignature: 'previewDeposit',
+  ): TypedContractMethod<[assets: BigNumberish], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "maxRedeem"
-  ): TypedContractMethod<[shareHolder: AddressLike], [bigint], "view">;
+    nameOrSignature: 'previewMint',
+  ): TypedContractMethod<[shares: BigNumberish], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "maxWithdraw"
-  ): TypedContractMethod<[shareHolder: AddressLike], [bigint], "view">;
+    nameOrSignature: 'previewRedeem',
+  ): TypedContractMethod<[shares: BigNumberish], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "mint"
-  ): TypedContractMethod<
-    [shares: BigNumberish, receiver: AddressLike],
-    [bigint],
-    "nonpayable"
-  >;
+    nameOrSignature: 'previewWithdraw',
+  ): TypedContractMethod<[assets: BigNumberish], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "name"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: 'rebalance',
+  ): TypedContractMethod<[commands: IVault.RebalanceCommandStruct[]], [boolean], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "pause"
-  ): TypedContractMethod<[], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "paused"
-  ): TypedContractMethod<[], [boolean], "view">;
-  getFunction(
-    nameOrSignature: "previewDeposit"
-  ): TypedContractMethod<[assets: BigNumberish], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "previewMint"
-  ): TypedContractMethod<[shares: BigNumberish], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "previewRedeem"
-  ): TypedContractMethod<[shares: BigNumberish], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "previewWithdraw"
-  ): TypedContractMethod<[assets: BigNumberish], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "rebalance"
-  ): TypedContractMethod<
-    [commands: IVault.RebalanceCommandStruct[]],
-    [boolean],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "redeem"
+    nameOrSignature: 'redeem',
   ): TypedContractMethod<
     [shares: BigNumberish, receiver: AddressLike, holder: AddressLike],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "redeemNative"
-  ): TypedContractMethod<[shares: BigNumberish], [bigint], "nonpayable">;
+    nameOrSignature: 'redeemNative',
+  ): TypedContractMethod<[shares: BigNumberish], [bigint], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "renounceRole"
-  ): TypedContractMethod<
-    [role: BytesLike, account: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+    nameOrSignature: 'renounceRole',
+  ): TypedContractMethod<[role: BytesLike, account: AddressLike], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "revokeRole"
-  ): TypedContractMethod<
-    [role: BytesLike, account: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+    nameOrSignature: 'revokeRole',
+  ): TypedContractMethod<[role: BytesLike, account: AddressLike], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "setFeeReceiver"
-  ): TypedContractMethod<[receiver: AddressLike], [void], "nonpayable">;
+    nameOrSignature: 'setFeeReceiver',
+  ): TypedContractMethod<[receiver: AddressLike], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "setMaxDeposit"
-  ): TypedContractMethod<[value: BigNumberish], [void], "nonpayable">;
+    nameOrSignature: 'setMaxDeposit',
+  ): TypedContractMethod<[value: BigNumberish], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "setPerformanceFee"
-  ): TypedContractMethod<[fee: BigNumberish], [void], "nonpayable">;
+    nameOrSignature: 'setPerformanceFee',
+  ): TypedContractMethod<[fee: BigNumberish], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "setWithdrawalFee"
-  ): TypedContractMethod<[fee: BigNumberish], [void], "nonpayable">;
+    nameOrSignature: 'setWithdrawalFee',
+  ): TypedContractMethod<[fee: BigNumberish], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "supportsInterface"
-  ): TypedContractMethod<[interfaceId: BytesLike], [boolean], "view">;
+    nameOrSignature: 'supportsInterface',
+  ): TypedContractMethod<[interfaceId: BytesLike], [boolean], 'view'>;
+  getFunction(nameOrSignature: 'symbol'): TypedContractMethod<[], [string], 'view'>;
+  getFunction(nameOrSignature: 'tokenPerAsset'): TypedContractMethod<[], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'totalAssets'): TypedContractMethod<[], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'totalSupply'): TypedContractMethod<[], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "symbol"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: 'transfer',
+  ): TypedContractMethod<[to: AddressLike, amount: BigNumberish], [boolean], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "tokenPerAsset"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "totalAssets"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "totalSupply"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "transfer"
-  ): TypedContractMethod<
-    [to: AddressLike, amount: BigNumberish],
-    [boolean],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "transferFrom"
+    nameOrSignature: 'transferFrom',
   ): TypedContractMethod<
     [from: AddressLike, to: AddressLike, amount: BigNumberish],
     [boolean],
-    "nonpayable"
+    'nonpayable'
   >;
+  getFunction(nameOrSignature: 'unpause'): TypedContractMethod<[], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "unpause"
-  ): TypedContractMethod<[], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "withdraw"
+    nameOrSignature: 'withdraw',
   ): TypedContractMethod<
     [assets: BigNumberish, receiver: AddressLike, holder: AddressLike],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "withdrawNative"
-  ): TypedContractMethod<[assets: BigNumberish], [bigint], "nonpayable">;
+    nameOrSignature: 'withdrawNative',
+  ): TypedContractMethod<[assets: BigNumberish], [bigint], 'nonpayable'>;
 
   getEvent(
-    key: "AccountWhiteList"
+    key: 'AccountWhiteList',
   ): TypedContractEvent<
     AccountWhiteListEvent.InputTuple,
     AccountWhiteListEvent.OutputTuple,
     AccountWhiteListEvent.OutputObject
   >;
   getEvent(
-    key: "Approval"
+    key: 'Approval',
   ): TypedContractEvent<
     ApprovalEvent.InputTuple,
     ApprovalEvent.OutputTuple,
     ApprovalEvent.OutputObject
   >;
   getEvent(
-    key: "Deposit"
+    key: 'Deposit',
   ): TypedContractEvent<
     DepositEvent.InputTuple,
     DepositEvent.OutputTuple,
     DepositEvent.OutputObject
   >;
   getEvent(
-    key: "FeeReceiverChanged"
+    key: 'FeeReceiverChanged',
   ): TypedContractEvent<
     FeeReceiverChangedEvent.InputTuple,
     FeeReceiverChangedEvent.OutputTuple,
     FeeReceiverChangedEvent.OutputObject
   >;
   getEvent(
-    key: "Initialized"
+    key: 'Initialized',
   ): TypedContractEvent<
     InitializedEvent.InputTuple,
     InitializedEvent.OutputTuple,
     InitializedEvent.OutputObject
   >;
   getEvent(
-    key: "MaxDepositChanged"
+    key: 'MaxDepositChanged',
   ): TypedContractEvent<
     MaxDepositChangedEvent.InputTuple,
     MaxDepositChangedEvent.OutputTuple,
     MaxDepositChangedEvent.OutputObject
   >;
   getEvent(
-    key: "Paused"
-  ): TypedContractEvent<
-    PausedEvent.InputTuple,
-    PausedEvent.OutputTuple,
-    PausedEvent.OutputObject
-  >;
+    key: 'Paused',
+  ): TypedContractEvent<PausedEvent.InputTuple, PausedEvent.OutputTuple, PausedEvent.OutputObject>;
   getEvent(
-    key: "PerformanceFeeChanged"
+    key: 'PerformanceFeeChanged',
   ): TypedContractEvent<
     PerformanceFeeChangedEvent.InputTuple,
     PerformanceFeeChangedEvent.OutputTuple,
     PerformanceFeeChangedEvent.OutputObject
   >;
   getEvent(
-    key: "RoleAdminChanged"
+    key: 'RoleAdminChanged',
   ): TypedContractEvent<
     RoleAdminChangedEvent.InputTuple,
     RoleAdminChangedEvent.OutputTuple,
     RoleAdminChangedEvent.OutputObject
   >;
   getEvent(
-    key: "RoleGranted"
+    key: 'RoleGranted',
   ): TypedContractEvent<
     RoleGrantedEvent.InputTuple,
     RoleGrantedEvent.OutputTuple,
     RoleGrantedEvent.OutputObject
   >;
   getEvent(
-    key: "RoleRevoked"
+    key: 'RoleRevoked',
   ): TypedContractEvent<
     RoleRevokedEvent.InputTuple,
     RoleRevokedEvent.OutputTuple,
     RoleRevokedEvent.OutputObject
   >;
   getEvent(
-    key: "Transfer"
+    key: 'Transfer',
   ): TypedContractEvent<
     TransferEvent.InputTuple,
     TransferEvent.OutputTuple,
     TransferEvent.OutputObject
   >;
   getEvent(
-    key: "Unpaused"
+    key: 'Unpaused',
   ): TypedContractEvent<
     UnpausedEvent.InputTuple,
     UnpausedEvent.OutputTuple,
     UnpausedEvent.OutputObject
   >;
   getEvent(
-    key: "Withdraw"
+    key: 'Withdraw',
   ): TypedContractEvent<
     WithdrawEvent.InputTuple,
     WithdrawEvent.OutputTuple,
     WithdrawEvent.OutputObject
   >;
   getEvent(
-    key: "WithdrawalFeeChanged"
+    key: 'WithdrawalFeeChanged',
   ): TypedContractEvent<
     WithdrawalFeeChangedEvent.InputTuple,
     WithdrawalFeeChangedEvent.OutputTuple,
@@ -1296,7 +888,7 @@ export interface VaultBase extends BaseContract {
   >;
 
   filters: {
-    "AccountWhiteList(address,bool)": TypedContractEvent<
+    'AccountWhiteList(address,bool)': TypedContractEvent<
       AccountWhiteListEvent.InputTuple,
       AccountWhiteListEvent.OutputTuple,
       AccountWhiteListEvent.OutputObject
@@ -1307,7 +899,7 @@ export interface VaultBase extends BaseContract {
       AccountWhiteListEvent.OutputObject
     >;
 
-    "Approval(address,address,uint256)": TypedContractEvent<
+    'Approval(address,address,uint256)': TypedContractEvent<
       ApprovalEvent.InputTuple,
       ApprovalEvent.OutputTuple,
       ApprovalEvent.OutputObject
@@ -1318,7 +910,7 @@ export interface VaultBase extends BaseContract {
       ApprovalEvent.OutputObject
     >;
 
-    "Deposit(address,address,uint256,uint256)": TypedContractEvent<
+    'Deposit(address,address,uint256,uint256)': TypedContractEvent<
       DepositEvent.InputTuple,
       DepositEvent.OutputTuple,
       DepositEvent.OutputObject
@@ -1329,7 +921,7 @@ export interface VaultBase extends BaseContract {
       DepositEvent.OutputObject
     >;
 
-    "FeeReceiverChanged(address)": TypedContractEvent<
+    'FeeReceiverChanged(address)': TypedContractEvent<
       FeeReceiverChangedEvent.InputTuple,
       FeeReceiverChangedEvent.OutputTuple,
       FeeReceiverChangedEvent.OutputObject
@@ -1340,7 +932,7 @@ export interface VaultBase extends BaseContract {
       FeeReceiverChangedEvent.OutputObject
     >;
 
-    "Initialized(uint8)": TypedContractEvent<
+    'Initialized(uint8)': TypedContractEvent<
       InitializedEvent.InputTuple,
       InitializedEvent.OutputTuple,
       InitializedEvent.OutputObject
@@ -1351,7 +943,7 @@ export interface VaultBase extends BaseContract {
       InitializedEvent.OutputObject
     >;
 
-    "MaxDepositChanged(uint256)": TypedContractEvent<
+    'MaxDepositChanged(uint256)': TypedContractEvent<
       MaxDepositChangedEvent.InputTuple,
       MaxDepositChangedEvent.OutputTuple,
       MaxDepositChangedEvent.OutputObject
@@ -1362,7 +954,7 @@ export interface VaultBase extends BaseContract {
       MaxDepositChangedEvent.OutputObject
     >;
 
-    "Paused(address)": TypedContractEvent<
+    'Paused(address)': TypedContractEvent<
       PausedEvent.InputTuple,
       PausedEvent.OutputTuple,
       PausedEvent.OutputObject
@@ -1373,7 +965,7 @@ export interface VaultBase extends BaseContract {
       PausedEvent.OutputObject
     >;
 
-    "PerformanceFeeChanged(uint256)": TypedContractEvent<
+    'PerformanceFeeChanged(uint256)': TypedContractEvent<
       PerformanceFeeChangedEvent.InputTuple,
       PerformanceFeeChangedEvent.OutputTuple,
       PerformanceFeeChangedEvent.OutputObject
@@ -1384,7 +976,7 @@ export interface VaultBase extends BaseContract {
       PerformanceFeeChangedEvent.OutputObject
     >;
 
-    "RoleAdminChanged(bytes32,bytes32,bytes32)": TypedContractEvent<
+    'RoleAdminChanged(bytes32,bytes32,bytes32)': TypedContractEvent<
       RoleAdminChangedEvent.InputTuple,
       RoleAdminChangedEvent.OutputTuple,
       RoleAdminChangedEvent.OutputObject
@@ -1395,7 +987,7 @@ export interface VaultBase extends BaseContract {
       RoleAdminChangedEvent.OutputObject
     >;
 
-    "RoleGranted(bytes32,address,address)": TypedContractEvent<
+    'RoleGranted(bytes32,address,address)': TypedContractEvent<
       RoleGrantedEvent.InputTuple,
       RoleGrantedEvent.OutputTuple,
       RoleGrantedEvent.OutputObject
@@ -1406,7 +998,7 @@ export interface VaultBase extends BaseContract {
       RoleGrantedEvent.OutputObject
     >;
 
-    "RoleRevoked(bytes32,address,address)": TypedContractEvent<
+    'RoleRevoked(bytes32,address,address)': TypedContractEvent<
       RoleRevokedEvent.InputTuple,
       RoleRevokedEvent.OutputTuple,
       RoleRevokedEvent.OutputObject
@@ -1417,7 +1009,7 @@ export interface VaultBase extends BaseContract {
       RoleRevokedEvent.OutputObject
     >;
 
-    "Transfer(address,address,uint256)": TypedContractEvent<
+    'Transfer(address,address,uint256)': TypedContractEvent<
       TransferEvent.InputTuple,
       TransferEvent.OutputTuple,
       TransferEvent.OutputObject
@@ -1428,7 +1020,7 @@ export interface VaultBase extends BaseContract {
       TransferEvent.OutputObject
     >;
 
-    "Unpaused(address)": TypedContractEvent<
+    'Unpaused(address)': TypedContractEvent<
       UnpausedEvent.InputTuple,
       UnpausedEvent.OutputTuple,
       UnpausedEvent.OutputObject
@@ -1439,7 +1031,7 @@ export interface VaultBase extends BaseContract {
       UnpausedEvent.OutputObject
     >;
 
-    "Withdraw(address,address,address,uint256,uint256)": TypedContractEvent<
+    'Withdraw(address,address,address,uint256,uint256)': TypedContractEvent<
       WithdrawEvent.InputTuple,
       WithdrawEvent.OutputTuple,
       WithdrawEvent.OutputObject
@@ -1450,7 +1042,7 @@ export interface VaultBase extends BaseContract {
       WithdrawEvent.OutputObject
     >;
 
-    "WithdrawalFeeChanged(uint256)": TypedContractEvent<
+    'WithdrawalFeeChanged(uint256)': TypedContractEvent<
       WithdrawalFeeChangedEvent.InputTuple,
       WithdrawalFeeChangedEvent.OutputTuple,
       WithdrawalFeeChangedEvent.OutputObject

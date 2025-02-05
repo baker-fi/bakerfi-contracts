@@ -2,11 +2,11 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
+import { Contract, Interface, type ContractRunner } from 'ethers';
 import type {
   IVaultSettings,
   IVaultSettingsInterface,
-} from "../../../../contracts/interfaces/core/IVaultSettings";
+} from '../../../../contracts/interfaces/core/IVaultSettings';
 
 const _abi = [
   {
@@ -14,212 +14,212 @@ const _abi = [
     inputs: [
       {
         indexed: true,
-        internalType: "address",
-        name: "account",
-        type: "address",
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
       },
       {
         indexed: false,
-        internalType: "bool",
-        name: "enabled",
-        type: "bool",
+        internalType: 'bool',
+        name: 'enabled',
+        type: 'bool',
       },
     ],
-    name: "AccountWhiteList",
-    type: "event",
+    name: 'AccountWhiteList',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: "address",
-        name: "value",
-        type: "address",
+        internalType: 'address',
+        name: 'value',
+        type: 'address',
       },
     ],
-    name: "FeeReceiverChanged",
-    type: "event",
+    name: 'FeeReceiverChanged',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: "uint256",
-        name: "value",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'value',
+        type: 'uint256',
       },
     ],
-    name: "MaxDepositChanged",
-    type: "event",
+    name: 'MaxDepositChanged',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: "uint256",
-        name: "value",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'value',
+        type: 'uint256',
       },
     ],
-    name: "PerformanceFeeChanged",
-    type: "event",
+    name: 'PerformanceFeeChanged',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: "uint256",
-        name: "value",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'value',
+        type: 'uint256',
       },
     ],
-    name: "WithdrawalFeeChanged",
-    type: "event",
+    name: 'WithdrawalFeeChanged',
+    type: 'event',
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "account",
-        type: "address",
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
       },
       {
-        internalType: "bool",
-        name: "enabled",
-        type: "bool",
+        internalType: 'bool',
+        name: 'enabled',
+        type: 'bool',
       },
     ],
-    name: "enableAccount",
+    name: 'enableAccount',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "getFeeReceiver",
+    name: 'getFeeReceiver',
     outputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "getMaxDeposit",
+    name: 'getMaxDeposit',
     outputs: [
       {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "getPerformanceFee",
+    name: 'getPerformanceFee',
     outputs: [
       {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "getWithdrawalFee",
+    name: 'getWithdrawalFee',
     outputs: [
       {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "account",
-        type: "address",
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
       },
     ],
-    name: "isAccountEnabled",
+    name: 'isAccountEnabled',
     outputs: [
       {
-        internalType: "bool",
-        name: "",
-        type: "bool",
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "receiver",
-        type: "address",
+        internalType: 'address',
+        name: 'receiver',
+        type: 'address',
       },
     ],
-    name: "setFeeReceiver",
+    name: 'setFeeReceiver',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "value",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'value',
+        type: 'uint256',
       },
     ],
-    name: "setMaxDeposit",
+    name: 'setMaxDeposit',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "fee",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'fee',
+        type: 'uint256',
       },
     ],
-    name: "setPerformanceFee",
+    name: 'setPerformanceFee',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "fee",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'fee',
+        type: 'uint256',
       },
     ],
-    name: "setWithdrawalFee",
+    name: 'setWithdrawalFee',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
 ] as const;
 
@@ -228,10 +228,7 @@ export class IVaultSettings__factory {
   static createInterface(): IVaultSettingsInterface {
     return new Interface(_abi) as IVaultSettingsInterface;
   }
-  static connect(
-    address: string,
-    runner?: ContractRunner | null
-  ): IVaultSettings {
+  static connect(address: string, runner?: ContractRunner | null): IVaultSettings {
     return new Contract(address, _abi, runner) as unknown as IVaultSettings;
   }
 }

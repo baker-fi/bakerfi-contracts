@@ -2,170 +2,167 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
-import type {
-  MultiStrategy,
-  MultiStrategyInterface,
-} from "../../../contracts/core/MultiStrategy";
+import { Contract, Interface, type ContractRunner } from 'ethers';
+import type { MultiStrategy, MultiStrategyInterface } from '../../../contracts/core/MultiStrategy';
 
 const _abi = [
   {
     inputs: [],
-    name: "InvalidDeltas",
-    type: "error",
+    name: 'InvalidDeltas',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InvalidDeltasLength",
-    type: "error",
+    name: 'InvalidDeltasLength',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InvalidStrategies",
-    type: "error",
+    name: 'InvalidStrategies',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InvalidStrategy",
-    type: "error",
+    name: 'InvalidStrategy',
+    type: 'error',
   },
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "index",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'index',
+        type: 'uint256',
       },
     ],
-    name: "InvalidStrategyIndex",
-    type: "error",
+    name: 'InvalidStrategyIndex',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InvalidWeights",
-    type: "error",
+    name: 'InvalidWeights',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InvalidWeightsLength",
-    type: "error",
+    name: 'InvalidWeightsLength',
+    type: 'error',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: "address",
-        name: "strategy",
-        type: "address",
+        internalType: 'address',
+        name: 'strategy',
+        type: 'address',
       },
     ],
-    name: "AddStrategy",
-    type: "event",
+    name: 'AddStrategy',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: false,
-        internalType: "uint8",
-        name: "version",
-        type: "uint8",
+        internalType: 'uint8',
+        name: 'version',
+        type: 'uint8',
       },
     ],
-    name: "Initialized",
-    type: "event",
+    name: 'Initialized',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: "uint256",
-        name: "maxDifference",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'maxDifference',
+        type: 'uint256',
       },
     ],
-    name: "MaxDifferenceUpdated",
-    type: "event",
+    name: 'MaxDifferenceUpdated',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: "address",
-        name: "strategy",
-        type: "address",
+        internalType: 'address',
+        name: 'strategy',
+        type: 'address',
       },
     ],
-    name: "RemoveStrategy",
-    type: "event",
+    name: 'RemoveStrategy',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: "uint16[]",
-        name: "weights",
-        type: "uint16[]",
+        internalType: 'uint16[]',
+        name: 'weights',
+        type: 'uint16[]',
       },
     ],
-    name: "WeightsUpdated",
-    type: "event",
+    name: 'WeightsUpdated',
+    type: 'event',
   },
   {
     inputs: [],
-    name: "MAX_TOTAL_WEIGHT",
+    name: 'MAX_TOTAL_WEIGHT',
     outputs: [
       {
-        internalType: "uint16",
-        name: "",
-        type: "uint16",
+        internalType: 'uint16',
+        name: '',
+        type: 'uint16',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "strategies",
+    name: 'strategies',
     outputs: [
       {
-        internalType: "contract IStrategy[]",
-        name: "",
-        type: "address[]",
+        internalType: 'contract IStrategy[]',
+        name: '',
+        type: 'address[]',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "totalWeight",
+    name: 'totalWeight',
     outputs: [
       {
-        internalType: "uint16",
-        name: "",
-        type: "uint16",
+        internalType: 'uint16',
+        name: '',
+        type: 'uint16',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "weights",
+    name: 'weights',
     outputs: [
       {
-        internalType: "uint16[]",
-        name: "",
-        type: "uint16[]",
+        internalType: 'uint16[]',
+        name: '',
+        type: 'uint16[]',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
 ] as const;
 
@@ -174,10 +171,7 @@ export class MultiStrategy__factory {
   static createInterface(): MultiStrategyInterface {
     return new Interface(_abi) as MultiStrategyInterface;
   }
-  static connect(
-    address: string,
-    runner?: ContractRunner | null
-  ): MultiStrategy {
+  static connect(address: string, runner?: ContractRunner | null): MultiStrategy {
     return new Contract(address, _abi, runner) as unknown as MultiStrategy;
   }
 }

@@ -2,55 +2,55 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
+import { Contract, Interface, type ContractRunner } from 'ethers';
 import type {
   UseUniV3Swapper,
   UseUniV3SwapperInterface,
-} from "../../../../../contracts/core/hooks/swappers/UseUniV3Swapper";
+} from '../../../../../contracts/core/hooks/swappers/UseUniV3Swapper';
 
 const _abi = [
   {
     inputs: [],
-    name: "FailedToApproveAllowanceForRouter",
-    type: "error",
+    name: 'FailedToApproveAllowanceForRouter',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InvalidFeeTier",
-    type: "error",
+    name: 'InvalidFeeTier',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InvalidInputToken",
-    type: "error",
+    name: 'InvalidInputToken',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InvalidOutputToken",
-    type: "error",
+    name: 'InvalidOutputToken',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InvalidUniRouterContract",
-    type: "error",
+    name: 'InvalidUniRouterContract',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "SwapFailed",
-    type: "error",
+    name: 'SwapFailed',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "uniRouter",
+    name: 'uniRouter',
     outputs: [
       {
-        internalType: "contract IV3SwapRouter",
-        name: "",
-        type: "address",
+        internalType: 'contract IV3SwapRouter',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
 ] as const;
 
@@ -59,10 +59,7 @@ export class UseUniV3Swapper__factory {
   static createInterface(): UseUniV3SwapperInterface {
     return new Interface(_abi) as UseUniV3SwapperInterface;
   }
-  static connect(
-    address: string,
-    runner?: ContractRunner | null
-  ): UseUniV3Swapper {
+  static connect(address: string, runner?: ContractRunner | null): UseUniV3Swapper {
     return new Contract(address, _abi, runner) as unknown as UseUniV3Swapper;
   }
 }

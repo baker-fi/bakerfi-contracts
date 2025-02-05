@@ -2,11 +2,11 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
+import { Contract, Interface, type ContractRunner } from 'ethers';
 import type {
   ERC1967Upgrade,
   ERC1967UpgradeInterface,
-} from "../../../../../@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade";
+} from '../../../../../@openzeppelin/contracts/proxy/ERC1967/ERC1967Upgrade';
 
 const _abi = [
   {
@@ -14,45 +14,45 @@ const _abi = [
     inputs: [
       {
         indexed: false,
-        internalType: "address",
-        name: "previousAdmin",
-        type: "address",
+        internalType: 'address',
+        name: 'previousAdmin',
+        type: 'address',
       },
       {
         indexed: false,
-        internalType: "address",
-        name: "newAdmin",
-        type: "address",
+        internalType: 'address',
+        name: 'newAdmin',
+        type: 'address',
       },
     ],
-    name: "AdminChanged",
-    type: "event",
+    name: 'AdminChanged',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: "address",
-        name: "beacon",
-        type: "address",
+        internalType: 'address',
+        name: 'beacon',
+        type: 'address',
       },
     ],
-    name: "BeaconUpgraded",
-    type: "event",
+    name: 'BeaconUpgraded',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: "address",
-        name: "implementation",
-        type: "address",
+        internalType: 'address',
+        name: 'implementation',
+        type: 'address',
       },
     ],
-    name: "Upgraded",
-    type: "event",
+    name: 'Upgraded',
+    type: 'event',
   },
 ] as const;
 
@@ -61,10 +61,7 @@ export class ERC1967Upgrade__factory {
   static createInterface(): ERC1967UpgradeInterface {
     return new Interface(_abi) as ERC1967UpgradeInterface;
   }
-  static connect(
-    address: string,
-    runner?: ContractRunner | null
-  ): ERC1967Upgrade {
+  static connect(address: string, runner?: ContractRunner | null): ERC1967Upgrade {
     return new Contract(address, _abi, runner) as unknown as ERC1967Upgrade;
   }
 }

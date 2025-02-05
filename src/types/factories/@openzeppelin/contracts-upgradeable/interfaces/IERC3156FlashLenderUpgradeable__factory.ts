@@ -2,89 +2,89 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
+import { Contract, Interface, type ContractRunner } from 'ethers';
 import type {
   IERC3156FlashLenderUpgradeable,
   IERC3156FlashLenderUpgradeableInterface,
-} from "../../../../@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashLenderUpgradeable";
+} from '../../../../@openzeppelin/contracts-upgradeable/interfaces/IERC3156FlashLenderUpgradeable';
 
 const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "token",
-        type: "address",
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
       },
       {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
       },
     ],
-    name: "flashFee",
+    name: 'flashFee',
     outputs: [
       {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "contract IERC3156FlashBorrowerUpgradeable",
-        name: "receiver",
-        type: "address",
+        internalType: 'contract IERC3156FlashBorrowerUpgradeable',
+        name: 'receiver',
+        type: 'address',
       },
       {
-        internalType: "address",
-        name: "token",
-        type: "address",
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
       },
       {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
       },
       {
-        internalType: "bytes",
-        name: "data",
-        type: "bytes",
+        internalType: 'bytes',
+        name: 'data',
+        type: 'bytes',
       },
     ],
-    name: "flashLoan",
+    name: 'flashLoan',
     outputs: [
       {
-        internalType: "bool",
-        name: "",
-        type: "bool",
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
       },
     ],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "token",
-        type: "address",
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
       },
     ],
-    name: "maxFlashLoan",
+    name: 'maxFlashLoan',
     outputs: [
       {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
 ] as const;
 
@@ -93,14 +93,7 @@ export class IERC3156FlashLenderUpgradeable__factory {
   static createInterface(): IERC3156FlashLenderUpgradeableInterface {
     return new Interface(_abi) as IERC3156FlashLenderUpgradeableInterface;
   }
-  static connect(
-    address: string,
-    runner?: ContractRunner | null
-  ): IERC3156FlashLenderUpgradeable {
-    return new Contract(
-      address,
-      _abi,
-      runner
-    ) as unknown as IERC3156FlashLenderUpgradeable;
+  static connect(address: string, runner?: ContractRunner | null): IERC3156FlashLenderUpgradeable {
+    return new Contract(address, _abi, runner) as unknown as IERC3156FlashLenderUpgradeable;
   }
 }

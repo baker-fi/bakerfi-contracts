@@ -2,230 +2,230 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
+import { Contract, Interface, type ContractRunner } from 'ethers';
 import type {
   StrategySettings,
   StrategySettingsInterface,
-} from "../../../../contracts/core/strategies/StrategySettings";
+} from '../../../../contracts/core/strategies/StrategySettings';
 
 const _abi = [
   {
     inputs: [],
-    name: "CallerNotTheGovernor",
-    type: "error",
+    name: 'CallerNotTheGovernor',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InvalidAddress",
-    type: "error",
+    name: 'InvalidAddress',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InvalidGovernorAddress",
-    type: "error",
+    name: 'InvalidGovernorAddress',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InvalidOwner",
-    type: "error",
+    name: 'InvalidOwner',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InvalidPercentage",
-    type: "error",
+    name: 'InvalidPercentage',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InvalidValue",
-    type: "error",
+    name: 'InvalidValue',
+    type: 'error',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: "address",
-        name: "previousGovernor",
-        type: "address",
+        internalType: 'address',
+        name: 'previousGovernor',
+        type: 'address',
       },
       {
         indexed: true,
-        internalType: "address",
-        name: "newGovernor",
-        type: "address",
+        internalType: 'address',
+        name: 'newGovernor',
+        type: 'address',
       },
     ],
-    name: "GovernshipTransferred",
-    type: "event",
+    name: 'GovernshipTransferred',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: false,
-        internalType: "uint8",
-        name: "version",
-        type: "uint8",
+        internalType: 'uint8',
+        name: 'version',
+        type: 'uint8',
       },
     ],
-    name: "Initialized",
-    type: "event",
+    name: 'Initialized',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: "address",
-        name: "previousOwner",
-        type: "address",
+        internalType: 'address',
+        name: 'previousOwner',
+        type: 'address',
       },
       {
         indexed: true,
-        internalType: "address",
-        name: "newOwner",
-        type: "address",
+        internalType: 'address',
+        name: 'newOwner',
+        type: 'address',
       },
     ],
-    name: "OwnershipTransferred",
-    type: "event",
+    name: 'OwnershipTransferred',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: "uint256",
-        name: "value",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'value',
+        type: 'uint256',
       },
     ],
-    name: "PriceMaxAgeChanged",
-    type: "event",
+    name: 'PriceMaxAgeChanged',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: "uint256",
-        name: "value",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'value',
+        type: 'uint256',
       },
     ],
-    name: "PriceMaxConfChanged",
-    type: "event",
+    name: 'PriceMaxConfChanged',
+    type: 'event',
   },
   {
     inputs: [],
-    name: "getPriceMaxAge",
+    name: 'getPriceMaxAge',
     outputs: [
       {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "getPriceMaxConf",
+    name: 'getPriceMaxConf',
     outputs: [
       {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "governor",
+    name: 'governor',
     outputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "owner",
+    name: 'owner',
     outputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "renounceOwnership",
+    name: 'renounceOwnership',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "value",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'value',
+        type: 'uint256',
       },
     ],
-    name: "setPriceMaxAge",
+    name: 'setPriceMaxAge',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "value",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'value',
+        type: 'uint256',
       },
     ],
-    name: "setPriceMaxConf",
+    name: 'setPriceMaxConf',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "_newGovernor",
-        type: "address",
+        internalType: 'address',
+        name: '_newGovernor',
+        type: 'address',
       },
     ],
-    name: "transferGovernorship",
+    name: 'transferGovernorship',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "newOwner",
-        type: "address",
+        internalType: 'address',
+        name: 'newOwner',
+        type: 'address',
       },
     ],
-    name: "transferOwnership",
+    name: 'transferOwnership',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
 ] as const;
 
@@ -234,10 +234,7 @@ export class StrategySettings__factory {
   static createInterface(): StrategySettingsInterface {
     return new Interface(_abi) as StrategySettingsInterface;
   }
-  static connect(
-    address: string,
-    runner?: ContractRunner | null
-  ): StrategySettings {
+  static connect(address: string, runner?: ContractRunner | null): StrategySettings {
     return new Contract(address, _abi, runner) as unknown as StrategySettings;
   }
 }

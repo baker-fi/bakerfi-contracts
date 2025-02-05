@@ -11,37 +11,29 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
   TypedEventLog,
   TypedListener,
   TypedContractMethod,
-} from "../../common";
+} from '../../common';
 
 export interface CommandMockInterface extends Interface {
-  getFunction(
-    nameOrSignature: "pullInputParam" | "pushOutputParam"
-  ): FunctionFragment;
+  getFunction(nameOrSignature: 'pullInputParam' | 'pushOutputParam'): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "pullInputParam",
-    values: [BigNumberish[], BigNumberish, BigNumberish, BigNumberish]
+    functionFragment: 'pullInputParam',
+    values: [BigNumberish[], BigNumberish, BigNumberish, BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "pushOutputParam",
-    values: [BigNumberish[], BigNumberish, BigNumberish, BigNumberish]
+    functionFragment: 'pushOutputParam',
+    values: [BigNumberish[], BigNumberish, BigNumberish, BigNumberish],
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "pullInputParam",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "pushOutputParam",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: 'pullInputParam', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'pushOutputParam', data: BytesLike): Result;
 }
 
 export interface CommandMock extends BaseContract {
@@ -53,49 +45,47 @@ export interface CommandMock extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
   pullInputParam: TypedContractMethod<
     [
       callStack: BigNumberish[],
       value: BigNumberish,
       inputMapping: BigNumberish,
-      position: BigNumberish
+      position: BigNumberish,
     ],
     [bigint],
-    "view"
+    'view'
   >;
 
   pushOutputParam: TypedContractMethod<
@@ -103,39 +93,37 @@ export interface CommandMock extends BaseContract {
       callStack: BigNumberish[],
       value: BigNumberish,
       outputMapping: BigNumberish,
-      position: BigNumberish
+      position: BigNumberish,
     ],
     [bigint[]],
-    "view"
+    'view'
   >;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
   getFunction(
-    nameOrSignature: "pullInputParam"
+    nameOrSignature: 'pullInputParam',
   ): TypedContractMethod<
     [
       callStack: BigNumberish[],
       value: BigNumberish,
       inputMapping: BigNumberish,
-      position: BigNumberish
+      position: BigNumberish,
     ],
     [bigint],
-    "view"
+    'view'
   >;
   getFunction(
-    nameOrSignature: "pushOutputParam"
+    nameOrSignature: 'pushOutputParam',
   ): TypedContractMethod<
     [
       callStack: BigNumberish[],
       value: BigNumberish,
       outputMapping: BigNumberish,
-      position: BigNumberish
+      position: BigNumberish,
     ],
     [bigint[]],
-    "view"
+    'view'
   >;
 
   filters: {};

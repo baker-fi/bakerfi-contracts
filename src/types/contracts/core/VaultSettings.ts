@@ -13,7 +13,7 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
@@ -21,78 +21,42 @@ import type {
   TypedLogDescription,
   TypedListener,
   TypedContractMethod,
-} from "../../common";
+} from '../../common';
 
 export interface VaultSettingsInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "_initializeVaultSettings"
-      | "getFeeReceiver"
-      | "getMaxDeposit"
-      | "getPerformanceFee"
-      | "getWithdrawalFee"
-      | "isAccountEnabled"
+      | '_initializeVaultSettings'
+      | 'getFeeReceiver'
+      | 'getMaxDeposit'
+      | 'getPerformanceFee'
+      | 'getWithdrawalFee'
+      | 'isAccountEnabled',
   ): FunctionFragment;
 
   getEvent(
     nameOrSignatureOrTopic:
-      | "AccountWhiteList"
-      | "FeeReceiverChanged"
-      | "Initialized"
-      | "MaxDepositChanged"
-      | "PerformanceFeeChanged"
-      | "WithdrawalFeeChanged"
+      | 'AccountWhiteList'
+      | 'FeeReceiverChanged'
+      | 'Initialized'
+      | 'MaxDepositChanged'
+      | 'PerformanceFeeChanged'
+      | 'WithdrawalFeeChanged',
   ): EventFragment;
 
-  encodeFunctionData(
-    functionFragment: "_initializeVaultSettings",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getFeeReceiver",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getMaxDeposit",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getPerformanceFee",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getWithdrawalFee",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "isAccountEnabled",
-    values: [AddressLike]
-  ): string;
+  encodeFunctionData(functionFragment: '_initializeVaultSettings', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'getFeeReceiver', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'getMaxDeposit', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'getPerformanceFee', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'getWithdrawalFee', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'isAccountEnabled', values: [AddressLike]): string;
 
-  decodeFunctionResult(
-    functionFragment: "_initializeVaultSettings",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getFeeReceiver",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getMaxDeposit",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getPerformanceFee",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getWithdrawalFee",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "isAccountEnabled",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: '_initializeVaultSettings', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getFeeReceiver', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getMaxDeposit', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getPerformanceFee', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getWithdrawalFee', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'isAccountEnabled', data: BytesLike): Result;
 }
 
 export namespace AccountWhiteListEvent {
@@ -177,116 +141,100 @@ export interface VaultSettings extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
-  _initializeVaultSettings: TypedContractMethod<[], [void], "nonpayable">;
+  _initializeVaultSettings: TypedContractMethod<[], [void], 'nonpayable'>;
 
-  getFeeReceiver: TypedContractMethod<[], [string], "view">;
+  getFeeReceiver: TypedContractMethod<[], [string], 'view'>;
 
-  getMaxDeposit: TypedContractMethod<[], [bigint], "view">;
+  getMaxDeposit: TypedContractMethod<[], [bigint], 'view'>;
 
-  getPerformanceFee: TypedContractMethod<[], [bigint], "view">;
+  getPerformanceFee: TypedContractMethod<[], [bigint], 'view'>;
 
-  getWithdrawalFee: TypedContractMethod<[], [bigint], "view">;
+  getWithdrawalFee: TypedContractMethod<[], [bigint], 'view'>;
 
-  isAccountEnabled: TypedContractMethod<
-    [account: AddressLike],
-    [boolean],
-    "view"
-  >;
+  isAccountEnabled: TypedContractMethod<[account: AddressLike], [boolean], 'view'>;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
   getFunction(
-    nameOrSignature: "_initializeVaultSettings"
-  ): TypedContractMethod<[], [void], "nonpayable">;
+    nameOrSignature: '_initializeVaultSettings',
+  ): TypedContractMethod<[], [void], 'nonpayable'>;
+  getFunction(nameOrSignature: 'getFeeReceiver'): TypedContractMethod<[], [string], 'view'>;
+  getFunction(nameOrSignature: 'getMaxDeposit'): TypedContractMethod<[], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'getPerformanceFee'): TypedContractMethod<[], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'getWithdrawalFee'): TypedContractMethod<[], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "getFeeReceiver"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "getMaxDeposit"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "getPerformanceFee"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "getWithdrawalFee"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "isAccountEnabled"
-  ): TypedContractMethod<[account: AddressLike], [boolean], "view">;
+    nameOrSignature: 'isAccountEnabled',
+  ): TypedContractMethod<[account: AddressLike], [boolean], 'view'>;
 
   getEvent(
-    key: "AccountWhiteList"
+    key: 'AccountWhiteList',
   ): TypedContractEvent<
     AccountWhiteListEvent.InputTuple,
     AccountWhiteListEvent.OutputTuple,
     AccountWhiteListEvent.OutputObject
   >;
   getEvent(
-    key: "FeeReceiverChanged"
+    key: 'FeeReceiverChanged',
   ): TypedContractEvent<
     FeeReceiverChangedEvent.InputTuple,
     FeeReceiverChangedEvent.OutputTuple,
     FeeReceiverChangedEvent.OutputObject
   >;
   getEvent(
-    key: "Initialized"
+    key: 'Initialized',
   ): TypedContractEvent<
     InitializedEvent.InputTuple,
     InitializedEvent.OutputTuple,
     InitializedEvent.OutputObject
   >;
   getEvent(
-    key: "MaxDepositChanged"
+    key: 'MaxDepositChanged',
   ): TypedContractEvent<
     MaxDepositChangedEvent.InputTuple,
     MaxDepositChangedEvent.OutputTuple,
     MaxDepositChangedEvent.OutputObject
   >;
   getEvent(
-    key: "PerformanceFeeChanged"
+    key: 'PerformanceFeeChanged',
   ): TypedContractEvent<
     PerformanceFeeChangedEvent.InputTuple,
     PerformanceFeeChangedEvent.OutputTuple,
     PerformanceFeeChangedEvent.OutputObject
   >;
   getEvent(
-    key: "WithdrawalFeeChanged"
+    key: 'WithdrawalFeeChanged',
   ): TypedContractEvent<
     WithdrawalFeeChangedEvent.InputTuple,
     WithdrawalFeeChangedEvent.OutputTuple,
@@ -294,7 +242,7 @@ export interface VaultSettings extends BaseContract {
   >;
 
   filters: {
-    "AccountWhiteList(address,bool)": TypedContractEvent<
+    'AccountWhiteList(address,bool)': TypedContractEvent<
       AccountWhiteListEvent.InputTuple,
       AccountWhiteListEvent.OutputTuple,
       AccountWhiteListEvent.OutputObject
@@ -305,7 +253,7 @@ export interface VaultSettings extends BaseContract {
       AccountWhiteListEvent.OutputObject
     >;
 
-    "FeeReceiverChanged(address)": TypedContractEvent<
+    'FeeReceiverChanged(address)': TypedContractEvent<
       FeeReceiverChangedEvent.InputTuple,
       FeeReceiverChangedEvent.OutputTuple,
       FeeReceiverChangedEvent.OutputObject
@@ -316,7 +264,7 @@ export interface VaultSettings extends BaseContract {
       FeeReceiverChangedEvent.OutputObject
     >;
 
-    "Initialized(uint8)": TypedContractEvent<
+    'Initialized(uint8)': TypedContractEvent<
       InitializedEvent.InputTuple,
       InitializedEvent.OutputTuple,
       InitializedEvent.OutputObject
@@ -327,7 +275,7 @@ export interface VaultSettings extends BaseContract {
       InitializedEvent.OutputObject
     >;
 
-    "MaxDepositChanged(uint256)": TypedContractEvent<
+    'MaxDepositChanged(uint256)': TypedContractEvent<
       MaxDepositChangedEvent.InputTuple,
       MaxDepositChangedEvent.OutputTuple,
       MaxDepositChangedEvent.OutputObject
@@ -338,7 +286,7 @@ export interface VaultSettings extends BaseContract {
       MaxDepositChangedEvent.OutputObject
     >;
 
-    "PerformanceFeeChanged(uint256)": TypedContractEvent<
+    'PerformanceFeeChanged(uint256)': TypedContractEvent<
       PerformanceFeeChangedEvent.InputTuple,
       PerformanceFeeChangedEvent.OutputTuple,
       PerformanceFeeChangedEvent.OutputObject
@@ -349,7 +297,7 @@ export interface VaultSettings extends BaseContract {
       PerformanceFeeChangedEvent.OutputObject
     >;
 
-    "WithdrawalFeeChanged(uint256)": TypedContractEvent<
+    'WithdrawalFeeChanged(uint256)': TypedContractEvent<
       WithdrawalFeeChangedEvent.InputTuple,
       WithdrawalFeeChangedEvent.OutputTuple,
       WithdrawalFeeChangedEvent.OutputObject

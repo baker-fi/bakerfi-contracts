@@ -2,37 +2,37 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
+import { Contract, Interface, type ContractRunner } from 'ethers';
 import type {
   UseUniV2Swapper,
   UseUniV2SwapperInterface,
-} from "../../../../../../contracts/core/hooks/swappers/UseUniV2Swapper.sol/UseUniV2Swapper";
+} from '../../../../../../contracts/core/hooks/swappers/UseUniV2Swapper.sol/UseUniV2Swapper';
 
 const _abi = [
   {
     inputs: [],
-    name: "FailedToApproveAllowance",
-    type: "error",
+    name: 'FailedToApproveAllowance',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InvalidInputToken",
-    type: "error",
+    name: 'InvalidInputToken',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InvalidOutputToken",
-    type: "error",
+    name: 'InvalidOutputToken',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InvalidV2RouterContract",
-    type: "error",
+    name: 'InvalidV2RouterContract',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "SwapFailed",
-    type: "error",
+    name: 'SwapFailed',
+    type: 'error',
   },
 ] as const;
 
@@ -41,10 +41,7 @@ export class UseUniV2Swapper__factory {
   static createInterface(): UseUniV2SwapperInterface {
     return new Interface(_abi) as UseUniV2SwapperInterface;
   }
-  static connect(
-    address: string,
-    runner?: ContractRunner | null
-  ): UseUniV2Swapper {
+  static connect(address: string, runner?: ContractRunner | null): UseUniV2Swapper {
     return new Contract(address, _abi, runner) as unknown as UseUniV2Swapper;
   }
 }

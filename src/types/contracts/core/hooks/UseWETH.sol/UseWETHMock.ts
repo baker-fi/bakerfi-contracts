@@ -13,7 +13,7 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
@@ -21,37 +21,22 @@ import type {
   TypedLogDescription,
   TypedListener,
   TypedContractMethod,
-} from "../../../../common";
+} from '../../../../common';
 
 export interface UseWETHMockInterface extends Interface {
   getFunction(
-    nameOrSignature: "initialize" | "test__unwrapETH" | "test__wrapETH"
+    nameOrSignature: 'initialize' | 'test__unwrapETH' | 'test__wrapETH',
   ): FunctionFragment;
 
-  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Initialized'): EventFragment;
 
-  encodeFunctionData(
-    functionFragment: "initialize",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "test__unwrapETH",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "test__wrapETH",
-    values: [BigNumberish]
-  ): string;
+  encodeFunctionData(functionFragment: 'initialize', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'test__unwrapETH', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'test__wrapETH', values: [BigNumberish]): string;
 
-  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "test__unwrapETH",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "test__wrapETH",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: 'initialize', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'test__unwrapETH', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'test__wrapETH', data: BytesLike): Result;
 }
 
 export namespace InitializedEvent {
@@ -75,74 +60,58 @@ export interface UseWETHMock extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
-  initialize: TypedContractMethod<
-    [initialOwner: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+  initialize: TypedContractMethod<[initialOwner: AddressLike], [void], 'nonpayable'>;
 
-  test__unwrapETH: TypedContractMethod<
-    [wETHAmount: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  test__unwrapETH: TypedContractMethod<[wETHAmount: BigNumberish], [void], 'nonpayable'>;
 
-  test__wrapETH: TypedContractMethod<
-    [amount: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  test__wrapETH: TypedContractMethod<[amount: BigNumberish], [void], 'nonpayable'>;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
   getFunction(
-    nameOrSignature: "initialize"
-  ): TypedContractMethod<[initialOwner: AddressLike], [void], "nonpayable">;
+    nameOrSignature: 'initialize',
+  ): TypedContractMethod<[initialOwner: AddressLike], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "test__unwrapETH"
-  ): TypedContractMethod<[wETHAmount: BigNumberish], [void], "nonpayable">;
+    nameOrSignature: 'test__unwrapETH',
+  ): TypedContractMethod<[wETHAmount: BigNumberish], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "test__wrapETH"
-  ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
+    nameOrSignature: 'test__wrapETH',
+  ): TypedContractMethod<[amount: BigNumberish], [void], 'nonpayable'>;
 
   getEvent(
-    key: "Initialized"
+    key: 'Initialized',
   ): TypedContractEvent<
     InitializedEvent.InputTuple,
     InitializedEvent.OutputTuple,
@@ -150,7 +119,7 @@ export interface UseWETHMock extends BaseContract {
   >;
 
   filters: {
-    "Initialized(uint8)": TypedContractEvent<
+    'Initialized(uint8)': TypedContractEvent<
       InitializedEvent.InputTuple,
       InitializedEvent.OutputTuple,
       InitializedEvent.OutputObject

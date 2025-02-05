@@ -12,7 +12,7 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
@@ -20,7 +20,7 @@ import type {
   TypedLogDescription,
   TypedListener,
   TypedContractMethod,
-} from "../../../common";
+} from '../../../common';
 
 export declare namespace PythStructs {
   export type PriceStruct = {
@@ -34,7 +34,7 @@ export declare namespace PythStructs {
     price: bigint,
     conf: bigint,
     expo: bigint,
-    publishTime: bigint
+    publishTime: bigint,
   ] & { price: bigint; conf: bigint; expo: bigint; publishTime: bigint };
 
   export type PriceFeedStruct = {
@@ -46,7 +46,7 @@ export declare namespace PythStructs {
   export type PriceFeedStructOutput = [
     id: string,
     price: PythStructs.PriceStructOutput,
-    emaPrice: PythStructs.PriceStructOutput
+    emaPrice: PythStructs.PriceStructOutput,
   ] & {
     id: string;
     price: PythStructs.PriceStructOutput;
@@ -57,122 +57,66 @@ export declare namespace PythStructs {
 export interface IPythInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "getEmaPrice"
-      | "getEmaPriceNoOlderThan"
-      | "getEmaPriceUnsafe"
-      | "getPrice"
-      | "getPriceNoOlderThan"
-      | "getPriceUnsafe"
-      | "getUpdateFee"
-      | "getValidTimePeriod"
-      | "parsePriceFeedUpdates"
-      | "parsePriceFeedUpdatesUnique"
-      | "updatePriceFeeds"
-      | "updatePriceFeedsIfNecessary"
+      | 'getEmaPrice'
+      | 'getEmaPriceNoOlderThan'
+      | 'getEmaPriceUnsafe'
+      | 'getPrice'
+      | 'getPriceNoOlderThan'
+      | 'getPriceUnsafe'
+      | 'getUpdateFee'
+      | 'getValidTimePeriod'
+      | 'parsePriceFeedUpdates'
+      | 'parsePriceFeedUpdatesUnique'
+      | 'updatePriceFeeds'
+      | 'updatePriceFeedsIfNecessary',
   ): FunctionFragment;
 
-  getEvent(
-    nameOrSignatureOrTopic: "BatchPriceFeedUpdate" | "PriceFeedUpdate"
-  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'BatchPriceFeedUpdate' | 'PriceFeedUpdate'): EventFragment;
 
+  encodeFunctionData(functionFragment: 'getEmaPrice', values: [BytesLike]): string;
   encodeFunctionData(
-    functionFragment: "getEmaPrice",
-    values: [BytesLike]
+    functionFragment: 'getEmaPriceNoOlderThan',
+    values: [BytesLike, BigNumberish],
+  ): string;
+  encodeFunctionData(functionFragment: 'getEmaPriceUnsafe', values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: 'getPrice', values: [BytesLike]): string;
+  encodeFunctionData(
+    functionFragment: 'getPriceNoOlderThan',
+    values: [BytesLike, BigNumberish],
+  ): string;
+  encodeFunctionData(functionFragment: 'getPriceUnsafe', values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: 'getUpdateFee', values: [BytesLike[]]): string;
+  encodeFunctionData(functionFragment: 'getValidTimePeriod', values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: 'parsePriceFeedUpdates',
+    values: [BytesLike[], BytesLike[], BigNumberish, BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "getEmaPriceNoOlderThan",
-    values: [BytesLike, BigNumberish]
+    functionFragment: 'parsePriceFeedUpdatesUnique',
+    values: [BytesLike[], BytesLike[], BigNumberish, BigNumberish],
   ): string;
+  encodeFunctionData(functionFragment: 'updatePriceFeeds', values: [BytesLike[]]): string;
   encodeFunctionData(
-    functionFragment: "getEmaPriceUnsafe",
-    values: [BytesLike]
-  ): string;
-  encodeFunctionData(functionFragment: "getPrice", values: [BytesLike]): string;
-  encodeFunctionData(
-    functionFragment: "getPriceNoOlderThan",
-    values: [BytesLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getPriceUnsafe",
-    values: [BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getUpdateFee",
-    values: [BytesLike[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getValidTimePeriod",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "parsePriceFeedUpdates",
-    values: [BytesLike[], BytesLike[], BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "parsePriceFeedUpdatesUnique",
-    values: [BytesLike[], BytesLike[], BigNumberish, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "updatePriceFeeds",
-    values: [BytesLike[]]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "updatePriceFeedsIfNecessary",
-    values: [BytesLike[], BytesLike[], BigNumberish[]]
+    functionFragment: 'updatePriceFeedsIfNecessary',
+    values: [BytesLike[], BytesLike[], BigNumberish[]],
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "getEmaPrice",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getEmaPriceNoOlderThan",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getEmaPriceUnsafe",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "getPrice", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getPriceNoOlderThan",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getPriceUnsafe",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getUpdateFee",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getValidTimePeriod",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "parsePriceFeedUpdates",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "parsePriceFeedUpdatesUnique",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "updatePriceFeeds",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "updatePriceFeedsIfNecessary",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: 'getEmaPrice', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getEmaPriceNoOlderThan', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getEmaPriceUnsafe', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getPrice', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getPriceNoOlderThan', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getPriceUnsafe', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getUpdateFee', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getValidTimePeriod', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'parsePriceFeedUpdates', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'parsePriceFeedUpdatesUnique', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'updatePriceFeeds', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'updatePriceFeedsIfNecessary', data: BytesLike): Result;
 }
 
 export namespace BatchPriceFeedUpdateEvent {
-  export type InputTuple = [
-    chainId: BigNumberish,
-    sequenceNumber: BigNumberish
-  ];
+  export type InputTuple = [chainId: BigNumberish, sequenceNumber: BigNumberish];
   export type OutputTuple = [chainId: bigint, sequenceNumber: bigint];
   export interface OutputObject {
     chainId: bigint;
@@ -189,14 +133,9 @@ export namespace PriceFeedUpdateEvent {
     id: BytesLike,
     publishTime: BigNumberish,
     price: BigNumberish,
-    conf: BigNumberish
+    conf: BigNumberish,
   ];
-  export type OutputTuple = [
-    id: string,
-    publishTime: bigint,
-    price: bigint,
-    conf: bigint
-  ];
+  export type OutputTuple = [id: string, publishTime: bigint, price: bigint, conf: bigint];
   export interface OutputObject {
     id: string;
     publishTime: bigint;
@@ -218,93 +157,71 @@ export interface IPyth extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
-  getEmaPrice: TypedContractMethod<
-    [id: BytesLike],
-    [PythStructs.PriceStructOutput],
-    "view"
-  >;
+  getEmaPrice: TypedContractMethod<[id: BytesLike], [PythStructs.PriceStructOutput], 'view'>;
 
   getEmaPriceNoOlderThan: TypedContractMethod<
     [id: BytesLike, age: BigNumberish],
     [PythStructs.PriceStructOutput],
-    "view"
+    'view'
   >;
 
-  getEmaPriceUnsafe: TypedContractMethod<
-    [id: BytesLike],
-    [PythStructs.PriceStructOutput],
-    "view"
-  >;
+  getEmaPriceUnsafe: TypedContractMethod<[id: BytesLike], [PythStructs.PriceStructOutput], 'view'>;
 
-  getPrice: TypedContractMethod<
-    [id: BytesLike],
-    [PythStructs.PriceStructOutput],
-    "view"
-  >;
+  getPrice: TypedContractMethod<[id: BytesLike], [PythStructs.PriceStructOutput], 'view'>;
 
   getPriceNoOlderThan: TypedContractMethod<
     [id: BytesLike, age: BigNumberish],
     [PythStructs.PriceStructOutput],
-    "view"
+    'view'
   >;
 
-  getPriceUnsafe: TypedContractMethod<
-    [id: BytesLike],
-    [PythStructs.PriceStructOutput],
-    "view"
-  >;
+  getPriceUnsafe: TypedContractMethod<[id: BytesLike], [PythStructs.PriceStructOutput], 'view'>;
 
-  getUpdateFee: TypedContractMethod<
-    [updateData: BytesLike[]],
-    [bigint],
-    "view"
-  >;
+  getUpdateFee: TypedContractMethod<[updateData: BytesLike[]], [bigint], 'view'>;
 
-  getValidTimePeriod: TypedContractMethod<[], [bigint], "view">;
+  getValidTimePeriod: TypedContractMethod<[], [bigint], 'view'>;
 
   parsePriceFeedUpdates: TypedContractMethod<
     [
       updateData: BytesLike[],
       priceIds: BytesLike[],
       minPublishTime: BigNumberish,
-      maxPublishTime: BigNumberish
+      maxPublishTime: BigNumberish,
     ],
     [PythStructs.PriceFeedStructOutput[]],
-    "payable"
+    'payable'
   >;
 
   parsePriceFeedUpdatesUnique: TypedContractMethod<
@@ -312,128 +229,96 @@ export interface IPyth extends BaseContract {
       updateData: BytesLike[],
       priceIds: BytesLike[],
       minPublishTime: BigNumberish,
-      maxPublishTime: BigNumberish
+      maxPublishTime: BigNumberish,
     ],
     [PythStructs.PriceFeedStructOutput[]],
-    "payable"
+    'payable'
   >;
 
-  updatePriceFeeds: TypedContractMethod<
-    [updateData: BytesLike[]],
-    [void],
-    "payable"
-  >;
+  updatePriceFeeds: TypedContractMethod<[updateData: BytesLike[]], [void], 'payable'>;
 
   updatePriceFeedsIfNecessary: TypedContractMethod<
-    [
-      updateData: BytesLike[],
-      priceIds: BytesLike[],
-      publishTimes: BigNumberish[]
-    ],
+    [updateData: BytesLike[], priceIds: BytesLike[], publishTimes: BigNumberish[]],
     [void],
-    "payable"
+    'payable'
   >;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
   getFunction(
-    nameOrSignature: "getEmaPrice"
-  ): TypedContractMethod<
-    [id: BytesLike],
-    [PythStructs.PriceStructOutput],
-    "view"
-  >;
+    nameOrSignature: 'getEmaPrice',
+  ): TypedContractMethod<[id: BytesLike], [PythStructs.PriceStructOutput], 'view'>;
   getFunction(
-    nameOrSignature: "getEmaPriceNoOlderThan"
+    nameOrSignature: 'getEmaPriceNoOlderThan',
   ): TypedContractMethod<
     [id: BytesLike, age: BigNumberish],
     [PythStructs.PriceStructOutput],
-    "view"
+    'view'
   >;
   getFunction(
-    nameOrSignature: "getEmaPriceUnsafe"
-  ): TypedContractMethod<
-    [id: BytesLike],
-    [PythStructs.PriceStructOutput],
-    "view"
-  >;
+    nameOrSignature: 'getEmaPriceUnsafe',
+  ): TypedContractMethod<[id: BytesLike], [PythStructs.PriceStructOutput], 'view'>;
   getFunction(
-    nameOrSignature: "getPrice"
-  ): TypedContractMethod<
-    [id: BytesLike],
-    [PythStructs.PriceStructOutput],
-    "view"
-  >;
+    nameOrSignature: 'getPrice',
+  ): TypedContractMethod<[id: BytesLike], [PythStructs.PriceStructOutput], 'view'>;
   getFunction(
-    nameOrSignature: "getPriceNoOlderThan"
+    nameOrSignature: 'getPriceNoOlderThan',
   ): TypedContractMethod<
     [id: BytesLike, age: BigNumberish],
     [PythStructs.PriceStructOutput],
-    "view"
+    'view'
   >;
   getFunction(
-    nameOrSignature: "getPriceUnsafe"
-  ): TypedContractMethod<
-    [id: BytesLike],
-    [PythStructs.PriceStructOutput],
-    "view"
-  >;
+    nameOrSignature: 'getPriceUnsafe',
+  ): TypedContractMethod<[id: BytesLike], [PythStructs.PriceStructOutput], 'view'>;
   getFunction(
-    nameOrSignature: "getUpdateFee"
-  ): TypedContractMethod<[updateData: BytesLike[]], [bigint], "view">;
+    nameOrSignature: 'getUpdateFee',
+  ): TypedContractMethod<[updateData: BytesLike[]], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'getValidTimePeriod'): TypedContractMethod<[], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "getValidTimePeriod"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "parsePriceFeedUpdates"
+    nameOrSignature: 'parsePriceFeedUpdates',
   ): TypedContractMethod<
     [
       updateData: BytesLike[],
       priceIds: BytesLike[],
       minPublishTime: BigNumberish,
-      maxPublishTime: BigNumberish
+      maxPublishTime: BigNumberish,
     ],
     [PythStructs.PriceFeedStructOutput[]],
-    "payable"
+    'payable'
   >;
   getFunction(
-    nameOrSignature: "parsePriceFeedUpdatesUnique"
+    nameOrSignature: 'parsePriceFeedUpdatesUnique',
   ): TypedContractMethod<
     [
       updateData: BytesLike[],
       priceIds: BytesLike[],
       minPublishTime: BigNumberish,
-      maxPublishTime: BigNumberish
+      maxPublishTime: BigNumberish,
     ],
     [PythStructs.PriceFeedStructOutput[]],
-    "payable"
+    'payable'
   >;
   getFunction(
-    nameOrSignature: "updatePriceFeeds"
-  ): TypedContractMethod<[updateData: BytesLike[]], [void], "payable">;
+    nameOrSignature: 'updatePriceFeeds',
+  ): TypedContractMethod<[updateData: BytesLike[]], [void], 'payable'>;
   getFunction(
-    nameOrSignature: "updatePriceFeedsIfNecessary"
+    nameOrSignature: 'updatePriceFeedsIfNecessary',
   ): TypedContractMethod<
-    [
-      updateData: BytesLike[],
-      priceIds: BytesLike[],
-      publishTimes: BigNumberish[]
-    ],
+    [updateData: BytesLike[], priceIds: BytesLike[], publishTimes: BigNumberish[]],
     [void],
-    "payable"
+    'payable'
   >;
 
   getEvent(
-    key: "BatchPriceFeedUpdate"
+    key: 'BatchPriceFeedUpdate',
   ): TypedContractEvent<
     BatchPriceFeedUpdateEvent.InputTuple,
     BatchPriceFeedUpdateEvent.OutputTuple,
     BatchPriceFeedUpdateEvent.OutputObject
   >;
   getEvent(
-    key: "PriceFeedUpdate"
+    key: 'PriceFeedUpdate',
   ): TypedContractEvent<
     PriceFeedUpdateEvent.InputTuple,
     PriceFeedUpdateEvent.OutputTuple,
@@ -441,7 +326,7 @@ export interface IPyth extends BaseContract {
   >;
 
   filters: {
-    "BatchPriceFeedUpdate(uint16,uint64)": TypedContractEvent<
+    'BatchPriceFeedUpdate(uint16,uint64)': TypedContractEvent<
       BatchPriceFeedUpdateEvent.InputTuple,
       BatchPriceFeedUpdateEvent.OutputTuple,
       BatchPriceFeedUpdateEvent.OutputObject
@@ -452,7 +337,7 @@ export interface IPyth extends BaseContract {
       BatchPriceFeedUpdateEvent.OutputObject
     >;
 
-    "PriceFeedUpdate(bytes32,uint64,int64,uint64)": TypedContractEvent<
+    'PriceFeedUpdate(bytes32,uint64,int64,uint64)': TypedContractEvent<
       PriceFeedUpdateEvent.InputTuple,
       PriceFeedUpdateEvent.OutputTuple,
       PriceFeedUpdateEvent.OutputObject

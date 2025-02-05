@@ -13,7 +13,7 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
@@ -21,212 +21,116 @@ import type {
   TypedLogDescription,
   TypedListener,
   TypedContractMethod,
-} from "../../common";
+} from '../../common';
 
 export interface ERC4626VaultMockInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "allowance"
-      | "approve"
-      | "asset"
-      | "balanceOf"
-      | "convertToAssets"
-      | "convertToShares"
-      | "decimals"
-      | "decreaseAllowance"
-      | "deposit"
-      | "increaseAllowance"
-      | "maxDeposit"
-      | "maxMint"
-      | "maxRedeem"
-      | "maxWithdraw"
-      | "mint"
-      | "name"
-      | "previewDeposit"
-      | "previewMint"
-      | "previewRedeem"
-      | "previewWithdraw"
-      | "redeem"
-      | "symbol"
-      | "totalAssets"
-      | "totalSupply"
-      | "transfer"
-      | "transferFrom"
-      | "withdraw"
+      | 'allowance'
+      | 'approve'
+      | 'asset'
+      | 'balanceOf'
+      | 'convertToAssets'
+      | 'convertToShares'
+      | 'decimals'
+      | 'decreaseAllowance'
+      | 'deposit'
+      | 'increaseAllowance'
+      | 'maxDeposit'
+      | 'maxMint'
+      | 'maxRedeem'
+      | 'maxWithdraw'
+      | 'mint'
+      | 'name'
+      | 'previewDeposit'
+      | 'previewMint'
+      | 'previewRedeem'
+      | 'previewWithdraw'
+      | 'redeem'
+      | 'symbol'
+      | 'totalAssets'
+      | 'totalSupply'
+      | 'transfer'
+      | 'transferFrom'
+      | 'withdraw',
   ): FunctionFragment;
 
-  getEvent(
-    nameOrSignatureOrTopic: "Approval" | "Deposit" | "Transfer" | "Withdraw"
-  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Approval' | 'Deposit' | 'Transfer' | 'Withdraw'): EventFragment;
 
+  encodeFunctionData(functionFragment: 'allowance', values: [AddressLike, AddressLike]): string;
+  encodeFunctionData(functionFragment: 'approve', values: [AddressLike, BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'asset', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'balanceOf', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'convertToAssets', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'convertToShares', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'decimals', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "allowance",
-    values: [AddressLike, AddressLike]
+    functionFragment: 'decreaseAllowance',
+    values: [AddressLike, BigNumberish],
+  ): string;
+  encodeFunctionData(functionFragment: 'deposit', values: [BigNumberish, AddressLike]): string;
+  encodeFunctionData(
+    functionFragment: 'increaseAllowance',
+    values: [AddressLike, BigNumberish],
+  ): string;
+  encodeFunctionData(functionFragment: 'maxDeposit', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'maxMint', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'maxRedeem', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'maxWithdraw', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'mint', values: [BigNumberish, AddressLike]): string;
+  encodeFunctionData(functionFragment: 'name', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'previewDeposit', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'previewMint', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'previewRedeem', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'previewWithdraw', values: [BigNumberish]): string;
+  encodeFunctionData(
+    functionFragment: 'redeem',
+    values: [BigNumberish, AddressLike, AddressLike],
+  ): string;
+  encodeFunctionData(functionFragment: 'symbol', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'totalAssets', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'totalSupply', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'transfer', values: [AddressLike, BigNumberish]): string;
+  encodeFunctionData(
+    functionFragment: 'transferFrom',
+    values: [AddressLike, AddressLike, BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "approve",
-    values: [AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "asset", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "balanceOf",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "convertToAssets",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "convertToShares",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "decreaseAllowance",
-    values: [AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "deposit",
-    values: [BigNumberish, AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "increaseAllowance",
-    values: [AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "maxDeposit",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "maxMint",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "maxRedeem",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "maxWithdraw",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "mint",
-    values: [BigNumberish, AddressLike]
-  ): string;
-  encodeFunctionData(functionFragment: "name", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "previewDeposit",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "previewMint",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "previewRedeem",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "previewWithdraw",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "redeem",
-    values: [BigNumberish, AddressLike, AddressLike]
-  ): string;
-  encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "totalAssets",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "totalSupply",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transfer",
-    values: [AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferFrom",
-    values: [AddressLike, AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "withdraw",
-    values: [BigNumberish, AddressLike, AddressLike]
+    functionFragment: 'withdraw',
+    values: [BigNumberish, AddressLike, AddressLike],
   ): string;
 
-  decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "asset", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "convertToAssets",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "convertToShares",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "decreaseAllowance",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "increaseAllowance",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "maxDeposit", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "maxMint", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "maxRedeem", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "maxWithdraw",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "previewDeposit",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "previewMint",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "previewRedeem",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "previewWithdraw",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "redeem", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "totalAssets",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "totalSupply",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "transfer", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "transferFrom",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'allowance', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'approve', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'asset', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'balanceOf', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'convertToAssets', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'convertToShares', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'decimals', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'decreaseAllowance', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'deposit', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'increaseAllowance', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'maxDeposit', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'maxMint', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'maxRedeem', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'maxWithdraw', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'mint', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'name', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'previewDeposit', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'previewMint', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'previewRedeem', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'previewWithdraw', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'redeem', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'symbol', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'totalAssets', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'totalSupply', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transfer', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transferFrom', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'withdraw', data: BytesLike): Result;
 }
 
 export namespace ApprovalEvent {
-  export type InputTuple = [
-    owner: AddressLike,
-    spender: AddressLike,
-    value: BigNumberish
-  ];
+  export type InputTuple = [owner: AddressLike, spender: AddressLike, value: BigNumberish];
   export type OutputTuple = [owner: string, spender: string, value: bigint];
   export interface OutputObject {
     owner: string;
@@ -244,14 +148,9 @@ export namespace DepositEvent {
     sender: AddressLike,
     owner: AddressLike,
     assets: BigNumberish,
-    shares: BigNumberish
+    shares: BigNumberish,
   ];
-  export type OutputTuple = [
-    sender: string,
-    owner: string,
-    assets: bigint,
-    shares: bigint
-  ];
+  export type OutputTuple = [sender: string, owner: string, assets: bigint, shares: bigint];
   export interface OutputObject {
     sender: string;
     owner: string;
@@ -265,11 +164,7 @@ export namespace DepositEvent {
 }
 
 export namespace TransferEvent {
-  export type InputTuple = [
-    from: AddressLike,
-    to: AddressLike,
-    value: BigNumberish
-  ];
+  export type InputTuple = [from: AddressLike, to: AddressLike, value: BigNumberish];
   export type OutputTuple = [from: string, to: string, value: bigint];
   export interface OutputObject {
     from: string;
@@ -288,14 +183,14 @@ export namespace WithdrawEvent {
     receiver: AddressLike,
     owner: AddressLike,
     assets: BigNumberish,
-    shares: BigNumberish
+    shares: BigNumberish,
   ];
   export type OutputTuple = [
     sender: string,
     receiver: string,
     owner: string,
     assets: bigint,
-    shares: bigint
+    shares: bigint,
   ];
   export interface OutputObject {
     sender: string;
@@ -319,295 +214,231 @@ export interface ERC4626VaultMock extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
-  allowance: TypedContractMethod<
-    [owner: AddressLike, spender: AddressLike],
-    [bigint],
-    "view"
-  >;
+  allowance: TypedContractMethod<[owner: AddressLike, spender: AddressLike], [bigint], 'view'>;
 
   approve: TypedContractMethod<
     [spender: AddressLike, amount: BigNumberish],
     [boolean],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  asset: TypedContractMethod<[], [string], "view">;
+  asset: TypedContractMethod<[], [string], 'view'>;
 
-  balanceOf: TypedContractMethod<[account: AddressLike], [bigint], "view">;
+  balanceOf: TypedContractMethod<[account: AddressLike], [bigint], 'view'>;
 
-  convertToAssets: TypedContractMethod<
-    [shares: BigNumberish],
-    [bigint],
-    "view"
-  >;
+  convertToAssets: TypedContractMethod<[shares: BigNumberish], [bigint], 'view'>;
 
-  convertToShares: TypedContractMethod<
-    [assets: BigNumberish],
-    [bigint],
-    "view"
-  >;
+  convertToShares: TypedContractMethod<[assets: BigNumberish], [bigint], 'view'>;
 
-  decimals: TypedContractMethod<[], [bigint], "view">;
+  decimals: TypedContractMethod<[], [bigint], 'view'>;
 
   decreaseAllowance: TypedContractMethod<
     [spender: AddressLike, subtractedValue: BigNumberish],
     [boolean],
-    "nonpayable"
+    'nonpayable'
   >;
 
   deposit: TypedContractMethod<
     [assets: BigNumberish, receiver: AddressLike],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
 
   increaseAllowance: TypedContractMethod<
     [spender: AddressLike, addedValue: BigNumberish],
     [boolean],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  maxDeposit: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  maxDeposit: TypedContractMethod<[arg0: AddressLike], [bigint], 'view'>;
 
-  maxMint: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  maxMint: TypedContractMethod<[arg0: AddressLike], [bigint], 'view'>;
 
-  maxRedeem: TypedContractMethod<[owner: AddressLike], [bigint], "view">;
+  maxRedeem: TypedContractMethod<[owner: AddressLike], [bigint], 'view'>;
 
-  maxWithdraw: TypedContractMethod<[owner: AddressLike], [bigint], "view">;
+  maxWithdraw: TypedContractMethod<[owner: AddressLike], [bigint], 'view'>;
 
-  mint: TypedContractMethod<
-    [shares: BigNumberish, receiver: AddressLike],
-    [bigint],
-    "nonpayable"
-  >;
+  mint: TypedContractMethod<[shares: BigNumberish, receiver: AddressLike], [bigint], 'nonpayable'>;
 
-  name: TypedContractMethod<[], [string], "view">;
+  name: TypedContractMethod<[], [string], 'view'>;
 
-  previewDeposit: TypedContractMethod<[assets: BigNumberish], [bigint], "view">;
+  previewDeposit: TypedContractMethod<[assets: BigNumberish], [bigint], 'view'>;
 
-  previewMint: TypedContractMethod<[shares: BigNumberish], [bigint], "view">;
+  previewMint: TypedContractMethod<[shares: BigNumberish], [bigint], 'view'>;
 
-  previewRedeem: TypedContractMethod<[shares: BigNumberish], [bigint], "view">;
+  previewRedeem: TypedContractMethod<[shares: BigNumberish], [bigint], 'view'>;
 
-  previewWithdraw: TypedContractMethod<
-    [assets: BigNumberish],
-    [bigint],
-    "view"
-  >;
+  previewWithdraw: TypedContractMethod<[assets: BigNumberish], [bigint], 'view'>;
 
   redeem: TypedContractMethod<
     [shares: BigNumberish, receiver: AddressLike, owner: AddressLike],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  symbol: TypedContractMethod<[], [string], "view">;
+  symbol: TypedContractMethod<[], [string], 'view'>;
 
-  totalAssets: TypedContractMethod<[], [bigint], "view">;
+  totalAssets: TypedContractMethod<[], [bigint], 'view'>;
 
-  totalSupply: TypedContractMethod<[], [bigint], "view">;
+  totalSupply: TypedContractMethod<[], [bigint], 'view'>;
 
-  transfer: TypedContractMethod<
-    [to: AddressLike, amount: BigNumberish],
-    [boolean],
-    "nonpayable"
-  >;
+  transfer: TypedContractMethod<[to: AddressLike, amount: BigNumberish], [boolean], 'nonpayable'>;
 
   transferFrom: TypedContractMethod<
     [from: AddressLike, to: AddressLike, amount: BigNumberish],
     [boolean],
-    "nonpayable"
+    'nonpayable'
   >;
 
   withdraw: TypedContractMethod<
     [assets: BigNumberish, receiver: AddressLike, owner: AddressLike],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
   getFunction(
-    nameOrSignature: "allowance"
-  ): TypedContractMethod<
-    [owner: AddressLike, spender: AddressLike],
-    [bigint],
-    "view"
-  >;
+    nameOrSignature: 'allowance',
+  ): TypedContractMethod<[owner: AddressLike, spender: AddressLike], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "approve"
-  ): TypedContractMethod<
-    [spender: AddressLike, amount: BigNumberish],
-    [boolean],
-    "nonpayable"
-  >;
+    nameOrSignature: 'approve',
+  ): TypedContractMethod<[spender: AddressLike, amount: BigNumberish], [boolean], 'nonpayable'>;
+  getFunction(nameOrSignature: 'asset'): TypedContractMethod<[], [string], 'view'>;
   getFunction(
-    nameOrSignature: "asset"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: 'balanceOf',
+  ): TypedContractMethod<[account: AddressLike], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "balanceOf"
-  ): TypedContractMethod<[account: AddressLike], [bigint], "view">;
+    nameOrSignature: 'convertToAssets',
+  ): TypedContractMethod<[shares: BigNumberish], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "convertToAssets"
-  ): TypedContractMethod<[shares: BigNumberish], [bigint], "view">;
+    nameOrSignature: 'convertToShares',
+  ): TypedContractMethod<[assets: BigNumberish], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'decimals'): TypedContractMethod<[], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "convertToShares"
-  ): TypedContractMethod<[assets: BigNumberish], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "decimals"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "decreaseAllowance"
+    nameOrSignature: 'decreaseAllowance',
   ): TypedContractMethod<
     [spender: AddressLike, subtractedValue: BigNumberish],
     [boolean],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "deposit"
-  ): TypedContractMethod<
-    [assets: BigNumberish, receiver: AddressLike],
-    [bigint],
-    "nonpayable"
-  >;
+    nameOrSignature: 'deposit',
+  ): TypedContractMethod<[assets: BigNumberish, receiver: AddressLike], [bigint], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "increaseAllowance"
-  ): TypedContractMethod<
-    [spender: AddressLike, addedValue: BigNumberish],
-    [boolean],
-    "nonpayable"
-  >;
+    nameOrSignature: 'increaseAllowance',
+  ): TypedContractMethod<[spender: AddressLike, addedValue: BigNumberish], [boolean], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "maxDeposit"
-  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+    nameOrSignature: 'maxDeposit',
+  ): TypedContractMethod<[arg0: AddressLike], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "maxMint"
-  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+    nameOrSignature: 'maxMint',
+  ): TypedContractMethod<[arg0: AddressLike], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "maxRedeem"
-  ): TypedContractMethod<[owner: AddressLike], [bigint], "view">;
+    nameOrSignature: 'maxRedeem',
+  ): TypedContractMethod<[owner: AddressLike], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "maxWithdraw"
-  ): TypedContractMethod<[owner: AddressLike], [bigint], "view">;
+    nameOrSignature: 'maxWithdraw',
+  ): TypedContractMethod<[owner: AddressLike], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "mint"
-  ): TypedContractMethod<
-    [shares: BigNumberish, receiver: AddressLike],
-    [bigint],
-    "nonpayable"
-  >;
+    nameOrSignature: 'mint',
+  ): TypedContractMethod<[shares: BigNumberish, receiver: AddressLike], [bigint], 'nonpayable'>;
+  getFunction(nameOrSignature: 'name'): TypedContractMethod<[], [string], 'view'>;
   getFunction(
-    nameOrSignature: "name"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: 'previewDeposit',
+  ): TypedContractMethod<[assets: BigNumberish], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "previewDeposit"
-  ): TypedContractMethod<[assets: BigNumberish], [bigint], "view">;
+    nameOrSignature: 'previewMint',
+  ): TypedContractMethod<[shares: BigNumberish], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "previewMint"
-  ): TypedContractMethod<[shares: BigNumberish], [bigint], "view">;
+    nameOrSignature: 'previewRedeem',
+  ): TypedContractMethod<[shares: BigNumberish], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "previewRedeem"
-  ): TypedContractMethod<[shares: BigNumberish], [bigint], "view">;
+    nameOrSignature: 'previewWithdraw',
+  ): TypedContractMethod<[assets: BigNumberish], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "previewWithdraw"
-  ): TypedContractMethod<[assets: BigNumberish], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "redeem"
+    nameOrSignature: 'redeem',
   ): TypedContractMethod<
     [shares: BigNumberish, receiver: AddressLike, owner: AddressLike],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
+  getFunction(nameOrSignature: 'symbol'): TypedContractMethod<[], [string], 'view'>;
+  getFunction(nameOrSignature: 'totalAssets'): TypedContractMethod<[], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'totalSupply'): TypedContractMethod<[], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "symbol"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: 'transfer',
+  ): TypedContractMethod<[to: AddressLike, amount: BigNumberish], [boolean], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "totalAssets"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "totalSupply"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "transfer"
-  ): TypedContractMethod<
-    [to: AddressLike, amount: BigNumberish],
-    [boolean],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "transferFrom"
+    nameOrSignature: 'transferFrom',
   ): TypedContractMethod<
     [from: AddressLike, to: AddressLike, amount: BigNumberish],
     [boolean],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "withdraw"
+    nameOrSignature: 'withdraw',
   ): TypedContractMethod<
     [assets: BigNumberish, receiver: AddressLike, owner: AddressLike],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
 
   getEvent(
-    key: "Approval"
+    key: 'Approval',
   ): TypedContractEvent<
     ApprovalEvent.InputTuple,
     ApprovalEvent.OutputTuple,
     ApprovalEvent.OutputObject
   >;
   getEvent(
-    key: "Deposit"
+    key: 'Deposit',
   ): TypedContractEvent<
     DepositEvent.InputTuple,
     DepositEvent.OutputTuple,
     DepositEvent.OutputObject
   >;
   getEvent(
-    key: "Transfer"
+    key: 'Transfer',
   ): TypedContractEvent<
     TransferEvent.InputTuple,
     TransferEvent.OutputTuple,
     TransferEvent.OutputObject
   >;
   getEvent(
-    key: "Withdraw"
+    key: 'Withdraw',
   ): TypedContractEvent<
     WithdrawEvent.InputTuple,
     WithdrawEvent.OutputTuple,
@@ -615,7 +446,7 @@ export interface ERC4626VaultMock extends BaseContract {
   >;
 
   filters: {
-    "Approval(address,address,uint256)": TypedContractEvent<
+    'Approval(address,address,uint256)': TypedContractEvent<
       ApprovalEvent.InputTuple,
       ApprovalEvent.OutputTuple,
       ApprovalEvent.OutputObject
@@ -626,7 +457,7 @@ export interface ERC4626VaultMock extends BaseContract {
       ApprovalEvent.OutputObject
     >;
 
-    "Deposit(address,address,uint256,uint256)": TypedContractEvent<
+    'Deposit(address,address,uint256,uint256)': TypedContractEvent<
       DepositEvent.InputTuple,
       DepositEvent.OutputTuple,
       DepositEvent.OutputObject
@@ -637,7 +468,7 @@ export interface ERC4626VaultMock extends BaseContract {
       DepositEvent.OutputObject
     >;
 
-    "Transfer(address,address,uint256)": TypedContractEvent<
+    'Transfer(address,address,uint256)': TypedContractEvent<
       TransferEvent.InputTuple,
       TransferEvent.OutputTuple,
       TransferEvent.OutputObject
@@ -648,7 +479,7 @@ export interface ERC4626VaultMock extends BaseContract {
       TransferEvent.OutputObject
     >;
 
-    "Withdraw(address,address,address,uint256,uint256)": TypedContractEvent<
+    'Withdraw(address,address,address,uint256,uint256)': TypedContractEvent<
       WithdrawEvent.InputTuple,
       WithdrawEvent.OutputTuple,
       WithdrawEvent.OutputObject

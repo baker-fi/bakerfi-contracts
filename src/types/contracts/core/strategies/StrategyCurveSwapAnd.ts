@@ -13,7 +13,7 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
@@ -21,123 +21,69 @@ import type {
   TypedLogDescription,
   TypedListener,
   TypedContractMethod,
-} from "../../../common";
+} from '../../../common';
 
 export interface StrategyCurveSwapAndInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "ETH_ADDRESS"
-      | "asset"
-      | "curveRouter"
-      | "deploy"
-      | "harvest"
-      | "maxSlippage"
-      | "oracle"
-      | "owner"
-      | "pool"
-      | "renounceOwnership"
-      | "setMaxSlippage"
-      | "totalAssets"
-      | "transferOwnership"
-      | "undeploy"
-      | "underlyingAsset"
+      | 'ETH_ADDRESS'
+      | 'asset'
+      | 'curveRouter'
+      | 'deploy'
+      | 'harvest'
+      | 'maxSlippage'
+      | 'oracle'
+      | 'owner'
+      | 'pool'
+      | 'renounceOwnership'
+      | 'setMaxSlippage'
+      | 'totalAssets'
+      | 'transferOwnership'
+      | 'undeploy'
+      | 'underlyingAsset',
   ): FunctionFragment;
 
   getEvent(
     nameOrSignatureOrTopic:
-      | "OwnershipTransferred"
-      | "StrategyAmountUpdate"
-      | "StrategyDeploy"
-      | "StrategyLoss"
-      | "StrategyProfit"
-      | "StrategyUndeploy"
+      | 'OwnershipTransferred'
+      | 'StrategyAmountUpdate'
+      | 'StrategyDeploy'
+      | 'StrategyLoss'
+      | 'StrategyProfit'
+      | 'StrategyUndeploy',
   ): EventFragment;
 
-  encodeFunctionData(
-    functionFragment: "ETH_ADDRESS",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "asset", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "curveRouter",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "deploy",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(functionFragment: "harvest", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "maxSlippage",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "oracle", values?: undefined): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(functionFragment: "pool", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setMaxSlippage",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "totalAssets",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "undeploy",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "underlyingAsset",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: 'ETH_ADDRESS', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'asset', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'curveRouter', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'deploy', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'harvest', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'maxSlippage', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'oracle', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'owner', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'pool', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'renounceOwnership', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'setMaxSlippage', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'totalAssets', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'transferOwnership', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'undeploy', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'underlyingAsset', values?: undefined): string;
 
-  decodeFunctionResult(
-    functionFragment: "ETH_ADDRESS",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "asset", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "curveRouter",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "deploy", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "harvest", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "maxSlippage",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "oracle", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "pool", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setMaxSlippage",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "totalAssets",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "undeploy", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "underlyingAsset",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: 'ETH_ADDRESS', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'asset', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'curveRouter', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'deploy', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'harvest', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'maxSlippage', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'oracle', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'pool', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'renounceOwnership', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setMaxSlippage', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'totalAssets', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transferOwnership', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'undeploy', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'underlyingAsset', data: BytesLike): Result;
 }
 
 export namespace OwnershipTransferredEvent {
@@ -224,165 +170,131 @@ export interface StrategyCurveSwapAnd extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
-  ETH_ADDRESS: TypedContractMethod<[], [string], "view">;
+  ETH_ADDRESS: TypedContractMethod<[], [string], 'view'>;
 
-  asset: TypedContractMethod<[], [string], "view">;
+  asset: TypedContractMethod<[], [string], 'view'>;
 
-  curveRouter: TypedContractMethod<[], [string], "view">;
+  curveRouter: TypedContractMethod<[], [string], 'view'>;
 
-  deploy: TypedContractMethod<[amount: BigNumberish], [bigint], "nonpayable">;
+  deploy: TypedContractMethod<[amount: BigNumberish], [bigint], 'nonpayable'>;
 
-  harvest: TypedContractMethod<[], [bigint], "nonpayable">;
+  harvest: TypedContractMethod<[], [bigint], 'nonpayable'>;
 
-  maxSlippage: TypedContractMethod<[], [bigint], "view">;
+  maxSlippage: TypedContractMethod<[], [bigint], 'view'>;
 
-  oracle: TypedContractMethod<[], [string], "view">;
+  oracle: TypedContractMethod<[], [string], 'view'>;
 
-  owner: TypedContractMethod<[], [string], "view">;
+  owner: TypedContractMethod<[], [string], 'view'>;
 
-  pool: TypedContractMethod<[], [string], "view">;
+  pool: TypedContractMethod<[], [string], 'view'>;
 
-  renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
+  renounceOwnership: TypedContractMethod<[], [void], 'nonpayable'>;
 
-  setMaxSlippage: TypedContractMethod<
-    [maxSlippage_: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  setMaxSlippage: TypedContractMethod<[maxSlippage_: BigNumberish], [void], 'nonpayable'>;
 
-  totalAssets: TypedContractMethod<[], [bigint], "view">;
+  totalAssets: TypedContractMethod<[], [bigint], 'view'>;
 
-  transferOwnership: TypedContractMethod<
-    [newOwner: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+  transferOwnership: TypedContractMethod<[newOwner: AddressLike], [void], 'nonpayable'>;
 
-  undeploy: TypedContractMethod<[amount: BigNumberish], [bigint], "nonpayable">;
+  undeploy: TypedContractMethod<[amount: BigNumberish], [bigint], 'nonpayable'>;
 
-  underlyingAsset: TypedContractMethod<[], [string], "view">;
+  underlyingAsset: TypedContractMethod<[], [string], 'view'>;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
+  getFunction(nameOrSignature: 'ETH_ADDRESS'): TypedContractMethod<[], [string], 'view'>;
+  getFunction(nameOrSignature: 'asset'): TypedContractMethod<[], [string], 'view'>;
+  getFunction(nameOrSignature: 'curveRouter'): TypedContractMethod<[], [string], 'view'>;
   getFunction(
-    nameOrSignature: "ETH_ADDRESS"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: 'deploy',
+  ): TypedContractMethod<[amount: BigNumberish], [bigint], 'nonpayable'>;
+  getFunction(nameOrSignature: 'harvest'): TypedContractMethod<[], [bigint], 'nonpayable'>;
+  getFunction(nameOrSignature: 'maxSlippage'): TypedContractMethod<[], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'oracle'): TypedContractMethod<[], [string], 'view'>;
+  getFunction(nameOrSignature: 'owner'): TypedContractMethod<[], [string], 'view'>;
+  getFunction(nameOrSignature: 'pool'): TypedContractMethod<[], [string], 'view'>;
+  getFunction(nameOrSignature: 'renounceOwnership'): TypedContractMethod<[], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "asset"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: 'setMaxSlippage',
+  ): TypedContractMethod<[maxSlippage_: BigNumberish], [void], 'nonpayable'>;
+  getFunction(nameOrSignature: 'totalAssets'): TypedContractMethod<[], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "curveRouter"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: 'transferOwnership',
+  ): TypedContractMethod<[newOwner: AddressLike], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "deploy"
-  ): TypedContractMethod<[amount: BigNumberish], [bigint], "nonpayable">;
-  getFunction(
-    nameOrSignature: "harvest"
-  ): TypedContractMethod<[], [bigint], "nonpayable">;
-  getFunction(
-    nameOrSignature: "maxSlippage"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "oracle"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "owner"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "pool"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "renounceOwnership"
-  ): TypedContractMethod<[], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "setMaxSlippage"
-  ): TypedContractMethod<[maxSlippage_: BigNumberish], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "totalAssets"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "transferOwnership"
-  ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "undeploy"
-  ): TypedContractMethod<[amount: BigNumberish], [bigint], "nonpayable">;
-  getFunction(
-    nameOrSignature: "underlyingAsset"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: 'undeploy',
+  ): TypedContractMethod<[amount: BigNumberish], [bigint], 'nonpayable'>;
+  getFunction(nameOrSignature: 'underlyingAsset'): TypedContractMethod<[], [string], 'view'>;
 
   getEvent(
-    key: "OwnershipTransferred"
+    key: 'OwnershipTransferred',
   ): TypedContractEvent<
     OwnershipTransferredEvent.InputTuple,
     OwnershipTransferredEvent.OutputTuple,
     OwnershipTransferredEvent.OutputObject
   >;
   getEvent(
-    key: "StrategyAmountUpdate"
+    key: 'StrategyAmountUpdate',
   ): TypedContractEvent<
     StrategyAmountUpdateEvent.InputTuple,
     StrategyAmountUpdateEvent.OutputTuple,
     StrategyAmountUpdateEvent.OutputObject
   >;
   getEvent(
-    key: "StrategyDeploy"
+    key: 'StrategyDeploy',
   ): TypedContractEvent<
     StrategyDeployEvent.InputTuple,
     StrategyDeployEvent.OutputTuple,
     StrategyDeployEvent.OutputObject
   >;
   getEvent(
-    key: "StrategyLoss"
+    key: 'StrategyLoss',
   ): TypedContractEvent<
     StrategyLossEvent.InputTuple,
     StrategyLossEvent.OutputTuple,
     StrategyLossEvent.OutputObject
   >;
   getEvent(
-    key: "StrategyProfit"
+    key: 'StrategyProfit',
   ): TypedContractEvent<
     StrategyProfitEvent.InputTuple,
     StrategyProfitEvent.OutputTuple,
     StrategyProfitEvent.OutputObject
   >;
   getEvent(
-    key: "StrategyUndeploy"
+    key: 'StrategyUndeploy',
   ): TypedContractEvent<
     StrategyUndeployEvent.InputTuple,
     StrategyUndeployEvent.OutputTuple,
@@ -390,7 +302,7 @@ export interface StrategyCurveSwapAnd extends BaseContract {
   >;
 
   filters: {
-    "OwnershipTransferred(address,address)": TypedContractEvent<
+    'OwnershipTransferred(address,address)': TypedContractEvent<
       OwnershipTransferredEvent.InputTuple,
       OwnershipTransferredEvent.OutputTuple,
       OwnershipTransferredEvent.OutputObject
@@ -401,7 +313,7 @@ export interface StrategyCurveSwapAnd extends BaseContract {
       OwnershipTransferredEvent.OutputObject
     >;
 
-    "StrategyAmountUpdate(uint256)": TypedContractEvent<
+    'StrategyAmountUpdate(uint256)': TypedContractEvent<
       StrategyAmountUpdateEvent.InputTuple,
       StrategyAmountUpdateEvent.OutputTuple,
       StrategyAmountUpdateEvent.OutputObject
@@ -412,7 +324,7 @@ export interface StrategyCurveSwapAnd extends BaseContract {
       StrategyAmountUpdateEvent.OutputObject
     >;
 
-    "StrategyDeploy(address,uint256)": TypedContractEvent<
+    'StrategyDeploy(address,uint256)': TypedContractEvent<
       StrategyDeployEvent.InputTuple,
       StrategyDeployEvent.OutputTuple,
       StrategyDeployEvent.OutputObject
@@ -423,7 +335,7 @@ export interface StrategyCurveSwapAnd extends BaseContract {
       StrategyDeployEvent.OutputObject
     >;
 
-    "StrategyLoss(uint256)": TypedContractEvent<
+    'StrategyLoss(uint256)': TypedContractEvent<
       StrategyLossEvent.InputTuple,
       StrategyLossEvent.OutputTuple,
       StrategyLossEvent.OutputObject
@@ -434,7 +346,7 @@ export interface StrategyCurveSwapAnd extends BaseContract {
       StrategyLossEvent.OutputObject
     >;
 
-    "StrategyProfit(uint256)": TypedContractEvent<
+    'StrategyProfit(uint256)': TypedContractEvent<
       StrategyProfitEvent.InputTuple,
       StrategyProfitEvent.OutputTuple,
       StrategyProfitEvent.OutputObject
@@ -445,7 +357,7 @@ export interface StrategyCurveSwapAnd extends BaseContract {
       StrategyProfitEvent.OutputObject
     >;
 
-    "StrategyUndeploy(address,uint256)": TypedContractEvent<
+    'StrategyUndeploy(address,uint256)': TypedContractEvent<
       StrategyUndeployEvent.InputTuple,
       StrategyUndeployEvent.OutputTuple,
       StrategyUndeployEvent.OutputObject

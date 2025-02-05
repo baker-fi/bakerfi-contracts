@@ -13,7 +13,7 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
@@ -21,70 +21,49 @@ import type {
   TypedLogDescription,
   TypedListener,
   TypedContractMethod,
-} from "../../../../common";
+} from '../../../../common';
 
 export interface UseTokenActionsMockInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "test__pullToken"
-      | "test__pullTokenFrom"
-      | "test__pushToken"
-      | "test__pushTokenFrom"
-      | "test__sweepNative"
-      | "test__sweepTokens"
+      | 'test__pullToken'
+      | 'test__pullTokenFrom'
+      | 'test__pushToken'
+      | 'test__pushTokenFrom'
+      | 'test__sweepNative'
+      | 'test__sweepTokens',
   ): FunctionFragment;
 
-  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'Initialized'): EventFragment;
 
   encodeFunctionData(
-    functionFragment: "test__pullToken",
-    values: [AddressLike, BigNumberish]
+    functionFragment: 'test__pullToken',
+    values: [AddressLike, BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "test__pullTokenFrom",
-    values: [AddressLike, AddressLike, BigNumberish]
+    functionFragment: 'test__pullTokenFrom',
+    values: [AddressLike, AddressLike, BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "test__pushToken",
-    values: [AddressLike, AddressLike, BigNumberish]
+    functionFragment: 'test__pushToken',
+    values: [AddressLike, AddressLike, BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "test__pushTokenFrom",
-    values: [AddressLike, AddressLike, AddressLike, BigNumberish]
+    functionFragment: 'test__pushTokenFrom',
+    values: [AddressLike, AddressLike, AddressLike, BigNumberish],
   ): string;
+  encodeFunctionData(functionFragment: 'test__sweepNative', values: [AddressLike]): string;
   encodeFunctionData(
-    functionFragment: "test__sweepNative",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "test__sweepTokens",
-    values: [AddressLike, AddressLike]
+    functionFragment: 'test__sweepTokens',
+    values: [AddressLike, AddressLike],
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "test__pullToken",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "test__pullTokenFrom",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "test__pushToken",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "test__pushTokenFrom",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "test__sweepNative",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "test__sweepTokens",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: 'test__pullToken', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'test__pullTokenFrom', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'test__pushToken', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'test__pushTokenFrom', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'test__sweepNative', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'test__sweepTokens', data: BytesLike): Result;
 }
 
 export namespace InitializedEvent {
@@ -108,131 +87,105 @@ export interface UseTokenActionsMock extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
   test__pullToken: TypedContractMethod<
     [token: AddressLike, amount: BigNumberish],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
   test__pullTokenFrom: TypedContractMethod<
     [token: AddressLike, from: AddressLike, amount: BigNumberish],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
   test__pushToken: TypedContractMethod<
     [token: AddressLike, to: AddressLike, amount: BigNumberish],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
   test__pushTokenFrom: TypedContractMethod<
-    [
-      token: AddressLike,
-      from: AddressLike,
-      to: AddressLike,
-      amount: BigNumberish
-    ],
+    [token: AddressLike, from: AddressLike, to: AddressLike, amount: BigNumberish],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  test__sweepNative: TypedContractMethod<
-    [to: AddressLike],
-    [bigint],
-    "nonpayable"
-  >;
+  test__sweepNative: TypedContractMethod<[to: AddressLike], [bigint], 'nonpayable'>;
 
   test__sweepTokens: TypedContractMethod<
     [token: AddressLike, to: AddressLike],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
   getFunction(
-    nameOrSignature: "test__pullToken"
-  ): TypedContractMethod<
-    [token: AddressLike, amount: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+    nameOrSignature: 'test__pullToken',
+  ): TypedContractMethod<[token: AddressLike, amount: BigNumberish], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "test__pullTokenFrom"
+    nameOrSignature: 'test__pullTokenFrom',
   ): TypedContractMethod<
     [token: AddressLike, from: AddressLike, amount: BigNumberish],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "test__pushToken"
+    nameOrSignature: 'test__pushToken',
   ): TypedContractMethod<
     [token: AddressLike, to: AddressLike, amount: BigNumberish],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "test__pushTokenFrom"
+    nameOrSignature: 'test__pushTokenFrom',
   ): TypedContractMethod<
-    [
-      token: AddressLike,
-      from: AddressLike,
-      to: AddressLike,
-      amount: BigNumberish
-    ],
+    [token: AddressLike, from: AddressLike, to: AddressLike, amount: BigNumberish],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "test__sweepNative"
-  ): TypedContractMethod<[to: AddressLike], [bigint], "nonpayable">;
+    nameOrSignature: 'test__sweepNative',
+  ): TypedContractMethod<[to: AddressLike], [bigint], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "test__sweepTokens"
-  ): TypedContractMethod<
-    [token: AddressLike, to: AddressLike],
-    [bigint],
-    "nonpayable"
-  >;
+    nameOrSignature: 'test__sweepTokens',
+  ): TypedContractMethod<[token: AddressLike, to: AddressLike], [bigint], 'nonpayable'>;
 
   getEvent(
-    key: "Initialized"
+    key: 'Initialized',
   ): TypedContractEvent<
     InitializedEvent.InputTuple,
     InitializedEvent.OutputTuple,
@@ -240,7 +193,7 @@ export interface UseTokenActionsMock extends BaseContract {
   >;
 
   filters: {
-    "Initialized(uint8)": TypedContractEvent<
+    'Initialized(uint8)': TypedContractEvent<
       InitializedEvent.InputTuple,
       InitializedEvent.OutputTuple,
       InitializedEvent.OutputObject

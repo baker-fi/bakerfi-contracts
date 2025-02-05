@@ -2,61 +2,61 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
+import { Contract, Interface, type ContractRunner } from 'ethers';
 import type {
   IERC5267Upgradeable,
   IERC5267UpgradeableInterface,
-} from "../../../../@openzeppelin/contracts-upgradeable/interfaces/IERC5267Upgradeable";
+} from '../../../../@openzeppelin/contracts-upgradeable/interfaces/IERC5267Upgradeable';
 
 const _abi = [
   {
     anonymous: false,
     inputs: [],
-    name: "EIP712DomainChanged",
-    type: "event",
+    name: 'EIP712DomainChanged',
+    type: 'event',
   },
   {
     inputs: [],
-    name: "eip712Domain",
+    name: 'eip712Domain',
     outputs: [
       {
-        internalType: "bytes1",
-        name: "fields",
-        type: "bytes1",
+        internalType: 'bytes1',
+        name: 'fields',
+        type: 'bytes1',
       },
       {
-        internalType: "string",
-        name: "name",
-        type: "string",
+        internalType: 'string',
+        name: 'name',
+        type: 'string',
       },
       {
-        internalType: "string",
-        name: "version",
-        type: "string",
+        internalType: 'string',
+        name: 'version',
+        type: 'string',
       },
       {
-        internalType: "uint256",
-        name: "chainId",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'chainId',
+        type: 'uint256',
       },
       {
-        internalType: "address",
-        name: "verifyingContract",
-        type: "address",
+        internalType: 'address',
+        name: 'verifyingContract',
+        type: 'address',
       },
       {
-        internalType: "bytes32",
-        name: "salt",
-        type: "bytes32",
+        internalType: 'bytes32',
+        name: 'salt',
+        type: 'bytes32',
       },
       {
-        internalType: "uint256[]",
-        name: "extensions",
-        type: "uint256[]",
+        internalType: 'uint256[]',
+        name: 'extensions',
+        type: 'uint256[]',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
 ] as const;
 
@@ -65,14 +65,7 @@ export class IERC5267Upgradeable__factory {
   static createInterface(): IERC5267UpgradeableInterface {
     return new Interface(_abi) as IERC5267UpgradeableInterface;
   }
-  static connect(
-    address: string,
-    runner?: ContractRunner | null
-  ): IERC5267Upgradeable {
-    return new Contract(
-      address,
-      _abi,
-      runner
-    ) as unknown as IERC5267Upgradeable;
+  static connect(address: string, runner?: ContractRunner | null): IERC5267Upgradeable {
+    return new Contract(address, _abi, runner) as unknown as IERC5267Upgradeable;
   }
 }

@@ -2,98 +2,95 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
-import type {
-  IOracle,
-  IOracleInterface,
-} from "../../../../contracts/interfaces/core/IOracle";
+import { Contract, Interface, type ContractRunner } from 'ethers';
+import type { IOracle, IOracleInterface } from '../../../../contracts/interfaces/core/IOracle';
 
 const _abi = [
   {
     inputs: [],
-    name: "PriceOutdated",
-    type: "error",
+    name: 'PriceOutdated',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "getLatestPrice",
+    name: 'getLatestPrice',
     outputs: [
       {
         components: [
           {
-            internalType: "uint256",
-            name: "price",
-            type: "uint256",
+            internalType: 'uint256',
+            name: 'price',
+            type: 'uint256',
           },
           {
-            internalType: "uint256",
-            name: "lastUpdate",
-            type: "uint256",
+            internalType: 'uint256',
+            name: 'lastUpdate',
+            type: 'uint256',
           },
         ],
-        internalType: "struct IOracle.Price",
-        name: "",
-        type: "tuple",
+        internalType: 'struct IOracle.Price',
+        name: '',
+        type: 'tuple',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "getPrecision",
+    name: 'getPrecision',
     outputs: [
       {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
       {
         components: [
           {
-            internalType: "uint256",
-            name: "maxAge",
-            type: "uint256",
+            internalType: 'uint256',
+            name: 'maxAge',
+            type: 'uint256',
           },
           {
-            internalType: "uint256",
-            name: "maxConf",
-            type: "uint256",
+            internalType: 'uint256',
+            name: 'maxConf',
+            type: 'uint256',
           },
         ],
-        internalType: "struct IOracle.PriceOptions",
-        name: "priceOptions",
-        type: "tuple",
+        internalType: 'struct IOracle.PriceOptions',
+        name: 'priceOptions',
+        type: 'tuple',
       },
     ],
-    name: "getSafeLatestPrice",
+    name: 'getSafeLatestPrice',
     outputs: [
       {
         components: [
           {
-            internalType: "uint256",
-            name: "price",
-            type: "uint256",
+            internalType: 'uint256',
+            name: 'price',
+            type: 'uint256',
           },
           {
-            internalType: "uint256",
-            name: "lastUpdate",
-            type: "uint256",
+            internalType: 'uint256',
+            name: 'lastUpdate',
+            type: 'uint256',
           },
         ],
-        internalType: "struct IOracle.Price",
-        name: "",
-        type: "tuple",
+        internalType: 'struct IOracle.Price',
+        name: '',
+        type: 'tuple',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
 ] as const;
 

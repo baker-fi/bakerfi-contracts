@@ -12,14 +12,14 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
   TypedEventLog,
   TypedListener,
   TypedContractMethod,
-} from "../../../../common";
+} from '../../../../common';
 
 export declare namespace IQuoterV2 {
   export type QuoteExactInputSingleParamsStruct = {
@@ -35,7 +35,7 @@ export declare namespace IQuoterV2 {
     tokenOut: string,
     amountIn: bigint,
     fee: bigint,
-    sqrtPriceLimitX96: bigint
+    sqrtPriceLimitX96: bigint,
   ] & {
     tokenIn: string;
     tokenOut: string;
@@ -57,7 +57,7 @@ export declare namespace IQuoterV2 {
     tokenOut: string,
     amount: bigint,
     fee: bigint,
-    sqrtPriceLimitX96: bigint
+    sqrtPriceLimitX96: bigint,
   ] & {
     tokenIn: string;
     tokenOut: string;
@@ -70,45 +70,33 @@ export declare namespace IQuoterV2 {
 export interface IQuoterV2Interface extends Interface {
   getFunction(
     nameOrSignature:
-      | "quoteExactInput"
-      | "quoteExactInputSingle"
-      | "quoteExactOutput"
-      | "quoteExactOutputSingle"
+      | 'quoteExactInput'
+      | 'quoteExactInputSingle'
+      | 'quoteExactOutput'
+      | 'quoteExactOutputSingle',
   ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "quoteExactInput",
-    values: [BytesLike, BigNumberish]
+    functionFragment: 'quoteExactInput',
+    values: [BytesLike, BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "quoteExactInputSingle",
-    values: [IQuoterV2.QuoteExactInputSingleParamsStruct]
+    functionFragment: 'quoteExactInputSingle',
+    values: [IQuoterV2.QuoteExactInputSingleParamsStruct],
   ): string;
   encodeFunctionData(
-    functionFragment: "quoteExactOutput",
-    values: [BytesLike, BigNumberish]
+    functionFragment: 'quoteExactOutput',
+    values: [BytesLike, BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "quoteExactOutputSingle",
-    values: [IQuoterV2.QuoteExactOutputSingleParamsStruct]
+    functionFragment: 'quoteExactOutputSingle',
+    values: [IQuoterV2.QuoteExactOutputSingleParamsStruct],
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "quoteExactInput",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "quoteExactInputSingle",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "quoteExactOutput",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "quoteExactOutputSingle",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: 'quoteExactInput', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'quoteExactInputSingle', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'quoteExactOutput', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'quoteExactOutputSingle', data: BytesLike): Result;
 }
 
 export interface IQuoterV2 extends BaseContract {
@@ -120,39 +108,37 @@ export interface IQuoterV2 extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
   quoteExactInput: TypedContractMethod<
     [path: BytesLike, amountIn: BigNumberish],
@@ -162,9 +148,9 @@ export interface IQuoterV2 extends BaseContract {
         sqrtPriceX96AfterList: bigint[];
         initializedTicksCrossedList: bigint[];
         gasEstimate: bigint;
-      }
+      },
     ],
-    "nonpayable"
+    'nonpayable'
   >;
 
   quoteExactInputSingle: TypedContractMethod<
@@ -175,9 +161,9 @@ export interface IQuoterV2 extends BaseContract {
         sqrtPriceX96After: bigint;
         initializedTicksCrossed: bigint;
         gasEstimate: bigint;
-      }
+      },
     ],
-    "nonpayable"
+    'nonpayable'
   >;
 
   quoteExactOutput: TypedContractMethod<
@@ -188,9 +174,9 @@ export interface IQuoterV2 extends BaseContract {
         sqrtPriceX96AfterList: bigint[];
         initializedTicksCrossedList: bigint[];
         gasEstimate: bigint;
-      }
+      },
     ],
-    "nonpayable"
+    'nonpayable'
   >;
 
   quoteExactOutputSingle: TypedContractMethod<
@@ -201,18 +187,14 @@ export interface IQuoterV2 extends BaseContract {
         sqrtPriceX96After: bigint;
         initializedTicksCrossed: bigint;
         gasEstimate: bigint;
-      }
+      },
     ],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
-  getFunction(
-    nameOrSignature: "quoteExactInput"
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'quoteExactInput'): TypedContractMethod<
     [path: BytesLike, amountIn: BigNumberish],
     [
       [bigint, bigint[], bigint[], bigint] & {
@@ -220,13 +202,11 @@ export interface IQuoterV2 extends BaseContract {
         sqrtPriceX96AfterList: bigint[];
         initializedTicksCrossedList: bigint[];
         gasEstimate: bigint;
-      }
+      },
     ],
-    "nonpayable"
+    'nonpayable'
   >;
-  getFunction(
-    nameOrSignature: "quoteExactInputSingle"
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'quoteExactInputSingle'): TypedContractMethod<
     [params: IQuoterV2.QuoteExactInputSingleParamsStruct],
     [
       [bigint, bigint, bigint, bigint] & {
@@ -234,13 +214,11 @@ export interface IQuoterV2 extends BaseContract {
         sqrtPriceX96After: bigint;
         initializedTicksCrossed: bigint;
         gasEstimate: bigint;
-      }
+      },
     ],
-    "nonpayable"
+    'nonpayable'
   >;
-  getFunction(
-    nameOrSignature: "quoteExactOutput"
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'quoteExactOutput'): TypedContractMethod<
     [path: BytesLike, amountOut: BigNumberish],
     [
       [bigint, bigint[], bigint[], bigint] & {
@@ -248,13 +226,11 @@ export interface IQuoterV2 extends BaseContract {
         sqrtPriceX96AfterList: bigint[];
         initializedTicksCrossedList: bigint[];
         gasEstimate: bigint;
-      }
+      },
     ],
-    "nonpayable"
+    'nonpayable'
   >;
-  getFunction(
-    nameOrSignature: "quoteExactOutputSingle"
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'quoteExactOutputSingle'): TypedContractMethod<
     [params: IQuoterV2.QuoteExactOutputSingleParamsStruct],
     [
       [bigint, bigint, bigint, bigint] & {
@@ -262,9 +238,9 @@ export interface IQuoterV2 extends BaseContract {
         sqrtPriceX96After: bigint;
         initializedTicksCrossed: bigint;
         gasEstimate: bigint;
-      }
+      },
     ],
-    "nonpayable"
+    'nonpayable'
   >;
 
   filters: {};

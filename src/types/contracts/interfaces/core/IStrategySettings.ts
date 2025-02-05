@@ -12,7 +12,7 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
@@ -20,54 +20,24 @@ import type {
   TypedLogDescription,
   TypedListener,
   TypedContractMethod,
-} from "../../../common";
+} from '../../../common';
 
 export interface IStrategySettingsInterface extends Interface {
   getFunction(
-    nameOrSignature:
-      | "getPriceMaxAge"
-      | "getPriceMaxConf"
-      | "setPriceMaxAge"
-      | "setPriceMaxConf"
+    nameOrSignature: 'getPriceMaxAge' | 'getPriceMaxConf' | 'setPriceMaxAge' | 'setPriceMaxConf',
   ): FunctionFragment;
 
-  getEvent(
-    nameOrSignatureOrTopic: "PriceMaxAgeChanged" | "PriceMaxConfChanged"
-  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'PriceMaxAgeChanged' | 'PriceMaxConfChanged'): EventFragment;
 
-  encodeFunctionData(
-    functionFragment: "getPriceMaxAge",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getPriceMaxConf",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setPriceMaxAge",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setPriceMaxConf",
-    values: [BigNumberish]
-  ): string;
+  encodeFunctionData(functionFragment: 'getPriceMaxAge', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'getPriceMaxConf', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'setPriceMaxAge', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'setPriceMaxConf', values: [BigNumberish]): string;
 
-  decodeFunctionResult(
-    functionFragment: "getPriceMaxAge",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getPriceMaxConf",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setPriceMaxAge",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setPriceMaxConf",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: 'getPriceMaxAge', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getPriceMaxConf', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setPriceMaxAge', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setPriceMaxConf', data: BytesLike): Result;
 }
 
 export namespace PriceMaxAgeChangedEvent {
@@ -103,82 +73,66 @@ export interface IStrategySettings extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
-  getPriceMaxAge: TypedContractMethod<[], [bigint], "view">;
+  getPriceMaxAge: TypedContractMethod<[], [bigint], 'view'>;
 
-  getPriceMaxConf: TypedContractMethod<[], [bigint], "view">;
+  getPriceMaxConf: TypedContractMethod<[], [bigint], 'view'>;
 
-  setPriceMaxAge: TypedContractMethod<
-    [value: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  setPriceMaxAge: TypedContractMethod<[value: BigNumberish], [void], 'nonpayable'>;
 
-  setPriceMaxConf: TypedContractMethod<
-    [value: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  setPriceMaxConf: TypedContractMethod<[value: BigNumberish], [void], 'nonpayable'>;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
+  getFunction(nameOrSignature: 'getPriceMaxAge'): TypedContractMethod<[], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'getPriceMaxConf'): TypedContractMethod<[], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "getPriceMaxAge"
-  ): TypedContractMethod<[], [bigint], "view">;
+    nameOrSignature: 'setPriceMaxAge',
+  ): TypedContractMethod<[value: BigNumberish], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "getPriceMaxConf"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "setPriceMaxAge"
-  ): TypedContractMethod<[value: BigNumberish], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "setPriceMaxConf"
-  ): TypedContractMethod<[value: BigNumberish], [void], "nonpayable">;
+    nameOrSignature: 'setPriceMaxConf',
+  ): TypedContractMethod<[value: BigNumberish], [void], 'nonpayable'>;
 
   getEvent(
-    key: "PriceMaxAgeChanged"
+    key: 'PriceMaxAgeChanged',
   ): TypedContractEvent<
     PriceMaxAgeChangedEvent.InputTuple,
     PriceMaxAgeChangedEvent.OutputTuple,
     PriceMaxAgeChangedEvent.OutputObject
   >;
   getEvent(
-    key: "PriceMaxConfChanged"
+    key: 'PriceMaxConfChanged',
   ): TypedContractEvent<
     PriceMaxConfChangedEvent.InputTuple,
     PriceMaxConfChangedEvent.OutputTuple,
@@ -186,7 +140,7 @@ export interface IStrategySettings extends BaseContract {
   >;
 
   filters: {
-    "PriceMaxAgeChanged(uint256)": TypedContractEvent<
+    'PriceMaxAgeChanged(uint256)': TypedContractEvent<
       PriceMaxAgeChangedEvent.InputTuple,
       PriceMaxAgeChangedEvent.OutputTuple,
       PriceMaxAgeChangedEvent.OutputObject
@@ -197,7 +151,7 @@ export interface IStrategySettings extends BaseContract {
       PriceMaxAgeChangedEvent.OutputObject
     >;
 
-    "PriceMaxConfChanged(uint256)": TypedContractEvent<
+    'PriceMaxConfChanged(uint256)': TypedContractEvent<
       PriceMaxConfChangedEvent.InputTuple,
       PriceMaxConfChangedEvent.OutputTuple,
       PriceMaxConfChangedEvent.OutputObject

@@ -2,103 +2,103 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
+import { Contract, Interface, type ContractRunner } from 'ethers';
 import type {
   IUniswapV3Pool,
   IUniswapV3PoolInterface,
-} from "../../../../../contracts/interfaces/uniswap/v3/IUniswapV3Pool";
+} from '../../../../../contracts/interfaces/uniswap/v3/IUniswapV3Pool';
 
 const _abi = [
   {
     inputs: [],
-    name: "fee",
+    name: 'fee',
     outputs: [
       {
-        internalType: "uint24",
-        name: "fee",
-        type: "uint24",
+        internalType: 'uint24',
+        name: 'fee',
+        type: 'uint24',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "address",
-        name: "recipient",
-        type: "address",
+        internalType: 'address',
+        name: 'recipient',
+        type: 'address',
       },
       {
-        internalType: "uint256",
-        name: "amount0",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'amount0',
+        type: 'uint256',
       },
       {
-        internalType: "uint256",
-        name: "amount1",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'amount1',
+        type: 'uint256',
       },
       {
-        internalType: "bytes",
-        name: "data",
-        type: "bytes",
+        internalType: 'bytes',
+        name: 'data',
+        type: 'bytes',
       },
     ],
-    name: "flash",
+    name: 'flash',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "slot0",
+    name: 'slot0',
     outputs: [
       {
         components: [
           {
-            internalType: "uint160",
-            name: "sqrtPriceX96",
-            type: "uint160",
+            internalType: 'uint160',
+            name: 'sqrtPriceX96',
+            type: 'uint160',
           },
           {
-            internalType: "int24",
-            name: "tick",
-            type: "int24",
+            internalType: 'int24',
+            name: 'tick',
+            type: 'int24',
           },
           {
-            internalType: "uint16",
-            name: "observationIndex",
-            type: "uint16",
+            internalType: 'uint16',
+            name: 'observationIndex',
+            type: 'uint16',
           },
           {
-            internalType: "uint16",
-            name: "observationCardinality",
-            type: "uint16",
+            internalType: 'uint16',
+            name: 'observationCardinality',
+            type: 'uint16',
           },
           {
-            internalType: "uint16",
-            name: "observationCardinalityNext",
-            type: "uint16",
+            internalType: 'uint16',
+            name: 'observationCardinalityNext',
+            type: 'uint16',
           },
           {
-            internalType: "uint8",
-            name: "feeProtocol",
-            type: "uint8",
+            internalType: 'uint8',
+            name: 'feeProtocol',
+            type: 'uint8',
           },
           {
-            internalType: "bool",
-            name: "unlocked",
-            type: "bool",
+            internalType: 'bool',
+            name: 'unlocked',
+            type: 'bool',
           },
         ],
-        internalType: "struct IUniswapV3Pool.Slot0",
-        name: "",
-        type: "tuple",
+        internalType: 'struct IUniswapV3Pool.Slot0',
+        name: '',
+        type: 'tuple',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
 ] as const;
 
@@ -107,10 +107,7 @@ export class IUniswapV3Pool__factory {
   static createInterface(): IUniswapV3PoolInterface {
     return new Interface(_abi) as IUniswapV3PoolInterface;
   }
-  static connect(
-    address: string,
-    runner?: ContractRunner | null
-  ): IUniswapV3Pool {
+  static connect(address: string, runner?: ContractRunner | null): IUniswapV3Pool {
     return new Contract(address, _abi, runner) as unknown as IUniswapV3Pool;
   }
 }

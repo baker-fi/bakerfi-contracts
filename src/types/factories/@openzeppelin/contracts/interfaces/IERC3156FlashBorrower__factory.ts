@@ -2,51 +2,51 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
+import { Contract, Interface, type ContractRunner } from 'ethers';
 import type {
   IERC3156FlashBorrower,
   IERC3156FlashBorrowerInterface,
-} from "../../../../@openzeppelin/contracts/interfaces/IERC3156FlashBorrower";
+} from '../../../../@openzeppelin/contracts/interfaces/IERC3156FlashBorrower';
 
 const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "initiator",
-        type: "address",
+        internalType: 'address',
+        name: 'initiator',
+        type: 'address',
       },
       {
-        internalType: "address",
-        name: "token",
-        type: "address",
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
       },
       {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
       },
       {
-        internalType: "uint256",
-        name: "fee",
-        type: "uint256",
+        internalType: 'uint256',
+        name: 'fee',
+        type: 'uint256',
       },
       {
-        internalType: "bytes",
-        name: "data",
-        type: "bytes",
+        internalType: 'bytes',
+        name: 'data',
+        type: 'bytes',
       },
     ],
-    name: "onFlashLoan",
+    name: 'onFlashLoan',
     outputs: [
       {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
+        internalType: 'bytes32',
+        name: '',
+        type: 'bytes32',
       },
     ],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
 ] as const;
 
@@ -55,14 +55,7 @@ export class IERC3156FlashBorrower__factory {
   static createInterface(): IERC3156FlashBorrowerInterface {
     return new Interface(_abi) as IERC3156FlashBorrowerInterface;
   }
-  static connect(
-    address: string,
-    runner?: ContractRunner | null
-  ): IERC3156FlashBorrower {
-    return new Contract(
-      address,
-      _abi,
-      runner
-    ) as unknown as IERC3156FlashBorrower;
+  static connect(address: string, runner?: ContractRunner | null): IERC3156FlashBorrower {
+    return new Contract(address, _abi, runner) as unknown as IERC3156FlashBorrower;
   }
 }

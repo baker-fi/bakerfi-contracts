@@ -2,25 +2,25 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
+import { Contract, Interface, type ContractRunner } from 'ethers';
 import type {
   IProtocolFeesCollector,
   IProtocolFeesCollectorInterface,
-} from "../../../../contracts/interfaces/balancer/IProtocolFeesCollector";
+} from '../../../../contracts/interfaces/balancer/IProtocolFeesCollector';
 
 const _abi = [
   {
     inputs: [],
-    name: "getFlashLoanFeePercentage",
+    name: 'getFlashLoanFeePercentage',
     outputs: [
       {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
 ] as const;
 
@@ -29,14 +29,7 @@ export class IProtocolFeesCollector__factory {
   static createInterface(): IProtocolFeesCollectorInterface {
     return new Interface(_abi) as IProtocolFeesCollectorInterface;
   }
-  static connect(
-    address: string,
-    runner?: ContractRunner | null
-  ): IProtocolFeesCollector {
-    return new Contract(
-      address,
-      _abi,
-      runner
-    ) as unknown as IProtocolFeesCollector;
+  static connect(address: string, runner?: ContractRunner | null): IProtocolFeesCollector {
+    return new Contract(address, _abi, runner) as unknown as IProtocolFeesCollector;
   }
 }

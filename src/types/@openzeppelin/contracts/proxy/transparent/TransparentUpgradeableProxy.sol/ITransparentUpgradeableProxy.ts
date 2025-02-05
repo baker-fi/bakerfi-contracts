@@ -12,7 +12,7 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
@@ -20,54 +20,29 @@ import type {
   TypedLogDescription,
   TypedListener,
   TypedContractMethod,
-} from "../../../../../common";
+} from '../../../../../common';
 
 export interface ITransparentUpgradeableProxyInterface extends Interface {
   getFunction(
-    nameOrSignature:
-      | "admin"
-      | "changeAdmin"
-      | "implementation"
-      | "upgradeTo"
-      | "upgradeToAndCall"
+    nameOrSignature: 'admin' | 'changeAdmin' | 'implementation' | 'upgradeTo' | 'upgradeToAndCall',
   ): FunctionFragment;
 
-  getEvent(
-    nameOrSignatureOrTopic: "AdminChanged" | "BeaconUpgraded" | "Upgraded"
-  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'AdminChanged' | 'BeaconUpgraded' | 'Upgraded'): EventFragment;
 
-  encodeFunctionData(functionFragment: "admin", values?: undefined): string;
+  encodeFunctionData(functionFragment: 'admin', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'changeAdmin', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'implementation', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'upgradeTo', values: [AddressLike]): string;
   encodeFunctionData(
-    functionFragment: "changeAdmin",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "implementation",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "upgradeTo",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "upgradeToAndCall",
-    values: [AddressLike, BytesLike]
+    functionFragment: 'upgradeToAndCall',
+    values: [AddressLike, BytesLike],
   ): string;
 
-  decodeFunctionResult(functionFragment: "admin", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "changeAdmin",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "implementation",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "upgradeTo", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "upgradeToAndCall",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: 'admin', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'changeAdmin', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'implementation', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'upgradeTo', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'upgradeToAndCall', data: BytesLike): Result;
 }
 
 export namespace AdminChangedEvent {
@@ -116,94 +91,78 @@ export interface ITransparentUpgradeableProxy extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
-  admin: TypedContractMethod<[], [string], "view">;
+  admin: TypedContractMethod<[], [string], 'view'>;
 
-  changeAdmin: TypedContractMethod<[arg0: AddressLike], [void], "nonpayable">;
+  changeAdmin: TypedContractMethod<[arg0: AddressLike], [void], 'nonpayable'>;
 
-  implementation: TypedContractMethod<[], [string], "view">;
+  implementation: TypedContractMethod<[], [string], 'view'>;
 
-  upgradeTo: TypedContractMethod<[arg0: AddressLike], [void], "nonpayable">;
+  upgradeTo: TypedContractMethod<[arg0: AddressLike], [void], 'nonpayable'>;
 
-  upgradeToAndCall: TypedContractMethod<
-    [arg0: AddressLike, arg1: BytesLike],
-    [void],
-    "payable"
-  >;
+  upgradeToAndCall: TypedContractMethod<[arg0: AddressLike, arg1: BytesLike], [void], 'payable'>;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
+  getFunction(nameOrSignature: 'admin'): TypedContractMethod<[], [string], 'view'>;
   getFunction(
-    nameOrSignature: "admin"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: 'changeAdmin',
+  ): TypedContractMethod<[arg0: AddressLike], [void], 'nonpayable'>;
+  getFunction(nameOrSignature: 'implementation'): TypedContractMethod<[], [string], 'view'>;
   getFunction(
-    nameOrSignature: "changeAdmin"
-  ): TypedContractMethod<[arg0: AddressLike], [void], "nonpayable">;
+    nameOrSignature: 'upgradeTo',
+  ): TypedContractMethod<[arg0: AddressLike], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "implementation"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "upgradeTo"
-  ): TypedContractMethod<[arg0: AddressLike], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "upgradeToAndCall"
-  ): TypedContractMethod<
-    [arg0: AddressLike, arg1: BytesLike],
-    [void],
-    "payable"
-  >;
+    nameOrSignature: 'upgradeToAndCall',
+  ): TypedContractMethod<[arg0: AddressLike, arg1: BytesLike], [void], 'payable'>;
 
   getEvent(
-    key: "AdminChanged"
+    key: 'AdminChanged',
   ): TypedContractEvent<
     AdminChangedEvent.InputTuple,
     AdminChangedEvent.OutputTuple,
     AdminChangedEvent.OutputObject
   >;
   getEvent(
-    key: "BeaconUpgraded"
+    key: 'BeaconUpgraded',
   ): TypedContractEvent<
     BeaconUpgradedEvent.InputTuple,
     BeaconUpgradedEvent.OutputTuple,
     BeaconUpgradedEvent.OutputObject
   >;
   getEvent(
-    key: "Upgraded"
+    key: 'Upgraded',
   ): TypedContractEvent<
     UpgradedEvent.InputTuple,
     UpgradedEvent.OutputTuple,
@@ -211,7 +170,7 @@ export interface ITransparentUpgradeableProxy extends BaseContract {
   >;
 
   filters: {
-    "AdminChanged(address,address)": TypedContractEvent<
+    'AdminChanged(address,address)': TypedContractEvent<
       AdminChangedEvent.InputTuple,
       AdminChangedEvent.OutputTuple,
       AdminChangedEvent.OutputObject
@@ -222,7 +181,7 @@ export interface ITransparentUpgradeableProxy extends BaseContract {
       AdminChangedEvent.OutputObject
     >;
 
-    "BeaconUpgraded(address)": TypedContractEvent<
+    'BeaconUpgraded(address)': TypedContractEvent<
       BeaconUpgradedEvent.InputTuple,
       BeaconUpgradedEvent.OutputTuple,
       BeaconUpgradedEvent.OutputObject
@@ -233,7 +192,7 @@ export interface ITransparentUpgradeableProxy extends BaseContract {
       BeaconUpgradedEvent.OutputObject
     >;
 
-    "Upgraded(address)": TypedContractEvent<
+    'Upgraded(address)': TypedContractEvent<
       UpgradedEvent.InputTuple,
       UpgradedEvent.OutputTuple,
       UpgradedEvent.OutputObject

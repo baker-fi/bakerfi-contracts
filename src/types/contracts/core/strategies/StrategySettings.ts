@@ -13,7 +13,7 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
@@ -21,99 +21,54 @@ import type {
   TypedLogDescription,
   TypedListener,
   TypedContractMethod,
-} from "../../../common";
+} from '../../../common';
 
 export interface StrategySettingsInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "getPriceMaxAge"
-      | "getPriceMaxConf"
-      | "governor"
-      | "owner"
-      | "renounceOwnership"
-      | "setPriceMaxAge"
-      | "setPriceMaxConf"
-      | "transferGovernorship"
-      | "transferOwnership"
+      | 'getPriceMaxAge'
+      | 'getPriceMaxConf'
+      | 'governor'
+      | 'owner'
+      | 'renounceOwnership'
+      | 'setPriceMaxAge'
+      | 'setPriceMaxConf'
+      | 'transferGovernorship'
+      | 'transferOwnership',
   ): FunctionFragment;
 
   getEvent(
     nameOrSignatureOrTopic:
-      | "GovernshipTransferred"
-      | "Initialized"
-      | "OwnershipTransferred"
-      | "PriceMaxAgeChanged"
-      | "PriceMaxConfChanged"
+      | 'GovernshipTransferred'
+      | 'Initialized'
+      | 'OwnershipTransferred'
+      | 'PriceMaxAgeChanged'
+      | 'PriceMaxConfChanged',
   ): EventFragment;
 
-  encodeFunctionData(
-    functionFragment: "getPriceMaxAge",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getPriceMaxConf",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "governor", values?: undefined): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setPriceMaxAge",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setPriceMaxConf",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferGovernorship",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [AddressLike]
-  ): string;
+  encodeFunctionData(functionFragment: 'getPriceMaxAge', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'getPriceMaxConf', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'governor', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'owner', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'renounceOwnership', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'setPriceMaxAge', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'setPriceMaxConf', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'transferGovernorship', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'transferOwnership', values: [AddressLike]): string;
 
-  decodeFunctionResult(
-    functionFragment: "getPriceMaxAge",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getPriceMaxConf",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "governor", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setPriceMaxAge",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setPriceMaxConf",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferGovernorship",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: 'getPriceMaxAge', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getPriceMaxConf', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'governor', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'renounceOwnership', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setPriceMaxAge', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setPriceMaxConf', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transferGovernorship', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transferOwnership', data: BytesLike): Result;
 }
 
 export namespace GovernshipTransferredEvent {
-  export type InputTuple = [
-    previousGovernor: AddressLike,
-    newGovernor: AddressLike
-  ];
+  export type InputTuple = [previousGovernor: AddressLike, newGovernor: AddressLike];
   export type OutputTuple = [previousGovernor: string, newGovernor: string];
   export interface OutputObject {
     previousGovernor: string;
@@ -183,136 +138,106 @@ export interface StrategySettings extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
-  getPriceMaxAge: TypedContractMethod<[], [bigint], "view">;
+  getPriceMaxAge: TypedContractMethod<[], [bigint], 'view'>;
 
-  getPriceMaxConf: TypedContractMethod<[], [bigint], "view">;
+  getPriceMaxConf: TypedContractMethod<[], [bigint], 'view'>;
 
-  governor: TypedContractMethod<[], [string], "view">;
+  governor: TypedContractMethod<[], [string], 'view'>;
 
-  owner: TypedContractMethod<[], [string], "view">;
+  owner: TypedContractMethod<[], [string], 'view'>;
 
-  renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
+  renounceOwnership: TypedContractMethod<[], [void], 'nonpayable'>;
 
-  setPriceMaxAge: TypedContractMethod<
-    [value: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  setPriceMaxAge: TypedContractMethod<[value: BigNumberish], [void], 'nonpayable'>;
 
-  setPriceMaxConf: TypedContractMethod<
-    [value: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  setPriceMaxConf: TypedContractMethod<[value: BigNumberish], [void], 'nonpayable'>;
 
-  transferGovernorship: TypedContractMethod<
-    [_newGovernor: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+  transferGovernorship: TypedContractMethod<[_newGovernor: AddressLike], [void], 'nonpayable'>;
 
-  transferOwnership: TypedContractMethod<
-    [newOwner: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+  transferOwnership: TypedContractMethod<[newOwner: AddressLike], [void], 'nonpayable'>;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
+  getFunction(nameOrSignature: 'getPriceMaxAge'): TypedContractMethod<[], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'getPriceMaxConf'): TypedContractMethod<[], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'governor'): TypedContractMethod<[], [string], 'view'>;
+  getFunction(nameOrSignature: 'owner'): TypedContractMethod<[], [string], 'view'>;
+  getFunction(nameOrSignature: 'renounceOwnership'): TypedContractMethod<[], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "getPriceMaxAge"
-  ): TypedContractMethod<[], [bigint], "view">;
+    nameOrSignature: 'setPriceMaxAge',
+  ): TypedContractMethod<[value: BigNumberish], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "getPriceMaxConf"
-  ): TypedContractMethod<[], [bigint], "view">;
+    nameOrSignature: 'setPriceMaxConf',
+  ): TypedContractMethod<[value: BigNumberish], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "governor"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: 'transferGovernorship',
+  ): TypedContractMethod<[_newGovernor: AddressLike], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "owner"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "renounceOwnership"
-  ): TypedContractMethod<[], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "setPriceMaxAge"
-  ): TypedContractMethod<[value: BigNumberish], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "setPriceMaxConf"
-  ): TypedContractMethod<[value: BigNumberish], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "transferGovernorship"
-  ): TypedContractMethod<[_newGovernor: AddressLike], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "transferOwnership"
-  ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
+    nameOrSignature: 'transferOwnership',
+  ): TypedContractMethod<[newOwner: AddressLike], [void], 'nonpayable'>;
 
   getEvent(
-    key: "GovernshipTransferred"
+    key: 'GovernshipTransferred',
   ): TypedContractEvent<
     GovernshipTransferredEvent.InputTuple,
     GovernshipTransferredEvent.OutputTuple,
     GovernshipTransferredEvent.OutputObject
   >;
   getEvent(
-    key: "Initialized"
+    key: 'Initialized',
   ): TypedContractEvent<
     InitializedEvent.InputTuple,
     InitializedEvent.OutputTuple,
     InitializedEvent.OutputObject
   >;
   getEvent(
-    key: "OwnershipTransferred"
+    key: 'OwnershipTransferred',
   ): TypedContractEvent<
     OwnershipTransferredEvent.InputTuple,
     OwnershipTransferredEvent.OutputTuple,
     OwnershipTransferredEvent.OutputObject
   >;
   getEvent(
-    key: "PriceMaxAgeChanged"
+    key: 'PriceMaxAgeChanged',
   ): TypedContractEvent<
     PriceMaxAgeChangedEvent.InputTuple,
     PriceMaxAgeChangedEvent.OutputTuple,
     PriceMaxAgeChangedEvent.OutputObject
   >;
   getEvent(
-    key: "PriceMaxConfChanged"
+    key: 'PriceMaxConfChanged',
   ): TypedContractEvent<
     PriceMaxConfChangedEvent.InputTuple,
     PriceMaxConfChangedEvent.OutputTuple,
@@ -320,7 +245,7 @@ export interface StrategySettings extends BaseContract {
   >;
 
   filters: {
-    "GovernshipTransferred(address,address)": TypedContractEvent<
+    'GovernshipTransferred(address,address)': TypedContractEvent<
       GovernshipTransferredEvent.InputTuple,
       GovernshipTransferredEvent.OutputTuple,
       GovernshipTransferredEvent.OutputObject
@@ -331,7 +256,7 @@ export interface StrategySettings extends BaseContract {
       GovernshipTransferredEvent.OutputObject
     >;
 
-    "Initialized(uint8)": TypedContractEvent<
+    'Initialized(uint8)': TypedContractEvent<
       InitializedEvent.InputTuple,
       InitializedEvent.OutputTuple,
       InitializedEvent.OutputObject
@@ -342,7 +267,7 @@ export interface StrategySettings extends BaseContract {
       InitializedEvent.OutputObject
     >;
 
-    "OwnershipTransferred(address,address)": TypedContractEvent<
+    'OwnershipTransferred(address,address)': TypedContractEvent<
       OwnershipTransferredEvent.InputTuple,
       OwnershipTransferredEvent.OutputTuple,
       OwnershipTransferredEvent.OutputObject
@@ -353,7 +278,7 @@ export interface StrategySettings extends BaseContract {
       OwnershipTransferredEvent.OutputObject
     >;
 
-    "PriceMaxAgeChanged(uint256)": TypedContractEvent<
+    'PriceMaxAgeChanged(uint256)': TypedContractEvent<
       PriceMaxAgeChangedEvent.InputTuple,
       PriceMaxAgeChangedEvent.OutputTuple,
       PriceMaxAgeChangedEvent.OutputObject
@@ -364,7 +289,7 @@ export interface StrategySettings extends BaseContract {
       PriceMaxAgeChangedEvent.OutputObject
     >;
 
-    "PriceMaxConfChanged(uint256)": TypedContractEvent<
+    'PriceMaxConfChanged(uint256)': TypedContractEvent<
       PriceMaxConfChangedEvent.InputTuple,
       PriceMaxConfChangedEvent.OutputTuple,
       PriceMaxConfChangedEvent.OutputObject

@@ -2,50 +2,50 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
+import { Contract, Interface, type ContractRunner } from 'ethers';
 import type {
   UseAeroSwapper,
   UseAeroSwapperInterface,
-} from "../../../../../../contracts/core/hooks/swappers/UseAeroSwapper.sol/UseAeroSwapper";
+} from '../../../../../../contracts/core/hooks/swappers/UseAeroSwapper.sol/UseAeroSwapper';
 
 const _abi = [
   {
     inputs: [],
-    name: "FailedToApproveAllowanceForSwapRouter",
-    type: "error",
+    name: 'FailedToApproveAllowanceForSwapRouter',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InvalidAeroRouterContract",
-    type: "error",
+    name: 'InvalidAeroRouterContract',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InvalidInputToken",
-    type: "error",
+    name: 'InvalidInputToken',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InvalidOutputToken",
-    type: "error",
+    name: 'InvalidOutputToken',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "SwapFailed",
-    type: "error",
+    name: 'SwapFailed',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "aeroRouter",
+    name: 'aeroRouter',
     outputs: [
       {
-        internalType: "contract ISwapRouter",
-        name: "",
-        type: "address",
+        internalType: 'contract ISwapRouter',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
 ] as const;
 
@@ -54,10 +54,7 @@ export class UseAeroSwapper__factory {
   static createInterface(): UseAeroSwapperInterface {
     return new Interface(_abi) as UseAeroSwapperInterface;
   }
-  static connect(
-    address: string,
-    runner?: ContractRunner | null
-  ): UseAeroSwapper {
+  static connect(address: string, runner?: ContractRunner | null): UseAeroSwapper {
     return new Contract(address, _abi, runner) as unknown as UseAeroSwapper;
   }
 }

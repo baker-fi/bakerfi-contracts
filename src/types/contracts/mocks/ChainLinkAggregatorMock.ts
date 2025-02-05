@@ -11,93 +11,48 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
   TypedEventLog,
   TypedListener,
   TypedContractMethod,
-} from "../../common";
+} from '../../common';
 
 export interface ChainLinkAggregatorMockInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "decimals"
-      | "getAnswer"
-      | "getTimestamp"
-      | "latestAnswer"
-      | "latestRound"
-      | "latestRoundData"
-      | "latestTimestamp"
-      | "setDecimals"
-      | "setLatestPrice"
+      | 'decimals'
+      | 'getAnswer'
+      | 'getTimestamp'
+      | 'latestAnswer'
+      | 'latestRound'
+      | 'latestRoundData'
+      | 'latestTimestamp'
+      | 'setDecimals'
+      | 'setLatestPrice',
   ): FunctionFragment;
 
-  encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "getAnswer",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getTimestamp",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "latestAnswer",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "latestRound",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "latestRoundData",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "latestTimestamp",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setDecimals",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setLatestPrice",
-    values: [BigNumberish]
-  ): string;
+  encodeFunctionData(functionFragment: 'decimals', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'getAnswer', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'getTimestamp', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'latestAnswer', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'latestRound', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'latestRoundData', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'latestTimestamp', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'setDecimals', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'setLatestPrice', values: [BigNumberish]): string;
 
-  decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getAnswer", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getTimestamp",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "latestAnswer",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "latestRound",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "latestRoundData",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "latestTimestamp",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setDecimals",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "setLatestPrice",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: 'decimals', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getAnswer', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getTimestamp', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'latestAnswer', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'latestRound', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'latestRoundData', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'latestTimestamp', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setDecimals', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setLatestPrice', data: BytesLike): Result;
 }
 
 export interface ChainLinkAggregatorMock extends BaseContract {
@@ -109,49 +64,47 @@ export interface ChainLinkAggregatorMock extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
-  decimals: TypedContractMethod<[], [bigint], "view">;
+  decimals: TypedContractMethod<[], [bigint], 'view'>;
 
-  getAnswer: TypedContractMethod<[roundId: BigNumberish], [bigint], "view">;
+  getAnswer: TypedContractMethod<[roundId: BigNumberish], [bigint], 'view'>;
 
-  getTimestamp: TypedContractMethod<[roundId: BigNumberish], [bigint], "view">;
+  getTimestamp: TypedContractMethod<[roundId: BigNumberish], [bigint], 'view'>;
 
-  latestAnswer: TypedContractMethod<[], [bigint], "view">;
+  latestAnswer: TypedContractMethod<[], [bigint], 'view'>;
 
-  latestRound: TypedContractMethod<[], [bigint], "view">;
+  latestRound: TypedContractMethod<[], [bigint], 'view'>;
 
   latestRoundData: TypedContractMethod<
     [],
@@ -162,47 +115,29 @@ export interface ChainLinkAggregatorMock extends BaseContract {
         startedAt: bigint;
         updatedAt: bigint;
         answeredInRound: bigint;
-      }
+      },
     ],
-    "view"
+    'view'
   >;
 
-  latestTimestamp: TypedContractMethod<[], [bigint], "view">;
+  latestTimestamp: TypedContractMethod<[], [bigint], 'view'>;
 
-  setDecimals: TypedContractMethod<
-    [ldecimals: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  setDecimals: TypedContractMethod<[ldecimals: BigNumberish], [void], 'nonpayable'>;
 
-  setLatestPrice: TypedContractMethod<
-    [exchangeRate: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  setLatestPrice: TypedContractMethod<[exchangeRate: BigNumberish], [void], 'nonpayable'>;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
+  getFunction(nameOrSignature: 'decimals'): TypedContractMethod<[], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "decimals"
-  ): TypedContractMethod<[], [bigint], "view">;
+    nameOrSignature: 'getAnswer',
+  ): TypedContractMethod<[roundId: BigNumberish], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "getAnswer"
-  ): TypedContractMethod<[roundId: BigNumberish], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "getTimestamp"
-  ): TypedContractMethod<[roundId: BigNumberish], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "latestAnswer"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "latestRound"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "latestRoundData"
-  ): TypedContractMethod<
+    nameOrSignature: 'getTimestamp',
+  ): TypedContractMethod<[roundId: BigNumberish], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'latestAnswer'): TypedContractMethod<[], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'latestRound'): TypedContractMethod<[], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'latestRoundData'): TypedContractMethod<
     [],
     [
       [bigint, bigint, bigint, bigint, bigint] & {
@@ -211,19 +146,17 @@ export interface ChainLinkAggregatorMock extends BaseContract {
         startedAt: bigint;
         updatedAt: bigint;
         answeredInRound: bigint;
-      }
+      },
     ],
-    "view"
+    'view'
   >;
+  getFunction(nameOrSignature: 'latestTimestamp'): TypedContractMethod<[], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "latestTimestamp"
-  ): TypedContractMethod<[], [bigint], "view">;
+    nameOrSignature: 'setDecimals',
+  ): TypedContractMethod<[ldecimals: BigNumberish], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "setDecimals"
-  ): TypedContractMethod<[ldecimals: BigNumberish], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "setLatestPrice"
-  ): TypedContractMethod<[exchangeRate: BigNumberish], [void], "nonpayable">;
+    nameOrSignature: 'setLatestPrice',
+  ): TypedContractMethod<[exchangeRate: BigNumberish], [void], 'nonpayable'>;
 
   filters: {};
 }

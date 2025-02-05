@@ -2,45 +2,45 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
+import { Contract, Interface, type ContractRunner } from 'ethers';
 import type {
   UseTokenActions,
   UseTokenActionsInterface,
-} from "../../../../../contracts/core/hooks/UseTokenActions.sol/UseTokenActions";
+} from '../../../../../contracts/core/hooks/UseTokenActions.sol/UseTokenActions';
 
 const _abi = [
   {
     inputs: [],
-    name: "InvalidRecipient",
-    type: "error",
+    name: 'InvalidRecipient',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InvalidToken",
-    type: "error",
+    name: 'InvalidToken',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "NotEnoughAllowance",
-    type: "error",
+    name: 'NotEnoughAllowance',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "SweepFailed",
-    type: "error",
+    name: 'SweepFailed',
+    type: 'error',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: false,
-        internalType: "uint8",
-        name: "version",
-        type: "uint8",
+        internalType: 'uint8',
+        name: 'version',
+        type: 'uint8',
       },
     ],
-    name: "Initialized",
-    type: "event",
+    name: 'Initialized',
+    type: 'event',
   },
 ] as const;
 
@@ -49,10 +49,7 @@ export class UseTokenActions__factory {
   static createInterface(): UseTokenActionsInterface {
     return new Interface(_abi) as UseTokenActionsInterface;
   }
-  static connect(
-    address: string,
-    runner?: ContractRunner | null
-  ): UseTokenActions {
+  static connect(address: string, runner?: ContractRunner | null): UseTokenActions {
     return new Contract(address, _abi, runner) as unknown as UseTokenActions;
   }
 }

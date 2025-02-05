@@ -12,14 +12,14 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
   TypedEventLog,
   TypedListener,
   TypedContractMethod,
-} from "../../../../common";
+} from '../../../../common';
 
 export declare namespace ISwapRouter {
   export type ExactInputParamsStruct = {
@@ -35,7 +35,7 @@ export declare namespace ISwapRouter {
     recipient: string,
     deadline: bigint,
     amountIn: bigint,
-    amountOutMinimum: bigint
+    amountOutMinimum: bigint,
   ] & {
     path: string;
     recipient: string;
@@ -63,7 +63,7 @@ export declare namespace ISwapRouter {
     deadline: bigint,
     amountIn: bigint,
     amountOutMinimum: bigint,
-    sqrtPriceLimitX96: bigint
+    sqrtPriceLimitX96: bigint,
   ] & {
     tokenIn: string;
     tokenOut: string;
@@ -88,7 +88,7 @@ export declare namespace ISwapRouter {
     recipient: string,
     deadline: bigint,
     amountOut: bigint,
-    amountInMaximum: bigint
+    amountInMaximum: bigint,
   ] & {
     path: string;
     recipient: string;
@@ -116,7 +116,7 @@ export declare namespace ISwapRouter {
     deadline: bigint,
     amountOut: bigint,
     amountInMaximum: bigint,
-    sqrtPriceLimitX96: bigint
+    sqrtPriceLimitX96: bigint,
   ] & {
     tokenIn: string;
     tokenOut: string;
@@ -132,51 +132,39 @@ export declare namespace ISwapRouter {
 export interface ISwapRouterInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "exactInput"
-      | "exactInputSingle"
-      | "exactOutput"
-      | "exactOutputSingle"
-      | "uniswapV3SwapCallback"
+      | 'exactInput'
+      | 'exactInputSingle'
+      | 'exactOutput'
+      | 'exactOutputSingle'
+      | 'uniswapV3SwapCallback',
   ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "exactInput",
-    values: [ISwapRouter.ExactInputParamsStruct]
+    functionFragment: 'exactInput',
+    values: [ISwapRouter.ExactInputParamsStruct],
   ): string;
   encodeFunctionData(
-    functionFragment: "exactInputSingle",
-    values: [ISwapRouter.ExactInputSingleParamsStruct]
+    functionFragment: 'exactInputSingle',
+    values: [ISwapRouter.ExactInputSingleParamsStruct],
   ): string;
   encodeFunctionData(
-    functionFragment: "exactOutput",
-    values: [ISwapRouter.ExactOutputParamsStruct]
+    functionFragment: 'exactOutput',
+    values: [ISwapRouter.ExactOutputParamsStruct],
   ): string;
   encodeFunctionData(
-    functionFragment: "exactOutputSingle",
-    values: [ISwapRouter.ExactOutputSingleParamsStruct]
+    functionFragment: 'exactOutputSingle',
+    values: [ISwapRouter.ExactOutputSingleParamsStruct],
   ): string;
   encodeFunctionData(
-    functionFragment: "uniswapV3SwapCallback",
-    values: [BigNumberish, BigNumberish, BytesLike]
+    functionFragment: 'uniswapV3SwapCallback',
+    values: [BigNumberish, BigNumberish, BytesLike],
   ): string;
 
-  decodeFunctionResult(functionFragment: "exactInput", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "exactInputSingle",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "exactOutput",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "exactOutputSingle",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "uniswapV3SwapCallback",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: 'exactInput', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'exactInputSingle', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'exactOutput', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'exactOutputSingle', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'uniswapV3SwapCallback', data: BytesLike): Result;
 }
 
 export interface ISwapRouter extends BaseContract {
@@ -188,108 +176,88 @@ export interface ISwapRouter extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
   exactInput: TypedContractMethod<
     [params: ISwapRouter.ExactInputParamsStruct],
     [bigint],
-    "payable"
+    'payable'
   >;
 
   exactInputSingle: TypedContractMethod<
     [params: ISwapRouter.ExactInputSingleParamsStruct],
     [bigint],
-    "payable"
+    'payable'
   >;
 
   exactOutput: TypedContractMethod<
     [params: ISwapRouter.ExactOutputParamsStruct],
     [bigint],
-    "payable"
+    'payable'
   >;
 
   exactOutputSingle: TypedContractMethod<
     [params: ISwapRouter.ExactOutputSingleParamsStruct],
     [bigint],
-    "payable"
+    'payable'
   >;
 
   uniswapV3SwapCallback: TypedContractMethod<
     [amount0Delta: BigNumberish, amount1Delta: BigNumberish, data: BytesLike],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
   getFunction(
-    nameOrSignature: "exactInput"
-  ): TypedContractMethod<
-    [params: ISwapRouter.ExactInputParamsStruct],
-    [bigint],
-    "payable"
-  >;
+    nameOrSignature: 'exactInput',
+  ): TypedContractMethod<[params: ISwapRouter.ExactInputParamsStruct], [bigint], 'payable'>;
   getFunction(
-    nameOrSignature: "exactInputSingle"
-  ): TypedContractMethod<
-    [params: ISwapRouter.ExactInputSingleParamsStruct],
-    [bigint],
-    "payable"
-  >;
+    nameOrSignature: 'exactInputSingle',
+  ): TypedContractMethod<[params: ISwapRouter.ExactInputSingleParamsStruct], [bigint], 'payable'>;
   getFunction(
-    nameOrSignature: "exactOutput"
-  ): TypedContractMethod<
-    [params: ISwapRouter.ExactOutputParamsStruct],
-    [bigint],
-    "payable"
-  >;
+    nameOrSignature: 'exactOutput',
+  ): TypedContractMethod<[params: ISwapRouter.ExactOutputParamsStruct], [bigint], 'payable'>;
   getFunction(
-    nameOrSignature: "exactOutputSingle"
-  ): TypedContractMethod<
-    [params: ISwapRouter.ExactOutputSingleParamsStruct],
-    [bigint],
-    "payable"
-  >;
+    nameOrSignature: 'exactOutputSingle',
+  ): TypedContractMethod<[params: ISwapRouter.ExactOutputSingleParamsStruct], [bigint], 'payable'>;
   getFunction(
-    nameOrSignature: "uniswapV3SwapCallback"
+    nameOrSignature: 'uniswapV3SwapCallback',
   ): TypedContractMethod<
     [amount0Delta: BigNumberish, amount1Delta: BigNumberish, data: BytesLike],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
   filters: {};

@@ -2,30 +2,27 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
-import type {
-  UseStETH,
-  UseStETHInterface,
-} from "../../../../contracts/core/hooks/UseStETH";
+import { Contract, Interface, type ContractRunner } from 'ethers';
+import type { UseStETH, UseStETHInterface } from '../../../../contracts/core/hooks/UseStETH';
 
 const _abi = [
   {
     inputs: [],
-    name: "UseStETHInvalidStETHContract",
-    type: "error",
+    name: 'UseStETHInvalidStETHContract',
+    type: 'error',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: false,
-        internalType: "uint8",
-        name: "version",
-        type: "uint8",
+        internalType: 'uint8',
+        name: 'version',
+        type: 'uint8',
       },
     ],
-    name: "Initialized",
-    type: "event",
+    name: 'Initialized',
+    type: 'event',
   },
 ] as const;
 

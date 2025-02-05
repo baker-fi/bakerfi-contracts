@@ -2,30 +2,27 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
-import type {
-  UseOracle,
-  UseOracleInterface,
-} from "../../../../contracts/core/hooks/UseOracle";
+import { Contract, Interface, type ContractRunner } from 'ethers';
+import type { UseOracle, UseOracleInterface } from '../../../../contracts/core/hooks/UseOracle';
 
 const _abi = [
   {
     inputs: [],
-    name: "InvalidOracleContract",
-    type: "error",
+    name: 'InvalidOracleContract',
+    type: 'error',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: false,
-        internalType: "uint8",
-        name: "version",
-        type: "uint8",
+        internalType: 'uint8',
+        name: 'version',
+        type: 'uint8',
       },
     ],
-    name: "Initialized",
-    type: "event",
+    name: 'Initialized',
+    type: 'event',
   },
 ] as const;
 

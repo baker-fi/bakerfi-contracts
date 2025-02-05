@@ -12,22 +12,20 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
   TypedEventLog,
   TypedListener,
   TypedContractMethod,
-} from "../../../common";
+} from '../../../common';
 
 export interface ICurveRouterNGInterface extends Interface {
-  getFunction(
-    nameOrSignature: "exchange" | "get_dx" | "get_dy"
-  ): FunctionFragment;
+  getFunction(nameOrSignature: 'exchange' | 'get_dx' | 'get_dy'): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "exchange",
+    functionFragment: 'exchange',
     values: [
       AddressLike[],
       [
@@ -35,16 +33,16 @@ export interface ICurveRouterNGInterface extends Interface {
         [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
         [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
         [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
-        [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish]
+        [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
       ],
       BigNumberish,
       BigNumberish,
       [AddressLike, AddressLike, AddressLike, AddressLike, AddressLike],
-      AddressLike
-    ]
+      AddressLike,
+    ],
   ): string;
   encodeFunctionData(
-    functionFragment: "get_dx",
+    functionFragment: 'get_dx',
     values: [
       AddressLike[],
       [
@@ -52,16 +50,16 @@ export interface ICurveRouterNGInterface extends Interface {
         [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
         [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
         [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
-        [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish]
+        [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
       ],
       BigNumberish,
       [AddressLike, AddressLike, AddressLike, AddressLike, AddressLike],
       [AddressLike, AddressLike, AddressLike, AddressLike, AddressLike],
-      [AddressLike, AddressLike, AddressLike, AddressLike, AddressLike]
-    ]
+      [AddressLike, AddressLike, AddressLike, AddressLike, AddressLike],
+    ],
   ): string;
   encodeFunctionData(
-    functionFragment: "get_dy",
+    functionFragment: 'get_dy',
     values: [
       AddressLike[],
       [
@@ -69,16 +67,16 @@ export interface ICurveRouterNGInterface extends Interface {
         [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
         [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
         [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
-        [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish]
+        [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
       ],
       BigNumberish,
-      [AddressLike, AddressLike, AddressLike, AddressLike, AddressLike]
-    ]
+      [AddressLike, AddressLike, AddressLike, AddressLike, AddressLike],
+    ],
   ): string;
 
-  decodeFunctionResult(functionFragment: "exchange", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "get_dx", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "get_dy", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'exchange', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'get_dx', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'get_dy', data: BytesLike): Result;
 }
 
 export interface ICurveRouterNG extends BaseContract {
@@ -90,39 +88,37 @@ export interface ICurveRouterNG extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
   exchange: TypedContractMethod<
     [
@@ -132,15 +128,15 @@ export interface ICurveRouterNG extends BaseContract {
         [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
         [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
         [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
-        [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish]
+        [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
       ],
       amountIn: BigNumberish,
       amountOutMin: BigNumberish,
       pools: [AddressLike, AddressLike, AddressLike, AddressLike, AddressLike],
-      receiverAddress: AddressLike
+      receiverAddress: AddressLike,
     ],
     [bigint],
-    "payable"
+    'payable'
   >;
 
   get_dx: TypedContractMethod<
@@ -151,27 +147,15 @@ export interface ICurveRouterNG extends BaseContract {
         [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
         [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
         [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
-        [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish]
+        [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
       ],
       amountOut: BigNumberish,
       pools: [AddressLike, AddressLike, AddressLike, AddressLike, AddressLike],
-      basePools: [
-        AddressLike,
-        AddressLike,
-        AddressLike,
-        AddressLike,
-        AddressLike
-      ],
-      baseTokens: [
-        AddressLike,
-        AddressLike,
-        AddressLike,
-        AddressLike,
-        AddressLike
-      ]
+      basePools: [AddressLike, AddressLike, AddressLike, AddressLike, AddressLike],
+      baseTokens: [AddressLike, AddressLike, AddressLike, AddressLike, AddressLike],
     ],
     [bigint],
-    "view"
+    'view'
   >;
 
   get_dy: TypedContractMethod<
@@ -182,21 +166,19 @@ export interface ICurveRouterNG extends BaseContract {
         [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
         [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
         [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
-        [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish]
+        [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
       ],
       amount: BigNumberish,
-      pools: [AddressLike, AddressLike, AddressLike, AddressLike, AddressLike]
+      pools: [AddressLike, AddressLike, AddressLike, AddressLike, AddressLike],
     ],
     [bigint],
-    "view"
+    'view'
   >;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
   getFunction(
-    nameOrSignature: "exchange"
+    nameOrSignature: 'exchange',
   ): TypedContractMethod<
     [
       route: AddressLike[],
@@ -205,18 +187,18 @@ export interface ICurveRouterNG extends BaseContract {
         [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
         [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
         [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
-        [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish]
+        [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
       ],
       amountIn: BigNumberish,
       amountOutMin: BigNumberish,
       pools: [AddressLike, AddressLike, AddressLike, AddressLike, AddressLike],
-      receiverAddress: AddressLike
+      receiverAddress: AddressLike,
     ],
     [bigint],
-    "payable"
+    'payable'
   >;
   getFunction(
-    nameOrSignature: "get_dx"
+    nameOrSignature: 'get_dx',
   ): TypedContractMethod<
     [
       route: AddressLike[],
@@ -225,30 +207,18 @@ export interface ICurveRouterNG extends BaseContract {
         [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
         [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
         [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
-        [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish]
+        [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
       ],
       amountOut: BigNumberish,
       pools: [AddressLike, AddressLike, AddressLike, AddressLike, AddressLike],
-      basePools: [
-        AddressLike,
-        AddressLike,
-        AddressLike,
-        AddressLike,
-        AddressLike
-      ],
-      baseTokens: [
-        AddressLike,
-        AddressLike,
-        AddressLike,
-        AddressLike,
-        AddressLike
-      ]
+      basePools: [AddressLike, AddressLike, AddressLike, AddressLike, AddressLike],
+      baseTokens: [AddressLike, AddressLike, AddressLike, AddressLike, AddressLike],
     ],
     [bigint],
-    "view"
+    'view'
   >;
   getFunction(
-    nameOrSignature: "get_dy"
+    nameOrSignature: 'get_dy',
   ): TypedContractMethod<
     [
       route: AddressLike[],
@@ -257,13 +227,13 @@ export interface ICurveRouterNG extends BaseContract {
         [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
         [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
         [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
-        [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish]
+        [BigNumberish, BigNumberish, BigNumberish, BigNumberish, BigNumberish],
       ],
       amount: BigNumberish,
-      pools: [AddressLike, AddressLike, AddressLike, AddressLike, AddressLike]
+      pools: [AddressLike, AddressLike, AddressLike, AddressLike, AddressLike],
     ],
     [bigint],
-    "view"
+    'view'
   >;
 
   filters: {};

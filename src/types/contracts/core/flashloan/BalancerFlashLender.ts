@@ -12,60 +12,42 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
   TypedEventLog,
   TypedListener,
   TypedContractMethod,
-} from "../../../common";
+} from '../../../common';
 
 export interface BalancerFlashLenderInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "CALLBACK_SUCCESS"
-      | "flashFee"
-      | "flashLoan"
-      | "maxFlashLoan"
-      | "receiveFlashLoan"
+      | 'CALLBACK_SUCCESS'
+      | 'flashFee'
+      | 'flashLoan'
+      | 'maxFlashLoan'
+      | 'receiveFlashLoan',
   ): FunctionFragment;
 
+  encodeFunctionData(functionFragment: 'CALLBACK_SUCCESS', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'flashFee', values: [AddressLike, BigNumberish]): string;
   encodeFunctionData(
-    functionFragment: "CALLBACK_SUCCESS",
-    values?: undefined
+    functionFragment: 'flashLoan',
+    values: [AddressLike, AddressLike, BigNumberish, BytesLike],
   ): string;
+  encodeFunctionData(functionFragment: 'maxFlashLoan', values: [AddressLike]): string;
   encodeFunctionData(
-    functionFragment: "flashFee",
-    values: [AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "flashLoan",
-    values: [AddressLike, AddressLike, BigNumberish, BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "maxFlashLoan",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "receiveFlashLoan",
-    values: [AddressLike[], BigNumberish[], BigNumberish[], BytesLike]
+    functionFragment: 'receiveFlashLoan',
+    values: [AddressLike[], BigNumberish[], BigNumberish[], BytesLike],
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "CALLBACK_SUCCESS",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "flashFee", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "flashLoan", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "maxFlashLoan",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "receiveFlashLoan",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: 'CALLBACK_SUCCESS', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'flashFee', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'flashLoan', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'maxFlashLoan', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'receiveFlashLoan', data: BytesLike): Result;
 }
 
 export interface BalancerFlashLender extends BaseContract {
@@ -77,112 +59,88 @@ export interface BalancerFlashLender extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
-  CALLBACK_SUCCESS: TypedContractMethod<[], [string], "view">;
+  CALLBACK_SUCCESS: TypedContractMethod<[], [string], 'view'>;
 
-  flashFee: TypedContractMethod<
-    [arg0: AddressLike, amount: BigNumberish],
-    [bigint],
-    "view"
-  >;
+  flashFee: TypedContractMethod<[arg0: AddressLike, amount: BigNumberish], [bigint], 'view'>;
 
   flashLoan: TypedContractMethod<
-    [
-      borrower: AddressLike,
-      token: AddressLike,
-      amount: BigNumberish,
-      data: BytesLike
-    ],
+    [borrower: AddressLike, token: AddressLike, amount: BigNumberish, data: BytesLike],
     [boolean],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  maxFlashLoan: TypedContractMethod<[token: AddressLike], [bigint], "view">;
+  maxFlashLoan: TypedContractMethod<[token: AddressLike], [bigint], 'view'>;
 
   receiveFlashLoan: TypedContractMethod<
     [
       tokens: AddressLike[],
       amounts: BigNumberish[],
       feeAmounts: BigNumberish[],
-      userData: BytesLike
+      userData: BytesLike,
     ],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
+  getFunction(nameOrSignature: 'CALLBACK_SUCCESS'): TypedContractMethod<[], [string], 'view'>;
   getFunction(
-    nameOrSignature: "CALLBACK_SUCCESS"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: 'flashFee',
+  ): TypedContractMethod<[arg0: AddressLike, amount: BigNumberish], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "flashFee"
+    nameOrSignature: 'flashLoan',
   ): TypedContractMethod<
-    [arg0: AddressLike, amount: BigNumberish],
-    [bigint],
-    "view"
-  >;
-  getFunction(
-    nameOrSignature: "flashLoan"
-  ): TypedContractMethod<
-    [
-      borrower: AddressLike,
-      token: AddressLike,
-      amount: BigNumberish,
-      data: BytesLike
-    ],
+    [borrower: AddressLike, token: AddressLike, amount: BigNumberish, data: BytesLike],
     [boolean],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "maxFlashLoan"
-  ): TypedContractMethod<[token: AddressLike], [bigint], "view">;
+    nameOrSignature: 'maxFlashLoan',
+  ): TypedContractMethod<[token: AddressLike], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "receiveFlashLoan"
+    nameOrSignature: 'receiveFlashLoan',
   ): TypedContractMethod<
     [
       tokens: AddressLike[],
       amounts: BigNumberish[],
       feeAmounts: BigNumberish[],
-      userData: BytesLike
+      userData: BytesLike,
     ],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
   filters: {};

@@ -12,42 +12,42 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
   TypedEventLog,
   TypedListener,
   TypedContractMethod,
-} from "../../../../common";
+} from '../../../../common';
 
 export interface IUniswapV2Router01Interface extends Interface {
   getFunction(
     nameOrSignature:
-      | "WETH"
-      | "addLiquidity"
-      | "addLiquidityETH"
-      | "factory"
-      | "getAmountIn"
-      | "getAmountOut"
-      | "getAmountsIn"
-      | "getAmountsOut"
-      | "quote"
-      | "removeLiquidity"
-      | "removeLiquidityETH"
-      | "removeLiquidityETHWithPermit"
-      | "removeLiquidityWithPermit"
-      | "swapETHForExactTokens"
-      | "swapExactETHForTokens"
-      | "swapExactTokensForETH"
-      | "swapExactTokensForTokens"
-      | "swapTokensForExactETH"
-      | "swapTokensForExactTokens"
+      | 'WETH'
+      | 'addLiquidity'
+      | 'addLiquidityETH'
+      | 'factory'
+      | 'getAmountIn'
+      | 'getAmountOut'
+      | 'getAmountsIn'
+      | 'getAmountsOut'
+      | 'quote'
+      | 'removeLiquidity'
+      | 'removeLiquidityETH'
+      | 'removeLiquidityETHWithPermit'
+      | 'removeLiquidityWithPermit'
+      | 'swapETHForExactTokens'
+      | 'swapExactETHForTokens'
+      | 'swapExactTokensForETH'
+      | 'swapExactTokensForTokens'
+      | 'swapTokensForExactETH'
+      | 'swapTokensForExactTokens',
   ): FunctionFragment;
 
-  encodeFunctionData(functionFragment: "WETH", values?: undefined): string;
+  encodeFunctionData(functionFragment: 'WETH', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "addLiquidity",
+    functionFragment: 'addLiquidity',
     values: [
       AddressLike,
       AddressLike,
@@ -56,43 +56,36 @@ export interface IUniswapV2Router01Interface extends Interface {
       BigNumberish,
       BigNumberish,
       AddressLike,
-      BigNumberish
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "addLiquidityETH",
-    values: [
-      AddressLike,
       BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      AddressLike,
-      BigNumberish
-    ]
-  ): string;
-  encodeFunctionData(functionFragment: "factory", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "getAmountIn",
-    values: [BigNumberish, BigNumberish, BigNumberish]
+    ],
   ): string;
   encodeFunctionData(
-    functionFragment: "getAmountOut",
-    values: [BigNumberish, BigNumberish, BigNumberish]
+    functionFragment: 'addLiquidityETH',
+    values: [AddressLike, BigNumberish, BigNumberish, BigNumberish, AddressLike, BigNumberish],
+  ): string;
+  encodeFunctionData(functionFragment: 'factory', values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: 'getAmountIn',
+    values: [BigNumberish, BigNumberish, BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "getAmountsIn",
-    values: [BigNumberish, AddressLike[]]
+    functionFragment: 'getAmountOut',
+    values: [BigNumberish, BigNumberish, BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "getAmountsOut",
-    values: [BigNumberish, AddressLike[]]
+    functionFragment: 'getAmountsIn',
+    values: [BigNumberish, AddressLike[]],
   ): string;
   encodeFunctionData(
-    functionFragment: "quote",
-    values: [BigNumberish, BigNumberish, BigNumberish]
+    functionFragment: 'getAmountsOut',
+    values: [BigNumberish, AddressLike[]],
   ): string;
   encodeFunctionData(
-    functionFragment: "removeLiquidity",
+    functionFragment: 'quote',
+    values: [BigNumberish, BigNumberish, BigNumberish],
+  ): string;
+  encodeFunctionData(
+    functionFragment: 'removeLiquidity',
     values: [
       AddressLike,
       AddressLike,
@@ -100,22 +93,15 @@ export interface IUniswapV2Router01Interface extends Interface {
       BigNumberish,
       BigNumberish,
       AddressLike,
-      BigNumberish
-    ]
+      BigNumberish,
+    ],
   ): string;
   encodeFunctionData(
-    functionFragment: "removeLiquidityETH",
-    values: [
-      AddressLike,
-      BigNumberish,
-      BigNumberish,
-      BigNumberish,
-      AddressLike,
-      BigNumberish
-    ]
+    functionFragment: 'removeLiquidityETH',
+    values: [AddressLike, BigNumberish, BigNumberish, BigNumberish, AddressLike, BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "removeLiquidityETHWithPermit",
+    functionFragment: 'removeLiquidityETHWithPermit',
     values: [
       AddressLike,
       BigNumberish,
@@ -126,11 +112,11 @@ export interface IUniswapV2Router01Interface extends Interface {
       boolean,
       BigNumberish,
       BytesLike,
-      BytesLike
-    ]
+      BytesLike,
+    ],
   ): string;
   encodeFunctionData(
-    functionFragment: "removeLiquidityWithPermit",
+    functionFragment: 'removeLiquidityWithPermit',
     values: [
       AddressLike,
       AddressLike,
@@ -142,125 +128,53 @@ export interface IUniswapV2Router01Interface extends Interface {
       boolean,
       BigNumberish,
       BytesLike,
-      BytesLike
-    ]
+      BytesLike,
+    ],
   ): string;
   encodeFunctionData(
-    functionFragment: "swapETHForExactTokens",
-    values: [BigNumberish, AddressLike[], AddressLike, BigNumberish]
+    functionFragment: 'swapETHForExactTokens',
+    values: [BigNumberish, AddressLike[], AddressLike, BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "swapExactETHForTokens",
-    values: [BigNumberish, AddressLike[], AddressLike, BigNumberish]
+    functionFragment: 'swapExactETHForTokens',
+    values: [BigNumberish, AddressLike[], AddressLike, BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "swapExactTokensForETH",
-    values: [
-      BigNumberish,
-      BigNumberish,
-      AddressLike[],
-      AddressLike,
-      BigNumberish
-    ]
+    functionFragment: 'swapExactTokensForETH',
+    values: [BigNumberish, BigNumberish, AddressLike[], AddressLike, BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "swapExactTokensForTokens",
-    values: [
-      BigNumberish,
-      BigNumberish,
-      AddressLike[],
-      AddressLike,
-      BigNumberish
-    ]
+    functionFragment: 'swapExactTokensForTokens',
+    values: [BigNumberish, BigNumberish, AddressLike[], AddressLike, BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "swapTokensForExactETH",
-    values: [
-      BigNumberish,
-      BigNumberish,
-      AddressLike[],
-      AddressLike,
-      BigNumberish
-    ]
+    functionFragment: 'swapTokensForExactETH',
+    values: [BigNumberish, BigNumberish, AddressLike[], AddressLike, BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "swapTokensForExactTokens",
-    values: [
-      BigNumberish,
-      BigNumberish,
-      AddressLike[],
-      AddressLike,
-      BigNumberish
-    ]
+    functionFragment: 'swapTokensForExactTokens',
+    values: [BigNumberish, BigNumberish, AddressLike[], AddressLike, BigNumberish],
   ): string;
 
-  decodeFunctionResult(functionFragment: "WETH", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "addLiquidity",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "addLiquidityETH",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "factory", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getAmountIn",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getAmountOut",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getAmountsIn",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getAmountsOut",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "quote", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "removeLiquidity",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "removeLiquidityETH",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "removeLiquidityETHWithPermit",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "removeLiquidityWithPermit",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "swapETHForExactTokens",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "swapExactETHForTokens",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "swapExactTokensForETH",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "swapExactTokensForTokens",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "swapTokensForExactETH",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "swapTokensForExactTokens",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: 'WETH', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'addLiquidity', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'addLiquidityETH', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'factory', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getAmountIn', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getAmountOut', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getAmountsIn', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getAmountsOut', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'quote', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'removeLiquidity', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'removeLiquidityETH', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'removeLiquidityETHWithPermit', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'removeLiquidityWithPermit', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'swapETHForExactTokens', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'swapExactETHForTokens', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'swapExactTokensForETH', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'swapExactTokensForTokens', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'swapTokensForExactETH', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'swapTokensForExactTokens', data: BytesLike): Result;
 }
 
 export interface IUniswapV2Router01 extends BaseContract {
@@ -272,41 +186,39 @@ export interface IUniswapV2Router01 extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
-  WETH: TypedContractMethod<[], [string], "view">;
+  WETH: TypedContractMethod<[], [string], 'view'>;
 
   addLiquidity: TypedContractMethod<
     [
@@ -317,16 +229,16 @@ export interface IUniswapV2Router01 extends BaseContract {
       amountAMin: BigNumberish,
       amountBMin: BigNumberish,
       to: AddressLike,
-      deadline: BigNumberish
+      deadline: BigNumberish,
     ],
     [
       [bigint, bigint, bigint] & {
         amountA: bigint;
         amountB: bigint;
         liquidity: bigint;
-      }
+      },
     ],
-    "nonpayable"
+    'nonpayable'
   >;
 
   addLiquidityETH: TypedContractMethod<
@@ -336,52 +248,48 @@ export interface IUniswapV2Router01 extends BaseContract {
       amountTokenMin: BigNumberish,
       amountETHMin: BigNumberish,
       to: AddressLike,
-      deadline: BigNumberish
+      deadline: BigNumberish,
     ],
     [
       [bigint, bigint, bigint] & {
         amountToken: bigint;
         amountETH: bigint;
         liquidity: bigint;
-      }
+      },
     ],
-    "payable"
+    'payable'
   >;
 
-  factory: TypedContractMethod<[], [string], "view">;
+  factory: TypedContractMethod<[], [string], 'view'>;
 
   getAmountIn: TypedContractMethod<
-    [
-      amountOut: BigNumberish,
-      reserveIn: BigNumberish,
-      reserveOut: BigNumberish
-    ],
+    [amountOut: BigNumberish, reserveIn: BigNumberish, reserveOut: BigNumberish],
     [bigint],
-    "view"
+    'view'
   >;
 
   getAmountOut: TypedContractMethod<
     [amountIn: BigNumberish, reserveIn: BigNumberish, reserveOut: BigNumberish],
     [bigint],
-    "view"
+    'view'
   >;
 
   getAmountsIn: TypedContractMethod<
     [amountOut: BigNumberish, path: AddressLike[]],
     [bigint[]],
-    "view"
+    'view'
   >;
 
   getAmountsOut: TypedContractMethod<
     [amountIn: BigNumberish, path: AddressLike[]],
     [bigint[]],
-    "view"
+    'view'
   >;
 
   quote: TypedContractMethod<
     [amountA: BigNumberish, reserveA: BigNumberish, reserveB: BigNumberish],
     [bigint],
-    "view"
+    'view'
   >;
 
   removeLiquidity: TypedContractMethod<
@@ -392,10 +300,10 @@ export interface IUniswapV2Router01 extends BaseContract {
       amountAMin: BigNumberish,
       amountBMin: BigNumberish,
       to: AddressLike,
-      deadline: BigNumberish
+      deadline: BigNumberish,
     ],
     [[bigint, bigint] & { amountA: bigint; amountB: bigint }],
-    "nonpayable"
+    'nonpayable'
   >;
 
   removeLiquidityETH: TypedContractMethod<
@@ -405,10 +313,10 @@ export interface IUniswapV2Router01 extends BaseContract {
       amountTokenMin: BigNumberish,
       amountETHMin: BigNumberish,
       to: AddressLike,
-      deadline: BigNumberish
+      deadline: BigNumberish,
     ],
     [[bigint, bigint] & { amountToken: bigint; amountETH: bigint }],
-    "nonpayable"
+    'nonpayable'
   >;
 
   removeLiquidityETHWithPermit: TypedContractMethod<
@@ -422,10 +330,10 @@ export interface IUniswapV2Router01 extends BaseContract {
       approveMax: boolean,
       v: BigNumberish,
       r: BytesLike,
-      s: BytesLike
+      s: BytesLike,
     ],
     [[bigint, bigint] & { amountToken: bigint; amountETH: bigint }],
-    "nonpayable"
+    'nonpayable'
   >;
 
   removeLiquidityWithPermit: TypedContractMethod<
@@ -440,32 +348,22 @@ export interface IUniswapV2Router01 extends BaseContract {
       approveMax: boolean,
       v: BigNumberish,
       r: BytesLike,
-      s: BytesLike
+      s: BytesLike,
     ],
     [[bigint, bigint] & { amountA: bigint; amountB: bigint }],
-    "nonpayable"
+    'nonpayable'
   >;
 
   swapETHForExactTokens: TypedContractMethod<
-    [
-      amountOut: BigNumberish,
-      path: AddressLike[],
-      to: AddressLike,
-      deadline: BigNumberish
-    ],
+    [amountOut: BigNumberish, path: AddressLike[], to: AddressLike, deadline: BigNumberish],
     [bigint[]],
-    "payable"
+    'payable'
   >;
 
   swapExactETHForTokens: TypedContractMethod<
-    [
-      amountOutMin: BigNumberish,
-      path: AddressLike[],
-      to: AddressLike,
-      deadline: BigNumberish
-    ],
+    [amountOutMin: BigNumberish, path: AddressLike[], to: AddressLike, deadline: BigNumberish],
     [bigint[]],
-    "payable"
+    'payable'
   >;
 
   swapExactTokensForETH: TypedContractMethod<
@@ -474,10 +372,10 @@ export interface IUniswapV2Router01 extends BaseContract {
       amountOutMin: BigNumberish,
       path: AddressLike[],
       to: AddressLike,
-      deadline: BigNumberish
+      deadline: BigNumberish,
     ],
     [bigint[]],
-    "nonpayable"
+    'nonpayable'
   >;
 
   swapExactTokensForTokens: TypedContractMethod<
@@ -486,10 +384,10 @@ export interface IUniswapV2Router01 extends BaseContract {
       amountOutMin: BigNumberish,
       path: AddressLike[],
       to: AddressLike,
-      deadline: BigNumberish
+      deadline: BigNumberish,
     ],
     [bigint[]],
-    "nonpayable"
+    'nonpayable'
   >;
 
   swapTokensForExactETH: TypedContractMethod<
@@ -498,10 +396,10 @@ export interface IUniswapV2Router01 extends BaseContract {
       amountInMax: BigNumberish,
       path: AddressLike[],
       to: AddressLike,
-      deadline: BigNumberish
+      deadline: BigNumberish,
     ],
     [bigint[]],
-    "nonpayable"
+    'nonpayable'
   >;
 
   swapTokensForExactTokens: TypedContractMethod<
@@ -510,22 +408,16 @@ export interface IUniswapV2Router01 extends BaseContract {
       amountInMax: BigNumberish,
       path: AddressLike[],
       to: AddressLike,
-      deadline: BigNumberish
+      deadline: BigNumberish,
     ],
     [bigint[]],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
-  getFunction(
-    nameOrSignature: "WETH"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "addLiquidity"
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'WETH'): TypedContractMethod<[], [string], 'view'>;
+  getFunction(nameOrSignature: 'addLiquidity'): TypedContractMethod<
     [
       tokenA: AddressLike,
       tokenB: AddressLike,
@@ -534,81 +426,65 @@ export interface IUniswapV2Router01 extends BaseContract {
       amountAMin: BigNumberish,
       amountBMin: BigNumberish,
       to: AddressLike,
-      deadline: BigNumberish
+      deadline: BigNumberish,
     ],
     [
       [bigint, bigint, bigint] & {
         amountA: bigint;
         amountB: bigint;
         liquidity: bigint;
-      }
+      },
     ],
-    "nonpayable"
+    'nonpayable'
   >;
-  getFunction(
-    nameOrSignature: "addLiquidityETH"
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'addLiquidityETH'): TypedContractMethod<
     [
       token: AddressLike,
       amountTokenDesired: BigNumberish,
       amountTokenMin: BigNumberish,
       amountETHMin: BigNumberish,
       to: AddressLike,
-      deadline: BigNumberish
+      deadline: BigNumberish,
     ],
     [
       [bigint, bigint, bigint] & {
         amountToken: bigint;
         amountETH: bigint;
         liquidity: bigint;
-      }
+      },
     ],
-    "payable"
+    'payable'
   >;
+  getFunction(nameOrSignature: 'factory'): TypedContractMethod<[], [string], 'view'>;
   getFunction(
-    nameOrSignature: "factory"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "getAmountIn"
+    nameOrSignature: 'getAmountIn',
   ): TypedContractMethod<
-    [
-      amountOut: BigNumberish,
-      reserveIn: BigNumberish,
-      reserveOut: BigNumberish
-    ],
+    [amountOut: BigNumberish, reserveIn: BigNumberish, reserveOut: BigNumberish],
     [bigint],
-    "view"
+    'view'
   >;
   getFunction(
-    nameOrSignature: "getAmountOut"
+    nameOrSignature: 'getAmountOut',
   ): TypedContractMethod<
     [amountIn: BigNumberish, reserveIn: BigNumberish, reserveOut: BigNumberish],
     [bigint],
-    "view"
+    'view'
   >;
   getFunction(
-    nameOrSignature: "getAmountsIn"
-  ): TypedContractMethod<
-    [amountOut: BigNumberish, path: AddressLike[]],
-    [bigint[]],
-    "view"
-  >;
+    nameOrSignature: 'getAmountsIn',
+  ): TypedContractMethod<[amountOut: BigNumberish, path: AddressLike[]], [bigint[]], 'view'>;
   getFunction(
-    nameOrSignature: "getAmountsOut"
-  ): TypedContractMethod<
-    [amountIn: BigNumberish, path: AddressLike[]],
-    [bigint[]],
-    "view"
-  >;
+    nameOrSignature: 'getAmountsOut',
+  ): TypedContractMethod<[amountIn: BigNumberish, path: AddressLike[]], [bigint[]], 'view'>;
   getFunction(
-    nameOrSignature: "quote"
+    nameOrSignature: 'quote',
   ): TypedContractMethod<
     [amountA: BigNumberish, reserveA: BigNumberish, reserveB: BigNumberish],
     [bigint],
-    "view"
+    'view'
   >;
   getFunction(
-    nameOrSignature: "removeLiquidity"
+    nameOrSignature: 'removeLiquidity',
   ): TypedContractMethod<
     [
       tokenA: AddressLike,
@@ -617,13 +493,13 @@ export interface IUniswapV2Router01 extends BaseContract {
       amountAMin: BigNumberish,
       amountBMin: BigNumberish,
       to: AddressLike,
-      deadline: BigNumberish
+      deadline: BigNumberish,
     ],
     [[bigint, bigint] & { amountA: bigint; amountB: bigint }],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "removeLiquidityETH"
+    nameOrSignature: 'removeLiquidityETH',
   ): TypedContractMethod<
     [
       token: AddressLike,
@@ -631,13 +507,13 @@ export interface IUniswapV2Router01 extends BaseContract {
       amountTokenMin: BigNumberish,
       amountETHMin: BigNumberish,
       to: AddressLike,
-      deadline: BigNumberish
+      deadline: BigNumberish,
     ],
     [[bigint, bigint] & { amountToken: bigint; amountETH: bigint }],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "removeLiquidityETHWithPermit"
+    nameOrSignature: 'removeLiquidityETHWithPermit',
   ): TypedContractMethod<
     [
       token: AddressLike,
@@ -649,13 +525,13 @@ export interface IUniswapV2Router01 extends BaseContract {
       approveMax: boolean,
       v: BigNumberish,
       r: BytesLike,
-      s: BytesLike
+      s: BytesLike,
     ],
     [[bigint, bigint] & { amountToken: bigint; amountETH: bigint }],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "removeLiquidityWithPermit"
+    nameOrSignature: 'removeLiquidityWithPermit',
   ): TypedContractMethod<
     [
       tokenA: AddressLike,
@@ -668,86 +544,76 @@ export interface IUniswapV2Router01 extends BaseContract {
       approveMax: boolean,
       v: BigNumberish,
       r: BytesLike,
-      s: BytesLike
+      s: BytesLike,
     ],
     [[bigint, bigint] & { amountA: bigint; amountB: bigint }],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "swapETHForExactTokens"
+    nameOrSignature: 'swapETHForExactTokens',
   ): TypedContractMethod<
-    [
-      amountOut: BigNumberish,
-      path: AddressLike[],
-      to: AddressLike,
-      deadline: BigNumberish
-    ],
+    [amountOut: BigNumberish, path: AddressLike[], to: AddressLike, deadline: BigNumberish],
     [bigint[]],
-    "payable"
+    'payable'
   >;
   getFunction(
-    nameOrSignature: "swapExactETHForTokens"
+    nameOrSignature: 'swapExactETHForTokens',
   ): TypedContractMethod<
-    [
-      amountOutMin: BigNumberish,
-      path: AddressLike[],
-      to: AddressLike,
-      deadline: BigNumberish
-    ],
+    [amountOutMin: BigNumberish, path: AddressLike[], to: AddressLike, deadline: BigNumberish],
     [bigint[]],
-    "payable"
+    'payable'
   >;
   getFunction(
-    nameOrSignature: "swapExactTokensForETH"
+    nameOrSignature: 'swapExactTokensForETH',
   ): TypedContractMethod<
     [
       amountIn: BigNumberish,
       amountOutMin: BigNumberish,
       path: AddressLike[],
       to: AddressLike,
-      deadline: BigNumberish
+      deadline: BigNumberish,
     ],
     [bigint[]],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "swapExactTokensForTokens"
+    nameOrSignature: 'swapExactTokensForTokens',
   ): TypedContractMethod<
     [
       amountIn: BigNumberish,
       amountOutMin: BigNumberish,
       path: AddressLike[],
       to: AddressLike,
-      deadline: BigNumberish
+      deadline: BigNumberish,
     ],
     [bigint[]],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "swapTokensForExactETH"
+    nameOrSignature: 'swapTokensForExactETH',
   ): TypedContractMethod<
     [
       amountOut: BigNumberish,
       amountInMax: BigNumberish,
       path: AddressLike[],
       to: AddressLike,
-      deadline: BigNumberish
+      deadline: BigNumberish,
     ],
     [bigint[]],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "swapTokensForExactTokens"
+    nameOrSignature: 'swapTokensForExactTokens',
   ): TypedContractMethod<
     [
       amountOut: BigNumberish,
       amountInMax: BigNumberish,
       path: AddressLike[],
       to: AddressLike,
-      deadline: BigNumberish
+      deadline: BigNumberish,
     ],
     [bigint[]],
-    "nonpayable"
+    'nonpayable'
   >;
 
   filters: {};

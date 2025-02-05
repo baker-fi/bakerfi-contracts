@@ -11,41 +11,41 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
   TypedEventLog,
   TypedListener,
   TypedContractMethod,
-} from "../../common";
+} from '../../common';
 
 export interface MathLibraryWrapperInterface extends Interface {
   getFunction(
-    nameOrSignature: "mulDiv" | "mulDivDown" | "mulDivUp" | "toDecimals"
+    nameOrSignature: 'mulDiv' | 'mulDivDown' | 'mulDivUp' | 'toDecimals',
   ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "mulDiv",
-    values: [BigNumberish, BigNumberish, BigNumberish, boolean]
+    functionFragment: 'mulDiv',
+    values: [BigNumberish, BigNumberish, BigNumberish, boolean],
   ): string;
   encodeFunctionData(
-    functionFragment: "mulDivDown",
-    values: [BigNumberish, BigNumberish, BigNumberish]
+    functionFragment: 'mulDivDown',
+    values: [BigNumberish, BigNumberish, BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "mulDivUp",
-    values: [BigNumberish, BigNumberish, BigNumberish]
+    functionFragment: 'mulDivUp',
+    values: [BigNumberish, BigNumberish, BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "toDecimals",
-    values: [BigNumberish, BigNumberish, BigNumberish]
+    functionFragment: 'toDecimals',
+    values: [BigNumberish, BigNumberish, BigNumberish],
   ): string;
 
-  decodeFunctionResult(functionFragment: "mulDiv", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "mulDivDown", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "mulDivUp", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "toDecimals", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'mulDiv', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'mulDivDown', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'mulDivUp', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'toDecimals', data: BytesLike): Result;
 }
 
 export interface MathLibraryWrapper extends BaseContract {
@@ -57,105 +57,91 @@ export interface MathLibraryWrapper extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
   mulDiv: TypedContractMethod<
-    [
-      x: BigNumberish,
-      y: BigNumberish,
-      denominator: BigNumberish,
-      roundUp: boolean
-    ],
+    [x: BigNumberish, y: BigNumberish, denominator: BigNumberish, roundUp: boolean],
     [bigint],
-    "view"
+    'view'
   >;
 
   mulDivDown: TypedContractMethod<
     [x: BigNumberish, y: BigNumberish, denominator: BigNumberish],
     [bigint],
-    "view"
+    'view'
   >;
 
   mulDivUp: TypedContractMethod<
     [x: BigNumberish, y: BigNumberish, denominator: BigNumberish],
     [bigint],
-    "view"
+    'view'
   >;
 
   toDecimals: TypedContractMethod<
     [value: BigNumberish, from: BigNumberish, to: BigNumberish],
     [bigint],
-    "view"
+    'view'
   >;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
   getFunction(
-    nameOrSignature: "mulDiv"
+    nameOrSignature: 'mulDiv',
   ): TypedContractMethod<
-    [
-      x: BigNumberish,
-      y: BigNumberish,
-      denominator: BigNumberish,
-      roundUp: boolean
-    ],
+    [x: BigNumberish, y: BigNumberish, denominator: BigNumberish, roundUp: boolean],
     [bigint],
-    "view"
+    'view'
   >;
   getFunction(
-    nameOrSignature: "mulDivDown"
+    nameOrSignature: 'mulDivDown',
   ): TypedContractMethod<
     [x: BigNumberish, y: BigNumberish, denominator: BigNumberish],
     [bigint],
-    "view"
+    'view'
   >;
   getFunction(
-    nameOrSignature: "mulDivUp"
+    nameOrSignature: 'mulDivUp',
   ): TypedContractMethod<
     [x: BigNumberish, y: BigNumberish, denominator: BigNumberish],
     [bigint],
-    "view"
+    'view'
   >;
   getFunction(
-    nameOrSignature: "toDecimals"
+    nameOrSignature: 'toDecimals',
   ): TypedContractMethod<
     [value: BigNumberish, from: BigNumberish, to: BigNumberish],
     [bigint],
-    "view"
+    'view'
   >;
 
   filters: {};

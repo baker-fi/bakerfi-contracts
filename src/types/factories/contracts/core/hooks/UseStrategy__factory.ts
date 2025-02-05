@@ -2,30 +2,30 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
+import { Contract, Interface, type ContractRunner } from 'ethers';
 import type {
   UseStrategy,
   UseStrategyInterface,
-} from "../../../../contracts/core/hooks/UseStrategy";
+} from '../../../../contracts/core/hooks/UseStrategy';
 
 const _abi = [
   {
     inputs: [],
-    name: "InvalidStrategyContract",
-    type: "error",
+    name: 'InvalidStrategyContract',
+    type: 'error',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: false,
-        internalType: "uint8",
-        name: "version",
-        type: "uint8",
+        internalType: 'uint8',
+        name: 'version',
+        type: 'uint8',
       },
     ],
-    name: "Initialized",
-    type: "event",
+    name: 'Initialized',
+    type: 'event',
   },
 ] as const;
 

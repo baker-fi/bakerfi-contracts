@@ -2,60 +2,60 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
+import { Contract, Interface, type ContractRunner } from 'ethers';
 import type {
   UseWETH,
   UseWETHInterface,
-} from "../../../../../contracts/core/hooks/UseWETH.sol/UseWETH";
+} from '../../../../../contracts/core/hooks/UseWETH.sol/UseWETH';
 
 const _abi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "sender",
-        type: "address",
+        internalType: 'address',
+        name: 'sender',
+        type: 'address',
       },
     ],
-    name: "ETHTransferNotAllowed",
-    type: "error",
+    name: 'ETHTransferNotAllowed',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "FailedAllowance",
-    type: "error",
+    name: 'FailedAllowance',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InsufficientWETHBalance",
-    type: "error",
+    name: 'InsufficientWETHBalance',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InvalidWETHAmount",
-    type: "error",
+    name: 'InvalidWETHAmount',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InvalidWETHContract",
-    type: "error",
+    name: 'InvalidWETHContract',
+    type: 'error',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: false,
-        internalType: "uint8",
-        name: "version",
-        type: "uint8",
+        internalType: 'uint8',
+        name: 'version',
+        type: 'uint8',
       },
     ],
-    name: "Initialized",
-    type: "event",
+    name: 'Initialized',
+    type: 'event',
   },
   {
-    stateMutability: "payable",
-    type: "receive",
+    stateMutability: 'payable',
+    type: 'receive',
   },
 ] as const;
 

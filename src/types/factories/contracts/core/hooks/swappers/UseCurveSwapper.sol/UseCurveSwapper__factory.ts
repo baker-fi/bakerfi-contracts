@@ -2,63 +2,63 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
+import { Contract, Interface, type ContractRunner } from 'ethers';
 import type {
   UseCurveSwapper,
   UseCurveSwapperInterface,
-} from "../../../../../../contracts/core/hooks/swappers/UseCurveSwapper.sol/UseCurveSwapper";
+} from '../../../../../../contracts/core/hooks/swappers/UseCurveSwapper.sol/UseCurveSwapper';
 
 const _abi = [
   {
     inputs: [],
-    name: "FailedToApproveAllowance",
-    type: "error",
+    name: 'FailedToApproveAllowance',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InvalidCurveRouterContract",
-    type: "error",
+    name: 'InvalidCurveRouterContract',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InvalidInputToken",
-    type: "error",
+    name: 'InvalidInputToken',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InvalidOutputToken",
-    type: "error",
+    name: 'InvalidOutputToken',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "SwapFailed",
-    type: "error",
+    name: 'SwapFailed',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "ETH_ADDRESS",
+    name: 'ETH_ADDRESS',
     outputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "curveRouter",
+    name: 'curveRouter',
     outputs: [
       {
-        internalType: "contract ICurveRouterNG",
-        name: "",
-        type: "address",
+        internalType: 'contract ICurveRouterNG',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
 ] as const;
 
@@ -67,10 +67,7 @@ export class UseCurveSwapper__factory {
   static createInterface(): UseCurveSwapperInterface {
     return new Interface(_abi) as UseCurveSwapperInterface;
   }
-  static connect(
-    address: string,
-    runner?: ContractRunner | null
-  ): UseCurveSwapper {
+  static connect(address: string, runner?: ContractRunner | null): UseCurveSwapper {
     return new Contract(address, _abi, runner) as unknown as UseCurveSwapper;
   }
 }

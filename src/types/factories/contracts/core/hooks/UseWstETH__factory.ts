@@ -2,45 +2,42 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
-import type {
-  UseWstETH,
-  UseWstETHInterface,
-} from "../../../../contracts/core/hooks/UseWstETH";
+import { Contract, Interface, type ContractRunner } from 'ethers';
+import type { UseWstETH, UseWstETHInterface } from '../../../../contracts/core/hooks/UseWstETH';
 
 const _abi = [
   {
     inputs: [],
-    name: "FailedToApproveStAllowance",
-    type: "error",
+    name: 'FailedToApproveStAllowance',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "FailedToApproveWstAllowance",
-    type: "error",
+    name: 'FailedToApproveWstAllowance',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InvalidStETHContract",
-    type: "error",
+    name: 'InvalidStETHContract',
+    type: 'error',
   },
   {
     inputs: [],
-    name: "InvalidWstETHContract",
-    type: "error",
+    name: 'InvalidWstETHContract',
+    type: 'error',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: false,
-        internalType: "uint8",
-        name: "version",
-        type: "uint8",
+        internalType: 'uint8',
+        name: 'version',
+        type: 'uint8',
       },
     ],
-    name: "Initialized",
-    type: "event",
+    name: 'Initialized',
+    type: 'event',
   },
 ] as const;
 

@@ -12,7 +12,7 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
@@ -20,48 +20,24 @@ import type {
   TypedLogDescription,
   TypedListener,
   TypedContractMethod,
-} from "../../../common";
+} from '../../../common';
 
 export interface IVaultRegistryInterface extends Interface {
   getFunction(
-    nameOrSignature:
-      | "getService"
-      | "getServiceFromHash"
-      | "registerService"
-      | "unregisterService"
+    nameOrSignature: 'getService' | 'getServiceFromHash' | 'registerService' | 'unregisterService',
   ): FunctionFragment;
 
-  getEvent(
-    nameOrSignatureOrTopic: "ServiceRegistered" | "ServiceUnregistered"
-  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'ServiceRegistered' | 'ServiceUnregistered'): EventFragment;
 
-  encodeFunctionData(functionFragment: "getService", values: [string]): string;
-  encodeFunctionData(
-    functionFragment: "getServiceFromHash",
-    values: [BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "registerService",
-    values: [BytesLike, AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "unregisterService",
-    values: [BytesLike]
-  ): string;
+  encodeFunctionData(functionFragment: 'getService', values: [string]): string;
+  encodeFunctionData(functionFragment: 'getServiceFromHash', values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: 'registerService', values: [BytesLike, AddressLike]): string;
+  encodeFunctionData(functionFragment: 'unregisterService', values: [BytesLike]): string;
 
-  decodeFunctionResult(functionFragment: "getService", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getServiceFromHash",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "registerService",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "unregisterService",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: 'getService', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getServiceFromHash', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'registerService', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'unregisterService', data: BytesLike): Result;
 }
 
 export namespace ServiceRegisteredEvent {
@@ -98,90 +74,78 @@ export interface IVaultRegistry extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
-  getService: TypedContractMethod<[serviceName: string], [string], "view">;
+  getService: TypedContractMethod<[serviceName: string], [string], 'view'>;
 
-  getServiceFromHash: TypedContractMethod<
-    [serviceHash: BytesLike],
-    [string],
-    "view"
-  >;
+  getServiceFromHash: TypedContractMethod<[serviceHash: BytesLike], [string], 'view'>;
 
   registerService: TypedContractMethod<
     [serviceNameHash: BytesLike, serviceAddress: AddressLike],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  unregisterService: TypedContractMethod<
-    [serviceNameHash: BytesLike],
-    [void],
-    "nonpayable"
-  >;
+  unregisterService: TypedContractMethod<[serviceNameHash: BytesLike], [void], 'nonpayable'>;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
   getFunction(
-    nameOrSignature: "getService"
-  ): TypedContractMethod<[serviceName: string], [string], "view">;
+    nameOrSignature: 'getService',
+  ): TypedContractMethod<[serviceName: string], [string], 'view'>;
   getFunction(
-    nameOrSignature: "getServiceFromHash"
-  ): TypedContractMethod<[serviceHash: BytesLike], [string], "view">;
+    nameOrSignature: 'getServiceFromHash',
+  ): TypedContractMethod<[serviceHash: BytesLike], [string], 'view'>;
   getFunction(
-    nameOrSignature: "registerService"
+    nameOrSignature: 'registerService',
   ): TypedContractMethod<
     [serviceNameHash: BytesLike, serviceAddress: AddressLike],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "unregisterService"
-  ): TypedContractMethod<[serviceNameHash: BytesLike], [void], "nonpayable">;
+    nameOrSignature: 'unregisterService',
+  ): TypedContractMethod<[serviceNameHash: BytesLike], [void], 'nonpayable'>;
 
   getEvent(
-    key: "ServiceRegistered"
+    key: 'ServiceRegistered',
   ): TypedContractEvent<
     ServiceRegisteredEvent.InputTuple,
     ServiceRegisteredEvent.OutputTuple,
     ServiceRegisteredEvent.OutputObject
   >;
   getEvent(
-    key: "ServiceUnregistered"
+    key: 'ServiceUnregistered',
   ): TypedContractEvent<
     ServiceUnregisteredEvent.InputTuple,
     ServiceUnregisteredEvent.OutputTuple,
@@ -189,7 +153,7 @@ export interface IVaultRegistry extends BaseContract {
   >;
 
   filters: {
-    "ServiceRegistered(bytes32,address)": TypedContractEvent<
+    'ServiceRegistered(bytes32,address)': TypedContractEvent<
       ServiceRegisteredEvent.InputTuple,
       ServiceRegisteredEvent.OutputTuple,
       ServiceRegisteredEvent.OutputObject
@@ -200,7 +164,7 @@ export interface IVaultRegistry extends BaseContract {
       ServiceRegisteredEvent.OutputObject
     >;
 
-    "ServiceUnregistered(bytes32)": TypedContractEvent<
+    'ServiceUnregistered(bytes32)': TypedContractEvent<
       ServiceUnregisteredEvent.InputTuple,
       ServiceUnregisteredEvent.OutputTuple,
       ServiceUnregisteredEvent.OutputObject

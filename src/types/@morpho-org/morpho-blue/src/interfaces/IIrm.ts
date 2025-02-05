@@ -12,14 +12,14 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
   TypedEventLog,
   TypedListener,
   TypedContractMethod,
-} from "../../../../common";
+} from '../../../../common';
 
 export type MarketParamsStruct = {
   loanToken: AddressLike;
@@ -34,7 +34,7 @@ export type MarketParamsStructOutput = [
   collateralToken: string,
   oracle: string,
   irm: string,
-  lltv: bigint
+  lltv: bigint,
 ] & {
   loanToken: string;
   collateralToken: string;
@@ -58,7 +58,7 @@ export type MarketStructOutput = [
   totalBorrowAssets: bigint,
   totalBorrowShares: bigint,
   lastUpdate: bigint,
-  fee: bigint
+  fee: bigint,
 ] & {
   totalSupplyAssets: bigint;
   totalSupplyShares: bigint;
@@ -69,24 +69,19 @@ export type MarketStructOutput = [
 };
 
 export interface IIrmInterface extends Interface {
-  getFunction(
-    nameOrSignature: "borrowRate" | "borrowRateView"
-  ): FunctionFragment;
+  getFunction(nameOrSignature: 'borrowRate' | 'borrowRateView'): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "borrowRate",
-    values: [MarketParamsStruct, MarketStruct]
+    functionFragment: 'borrowRate',
+    values: [MarketParamsStruct, MarketStruct],
   ): string;
   encodeFunctionData(
-    functionFragment: "borrowRateView",
-    values: [MarketParamsStruct, MarketStruct]
+    functionFragment: 'borrowRateView',
+    values: [MarketParamsStruct, MarketStruct],
   ): string;
 
-  decodeFunctionResult(functionFragment: "borrowRate", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "borrowRateView",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: 'borrowRate', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'borrowRateView', data: BytesLike): Result;
 }
 
 export interface IIrm extends BaseContract {
@@ -98,69 +93,65 @@ export interface IIrm extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
   borrowRate: TypedContractMethod<
     [marketParams: MarketParamsStruct, market: MarketStruct],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
 
   borrowRateView: TypedContractMethod<
     [marketParams: MarketParamsStruct, market: MarketStruct],
     [bigint],
-    "view"
+    'view'
   >;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
   getFunction(
-    nameOrSignature: "borrowRate"
+    nameOrSignature: 'borrowRate',
   ): TypedContractMethod<
     [marketParams: MarketParamsStruct, market: MarketStruct],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "borrowRateView"
+    nameOrSignature: 'borrowRateView',
   ): TypedContractMethod<
     [marketParams: MarketParamsStruct, market: MarketStruct],
     [bigint],
-    "view"
+    'view'
   >;
 
   filters: {};

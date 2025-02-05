@@ -13,7 +13,7 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
@@ -21,7 +21,7 @@ import type {
   TypedLogDescription,
   TypedListener,
   TypedContractMethod,
-} from "../../../../../common";
+} from '../../../../../common';
 
 export declare namespace UseUnifiedSwapper {
   export type RouteInfoStruct = {
@@ -35,7 +35,7 @@ export declare namespace UseUnifiedSwapper {
     provider: bigint,
     router: string,
     uniV3Tier: bigint,
-    tickSpacing: bigint
+    tickSpacing: bigint,
   ] & {
     provider: bigint;
     router: string;
@@ -47,83 +47,47 @@ export declare namespace UseUnifiedSwapper {
 export interface UseUnifiedSwapperInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "disableRoute"
-      | "enableRoute"
-      | "governor"
-      | "isRouteEnabled"
-      | "owner"
-      | "renounceOwnership"
-      | "transferGovernorship"
-      | "transferOwnership"
+      | 'disableRoute'
+      | 'enableRoute'
+      | 'governor'
+      | 'isRouteEnabled'
+      | 'owner'
+      | 'renounceOwnership'
+      | 'transferGovernorship'
+      | 'transferOwnership',
   ): FunctionFragment;
 
   getEvent(
-    nameOrSignatureOrTopic:
-      | "GovernshipTransferred"
-      | "Initialized"
-      | "OwnershipTransferred"
+    nameOrSignatureOrTopic: 'GovernshipTransferred' | 'Initialized' | 'OwnershipTransferred',
   ): EventFragment;
 
+  encodeFunctionData(functionFragment: 'disableRoute', values: [AddressLike, AddressLike]): string;
   encodeFunctionData(
-    functionFragment: "disableRoute",
-    values: [AddressLike, AddressLike]
+    functionFragment: 'enableRoute',
+    values: [AddressLike, AddressLike, UseUnifiedSwapper.RouteInfoStruct],
   ): string;
+  encodeFunctionData(functionFragment: 'governor', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "enableRoute",
-    values: [AddressLike, AddressLike, UseUnifiedSwapper.RouteInfoStruct]
+    functionFragment: 'isRouteEnabled',
+    values: [AddressLike, AddressLike],
   ): string;
-  encodeFunctionData(functionFragment: "governor", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "isRouteEnabled",
-    values: [AddressLike, AddressLike]
-  ): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferGovernorship",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [AddressLike]
-  ): string;
+  encodeFunctionData(functionFragment: 'owner', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'renounceOwnership', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'transferGovernorship', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'transferOwnership', values: [AddressLike]): string;
 
-  decodeFunctionResult(
-    functionFragment: "disableRoute",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "enableRoute",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "governor", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "isRouteEnabled",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferGovernorship",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: 'disableRoute', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'enableRoute', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'governor', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'isRouteEnabled', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'renounceOwnership', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transferGovernorship', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transferOwnership', data: BytesLike): Result;
 }
 
 export namespace GovernshipTransferredEvent {
-  export type InputTuple = [
-    previousGovernor: AddressLike,
-    newGovernor: AddressLike
-  ];
+  export type InputTuple = [previousGovernor: AddressLike, newGovernor: AddressLike];
   export type OutputTuple = [previousGovernor: string, newGovernor: string];
   export interface OutputObject {
     previousGovernor: string;
@@ -169,141 +133,107 @@ export interface UseUnifiedSwapper extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
   disableRoute: TypedContractMethod<
     [tokenIn: AddressLike, tokenOut: AddressLike],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
   enableRoute: TypedContractMethod<
-    [
-      tokenIn: AddressLike,
-      tokenOut: AddressLike,
-      routeInfo: UseUnifiedSwapper.RouteInfoStruct
-    ],
+    [tokenIn: AddressLike, tokenOut: AddressLike, routeInfo: UseUnifiedSwapper.RouteInfoStruct],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  governor: TypedContractMethod<[], [string], "view">;
+  governor: TypedContractMethod<[], [string], 'view'>;
 
   isRouteEnabled: TypedContractMethod<
     [tokenIn: AddressLike, tokenOut: AddressLike],
     [boolean],
-    "view"
+    'view'
   >;
 
-  owner: TypedContractMethod<[], [string], "view">;
+  owner: TypedContractMethod<[], [string], 'view'>;
 
-  renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
+  renounceOwnership: TypedContractMethod<[], [void], 'nonpayable'>;
 
-  transferGovernorship: TypedContractMethod<
-    [_newGovernor: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+  transferGovernorship: TypedContractMethod<[_newGovernor: AddressLike], [void], 'nonpayable'>;
 
-  transferOwnership: TypedContractMethod<
-    [newOwner: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+  transferOwnership: TypedContractMethod<[newOwner: AddressLike], [void], 'nonpayable'>;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
   getFunction(
-    nameOrSignature: "disableRoute"
+    nameOrSignature: 'disableRoute',
+  ): TypedContractMethod<[tokenIn: AddressLike, tokenOut: AddressLike], [void], 'nonpayable'>;
+  getFunction(
+    nameOrSignature: 'enableRoute',
   ): TypedContractMethod<
-    [tokenIn: AddressLike, tokenOut: AddressLike],
+    [tokenIn: AddressLike, tokenOut: AddressLike, routeInfo: UseUnifiedSwapper.RouteInfoStruct],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
+  getFunction(nameOrSignature: 'governor'): TypedContractMethod<[], [string], 'view'>;
   getFunction(
-    nameOrSignature: "enableRoute"
-  ): TypedContractMethod<
-    [
-      tokenIn: AddressLike,
-      tokenOut: AddressLike,
-      routeInfo: UseUnifiedSwapper.RouteInfoStruct
-    ],
-    [void],
-    "nonpayable"
-  >;
+    nameOrSignature: 'isRouteEnabled',
+  ): TypedContractMethod<[tokenIn: AddressLike, tokenOut: AddressLike], [boolean], 'view'>;
+  getFunction(nameOrSignature: 'owner'): TypedContractMethod<[], [string], 'view'>;
+  getFunction(nameOrSignature: 'renounceOwnership'): TypedContractMethod<[], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "governor"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: 'transferGovernorship',
+  ): TypedContractMethod<[_newGovernor: AddressLike], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "isRouteEnabled"
-  ): TypedContractMethod<
-    [tokenIn: AddressLike, tokenOut: AddressLike],
-    [boolean],
-    "view"
-  >;
-  getFunction(
-    nameOrSignature: "owner"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "renounceOwnership"
-  ): TypedContractMethod<[], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "transferGovernorship"
-  ): TypedContractMethod<[_newGovernor: AddressLike], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "transferOwnership"
-  ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
+    nameOrSignature: 'transferOwnership',
+  ): TypedContractMethod<[newOwner: AddressLike], [void], 'nonpayable'>;
 
   getEvent(
-    key: "GovernshipTransferred"
+    key: 'GovernshipTransferred',
   ): TypedContractEvent<
     GovernshipTransferredEvent.InputTuple,
     GovernshipTransferredEvent.OutputTuple,
     GovernshipTransferredEvent.OutputObject
   >;
   getEvent(
-    key: "Initialized"
+    key: 'Initialized',
   ): TypedContractEvent<
     InitializedEvent.InputTuple,
     InitializedEvent.OutputTuple,
     InitializedEvent.OutputObject
   >;
   getEvent(
-    key: "OwnershipTransferred"
+    key: 'OwnershipTransferred',
   ): TypedContractEvent<
     OwnershipTransferredEvent.InputTuple,
     OwnershipTransferredEvent.OutputTuple,
@@ -311,7 +241,7 @@ export interface UseUnifiedSwapper extends BaseContract {
   >;
 
   filters: {
-    "GovernshipTransferred(address,address)": TypedContractEvent<
+    'GovernshipTransferred(address,address)': TypedContractEvent<
       GovernshipTransferredEvent.InputTuple,
       GovernshipTransferredEvent.OutputTuple,
       GovernshipTransferredEvent.OutputObject
@@ -322,7 +252,7 @@ export interface UseUnifiedSwapper extends BaseContract {
       GovernshipTransferredEvent.OutputObject
     >;
 
-    "Initialized(uint8)": TypedContractEvent<
+    'Initialized(uint8)': TypedContractEvent<
       InitializedEvent.InputTuple,
       InitializedEvent.OutputTuple,
       InitializedEvent.OutputObject
@@ -333,7 +263,7 @@ export interface UseUnifiedSwapper extends BaseContract {
       InitializedEvent.OutputObject
     >;
 
-    "OwnershipTransferred(address,address)": TypedContractEvent<
+    'OwnershipTransferred(address,address)': TypedContractEvent<
       OwnershipTransferredEvent.InputTuple,
       OwnershipTransferredEvent.OutputTuple,
       OwnershipTransferredEvent.OutputObject

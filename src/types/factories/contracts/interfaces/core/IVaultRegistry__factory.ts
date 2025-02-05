@@ -2,11 +2,11 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
+import { Contract, Interface, type ContractRunner } from 'ethers';
 import type {
   IVaultRegistry,
   IVaultRegistryInterface,
-} from "../../../../contracts/interfaces/core/IVaultRegistry";
+} from '../../../../contracts/interfaces/core/IVaultRegistry';
 
 const _abi = [
   {
@@ -14,101 +14,101 @@ const _abi = [
     inputs: [
       {
         indexed: false,
-        internalType: "bytes32",
-        name: "nameHash",
-        type: "bytes32",
+        internalType: 'bytes32',
+        name: 'nameHash',
+        type: 'bytes32',
       },
       {
         indexed: false,
-        internalType: "address",
-        name: "service",
-        type: "address",
+        internalType: 'address',
+        name: 'service',
+        type: 'address',
       },
     ],
-    name: "ServiceRegistered",
-    type: "event",
+    name: 'ServiceRegistered',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: false,
-        internalType: "bytes32",
-        name: "nameHash",
-        type: "bytes32",
+        internalType: 'bytes32',
+        name: 'nameHash',
+        type: 'bytes32',
       },
     ],
-    name: "ServiceUnregistered",
-    type: "event",
+    name: 'ServiceUnregistered',
+    type: 'event',
   },
   {
     inputs: [
       {
-        internalType: "string",
-        name: "serviceName",
-        type: "string",
+        internalType: 'string',
+        name: 'serviceName',
+        type: 'string',
       },
     ],
-    name: "getService",
+    name: 'getService',
     outputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "bytes32",
-        name: "serviceHash",
-        type: "bytes32",
+        internalType: 'bytes32',
+        name: 'serviceHash',
+        type: 'bytes32',
       },
     ],
-    name: "getServiceFromHash",
+    name: 'getServiceFromHash',
     outputs: [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
+        internalType: 'address',
+        name: '',
+        type: 'address',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "bytes32",
-        name: "serviceNameHash",
-        type: "bytes32",
+        internalType: 'bytes32',
+        name: 'serviceNameHash',
+        type: 'bytes32',
       },
       {
-        internalType: "address",
-        name: "serviceAddress",
-        type: "address",
+        internalType: 'address',
+        name: 'serviceAddress',
+        type: 'address',
       },
     ],
-    name: "registerService",
+    name: 'registerService',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
   {
     inputs: [
       {
-        internalType: "bytes32",
-        name: "serviceNameHash",
-        type: "bytes32",
+        internalType: 'bytes32',
+        name: 'serviceNameHash',
+        type: 'bytes32',
       },
     ],
-    name: "unregisterService",
+    name: 'unregisterService',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
 ] as const;
 
@@ -117,10 +117,7 @@ export class IVaultRegistry__factory {
   static createInterface(): IVaultRegistryInterface {
     return new Interface(_abi) as IVaultRegistryInterface;
   }
-  static connect(
-    address: string,
-    runner?: ContractRunner | null
-  ): IVaultRegistry {
+  static connect(address: string, runner?: ContractRunner | null): IVaultRegistry {
     return new Contract(address, _abi, runner) as unknown as IVaultRegistry;
   }
 }

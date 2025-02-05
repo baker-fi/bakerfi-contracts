@@ -13,7 +13,7 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
@@ -21,130 +21,82 @@ import type {
   TypedLogDescription,
   TypedListener,
   TypedContractMethod,
-} from "../../../../common";
+} from '../../../../common';
 
 export interface UseIERC4626MockInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "approveTokenForVault"
-      | "governor"
-      | "initialize"
-      | "isTokenApprovedForVault"
-      | "owner"
-      | "renounceOwnership"
-      | "test__depositVault"
-      | "test__mintVault"
-      | "test__redeemVault"
-      | "test__withdrawVault"
-      | "transferGovernorship"
-      | "transferOwnership"
-      | "unapproveTokenForVault"
+      | 'approveTokenForVault'
+      | 'governor'
+      | 'initialize'
+      | 'isTokenApprovedForVault'
+      | 'owner'
+      | 'renounceOwnership'
+      | 'test__depositVault'
+      | 'test__mintVault'
+      | 'test__redeemVault'
+      | 'test__withdrawVault'
+      | 'transferGovernorship'
+      | 'transferOwnership'
+      | 'unapproveTokenForVault',
   ): FunctionFragment;
 
   getEvent(
-    nameOrSignatureOrTopic:
-      | "GovernshipTransferred"
-      | "Initialized"
-      | "OwnershipTransferred"
+    nameOrSignatureOrTopic: 'GovernshipTransferred' | 'Initialized' | 'OwnershipTransferred',
   ): EventFragment;
 
   encodeFunctionData(
-    functionFragment: "approveTokenForVault",
-    values: [AddressLike, AddressLike]
+    functionFragment: 'approveTokenForVault',
+    values: [AddressLike, AddressLike],
   ): string;
-  encodeFunctionData(functionFragment: "governor", values?: undefined): string;
+  encodeFunctionData(functionFragment: 'governor', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'initialize', values: [AddressLike]): string;
   encodeFunctionData(
-    functionFragment: "initialize",
-    values: [AddressLike]
+    functionFragment: 'isTokenApprovedForVault',
+    values: [AddressLike, AddressLike],
   ): string;
+  encodeFunctionData(functionFragment: 'owner', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'renounceOwnership', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "isTokenApprovedForVault",
-    values: [AddressLike, AddressLike]
-  ): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
+    functionFragment: 'test__depositVault',
+    values: [AddressLike, BigNumberish, AddressLike, BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "test__depositVault",
-    values: [AddressLike, BigNumberish, AddressLike, BigNumberish]
+    functionFragment: 'test__mintVault',
+    values: [AddressLike, BigNumberish, AddressLike, BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "test__mintVault",
-    values: [AddressLike, BigNumberish, AddressLike, BigNumberish]
+    functionFragment: 'test__redeemVault',
+    values: [AddressLike, BigNumberish, AddressLike, AddressLike, BigNumberish],
   ): string;
   encodeFunctionData(
-    functionFragment: "test__redeemVault",
-    values: [AddressLike, BigNumberish, AddressLike, AddressLike, BigNumberish]
+    functionFragment: 'test__withdrawVault',
+    values: [AddressLike, BigNumberish, AddressLike, AddressLike, BigNumberish],
   ): string;
+  encodeFunctionData(functionFragment: 'transferGovernorship', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'transferOwnership', values: [AddressLike]): string;
   encodeFunctionData(
-    functionFragment: "test__withdrawVault",
-    values: [AddressLike, BigNumberish, AddressLike, AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferGovernorship",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "unapproveTokenForVault",
-    values: [AddressLike, AddressLike]
+    functionFragment: 'unapproveTokenForVault',
+    values: [AddressLike, AddressLike],
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "approveTokenForVault",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "governor", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "isTokenApprovedForVault",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "test__depositVault",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "test__mintVault",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "test__redeemVault",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "test__withdrawVault",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferGovernorship",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "unapproveTokenForVault",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: 'approveTokenForVault', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'governor', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'initialize', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'isTokenApprovedForVault', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'renounceOwnership', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'test__depositVault', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'test__mintVault', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'test__redeemVault', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'test__withdrawVault', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transferGovernorship', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transferOwnership', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'unapproveTokenForVault', data: BytesLike): Result;
 }
 
 export namespace GovernshipTransferredEvent {
-  export type InputTuple = [
-    previousGovernor: AddressLike,
-    newGovernor: AddressLike
-  ];
+  export type InputTuple = [previousGovernor: AddressLike, newGovernor: AddressLike];
   export type OutputTuple = [previousGovernor: string, newGovernor: string];
   export interface OutputObject {
     previousGovernor: string;
@@ -190,84 +142,68 @@ export interface UseIERC4626Mock extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
   approveTokenForVault: TypedContractMethod<
     [vault: AddressLike, token: AddressLike],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  governor: TypedContractMethod<[], [string], "view">;
+  governor: TypedContractMethod<[], [string], 'view'>;
 
-  initialize: TypedContractMethod<
-    [initialOwner: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+  initialize: TypedContractMethod<[initialOwner: AddressLike], [void], 'nonpayable'>;
 
   isTokenApprovedForVault: TypedContractMethod<
     [vault: AddressLike, token: AddressLike],
     [boolean],
-    "view"
+    'view'
   >;
 
-  owner: TypedContractMethod<[], [string], "view">;
+  owner: TypedContractMethod<[], [string], 'view'>;
 
-  renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
+  renounceOwnership: TypedContractMethod<[], [void], 'nonpayable'>;
 
   test__depositVault: TypedContractMethod<
-    [
-      vault: AddressLike,
-      assets: BigNumberish,
-      receiver: AddressLike,
-      minShares: BigNumberish
-    ],
+    [vault: AddressLike, assets: BigNumberish, receiver: AddressLike, minShares: BigNumberish],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
 
   test__mintVault: TypedContractMethod<
-    [
-      vault: AddressLike,
-      shares: BigNumberish,
-      receiver: AddressLike,
-      maxAssets: BigNumberish
-    ],
+    [vault: AddressLike, shares: BigNumberish, receiver: AddressLike, maxAssets: BigNumberish],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
 
   test__redeemVault: TypedContractMethod<
@@ -276,10 +212,10 @@ export interface UseIERC4626Mock extends BaseContract {
       shares: BigNumberish,
       receiver: AddressLike,
       owner: AddressLike,
-      minAssets: BigNumberish
+      minAssets: BigNumberish,
     ],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
 
   test__withdrawVault: TypedContractMethod<
@@ -288,140 +224,102 @@ export interface UseIERC4626Mock extends BaseContract {
       assets: BigNumberish,
       receiver: AddressLike,
       owner: AddressLike,
-      maxShares: BigNumberish
+      maxShares: BigNumberish,
     ],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  transferGovernorship: TypedContractMethod<
-    [_newGovernor: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+  transferGovernorship: TypedContractMethod<[_newGovernor: AddressLike], [void], 'nonpayable'>;
 
-  transferOwnership: TypedContractMethod<
-    [newOwner: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+  transferOwnership: TypedContractMethod<[newOwner: AddressLike], [void], 'nonpayable'>;
 
   unapproveTokenForVault: TypedContractMethod<
     [vault: AddressLike, token: AddressLike],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
   getFunction(
-    nameOrSignature: "approveTokenForVault"
+    nameOrSignature: 'approveTokenForVault',
+  ): TypedContractMethod<[vault: AddressLike, token: AddressLike], [void], 'nonpayable'>;
+  getFunction(nameOrSignature: 'governor'): TypedContractMethod<[], [string], 'view'>;
+  getFunction(
+    nameOrSignature: 'initialize',
+  ): TypedContractMethod<[initialOwner: AddressLike], [void], 'nonpayable'>;
+  getFunction(
+    nameOrSignature: 'isTokenApprovedForVault',
+  ): TypedContractMethod<[vault: AddressLike, token: AddressLike], [boolean], 'view'>;
+  getFunction(nameOrSignature: 'owner'): TypedContractMethod<[], [string], 'view'>;
+  getFunction(nameOrSignature: 'renounceOwnership'): TypedContractMethod<[], [void], 'nonpayable'>;
+  getFunction(
+    nameOrSignature: 'test__depositVault',
   ): TypedContractMethod<
-    [vault: AddressLike, token: AddressLike],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "governor"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "initialize"
-  ): TypedContractMethod<[initialOwner: AddressLike], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "isTokenApprovedForVault"
-  ): TypedContractMethod<
-    [vault: AddressLike, token: AddressLike],
-    [boolean],
-    "view"
-  >;
-  getFunction(
-    nameOrSignature: "owner"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "renounceOwnership"
-  ): TypedContractMethod<[], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "test__depositVault"
-  ): TypedContractMethod<
-    [
-      vault: AddressLike,
-      assets: BigNumberish,
-      receiver: AddressLike,
-      minShares: BigNumberish
-    ],
+    [vault: AddressLike, assets: BigNumberish, receiver: AddressLike, minShares: BigNumberish],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "test__mintVault"
+    nameOrSignature: 'test__mintVault',
   ): TypedContractMethod<
-    [
-      vault: AddressLike,
-      shares: BigNumberish,
-      receiver: AddressLike,
-      maxAssets: BigNumberish
-    ],
+    [vault: AddressLike, shares: BigNumberish, receiver: AddressLike, maxAssets: BigNumberish],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "test__redeemVault"
+    nameOrSignature: 'test__redeemVault',
   ): TypedContractMethod<
     [
       vault: AddressLike,
       shares: BigNumberish,
       receiver: AddressLike,
       owner: AddressLike,
-      minAssets: BigNumberish
+      minAssets: BigNumberish,
     ],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "test__withdrawVault"
+    nameOrSignature: 'test__withdrawVault',
   ): TypedContractMethod<
     [
       vault: AddressLike,
       assets: BigNumberish,
       receiver: AddressLike,
       owner: AddressLike,
-      maxShares: BigNumberish
+      maxShares: BigNumberish,
     ],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "transferGovernorship"
-  ): TypedContractMethod<[_newGovernor: AddressLike], [void], "nonpayable">;
+    nameOrSignature: 'transferGovernorship',
+  ): TypedContractMethod<[_newGovernor: AddressLike], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "transferOwnership"
-  ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
+    nameOrSignature: 'transferOwnership',
+  ): TypedContractMethod<[newOwner: AddressLike], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "unapproveTokenForVault"
-  ): TypedContractMethod<
-    [vault: AddressLike, token: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+    nameOrSignature: 'unapproveTokenForVault',
+  ): TypedContractMethod<[vault: AddressLike, token: AddressLike], [void], 'nonpayable'>;
 
   getEvent(
-    key: "GovernshipTransferred"
+    key: 'GovernshipTransferred',
   ): TypedContractEvent<
     GovernshipTransferredEvent.InputTuple,
     GovernshipTransferredEvent.OutputTuple,
     GovernshipTransferredEvent.OutputObject
   >;
   getEvent(
-    key: "Initialized"
+    key: 'Initialized',
   ): TypedContractEvent<
     InitializedEvent.InputTuple,
     InitializedEvent.OutputTuple,
     InitializedEvent.OutputObject
   >;
   getEvent(
-    key: "OwnershipTransferred"
+    key: 'OwnershipTransferred',
   ): TypedContractEvent<
     OwnershipTransferredEvent.InputTuple,
     OwnershipTransferredEvent.OutputTuple,
@@ -429,7 +327,7 @@ export interface UseIERC4626Mock extends BaseContract {
   >;
 
   filters: {
-    "GovernshipTransferred(address,address)": TypedContractEvent<
+    'GovernshipTransferred(address,address)': TypedContractEvent<
       GovernshipTransferredEvent.InputTuple,
       GovernshipTransferredEvent.OutputTuple,
       GovernshipTransferredEvent.OutputObject
@@ -440,7 +338,7 @@ export interface UseIERC4626Mock extends BaseContract {
       GovernshipTransferredEvent.OutputObject
     >;
 
-    "Initialized(uint8)": TypedContractEvent<
+    'Initialized(uint8)': TypedContractEvent<
       InitializedEvent.InputTuple,
       InitializedEvent.OutputTuple,
       InitializedEvent.OutputObject
@@ -451,7 +349,7 @@ export interface UseIERC4626Mock extends BaseContract {
       InitializedEvent.OutputObject
     >;
 
-    "OwnershipTransferred(address,address)": TypedContractEvent<
+    'OwnershipTransferred(address,address)': TypedContractEvent<
       OwnershipTransferredEvent.InputTuple,
       OwnershipTransferredEvent.OutputTuple,
       OwnershipTransferredEvent.OutputObject

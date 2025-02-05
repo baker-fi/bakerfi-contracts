@@ -2,30 +2,30 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
+import { Contract, Interface, type ContractRunner } from 'ethers';
 import type {
   UseFlashLender,
   UseFlashLenderInterface,
-} from "../../../../contracts/core/hooks/UseFlashLender";
+} from '../../../../contracts/core/hooks/UseFlashLender';
 
 const _abi = [
   {
     inputs: [],
-    name: "InvalidFlashLenderContract",
-    type: "error",
+    name: 'InvalidFlashLenderContract',
+    type: 'error',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: false,
-        internalType: "uint8",
-        name: "version",
-        type: "uint8",
+        internalType: 'uint8',
+        name: 'version',
+        type: 'uint8',
       },
     ],
-    name: "Initialized",
-    type: "event",
+    name: 'Initialized',
+    type: 'event',
   },
 ] as const;
 
@@ -34,10 +34,7 @@ export class UseFlashLender__factory {
   static createInterface(): UseFlashLenderInterface {
     return new Interface(_abi) as UseFlashLenderInterface;
   }
-  static connect(
-    address: string,
-    runner?: ContractRunner | null
-  ): UseFlashLender {
+  static connect(address: string, runner?: ContractRunner | null): UseFlashLender {
     return new Contract(address, _abi, runner) as unknown as UseFlashLender;
   }
 }

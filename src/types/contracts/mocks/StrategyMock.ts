@@ -13,7 +13,7 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
@@ -21,74 +21,47 @@ import type {
   TypedLogDescription,
   TypedListener,
   TypedContractMethod,
-} from "../../common";
+} from '../../common';
 
 export interface StrategyMockInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "asset"
-      | "deploy"
-      | "getPosition"
-      | "harvest"
-      | "setHarvestPerCall"
-      | "setRatio"
-      | "totalAssets"
-      | "undeploy"
+      | 'asset'
+      | 'deploy'
+      | 'getPosition'
+      | 'harvest'
+      | 'setHarvestPerCall'
+      | 'setRatio'
+      | 'totalAssets'
+      | 'undeploy',
   ): FunctionFragment;
 
   getEvent(
     nameOrSignatureOrTopic:
-      | "StrategyAmountUpdate"
-      | "StrategyDeploy"
-      | "StrategyLoss"
-      | "StrategyProfit"
-      | "StrategyUndeploy"
+      | 'StrategyAmountUpdate'
+      | 'StrategyDeploy'
+      | 'StrategyLoss'
+      | 'StrategyProfit'
+      | 'StrategyUndeploy',
   ): EventFragment;
 
-  encodeFunctionData(functionFragment: "asset", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "deploy",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getPosition",
-    values?: undefined
-  ): string;
-  encodeFunctionData(functionFragment: "harvest", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "setHarvestPerCall",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "setRatio",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "totalAssets",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "undeploy",
-    values: [BigNumberish]
-  ): string;
+  encodeFunctionData(functionFragment: 'asset', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'deploy', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'getPosition', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'harvest', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'setHarvestPerCall', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'setRatio', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'totalAssets', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'undeploy', values: [BigNumberish]): string;
 
-  decodeFunctionResult(functionFragment: "asset", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "deploy", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getPosition",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "harvest", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "setHarvestPerCall",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "setRatio", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "totalAssets",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "undeploy", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'asset', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'deploy', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getPosition', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'harvest', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setHarvestPerCall', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'setRatio', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'totalAssets', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'undeploy', data: BytesLike): Result;
 }
 
 export namespace StrategyAmountUpdateEvent {
@@ -162,43 +135,41 @@ export interface StrategyMock extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
-  asset: TypedContractMethod<[], [string], "view">;
+  asset: TypedContractMethod<[], [string], 'view'>;
 
-  deploy: TypedContractMethod<[amount: BigNumberish], [bigint], "nonpayable">;
+  deploy: TypedContractMethod<[amount: BigNumberish], [bigint], 'nonpayable'>;
 
   getPosition: TypedContractMethod<
     [],
@@ -207,94 +178,80 @@ export interface StrategyMock extends BaseContract {
         totalCollateralInEth: bigint;
         totalDebtInEth: bigint;
         loanToValue: bigint;
-      }
+      },
     ],
-    "view"
+    'view'
   >;
 
-  harvest: TypedContractMethod<[], [bigint], "view">;
+  harvest: TypedContractMethod<[], [bigint], 'view'>;
 
-  setHarvestPerCall: TypedContractMethod<
-    [havestPerCall: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
+  setHarvestPerCall: TypedContractMethod<[havestPerCall: BigNumberish], [void], 'nonpayable'>;
 
-  setRatio: TypedContractMethod<[ratio: BigNumberish], [void], "nonpayable">;
+  setRatio: TypedContractMethod<[ratio: BigNumberish], [void], 'nonpayable'>;
 
-  totalAssets: TypedContractMethod<[], [bigint], "view">;
+  totalAssets: TypedContractMethod<[], [bigint], 'view'>;
 
-  undeploy: TypedContractMethod<[amount: BigNumberish], [bigint], "nonpayable">;
+  undeploy: TypedContractMethod<[amount: BigNumberish], [bigint], 'nonpayable'>;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
+  getFunction(nameOrSignature: 'asset'): TypedContractMethod<[], [string], 'view'>;
   getFunction(
-    nameOrSignature: "asset"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "deploy"
-  ): TypedContractMethod<[amount: BigNumberish], [bigint], "nonpayable">;
-  getFunction(
-    nameOrSignature: "getPosition"
-  ): TypedContractMethod<
+    nameOrSignature: 'deploy',
+  ): TypedContractMethod<[amount: BigNumberish], [bigint], 'nonpayable'>;
+  getFunction(nameOrSignature: 'getPosition'): TypedContractMethod<
     [],
     [
       [bigint, bigint, bigint] & {
         totalCollateralInEth: bigint;
         totalDebtInEth: bigint;
         loanToValue: bigint;
-      }
+      },
     ],
-    "view"
+    'view'
   >;
+  getFunction(nameOrSignature: 'harvest'): TypedContractMethod<[], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "harvest"
-  ): TypedContractMethod<[], [bigint], "view">;
+    nameOrSignature: 'setHarvestPerCall',
+  ): TypedContractMethod<[havestPerCall: BigNumberish], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "setHarvestPerCall"
-  ): TypedContractMethod<[havestPerCall: BigNumberish], [void], "nonpayable">;
+    nameOrSignature: 'setRatio',
+  ): TypedContractMethod<[ratio: BigNumberish], [void], 'nonpayable'>;
+  getFunction(nameOrSignature: 'totalAssets'): TypedContractMethod<[], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "setRatio"
-  ): TypedContractMethod<[ratio: BigNumberish], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "totalAssets"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "undeploy"
-  ): TypedContractMethod<[amount: BigNumberish], [bigint], "nonpayable">;
+    nameOrSignature: 'undeploy',
+  ): TypedContractMethod<[amount: BigNumberish], [bigint], 'nonpayable'>;
 
   getEvent(
-    key: "StrategyAmountUpdate"
+    key: 'StrategyAmountUpdate',
   ): TypedContractEvent<
     StrategyAmountUpdateEvent.InputTuple,
     StrategyAmountUpdateEvent.OutputTuple,
     StrategyAmountUpdateEvent.OutputObject
   >;
   getEvent(
-    key: "StrategyDeploy"
+    key: 'StrategyDeploy',
   ): TypedContractEvent<
     StrategyDeployEvent.InputTuple,
     StrategyDeployEvent.OutputTuple,
     StrategyDeployEvent.OutputObject
   >;
   getEvent(
-    key: "StrategyLoss"
+    key: 'StrategyLoss',
   ): TypedContractEvent<
     StrategyLossEvent.InputTuple,
     StrategyLossEvent.OutputTuple,
     StrategyLossEvent.OutputObject
   >;
   getEvent(
-    key: "StrategyProfit"
+    key: 'StrategyProfit',
   ): TypedContractEvent<
     StrategyProfitEvent.InputTuple,
     StrategyProfitEvent.OutputTuple,
     StrategyProfitEvent.OutputObject
   >;
   getEvent(
-    key: "StrategyUndeploy"
+    key: 'StrategyUndeploy',
   ): TypedContractEvent<
     StrategyUndeployEvent.InputTuple,
     StrategyUndeployEvent.OutputTuple,
@@ -302,7 +259,7 @@ export interface StrategyMock extends BaseContract {
   >;
 
   filters: {
-    "StrategyAmountUpdate(uint256)": TypedContractEvent<
+    'StrategyAmountUpdate(uint256)': TypedContractEvent<
       StrategyAmountUpdateEvent.InputTuple,
       StrategyAmountUpdateEvent.OutputTuple,
       StrategyAmountUpdateEvent.OutputObject
@@ -313,7 +270,7 @@ export interface StrategyMock extends BaseContract {
       StrategyAmountUpdateEvent.OutputObject
     >;
 
-    "StrategyDeploy(address,uint256)": TypedContractEvent<
+    'StrategyDeploy(address,uint256)': TypedContractEvent<
       StrategyDeployEvent.InputTuple,
       StrategyDeployEvent.OutputTuple,
       StrategyDeployEvent.OutputObject
@@ -324,7 +281,7 @@ export interface StrategyMock extends BaseContract {
       StrategyDeployEvent.OutputObject
     >;
 
-    "StrategyLoss(uint256)": TypedContractEvent<
+    'StrategyLoss(uint256)': TypedContractEvent<
       StrategyLossEvent.InputTuple,
       StrategyLossEvent.OutputTuple,
       StrategyLossEvent.OutputObject
@@ -335,7 +292,7 @@ export interface StrategyMock extends BaseContract {
       StrategyLossEvent.OutputObject
     >;
 
-    "StrategyProfit(uint256)": TypedContractEvent<
+    'StrategyProfit(uint256)': TypedContractEvent<
       StrategyProfitEvent.InputTuple,
       StrategyProfitEvent.OutputTuple,
       StrategyProfitEvent.OutputObject
@@ -346,7 +303,7 @@ export interface StrategyMock extends BaseContract {
       StrategyProfitEvent.OutputObject
     >;
 
-    "StrategyUndeploy(address,uint256)": TypedContractEvent<
+    'StrategyUndeploy(address,uint256)': TypedContractEvent<
       StrategyUndeployEvent.InputTuple,
       StrategyUndeployEvent.OutputTuple,
       StrategyUndeployEvent.OutputObject

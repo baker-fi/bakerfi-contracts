@@ -2,11 +2,11 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
+import { Contract, Interface, type ContractRunner } from 'ethers';
 import type {
   IPythEvents,
   IPythEventsInterface,
-} from "../../../../contracts/interfaces/pyth/IPythEvents";
+} from '../../../../contracts/interfaces/pyth/IPythEvents';
 
 const _abi = [
   {
@@ -14,50 +14,50 @@ const _abi = [
     inputs: [
       {
         indexed: false,
-        internalType: "uint16",
-        name: "chainId",
-        type: "uint16",
+        internalType: 'uint16',
+        name: 'chainId',
+        type: 'uint16',
       },
       {
         indexed: false,
-        internalType: "uint64",
-        name: "sequenceNumber",
-        type: "uint64",
+        internalType: 'uint64',
+        name: 'sequenceNumber',
+        type: 'uint64',
       },
     ],
-    name: "BatchPriceFeedUpdate",
-    type: "event",
+    name: 'BatchPriceFeedUpdate',
+    type: 'event',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: true,
-        internalType: "bytes32",
-        name: "id",
-        type: "bytes32",
+        internalType: 'bytes32',
+        name: 'id',
+        type: 'bytes32',
       },
       {
         indexed: false,
-        internalType: "uint64",
-        name: "publishTime",
-        type: "uint64",
+        internalType: 'uint64',
+        name: 'publishTime',
+        type: 'uint64',
       },
       {
         indexed: false,
-        internalType: "int64",
-        name: "price",
-        type: "int64",
+        internalType: 'int64',
+        name: 'price',
+        type: 'int64',
       },
       {
         indexed: false,
-        internalType: "uint64",
-        name: "conf",
-        type: "uint64",
+        internalType: 'uint64',
+        name: 'conf',
+        type: 'uint64',
       },
     ],
-    name: "PriceFeedUpdate",
-    type: "event",
+    name: 'PriceFeedUpdate',
+    type: 'event',
   },
 ] as const;
 

@@ -13,7 +13,7 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
@@ -21,313 +21,182 @@ import type {
   TypedLogDescription,
   TypedListener,
   TypedContractMethod,
-} from "../../../../common";
+} from '../../../../common';
 
 export interface GovernorTimelockControlInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "BALLOT_TYPEHASH"
-      | "CLOCK_MODE"
-      | "COUNTING_MODE"
-      | "EXTENDED_BALLOT_TYPEHASH"
-      | "cancel"
-      | "castVote"
-      | "castVoteBySig"
-      | "castVoteWithReason"
-      | "castVoteWithReasonAndParams"
-      | "castVoteWithReasonAndParamsBySig"
-      | "clock"
-      | "eip712Domain"
-      | "execute"
-      | "getVotes"
-      | "getVotesWithParams"
-      | "hasVoted"
-      | "hashProposal"
-      | "name"
-      | "onERC1155BatchReceived"
-      | "onERC1155Received"
-      | "onERC721Received"
-      | "proposalDeadline"
-      | "proposalEta"
-      | "proposalProposer"
-      | "proposalSnapshot"
-      | "proposalThreshold"
-      | "propose"
-      | "queue"
-      | "quorum"
-      | "relay"
-      | "state"
-      | "supportsInterface"
-      | "timelock"
-      | "updateTimelock"
-      | "version"
-      | "votingDelay"
-      | "votingPeriod"
+      | 'BALLOT_TYPEHASH'
+      | 'CLOCK_MODE'
+      | 'COUNTING_MODE'
+      | 'EXTENDED_BALLOT_TYPEHASH'
+      | 'cancel'
+      | 'castVote'
+      | 'castVoteBySig'
+      | 'castVoteWithReason'
+      | 'castVoteWithReasonAndParams'
+      | 'castVoteWithReasonAndParamsBySig'
+      | 'clock'
+      | 'eip712Domain'
+      | 'execute'
+      | 'getVotes'
+      | 'getVotesWithParams'
+      | 'hasVoted'
+      | 'hashProposal'
+      | 'name'
+      | 'onERC1155BatchReceived'
+      | 'onERC1155Received'
+      | 'onERC721Received'
+      | 'proposalDeadline'
+      | 'proposalEta'
+      | 'proposalProposer'
+      | 'proposalSnapshot'
+      | 'proposalThreshold'
+      | 'propose'
+      | 'queue'
+      | 'quorum'
+      | 'relay'
+      | 'state'
+      | 'supportsInterface'
+      | 'timelock'
+      | 'updateTimelock'
+      | 'version'
+      | 'votingDelay'
+      | 'votingPeriod',
   ): FunctionFragment;
 
   getEvent(
     nameOrSignatureOrTopic:
-      | "EIP712DomainChanged"
-      | "ProposalCanceled"
-      | "ProposalCreated"
-      | "ProposalExecuted"
-      | "ProposalQueued"
-      | "TimelockChange"
-      | "VoteCast"
-      | "VoteCastWithParams"
+      | 'EIP712DomainChanged'
+      | 'ProposalCanceled'
+      | 'ProposalCreated'
+      | 'ProposalExecuted'
+      | 'ProposalQueued'
+      | 'TimelockChange'
+      | 'VoteCast'
+      | 'VoteCastWithParams',
   ): EventFragment;
 
+  encodeFunctionData(functionFragment: 'BALLOT_TYPEHASH', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'CLOCK_MODE', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'COUNTING_MODE', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'EXTENDED_BALLOT_TYPEHASH', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "BALLOT_TYPEHASH",
-    values?: undefined
+    functionFragment: 'cancel',
+    values: [AddressLike[], BigNumberish[], BytesLike[], BytesLike],
+  ): string;
+  encodeFunctionData(functionFragment: 'castVote', values: [BigNumberish, BigNumberish]): string;
+  encodeFunctionData(
+    functionFragment: 'castVoteBySig',
+    values: [BigNumberish, BigNumberish, BigNumberish, BytesLike, BytesLike],
   ): string;
   encodeFunctionData(
-    functionFragment: "CLOCK_MODE",
-    values?: undefined
+    functionFragment: 'castVoteWithReason',
+    values: [BigNumberish, BigNumberish, string],
   ): string;
   encodeFunctionData(
-    functionFragment: "COUNTING_MODE",
-    values?: undefined
+    functionFragment: 'castVoteWithReasonAndParams',
+    values: [BigNumberish, BigNumberish, string, BytesLike],
   ): string;
   encodeFunctionData(
-    functionFragment: "EXTENDED_BALLOT_TYPEHASH",
-    values?: undefined
+    functionFragment: 'castVoteWithReasonAndParamsBySig',
+    values: [BigNumberish, BigNumberish, string, BytesLike, BigNumberish, BytesLike, BytesLike],
+  ): string;
+  encodeFunctionData(functionFragment: 'clock', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'eip712Domain', values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: 'execute',
+    values: [AddressLike[], BigNumberish[], BytesLike[], BytesLike],
+  ): string;
+  encodeFunctionData(functionFragment: 'getVotes', values: [AddressLike, BigNumberish]): string;
+  encodeFunctionData(
+    functionFragment: 'getVotesWithParams',
+    values: [AddressLike, BigNumberish, BytesLike],
+  ): string;
+  encodeFunctionData(functionFragment: 'hasVoted', values: [BigNumberish, AddressLike]): string;
+  encodeFunctionData(
+    functionFragment: 'hashProposal',
+    values: [AddressLike[], BigNumberish[], BytesLike[], BytesLike],
+  ): string;
+  encodeFunctionData(functionFragment: 'name', values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: 'onERC1155BatchReceived',
+    values: [AddressLike, AddressLike, BigNumberish[], BigNumberish[], BytesLike],
   ): string;
   encodeFunctionData(
-    functionFragment: "cancel",
-    values: [AddressLike[], BigNumberish[], BytesLike[], BytesLike]
+    functionFragment: 'onERC1155Received',
+    values: [AddressLike, AddressLike, BigNumberish, BigNumberish, BytesLike],
   ): string;
   encodeFunctionData(
-    functionFragment: "castVote",
-    values: [BigNumberish, BigNumberish]
+    functionFragment: 'onERC721Received',
+    values: [AddressLike, AddressLike, BigNumberish, BytesLike],
+  ): string;
+  encodeFunctionData(functionFragment: 'proposalDeadline', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'proposalEta', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'proposalProposer', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'proposalSnapshot', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'proposalThreshold', values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: 'propose',
+    values: [AddressLike[], BigNumberish[], BytesLike[], string],
   ): string;
   encodeFunctionData(
-    functionFragment: "castVoteBySig",
-    values: [BigNumberish, BigNumberish, BigNumberish, BytesLike, BytesLike]
+    functionFragment: 'queue',
+    values: [AddressLike[], BigNumberish[], BytesLike[], BytesLike],
   ): string;
+  encodeFunctionData(functionFragment: 'quorum', values: [BigNumberish]): string;
   encodeFunctionData(
-    functionFragment: "castVoteWithReason",
-    values: [BigNumberish, BigNumberish, string]
+    functionFragment: 'relay',
+    values: [AddressLike, BigNumberish, BytesLike],
   ): string;
-  encodeFunctionData(
-    functionFragment: "castVoteWithReasonAndParams",
-    values: [BigNumberish, BigNumberish, string, BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "castVoteWithReasonAndParamsBySig",
-    values: [
-      BigNumberish,
-      BigNumberish,
-      string,
-      BytesLike,
-      BigNumberish,
-      BytesLike,
-      BytesLike
-    ]
-  ): string;
-  encodeFunctionData(functionFragment: "clock", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "eip712Domain",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "execute",
-    values: [AddressLike[], BigNumberish[], BytesLike[], BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getVotes",
-    values: [AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getVotesWithParams",
-    values: [AddressLike, BigNumberish, BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "hasVoted",
-    values: [BigNumberish, AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "hashProposal",
-    values: [AddressLike[], BigNumberish[], BytesLike[], BytesLike]
-  ): string;
-  encodeFunctionData(functionFragment: "name", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "onERC1155BatchReceived",
-    values: [
-      AddressLike,
-      AddressLike,
-      BigNumberish[],
-      BigNumberish[],
-      BytesLike
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "onERC1155Received",
-    values: [AddressLike, AddressLike, BigNumberish, BigNumberish, BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "onERC721Received",
-    values: [AddressLike, AddressLike, BigNumberish, BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "proposalDeadline",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "proposalEta",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "proposalProposer",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "proposalSnapshot",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "proposalThreshold",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "propose",
-    values: [AddressLike[], BigNumberish[], BytesLike[], string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "queue",
-    values: [AddressLike[], BigNumberish[], BytesLike[], BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "quorum",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "relay",
-    values: [AddressLike, BigNumberish, BytesLike]
-  ): string;
-  encodeFunctionData(functionFragment: "state", values: [BigNumberish]): string;
-  encodeFunctionData(
-    functionFragment: "supportsInterface",
-    values: [BytesLike]
-  ): string;
-  encodeFunctionData(functionFragment: "timelock", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "updateTimelock",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(functionFragment: "version", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "votingDelay",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "votingPeriod",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: 'state', values: [BigNumberish]): string;
+  encodeFunctionData(functionFragment: 'supportsInterface', values: [BytesLike]): string;
+  encodeFunctionData(functionFragment: 'timelock', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'updateTimelock', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'version', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'votingDelay', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'votingPeriod', values?: undefined): string;
 
+  decodeFunctionResult(functionFragment: 'BALLOT_TYPEHASH', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'CLOCK_MODE', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'COUNTING_MODE', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'EXTENDED_BALLOT_TYPEHASH', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'cancel', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'castVote', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'castVoteBySig', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'castVoteWithReason', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'castVoteWithReasonAndParams', data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "BALLOT_TYPEHASH",
-    data: BytesLike
+    functionFragment: 'castVoteWithReasonAndParamsBySig',
+    data: BytesLike,
   ): Result;
-  decodeFunctionResult(functionFragment: "CLOCK_MODE", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "COUNTING_MODE",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "EXTENDED_BALLOT_TYPEHASH",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "cancel", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "castVote", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "castVoteBySig",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "castVoteWithReason",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "castVoteWithReasonAndParams",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "castVoteWithReasonAndParamsBySig",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "clock", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "eip712Domain",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "execute", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getVotes", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getVotesWithParams",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "hasVoted", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "hashProposal",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "onERC1155BatchReceived",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "onERC1155Received",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "onERC721Received",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "proposalDeadline",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "proposalEta",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "proposalProposer",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "proposalSnapshot",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "proposalThreshold",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "propose", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "queue", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "quorum", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "relay", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "state", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "supportsInterface",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "timelock", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "updateTimelock",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "version", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "votingDelay",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "votingPeriod",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: 'clock', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'eip712Domain', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'execute', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getVotes', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'getVotesWithParams', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'hasVoted', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'hashProposal', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'name', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'onERC1155BatchReceived', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'onERC1155Received', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'onERC721Received', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'proposalDeadline', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'proposalEta', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'proposalProposer', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'proposalSnapshot', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'proposalThreshold', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'propose', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'queue', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'quorum', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'relay', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'state', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'supportsInterface', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'timelock', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'updateTimelock', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'version', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'votingDelay', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'votingPeriod', data: BytesLike): Result;
 }
 
 export namespace EIP712DomainChangedEvent {
@@ -362,7 +231,7 @@ export namespace ProposalCreatedEvent {
     calldatas: BytesLike[],
     voteStart: BigNumberish,
     voteEnd: BigNumberish,
-    description: string
+    description: string,
   ];
   export type OutputTuple = [
     proposalId: bigint,
@@ -373,7 +242,7 @@ export namespace ProposalCreatedEvent {
     calldatas: string[],
     voteStart: bigint,
     voteEnd: bigint,
-    description: string
+    description: string,
   ];
   export interface OutputObject {
     proposalId: bigint;
@@ -436,14 +305,14 @@ export namespace VoteCastEvent {
     proposalId: BigNumberish,
     support: BigNumberish,
     weight: BigNumberish,
-    reason: string
+    reason: string,
   ];
   export type OutputTuple = [
     voter: string,
     proposalId: bigint,
     support: bigint,
     weight: bigint,
-    reason: string
+    reason: string,
   ];
   export interface OutputObject {
     voter: string;
@@ -465,7 +334,7 @@ export namespace VoteCastWithParamsEvent {
     support: BigNumberish,
     weight: BigNumberish,
     reason: string,
-    params: BytesLike
+    params: BytesLike,
   ];
   export type OutputTuple = [
     voter: string,
@@ -473,7 +342,7 @@ export namespace VoteCastWithParamsEvent {
     support: bigint,
     weight: bigint,
     reason: string,
-    params: string
+    params: string,
   ];
   export interface OutputObject {
     voter: string;
@@ -498,92 +367,79 @@ export interface GovernorTimelockControl extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
-  BALLOT_TYPEHASH: TypedContractMethod<[], [string], "view">;
+  BALLOT_TYPEHASH: TypedContractMethod<[], [string], 'view'>;
 
-  CLOCK_MODE: TypedContractMethod<[], [string], "view">;
+  CLOCK_MODE: TypedContractMethod<[], [string], 'view'>;
 
-  COUNTING_MODE: TypedContractMethod<[], [string], "view">;
+  COUNTING_MODE: TypedContractMethod<[], [string], 'view'>;
 
-  EXTENDED_BALLOT_TYPEHASH: TypedContractMethod<[], [string], "view">;
+  EXTENDED_BALLOT_TYPEHASH: TypedContractMethod<[], [string], 'view'>;
 
   cancel: TypedContractMethod<
     [
       targets: AddressLike[],
       values: BigNumberish[],
       calldatas: BytesLike[],
-      descriptionHash: BytesLike
+      descriptionHash: BytesLike,
     ],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
 
   castVote: TypedContractMethod<
     [proposalId: BigNumberish, support: BigNumberish],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
 
   castVoteBySig: TypedContractMethod<
-    [
-      proposalId: BigNumberish,
-      support: BigNumberish,
-      v: BigNumberish,
-      r: BytesLike,
-      s: BytesLike
-    ],
+    [proposalId: BigNumberish, support: BigNumberish, v: BigNumberish, r: BytesLike, s: BytesLike],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
 
   castVoteWithReason: TypedContractMethod<
     [proposalId: BigNumberish, support: BigNumberish, reason: string],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
 
   castVoteWithReasonAndParams: TypedContractMethod<
-    [
-      proposalId: BigNumberish,
-      support: BigNumberish,
-      reason: string,
-      params: BytesLike
-    ],
+    [proposalId: BigNumberish, support: BigNumberish, reason: string, params: BytesLike],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
 
   castVoteWithReasonAndParamsBySig: TypedContractMethod<
@@ -594,13 +450,13 @@ export interface GovernorTimelockControl extends BaseContract {
       params: BytesLike,
       v: BigNumberish,
       r: BytesLike,
-      s: BytesLike
+      s: BytesLike,
     ],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  clock: TypedContractMethod<[], [bigint], "view">;
+  clock: TypedContractMethod<[], [bigint], 'view'>;
 
   eip712Domain: TypedContractMethod<
     [],
@@ -613,9 +469,9 @@ export interface GovernorTimelockControl extends BaseContract {
         verifyingContract: string;
         salt: string;
         extensions: bigint[];
-      }
+      },
     ],
-    "view"
+    'view'
   >;
 
   execute: TypedContractMethod<
@@ -623,28 +479,24 @@ export interface GovernorTimelockControl extends BaseContract {
       targets: AddressLike[],
       values: BigNumberish[],
       calldatas: BytesLike[],
-      descriptionHash: BytesLike
+      descriptionHash: BytesLike,
     ],
     [bigint],
-    "payable"
+    'payable'
   >;
 
-  getVotes: TypedContractMethod<
-    [account: AddressLike, timepoint: BigNumberish],
-    [bigint],
-    "view"
-  >;
+  getVotes: TypedContractMethod<[account: AddressLike, timepoint: BigNumberish], [bigint], 'view'>;
 
   getVotesWithParams: TypedContractMethod<
     [account: AddressLike, timepoint: BigNumberish, params: BytesLike],
     [bigint],
-    "view"
+    'view'
   >;
 
   hasVoted: TypedContractMethod<
     [proposalId: BigNumberish, account: AddressLike],
     [boolean],
-    "view"
+    'view'
   >;
 
   hashProposal: TypedContractMethod<
@@ -652,13 +504,13 @@ export interface GovernorTimelockControl extends BaseContract {
       targets: AddressLike[],
       values: BigNumberish[],
       calldatas: BytesLike[],
-      descriptionHash: BytesLike
+      descriptionHash: BytesLike,
     ],
     [bigint],
-    "view"
+    'view'
   >;
 
-  name: TypedContractMethod<[], [string], "view">;
+  name: TypedContractMethod<[], [string], 'view'>;
 
   onERC1155BatchReceived: TypedContractMethod<
     [
@@ -666,65 +518,38 @@ export interface GovernorTimelockControl extends BaseContract {
       arg1: AddressLike,
       arg2: BigNumberish[],
       arg3: BigNumberish[],
-      arg4: BytesLike
+      arg4: BytesLike,
     ],
     [string],
-    "nonpayable"
+    'nonpayable'
   >;
 
   onERC1155Received: TypedContractMethod<
-    [
-      arg0: AddressLike,
-      arg1: AddressLike,
-      arg2: BigNumberish,
-      arg3: BigNumberish,
-      arg4: BytesLike
-    ],
+    [arg0: AddressLike, arg1: AddressLike, arg2: BigNumberish, arg3: BigNumberish, arg4: BytesLike],
     [string],
-    "nonpayable"
+    'nonpayable'
   >;
 
   onERC721Received: TypedContractMethod<
     [arg0: AddressLike, arg1: AddressLike, arg2: BigNumberish, arg3: BytesLike],
     [string],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  proposalDeadline: TypedContractMethod<
-    [proposalId: BigNumberish],
-    [bigint],
-    "view"
-  >;
+  proposalDeadline: TypedContractMethod<[proposalId: BigNumberish], [bigint], 'view'>;
 
-  proposalEta: TypedContractMethod<
-    [proposalId: BigNumberish],
-    [bigint],
-    "view"
-  >;
+  proposalEta: TypedContractMethod<[proposalId: BigNumberish], [bigint], 'view'>;
 
-  proposalProposer: TypedContractMethod<
-    [proposalId: BigNumberish],
-    [string],
-    "view"
-  >;
+  proposalProposer: TypedContractMethod<[proposalId: BigNumberish], [string], 'view'>;
 
-  proposalSnapshot: TypedContractMethod<
-    [proposalId: BigNumberish],
-    [bigint],
-    "view"
-  >;
+  proposalSnapshot: TypedContractMethod<[proposalId: BigNumberish], [bigint], 'view'>;
 
-  proposalThreshold: TypedContractMethod<[], [bigint], "view">;
+  proposalThreshold: TypedContractMethod<[], [bigint], 'view'>;
 
   propose: TypedContractMethod<
-    [
-      targets: AddressLike[],
-      values: BigNumberish[],
-      calldatas: BytesLike[],
-      description: string
-    ],
+    [targets: AddressLike[], values: BigNumberish[], calldatas: BytesLike[], description: string],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
 
   queue: TypedContractMethod<
@@ -732,111 +557,80 @@ export interface GovernorTimelockControl extends BaseContract {
       targets: AddressLike[],
       values: BigNumberish[],
       calldatas: BytesLike[],
-      descriptionHash: BytesLike
+      descriptionHash: BytesLike,
     ],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  quorum: TypedContractMethod<[timepoint: BigNumberish], [bigint], "view">;
+  quorum: TypedContractMethod<[timepoint: BigNumberish], [bigint], 'view'>;
 
   relay: TypedContractMethod<
     [target: AddressLike, value: BigNumberish, data: BytesLike],
     [void],
-    "payable"
+    'payable'
   >;
 
-  state: TypedContractMethod<[proposalId: BigNumberish], [bigint], "view">;
+  state: TypedContractMethod<[proposalId: BigNumberish], [bigint], 'view'>;
 
-  supportsInterface: TypedContractMethod<
-    [interfaceId: BytesLike],
-    [boolean],
-    "view"
-  >;
+  supportsInterface: TypedContractMethod<[interfaceId: BytesLike], [boolean], 'view'>;
 
-  timelock: TypedContractMethod<[], [string], "view">;
+  timelock: TypedContractMethod<[], [string], 'view'>;
 
-  updateTimelock: TypedContractMethod<
-    [newTimelock: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+  updateTimelock: TypedContractMethod<[newTimelock: AddressLike], [void], 'nonpayable'>;
 
-  version: TypedContractMethod<[], [string], "view">;
+  version: TypedContractMethod<[], [string], 'view'>;
 
-  votingDelay: TypedContractMethod<[], [bigint], "view">;
+  votingDelay: TypedContractMethod<[], [bigint], 'view'>;
 
-  votingPeriod: TypedContractMethod<[], [bigint], "view">;
+  votingPeriod: TypedContractMethod<[], [bigint], 'view'>;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
+  getFunction(nameOrSignature: 'BALLOT_TYPEHASH'): TypedContractMethod<[], [string], 'view'>;
+  getFunction(nameOrSignature: 'CLOCK_MODE'): TypedContractMethod<[], [string], 'view'>;
+  getFunction(nameOrSignature: 'COUNTING_MODE'): TypedContractMethod<[], [string], 'view'>;
   getFunction(
-    nameOrSignature: "BALLOT_TYPEHASH"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: 'EXTENDED_BALLOT_TYPEHASH',
+  ): TypedContractMethod<[], [string], 'view'>;
   getFunction(
-    nameOrSignature: "CLOCK_MODE"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "COUNTING_MODE"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "EXTENDED_BALLOT_TYPEHASH"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "cancel"
+    nameOrSignature: 'cancel',
   ): TypedContractMethod<
     [
       targets: AddressLike[],
       values: BigNumberish[],
       calldatas: BytesLike[],
-      descriptionHash: BytesLike
+      descriptionHash: BytesLike,
     ],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "castVote"
+    nameOrSignature: 'castVote',
+  ): TypedContractMethod<[proposalId: BigNumberish, support: BigNumberish], [bigint], 'nonpayable'>;
+  getFunction(
+    nameOrSignature: 'castVoteBySig',
   ): TypedContractMethod<
-    [proposalId: BigNumberish, support: BigNumberish],
+    [proposalId: BigNumberish, support: BigNumberish, v: BigNumberish, r: BytesLike, s: BytesLike],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "castVoteBySig"
-  ): TypedContractMethod<
-    [
-      proposalId: BigNumberish,
-      support: BigNumberish,
-      v: BigNumberish,
-      r: BytesLike,
-      s: BytesLike
-    ],
-    [bigint],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "castVoteWithReason"
+    nameOrSignature: 'castVoteWithReason',
   ): TypedContractMethod<
     [proposalId: BigNumberish, support: BigNumberish, reason: string],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "castVoteWithReasonAndParams"
+    nameOrSignature: 'castVoteWithReasonAndParams',
   ): TypedContractMethod<
-    [
-      proposalId: BigNumberish,
-      support: BigNumberish,
-      reason: string,
-      params: BytesLike
-    ],
+    [proposalId: BigNumberish, support: BigNumberish, reason: string, params: BytesLike],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "castVoteWithReasonAndParamsBySig"
+    nameOrSignature: 'castVoteWithReasonAndParamsBySig',
   ): TypedContractMethod<
     [
       proposalId: BigNumberish,
@@ -845,17 +639,13 @@ export interface GovernorTimelockControl extends BaseContract {
       params: BytesLike,
       v: BigNumberish,
       r: BytesLike,
-      s: BytesLike
+      s: BytesLike,
     ],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
-  getFunction(
-    nameOrSignature: "clock"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "eip712Domain"
-  ): TypedContractMethod<
+  getFunction(nameOrSignature: 'clock'): TypedContractMethod<[], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'eip712Domain'): TypedContractMethod<
     [],
     [
       [string, string, string, bigint, string, string, bigint[]] & {
@@ -866,213 +656,182 @@ export interface GovernorTimelockControl extends BaseContract {
         verifyingContract: string;
         salt: string;
         extensions: bigint[];
-      }
+      },
     ],
-    "view"
+    'view'
   >;
   getFunction(
-    nameOrSignature: "execute"
+    nameOrSignature: 'execute',
   ): TypedContractMethod<
     [
       targets: AddressLike[],
       values: BigNumberish[],
       calldatas: BytesLike[],
-      descriptionHash: BytesLike
+      descriptionHash: BytesLike,
     ],
     [bigint],
-    "payable"
+    'payable'
   >;
   getFunction(
-    nameOrSignature: "getVotes"
-  ): TypedContractMethod<
-    [account: AddressLike, timepoint: BigNumberish],
-    [bigint],
-    "view"
-  >;
+    nameOrSignature: 'getVotes',
+  ): TypedContractMethod<[account: AddressLike, timepoint: BigNumberish], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "getVotesWithParams"
+    nameOrSignature: 'getVotesWithParams',
   ): TypedContractMethod<
     [account: AddressLike, timepoint: BigNumberish, params: BytesLike],
     [bigint],
-    "view"
+    'view'
   >;
   getFunction(
-    nameOrSignature: "hasVoted"
-  ): TypedContractMethod<
-    [proposalId: BigNumberish, account: AddressLike],
-    [boolean],
-    "view"
-  >;
+    nameOrSignature: 'hasVoted',
+  ): TypedContractMethod<[proposalId: BigNumberish, account: AddressLike], [boolean], 'view'>;
   getFunction(
-    nameOrSignature: "hashProposal"
+    nameOrSignature: 'hashProposal',
   ): TypedContractMethod<
     [
       targets: AddressLike[],
       values: BigNumberish[],
       calldatas: BytesLike[],
-      descriptionHash: BytesLike
+      descriptionHash: BytesLike,
     ],
     [bigint],
-    "view"
+    'view'
   >;
+  getFunction(nameOrSignature: 'name'): TypedContractMethod<[], [string], 'view'>;
   getFunction(
-    nameOrSignature: "name"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "onERC1155BatchReceived"
+    nameOrSignature: 'onERC1155BatchReceived',
   ): TypedContractMethod<
     [
       arg0: AddressLike,
       arg1: AddressLike,
       arg2: BigNumberish[],
       arg3: BigNumberish[],
-      arg4: BytesLike
+      arg4: BytesLike,
     ],
     [string],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "onERC1155Received"
+    nameOrSignature: 'onERC1155Received',
   ): TypedContractMethod<
-    [
-      arg0: AddressLike,
-      arg1: AddressLike,
-      arg2: BigNumberish,
-      arg3: BigNumberish,
-      arg4: BytesLike
-    ],
+    [arg0: AddressLike, arg1: AddressLike, arg2: BigNumberish, arg3: BigNumberish, arg4: BytesLike],
     [string],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "onERC721Received"
+    nameOrSignature: 'onERC721Received',
   ): TypedContractMethod<
     [arg0: AddressLike, arg1: AddressLike, arg2: BigNumberish, arg3: BytesLike],
     [string],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "proposalDeadline"
-  ): TypedContractMethod<[proposalId: BigNumberish], [bigint], "view">;
+    nameOrSignature: 'proposalDeadline',
+  ): TypedContractMethod<[proposalId: BigNumberish], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "proposalEta"
-  ): TypedContractMethod<[proposalId: BigNumberish], [bigint], "view">;
+    nameOrSignature: 'proposalEta',
+  ): TypedContractMethod<[proposalId: BigNumberish], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "proposalProposer"
-  ): TypedContractMethod<[proposalId: BigNumberish], [string], "view">;
+    nameOrSignature: 'proposalProposer',
+  ): TypedContractMethod<[proposalId: BigNumberish], [string], 'view'>;
   getFunction(
-    nameOrSignature: "proposalSnapshot"
-  ): TypedContractMethod<[proposalId: BigNumberish], [bigint], "view">;
+    nameOrSignature: 'proposalSnapshot',
+  ): TypedContractMethod<[proposalId: BigNumberish], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'proposalThreshold'): TypedContractMethod<[], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "proposalThreshold"
-  ): TypedContractMethod<[], [bigint], "view">;
+    nameOrSignature: 'propose',
+  ): TypedContractMethod<
+    [targets: AddressLike[], values: BigNumberish[], calldatas: BytesLike[], description: string],
+    [bigint],
+    'nonpayable'
+  >;
   getFunction(
-    nameOrSignature: "propose"
+    nameOrSignature: 'queue',
   ): TypedContractMethod<
     [
       targets: AddressLike[],
       values: BigNumberish[],
       calldatas: BytesLike[],
-      description: string
+      descriptionHash: BytesLike,
     ],
     [bigint],
-    "nonpayable"
+    'nonpayable'
   >;
   getFunction(
-    nameOrSignature: "queue"
-  ): TypedContractMethod<
-    [
-      targets: AddressLike[],
-      values: BigNumberish[],
-      calldatas: BytesLike[],
-      descriptionHash: BytesLike
-    ],
-    [bigint],
-    "nonpayable"
-  >;
+    nameOrSignature: 'quorum',
+  ): TypedContractMethod<[timepoint: BigNumberish], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "quorum"
-  ): TypedContractMethod<[timepoint: BigNumberish], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "relay"
+    nameOrSignature: 'relay',
   ): TypedContractMethod<
     [target: AddressLike, value: BigNumberish, data: BytesLike],
     [void],
-    "payable"
+    'payable'
   >;
   getFunction(
-    nameOrSignature: "state"
-  ): TypedContractMethod<[proposalId: BigNumberish], [bigint], "view">;
+    nameOrSignature: 'state',
+  ): TypedContractMethod<[proposalId: BigNumberish], [bigint], 'view'>;
   getFunction(
-    nameOrSignature: "supportsInterface"
-  ): TypedContractMethod<[interfaceId: BytesLike], [boolean], "view">;
+    nameOrSignature: 'supportsInterface',
+  ): TypedContractMethod<[interfaceId: BytesLike], [boolean], 'view'>;
+  getFunction(nameOrSignature: 'timelock'): TypedContractMethod<[], [string], 'view'>;
   getFunction(
-    nameOrSignature: "timelock"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "updateTimelock"
-  ): TypedContractMethod<[newTimelock: AddressLike], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "version"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "votingDelay"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "votingPeriod"
-  ): TypedContractMethod<[], [bigint], "view">;
+    nameOrSignature: 'updateTimelock',
+  ): TypedContractMethod<[newTimelock: AddressLike], [void], 'nonpayable'>;
+  getFunction(nameOrSignature: 'version'): TypedContractMethod<[], [string], 'view'>;
+  getFunction(nameOrSignature: 'votingDelay'): TypedContractMethod<[], [bigint], 'view'>;
+  getFunction(nameOrSignature: 'votingPeriod'): TypedContractMethod<[], [bigint], 'view'>;
 
   getEvent(
-    key: "EIP712DomainChanged"
+    key: 'EIP712DomainChanged',
   ): TypedContractEvent<
     EIP712DomainChangedEvent.InputTuple,
     EIP712DomainChangedEvent.OutputTuple,
     EIP712DomainChangedEvent.OutputObject
   >;
   getEvent(
-    key: "ProposalCanceled"
+    key: 'ProposalCanceled',
   ): TypedContractEvent<
     ProposalCanceledEvent.InputTuple,
     ProposalCanceledEvent.OutputTuple,
     ProposalCanceledEvent.OutputObject
   >;
   getEvent(
-    key: "ProposalCreated"
+    key: 'ProposalCreated',
   ): TypedContractEvent<
     ProposalCreatedEvent.InputTuple,
     ProposalCreatedEvent.OutputTuple,
     ProposalCreatedEvent.OutputObject
   >;
   getEvent(
-    key: "ProposalExecuted"
+    key: 'ProposalExecuted',
   ): TypedContractEvent<
     ProposalExecutedEvent.InputTuple,
     ProposalExecutedEvent.OutputTuple,
     ProposalExecutedEvent.OutputObject
   >;
   getEvent(
-    key: "ProposalQueued"
+    key: 'ProposalQueued',
   ): TypedContractEvent<
     ProposalQueuedEvent.InputTuple,
     ProposalQueuedEvent.OutputTuple,
     ProposalQueuedEvent.OutputObject
   >;
   getEvent(
-    key: "TimelockChange"
+    key: 'TimelockChange',
   ): TypedContractEvent<
     TimelockChangeEvent.InputTuple,
     TimelockChangeEvent.OutputTuple,
     TimelockChangeEvent.OutputObject
   >;
   getEvent(
-    key: "VoteCast"
+    key: 'VoteCast',
   ): TypedContractEvent<
     VoteCastEvent.InputTuple,
     VoteCastEvent.OutputTuple,
     VoteCastEvent.OutputObject
   >;
   getEvent(
-    key: "VoteCastWithParams"
+    key: 'VoteCastWithParams',
   ): TypedContractEvent<
     VoteCastWithParamsEvent.InputTuple,
     VoteCastWithParamsEvent.OutputTuple,
@@ -1080,7 +839,7 @@ export interface GovernorTimelockControl extends BaseContract {
   >;
 
   filters: {
-    "EIP712DomainChanged()": TypedContractEvent<
+    'EIP712DomainChanged()': TypedContractEvent<
       EIP712DomainChangedEvent.InputTuple,
       EIP712DomainChangedEvent.OutputTuple,
       EIP712DomainChangedEvent.OutputObject
@@ -1091,7 +850,7 @@ export interface GovernorTimelockControl extends BaseContract {
       EIP712DomainChangedEvent.OutputObject
     >;
 
-    "ProposalCanceled(uint256)": TypedContractEvent<
+    'ProposalCanceled(uint256)': TypedContractEvent<
       ProposalCanceledEvent.InputTuple,
       ProposalCanceledEvent.OutputTuple,
       ProposalCanceledEvent.OutputObject
@@ -1102,7 +861,7 @@ export interface GovernorTimelockControl extends BaseContract {
       ProposalCanceledEvent.OutputObject
     >;
 
-    "ProposalCreated(uint256,address,address[],uint256[],string[],bytes[],uint256,uint256,string)": TypedContractEvent<
+    'ProposalCreated(uint256,address,address[],uint256[],string[],bytes[],uint256,uint256,string)': TypedContractEvent<
       ProposalCreatedEvent.InputTuple,
       ProposalCreatedEvent.OutputTuple,
       ProposalCreatedEvent.OutputObject
@@ -1113,7 +872,7 @@ export interface GovernorTimelockControl extends BaseContract {
       ProposalCreatedEvent.OutputObject
     >;
 
-    "ProposalExecuted(uint256)": TypedContractEvent<
+    'ProposalExecuted(uint256)': TypedContractEvent<
       ProposalExecutedEvent.InputTuple,
       ProposalExecutedEvent.OutputTuple,
       ProposalExecutedEvent.OutputObject
@@ -1124,7 +883,7 @@ export interface GovernorTimelockControl extends BaseContract {
       ProposalExecutedEvent.OutputObject
     >;
 
-    "ProposalQueued(uint256,uint256)": TypedContractEvent<
+    'ProposalQueued(uint256,uint256)': TypedContractEvent<
       ProposalQueuedEvent.InputTuple,
       ProposalQueuedEvent.OutputTuple,
       ProposalQueuedEvent.OutputObject
@@ -1135,7 +894,7 @@ export interface GovernorTimelockControl extends BaseContract {
       ProposalQueuedEvent.OutputObject
     >;
 
-    "TimelockChange(address,address)": TypedContractEvent<
+    'TimelockChange(address,address)': TypedContractEvent<
       TimelockChangeEvent.InputTuple,
       TimelockChangeEvent.OutputTuple,
       TimelockChangeEvent.OutputObject
@@ -1146,7 +905,7 @@ export interface GovernorTimelockControl extends BaseContract {
       TimelockChangeEvent.OutputObject
     >;
 
-    "VoteCast(address,uint256,uint8,uint256,string)": TypedContractEvent<
+    'VoteCast(address,uint256,uint8,uint256,string)': TypedContractEvent<
       VoteCastEvent.InputTuple,
       VoteCastEvent.OutputTuple,
       VoteCastEvent.OutputObject
@@ -1157,7 +916,7 @@ export interface GovernorTimelockControl extends BaseContract {
       VoteCastEvent.OutputObject
     >;
 
-    "VoteCastWithParams(address,uint256,uint8,uint256,string,bytes)": TypedContractEvent<
+    'VoteCastWithParams(address,uint256,uint8,uint256,string,bytes)': TypedContractEvent<
       VoteCastWithParamsEvent.InputTuple,
       VoteCastWithParamsEvent.OutputTuple,
       VoteCastWithParamsEvent.OutputObject

@@ -2,38 +2,38 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
+import { Contract, Interface, type ContractRunner } from 'ethers';
 import type {
   IERC6372,
   IERC6372Interface,
-} from "../../../../@openzeppelin/contracts/interfaces/IERC6372";
+} from '../../../../@openzeppelin/contracts/interfaces/IERC6372';
 
 const _abi = [
   {
     inputs: [],
-    name: "CLOCK_MODE",
+    name: 'CLOCK_MODE',
     outputs: [
       {
-        internalType: "string",
-        name: "",
-        type: "string",
+        internalType: 'string',
+        name: '',
+        type: 'string',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "clock",
+    name: 'clock',
     outputs: [
       {
-        internalType: "uint48",
-        name: "",
-        type: "uint48",
+        internalType: 'uint48',
+        name: '',
+        type: 'uint48',
       },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
 ] as const;
 

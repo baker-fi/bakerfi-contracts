@@ -2,30 +2,27 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import { Contract, Interface, type ContractRunner } from "ethers";
-import type {
-  UseAAVEv3,
-  UseAAVEv3Interface,
-} from "../../../../contracts/core/hooks/UseAAVEv3";
+import { Contract, Interface, type ContractRunner } from 'ethers';
+import type { UseAAVEv3, UseAAVEv3Interface } from '../../../../contracts/core/hooks/UseAAVEv3';
 
 const _abi = [
   {
     inputs: [],
-    name: "InvalidAAVEv3Contract",
-    type: "error",
+    name: 'InvalidAAVEv3Contract',
+    type: 'error',
   },
   {
     anonymous: false,
     inputs: [
       {
         indexed: false,
-        internalType: "uint8",
-        name: "version",
-        type: "uint8",
+        internalType: 'uint8',
+        name: 'version',
+        type: 'uint8',
       },
     ],
-    name: "Initialized",
-    type: "event",
+    name: 'Initialized',
+    type: 'event',
   },
 ] as const;
 

@@ -13,7 +13,7 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
@@ -21,88 +21,55 @@ import type {
   TypedLogDescription,
   TypedListener,
   TypedContractMethod,
-} from "../../../../common";
+} from '../../../../common';
 
 export interface UseIERC4626Interface extends Interface {
   getFunction(
     nameOrSignature:
-      | "approveTokenForVault"
-      | "governor"
-      | "isTokenApprovedForVault"
-      | "owner"
-      | "renounceOwnership"
-      | "transferGovernorship"
-      | "transferOwnership"
-      | "unapproveTokenForVault"
+      | 'approveTokenForVault'
+      | 'governor'
+      | 'isTokenApprovedForVault'
+      | 'owner'
+      | 'renounceOwnership'
+      | 'transferGovernorship'
+      | 'transferOwnership'
+      | 'unapproveTokenForVault',
   ): FunctionFragment;
 
   getEvent(
-    nameOrSignatureOrTopic:
-      | "GovernshipTransferred"
-      | "Initialized"
-      | "OwnershipTransferred"
+    nameOrSignatureOrTopic: 'GovernshipTransferred' | 'Initialized' | 'OwnershipTransferred',
   ): EventFragment;
 
   encodeFunctionData(
-    functionFragment: "approveTokenForVault",
-    values: [AddressLike, AddressLike]
+    functionFragment: 'approveTokenForVault',
+    values: [AddressLike, AddressLike],
   ): string;
-  encodeFunctionData(functionFragment: "governor", values?: undefined): string;
+  encodeFunctionData(functionFragment: 'governor', values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "isTokenApprovedForVault",
-    values: [AddressLike, AddressLike]
+    functionFragment: 'isTokenApprovedForVault',
+    values: [AddressLike, AddressLike],
   ): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(functionFragment: 'owner', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'renounceOwnership', values?: undefined): string;
+  encodeFunctionData(functionFragment: 'transferGovernorship', values: [AddressLike]): string;
+  encodeFunctionData(functionFragment: 'transferOwnership', values: [AddressLike]): string;
   encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferGovernorship",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "unapproveTokenForVault",
-    values: [AddressLike, AddressLike]
+    functionFragment: 'unapproveTokenForVault',
+    values: [AddressLike, AddressLike],
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "approveTokenForVault",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "governor", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "isTokenApprovedForVault",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferGovernorship",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "unapproveTokenForVault",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: 'approveTokenForVault', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'governor', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'isTokenApprovedForVault', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'owner', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'renounceOwnership', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transferGovernorship', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'transferOwnership', data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: 'unapproveTokenForVault', data: BytesLike): Result;
 }
 
 export namespace GovernshipTransferredEvent {
-  export type InputTuple = [
-    previousGovernor: AddressLike,
-    newGovernor: AddressLike
-  ];
+  export type InputTuple = [previousGovernor: AddressLike, newGovernor: AddressLike];
   export type OutputTuple = [previousGovernor: string, newGovernor: string];
   export interface OutputObject {
     previousGovernor: string;
@@ -148,133 +115,103 @@ export interface UseIERC4626 extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
   approveTokenForVault: TypedContractMethod<
     [vault: AddressLike, token: AddressLike],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  governor: TypedContractMethod<[], [string], "view">;
+  governor: TypedContractMethod<[], [string], 'view'>;
 
   isTokenApprovedForVault: TypedContractMethod<
     [vault: AddressLike, token: AddressLike],
     [boolean],
-    "view"
+    'view'
   >;
 
-  owner: TypedContractMethod<[], [string], "view">;
+  owner: TypedContractMethod<[], [string], 'view'>;
 
-  renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
+  renounceOwnership: TypedContractMethod<[], [void], 'nonpayable'>;
 
-  transferGovernorship: TypedContractMethod<
-    [_newGovernor: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+  transferGovernorship: TypedContractMethod<[_newGovernor: AddressLike], [void], 'nonpayable'>;
 
-  transferOwnership: TypedContractMethod<
-    [newOwner: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+  transferOwnership: TypedContractMethod<[newOwner: AddressLike], [void], 'nonpayable'>;
 
   unapproveTokenForVault: TypedContractMethod<
     [vault: AddressLike, token: AddressLike],
     [void],
-    "nonpayable"
+    'nonpayable'
   >;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
   getFunction(
-    nameOrSignature: "approveTokenForVault"
-  ): TypedContractMethod<
-    [vault: AddressLike, token: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+    nameOrSignature: 'approveTokenForVault',
+  ): TypedContractMethod<[vault: AddressLike, token: AddressLike], [void], 'nonpayable'>;
+  getFunction(nameOrSignature: 'governor'): TypedContractMethod<[], [string], 'view'>;
   getFunction(
-    nameOrSignature: "governor"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: 'isTokenApprovedForVault',
+  ): TypedContractMethod<[vault: AddressLike, token: AddressLike], [boolean], 'view'>;
+  getFunction(nameOrSignature: 'owner'): TypedContractMethod<[], [string], 'view'>;
+  getFunction(nameOrSignature: 'renounceOwnership'): TypedContractMethod<[], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "isTokenApprovedForVault"
-  ): TypedContractMethod<
-    [vault: AddressLike, token: AddressLike],
-    [boolean],
-    "view"
-  >;
+    nameOrSignature: 'transferGovernorship',
+  ): TypedContractMethod<[_newGovernor: AddressLike], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "owner"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: 'transferOwnership',
+  ): TypedContractMethod<[newOwner: AddressLike], [void], 'nonpayable'>;
   getFunction(
-    nameOrSignature: "renounceOwnership"
-  ): TypedContractMethod<[], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "transferGovernorship"
-  ): TypedContractMethod<[_newGovernor: AddressLike], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "transferOwnership"
-  ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "unapproveTokenForVault"
-  ): TypedContractMethod<
-    [vault: AddressLike, token: AddressLike],
-    [void],
-    "nonpayable"
-  >;
+    nameOrSignature: 'unapproveTokenForVault',
+  ): TypedContractMethod<[vault: AddressLike, token: AddressLike], [void], 'nonpayable'>;
 
   getEvent(
-    key: "GovernshipTransferred"
+    key: 'GovernshipTransferred',
   ): TypedContractEvent<
     GovernshipTransferredEvent.InputTuple,
     GovernshipTransferredEvent.OutputTuple,
     GovernshipTransferredEvent.OutputObject
   >;
   getEvent(
-    key: "Initialized"
+    key: 'Initialized',
   ): TypedContractEvent<
     InitializedEvent.InputTuple,
     InitializedEvent.OutputTuple,
     InitializedEvent.OutputObject
   >;
   getEvent(
-    key: "OwnershipTransferred"
+    key: 'OwnershipTransferred',
   ): TypedContractEvent<
     OwnershipTransferredEvent.InputTuple,
     OwnershipTransferredEvent.OutputTuple,
@@ -282,7 +219,7 @@ export interface UseIERC4626 extends BaseContract {
   >;
 
   filters: {
-    "GovernshipTransferred(address,address)": TypedContractEvent<
+    'GovernshipTransferred(address,address)': TypedContractEvent<
       GovernshipTransferredEvent.InputTuple,
       GovernshipTransferredEvent.OutputTuple,
       GovernshipTransferredEvent.OutputObject
@@ -293,7 +230,7 @@ export interface UseIERC4626 extends BaseContract {
       GovernshipTransferredEvent.OutputObject
     >;
 
-    "Initialized(uint8)": TypedContractEvent<
+    'Initialized(uint8)': TypedContractEvent<
       InitializedEvent.InputTuple,
       InitializedEvent.OutputTuple,
       InitializedEvent.OutputObject
@@ -304,7 +241,7 @@ export interface UseIERC4626 extends BaseContract {
       InitializedEvent.OutputObject
     >;
 
-    "OwnershipTransferred(address,address)": TypedContractEvent<
+    'OwnershipTransferred(address,address)': TypedContractEvent<
       OwnershipTransferredEvent.InputTuple,
       OwnershipTransferredEvent.OutputTuple,
       OwnershipTransferredEvent.OutputObject

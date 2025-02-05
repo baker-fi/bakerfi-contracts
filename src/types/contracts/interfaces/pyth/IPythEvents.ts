@@ -11,26 +11,21 @@ import type {
   ContractRunner,
   ContractMethod,
   Listener,
-} from "ethers";
+} from 'ethers';
 import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
   TypedEventLog,
   TypedLogDescription,
   TypedListener,
-} from "../../../common";
+} from '../../../common';
 
 export interface IPythEventsInterface extends Interface {
-  getEvent(
-    nameOrSignatureOrTopic: "BatchPriceFeedUpdate" | "PriceFeedUpdate"
-  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: 'BatchPriceFeedUpdate' | 'PriceFeedUpdate'): EventFragment;
 }
 
 export namespace BatchPriceFeedUpdateEvent {
-  export type InputTuple = [
-    chainId: BigNumberish,
-    sequenceNumber: BigNumberish
-  ];
+  export type InputTuple = [chainId: BigNumberish, sequenceNumber: BigNumberish];
   export type OutputTuple = [chainId: bigint, sequenceNumber: bigint];
   export interface OutputObject {
     chainId: bigint;
@@ -47,14 +42,9 @@ export namespace PriceFeedUpdateEvent {
     id: BytesLike,
     publishTime: BigNumberish,
     price: BigNumberish,
-    conf: BigNumberish
+    conf: BigNumberish,
   ];
-  export type OutputTuple = [
-    id: string,
-    publishTime: bigint,
-    price: bigint,
-    conf: bigint
-  ];
+  export type OutputTuple = [id: string, publishTime: bigint, price: bigint, conf: bigint];
   export interface OutputObject {
     id: string;
     publishTime: bigint;
@@ -76,53 +66,49 @@ export interface IPythEvents extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
-  removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
-  ): Promise<this>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(event?: TCEvent): Promise<this>;
 
-  getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
-  ): T;
+  getFunction<T extends ContractMethod = ContractMethod>(key: string | FunctionFragment): T;
 
   getEvent(
-    key: "BatchPriceFeedUpdate"
+    key: 'BatchPriceFeedUpdate',
   ): TypedContractEvent<
     BatchPriceFeedUpdateEvent.InputTuple,
     BatchPriceFeedUpdateEvent.OutputTuple,
     BatchPriceFeedUpdateEvent.OutputObject
   >;
   getEvent(
-    key: "PriceFeedUpdate"
+    key: 'PriceFeedUpdate',
   ): TypedContractEvent<
     PriceFeedUpdateEvent.InputTuple,
     PriceFeedUpdateEvent.OutputTuple,
@@ -130,7 +116,7 @@ export interface IPythEvents extends BaseContract {
   >;
 
   filters: {
-    "BatchPriceFeedUpdate(uint16,uint64)": TypedContractEvent<
+    'BatchPriceFeedUpdate(uint16,uint64)': TypedContractEvent<
       BatchPriceFeedUpdateEvent.InputTuple,
       BatchPriceFeedUpdateEvent.OutputTuple,
       BatchPriceFeedUpdateEvent.OutputObject
@@ -141,7 +127,7 @@ export interface IPythEvents extends BaseContract {
       BatchPriceFeedUpdateEvent.OutputObject
     >;
 
-    "PriceFeedUpdate(bytes32,uint64,int64,uint64)": TypedContractEvent<
+    'PriceFeedUpdate(bytes32,uint64,int64,uint64)': TypedContractEvent<
       PriceFeedUpdateEvent.InputTuple,
       PriceFeedUpdateEvent.OutputTuple,
       PriceFeedUpdateEvent.OutputObject
