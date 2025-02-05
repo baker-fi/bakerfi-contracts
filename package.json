@@ -1,6 +1,6 @@
 {
   "name": "@baker-fi/sdk",
-  "version": "1.4.0-beta.3",
+  "version": "1.4.0-rc.1",
   "description": "",
   "main": "dist/src/types/index.js",
   "module": "dist/src/types/index.js",
