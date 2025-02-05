@@ -126,7 +126,7 @@ abstract contract StrategySupplyBase is IStrategy, ReentrancyGuard, Ownable {
     // Transfer assets to user
     ERC20(_asset).safeTransfer(msg.sender, withdrawalValue);
 
-    balance -= amount;
+    balance -= withdrawalValue;
     emit StrategyUndeploy(msg.sender, withdrawalValue);
     emit StrategyAmountUpdate(balance);
 
