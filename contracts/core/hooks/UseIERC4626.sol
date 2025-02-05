@@ -18,6 +18,7 @@ abstract contract UseIERC4626 is GovernableOwnable {
    */
   error InvalidVaultAddress();
   error FailedToApproveAllowanceForVault();
+  error SlippageTooHigh();
 
   mapping(IERC4626 => mapping(IERC20 => bool)) private _approvedVaults;
 
@@ -38,7 +39,8 @@ abstract contract UseIERC4626 is GovernableOwnable {
 
   function unapproveTokenForVault(IERC4626 vault, IERC20 token) public onlyGovernor {
     _approvedVaults[vault][token] = false;
-    if (!IERC20(token).approve(address(vault), 0)) revert FailedToApproveAllowanceForVault();
+    // Set the allowance to a very small amount, USDT does not support 0 allowance
+    if (!IERC20(token).approve(address(vault), 1)) revert FailedToApproveAllowanceForVault();
   }
 
   /**
@@ -100,12 +102,14 @@ abstract contract UseIERC4626 is GovernableOwnable {
   function depositVault(
     IERC4626 vault,
     uint256 assets,
-    address receiver
+    address receiver,
+    uint256 minShares
   ) internal virtual returns (uint256 shares) {
     // Check if the vault address is valid
     if (address(vault) == address(0)) revert InvalidVaultAddress();
     // Call the deposit function of the vault to deposit assets
     shares = vault.deposit(assets, receiver);
+    if (shares < minShares) revert SlippageTooHigh();
   }
 
   /**
@@ -117,12 +121,14 @@ abstract contract UseIERC4626 is GovernableOwnable {
   function mintVault(
     IERC4626 vault,
     uint256 shares,
-    address receiver
+    address receiver,
+    uint256 maxAssets
   ) internal virtual returns (uint256 assets) {
     // Check if the vault address is valid
     if (address(vault) == address(0)) revert InvalidVaultAddress();
     // Call the mint function of the vault to mint shares
     assets = vault.mint(shares, receiver);
+    if (assets > maxAssets) revert SlippageTooHigh();
   }
 
   /**
@@ -136,10 +142,14 @@ abstract contract UseIERC4626 is GovernableOwnable {
     IERC4626 vault,
     uint256 assets,
     address receiver,
-    address owner
+    address owner,
+    uint256 maxShares
   ) internal virtual returns (uint256 shares) {
+    // Check if the vault address is valid
+    if (address(vault) == address(0)) revert InvalidVaultAddress();
     // Call the withdraw function of the vault to withdraw assets
     shares = vault.withdraw(assets, receiver, owner);
+    if (shares > maxShares) revert SlippageTooHigh();
   }
 
   /**
@@ -153,12 +163,14 @@ abstract contract UseIERC4626 is GovernableOwnable {
     IERC4626 vault,
     uint256 shares,
     address receiver,
-    address owner
+    address owner,
+    uint256 minAssets
   ) internal virtual returns (uint256 assets) {
     // Check if the vault address is valid
     if (address(vault) == address(0)) revert InvalidVaultAddress();
     // Call the redeem function of the vault to redeem shares
     assets = vault.redeem(shares, receiver, owner);
+    if (assets < minAssets) revert SlippageTooHigh();
   }
 }
 
@@ -179,9 +191,10 @@ contract UseIERC4626Mock is UseIERC4626 {
   function test__depositVault(
     IERC4626 vault,
     uint256 assets,
-    address receiver
+    address receiver,
+    uint256 minShares
   ) external returns (uint256) {
-    return depositVault(vault, assets, receiver);
+    return depositVault(vault, assets, receiver, minShares);
   }
 
   /**
@@ -193,9 +206,10 @@ contract UseIERC4626Mock is UseIERC4626 {
   function test__mintVault(
     IERC4626 vault,
     uint256 shares,
-    address receiver
+    address receiver,
+    uint256 maxAssets
   ) external returns (uint256) {
-    return mintVault(vault, shares, receiver);
+    return mintVault(vault, shares, receiver, maxAssets);
   }
 
   /**
@@ -209,9 +223,10 @@ contract UseIERC4626Mock is UseIERC4626 {
     IERC4626 vault,
     uint256 assets,
     address receiver,
-    address owner
+    address owner,
+    uint256 maxShares
   ) external returns (uint256) {
-    return withdrawVault(vault, assets, receiver, owner);
+    return withdrawVault(vault, assets, receiver, owner, maxShares);
   }
 
   /**
@@ -225,8 +240,9 @@ contract UseIERC4626Mock is UseIERC4626 {
     IERC4626 vault,
     uint256 shares,
     address receiver,
-    address owner
+    address owner,
+    uint256 minAssets
   ) external returns (uint256) {
-    return redeemVault(vault, shares, receiver, owner);
+    return redeemVault(vault, shares, receiver, owner, minAssets);
   }
 }

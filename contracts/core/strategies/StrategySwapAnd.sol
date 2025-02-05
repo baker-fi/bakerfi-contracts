@@ -10,6 +10,8 @@ import { IOracle } from "../../interfaces/core/IOracle.sol";
 import { ISwapHandler } from "../../interfaces/core/ISwapHandler.sol";
 import { PERCENTAGE_PRECISION } from "../Constants.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { MathLibrary } from "../../libraries/MathLibrary.sol";
+import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 /**
  * @title StrategySwapPark
  *
@@ -24,6 +26,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
  */
 abstract contract StrategySwapAnd is IStrategy, ReentrancyGuard, Ownable {
   using SafeERC20 for IERC20;
+  using MathLibrary for uint256;
 
   /**
    * @notice Error for invalid configuration
@@ -157,6 +160,11 @@ abstract contract StrategySwapAnd is IStrategy, ReentrancyGuard, Ownable {
   ) internal view returns (uint256 amountOut_) {
     IOracle.Price memory price = _oracle.getSafeLatestPrice(options);
     amountOut_ = (amount * _oracle.getPrecision()) / price.price;
+    amountOut_ = MathLibrary.toDecimals(
+      amountOut_,
+      ERC20(address(_asset)).decimals(),
+      ERC20(_underlyingStrategy.asset()).decimals()
+    );
   }
 
   /**
@@ -172,6 +180,11 @@ abstract contract StrategySwapAnd is IStrategy, ReentrancyGuard, Ownable {
   ) internal view returns (uint256 amountOut_) {
     IOracle.Price memory price = _oracle.getSafeLatestPrice(options);
     amountOut_ = (amount * price.price) / _oracle.getPrecision();
+    amountOut_ = MathLibrary.toDecimals(
+      amountOut_,
+      ERC20(_underlyingStrategy.asset()).decimals(),
+      ERC20(address(_asset)).decimals()
+    );
   }
 
   function _swap(
@@ -223,7 +236,10 @@ abstract contract StrategySwapAnd is IStrategy, ReentrancyGuard, Ownable {
   /**
    * @inheritdoc IStrategy
    */
-  function harvest() external override nonReentrant returns (int256 balanceChange) {
+  function harvest() external override onlyOwner nonReentrant returns (int256 balanceChange) {
+    // Harvest the underlying strategy
+    _underlyingStrategy.harvest();
+
     uint256 newBalance = _totalAssets();
 
     balanceChange = int256(newBalance) - int256(_deployedAmount);

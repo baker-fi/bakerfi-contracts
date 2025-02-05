@@ -8,6 +8,7 @@ import './settings';
 import './strategy';
 import './token';
 import './vault';
+import './router';
 import { StrategyImplementation } from '../../constants/types';
 
 task('vault:resume', 'Generate an artifact tree')

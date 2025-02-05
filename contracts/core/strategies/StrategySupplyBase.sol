@@ -87,7 +87,7 @@ abstract contract StrategySupplyBase is IStrategy, ReentrancyGuard, Ownable {
   /**
    * @inheritdoc IStrategy
    */
-  function harvest() external returns (int256 balanceChange) {
+  function harvest() external onlyOwner returns (int256 balanceChange) {
     // Get Balance
     uint256 newBalance = getBalance();
 
@@ -119,15 +119,18 @@ abstract contract StrategySupplyBase is IStrategy, ReentrancyGuard, Ownable {
     // Transfer assets back to caller
     uint256 withdrawalValue = _undeploy(amount);
 
+    // Update the deployed amount
+    _deployedAmount -= withdrawalValue;
+
     // Check withdrawal value matches the initial amount
     // Transfer assets to user
     ERC20(_asset).safeTransfer(msg.sender, withdrawalValue);
 
-    balance -= amount;
+    balance -= withdrawalValue;
     emit StrategyUndeploy(msg.sender, withdrawalValue);
     emit StrategyAmountUpdate(balance);
 
-    return amount;
+    return withdrawalValue;
   }
 
   /**

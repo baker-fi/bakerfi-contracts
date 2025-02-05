@@ -3,6 +3,7 @@ import 'hardhat-flat-exporter';
 import 'hardhat-contract-sizer';
 import 'solidity-coverage';
 import 'hardhat-gas-reporter';
+import '@typechain/hardhat';
 import '@nomicfoundation/hardhat-ethers';
 import '@nomicfoundation/hardhat-chai-matchers';
 import '@nomicfoundation/hardhat-toolbox';
@@ -33,18 +34,13 @@ const config: HardhatUserConfig = {
   networks: {
     hardhat: {
       accounts: devAccounts,
-      mining: {
-        auto: true,
-        interval: 2000,
-      },
-      hardfork: 'cancun',
       gas: 'auto',
     },
     local: {
       chainId: 1337,
       hardfork: 'shanghai',
       url: process.env.WEB3_RPC_LOCAL_URL || 'http://127.0.0.1:8545',
-      gasPrice: 20 * 1000000000,
+      gas: 'auto',
       accounts: STAGING_ACCOUNTS_PKEYS,
     },
     ethereum: {
@@ -192,10 +188,16 @@ const config: HardhatUserConfig = {
       arbitrumOne: process.env.ARBSCAN_API_KEY || '',
     },
   },
-
   storageLayoutChanges: {
     contracts: ['Vault', 'StrategyLeverageAAVEv3', 'StrategyLeverageMorphoBlue'],
     fullPath: false,
+  },
+  typechain: {
+    outDir: 'src/types',
+    target: 'ethers-v6',
+    alwaysGenerateOverloads: false, // should overloads with full signatures like deposit(uint256) be generated always, even if there are no overloads?
+    dontOverrideCompile: false, // defaults to false
+    externalArtifacts: [], // Add this line
   },
 };
 

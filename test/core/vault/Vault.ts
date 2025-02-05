@@ -113,7 +113,7 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
     expect(await vault.totalAssets()).to.equal(8961040769649332196n);
     expect((await strategy.getPosition([0, 0]))[2]).to.equal(782042601n);
     expect(await vault.totalSupply()).to.equal(8961040768967475200n);
-    expect(await vault.tokenPerAsset()).to.equal(999999999923908727n);
+    expect(await vault.tokenPerAsset()).to.equal(1000000000076091272n);
   });
 
   it('Deposit - 0 ETH', async function () {
@@ -832,6 +832,8 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
 
     await weth.approve(await vault.getAddress(), firstAmount);
     await vault.deposit(firstAmount, owner.address);
+    expect(await vault.previewWithdraw(withdrawAmount)).to.equal(ethers.parseUnits('99', 16));
+    await vault.setWithdrawalFee(0);
     expect(await vault.previewWithdraw(withdrawAmount)).to.equal(withdrawAmount);
   });
 
@@ -979,6 +981,10 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
     await vault.deposit(depositAmount, owner.address);
 
     expect(await vault.previewRedeem(ethers.parseUnits('5', 18))).to.equal(
+      ethers.parseUnits('495', 16),
+    );
+    await vault.setWithdrawalFee(0);
+    expect(await vault.previewRedeem(ethers.parseUnits('5', 18))).to.equal(
       ethers.parseUnits('5', 18),
     );
   });
@@ -1006,6 +1012,22 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
       )
       .emit(vault, 'Transfer')
       .withArgs(owner.address, '0x0000000000000000000000000000000000000000', balanceOf);
+  });
+
+  it('When Paused - maxDeposit, maxReddemm, maxMint, maxWithdraw should be 0', async function () {
+    const { owner, vault } = await loadFixture(deployFunction);
+    await vault.pause();
+    expect(await vault.maxDeposit(owner.address)).to.equal(0n);
+    expect(await vault.maxRedeem(owner.address)).to.equal(0n);
+    expect(await vault.maxMint(owner.address)).to.equal(0n);
+    expect(await vault.maxWithdraw(owner.address)).to.equal(0n);
+  });
+
+  it('No Deposit limit - maxDeposit should be unlimited', async function () {
+    const { owner, vault } = await loadFixture(deployFunction);
+    await vault.setMaxDeposit(0);
+    expect(await vault.maxDeposit(owner.address)).to.equal(ethers.MaxUint256);
+    expect(await vault.maxMint(owner.address)).to.equal(ethers.MaxUint256);
   });
 
   it('Redeem Sucess - In Name of ', async function () {
@@ -1077,6 +1099,20 @@ describeif(network.name === 'hardhat')('BakerFi Vault', function () {
       ],
     ]);
     expect(true).to.equal(true);
+  });
+
+  it('Rebalance - Fails when paused', async () => {
+    const { vault } = await loadFixture(deployFunction);
+
+    await vault.pause();
+    await expect(
+      vault.rebalance([
+        [
+          0x01, // Harvest Command
+          '0x',
+        ],
+      ]),
+    ).to.be.revertedWith('Pausable: paused');
   });
 
   it('Withdraw - Invalid Receiver', async () => {

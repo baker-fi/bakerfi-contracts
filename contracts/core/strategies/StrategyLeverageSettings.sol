@@ -67,7 +67,7 @@ contract StrategyLeverageSettings is StrategySettings {
   function _initLeverageSettings(
     address initialOwner,
     address initialGovernor
-  ) internal initializer {
+  ) internal onlyInitializing {
     _initializeGovernableOwnable(initialOwner, initialGovernor);
     _initializeStrategySettings();
     _loanToValue = 800 * 1e6; // 80%

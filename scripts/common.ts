@@ -25,10 +25,12 @@ export async function deployWETH(serviceRegistry) {
   const weth = await WETH.deploy();
   await weth.waitForDeployment();
 
-  await serviceRegistry.registerService(
-    ethers.keccak256(Buffer.from('WETH')),
-    await weth.getAddress(),
-  );
+  if (serviceRegistry) {
+    await serviceRegistry.registerService(
+      ethers.keccak256(Buffer.from('WETH')),
+      await weth.getAddress(),
+    );
+  }
   return weth;
 }
 
@@ -227,6 +229,13 @@ export async function deployPythMock(serviceRegistry) {
     await pyth.getAddress(),
   );
   return pyth;
+}
+
+export async function deployParkStrategy(owner: string, weth: string) {
+  const StrategyPark = await ethers.getContractFactory('StrategyPark');
+  const strategyPark = await StrategyPark.deploy(owner, weth);
+  await strategyPark.waitForDeployment();
+  return strategyPark;
 }
 
 export async function deployETHOracle(serviceRegistry, pyth) {

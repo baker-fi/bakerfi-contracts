@@ -20,8 +20,9 @@ export const VAULT_ROUTER_COMMAND_ACTIONS = {
   WRAP_ETH: 0x07, // Convert ETH to WETH
   UNWRAP_ETH: 0x08, // Convert WETH back to ETH
 
-  // Permit Operations
-  PULL_TOKEN_WITH_PERMIT: 0x09, // Transfer tokens using EIP-2612 permit
+  // Native Token Operations
+  SEND_NATIVE: 0x0a, // Send native tokens to a specified address
+  SWEEP_NATIVE: 0x0b, // Sweep native tokens from the vault
 
   // ERC4626 Vault Operations
   ERC4626_VAULT_DEPOSIT: 0x10, // Deposit assets into an ERC4626 vault
@@ -40,14 +41,15 @@ export const VaultRouterABI = [
   'function pushToken(address, address, uint256)',
   'function pushTokenFrom(address, address, address, uint256)',
   'function sweepTokens(address, address)',
+  'function sweepNative(address)',
   'function wrapETH(uint256)',
   'function unwrapETH(uint256)',
   'function swap((address,address,uint8,uint256,uint256,bytes))',
-  'function pullTokenWithPermit(address, uint256, address, uint256, uint8, bytes32, bytes32)',
-  'function depositVault(address, uint256, address)',
-  'function mintVault(address, uint256, address)',
-  'function redeemVault(address, uint256, address, address)',
-  'function withdrawVault(address, uint256, address, address)',
+  'function depositVault(address, uint256, address, uint256)',
+  'function mintVault(address, uint256, address, uint256)',
+  'function redeemVault(address, uint256, address, uint256)',
+  'function withdrawVault(address, uint256, address, uint256)',
   'function convertToVaultShares(address, uint256)',
   'function convertToVaultAssets(address, uint256)',
+  'function sendNative(address, uint256)',
 ];

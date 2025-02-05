@@ -10,19 +10,27 @@ import { NetworkEnum } from './types';
 
 export const deployConfigMap: { [key in NetworkEnum]?: BakerDeploy } = {
   [NetworkEnum.LOCAL]: {
+    [StrategyImplementation.FIFTY_FIFTY_ETH]: {
+      proxyAdmin: '0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e',
+      vaultRouter: '0x27F56eb75a1EBbE7e7218e8fCa5FF51E3d655f22',
+      vaultRouterProxy: '0x258b944B1e716c01725771148382EB988e4AB0a7',
+      serviceRegistry: '0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e',
+      vault: '0xca7CC58795dbF28a4f7099b740779F2197222755',
+      vaultProxy: '0x07C1F45Dc0a620E6716d8A45485B8f0A79E270F8',
+    },
     [StrategyImplementation.AAVE_V3_WSTETH_ETH]: {
       proxyAdmin: '0x37ebdd9B2adC5f8af3993256859c1Ea3BFE1465e',
       serviceRegistry: '0x5bC13d5ce928Ae6e414A831D173E86fD040deBb9',
       flashLender: '0x5Ac32814f9EB4d415779892890a216b244FcB3B5',
-      collateralOracle: '0x2a3a012d97369a5BA925fC1aAAc6c6E9cA985EDd',
-      debtOracle: '0xF8D0e82B1EE3EEc7AEcDAa4E1c94E29fe3Db712E',
-      settings: '0x26A76D21edD8049fd394786976EF578010569FcB',
-      settingsProxy: '0xB7d0add4df75aa719bE464e860C8c40bb7FA2122',
-      strategy: '0xc2a603BcFa46e5616CEa164DA6A80cF62E080858',
-      strategyProxy: '0xe33CA06EaaAF46A98C5631CF6c847fC50067E727',
-      vault: '0x4129eE2030194089cEECc34fE47AfFb381E9e45D',
-      vaultProxy: '0xb99b2F8f3d121f2B491Cc61b84689a5638E106B4',
-      bkr: '0x9F5c44Edc6AD6F2036aA4ADFA4DA92C78EE1A101',
+      oracle: '0xfbc2EF0cbEd45cf196d89D46E7EEE376348B502e',
+      debtOracle: '0x501F860caE70FA5058f1D33458F6066fdB62A591',
+      strategy: '0x57237193fA6B5fD3d3e8eC5d989dF73846cf7C1f',
+      strategyProxy: '0xF8D0e82B1EE3EEc7AEcDAa4E1c94E29fe3Db712E',
+      vault: '0xc2a603BcFa46e5616CEa164DA6A80cF62E080858',
+      vaultProxy: '0xe33CA06EaaAF46A98C5631CF6c847fC50067E727',
+      bkr: '0x51d19056843E5ad4991399D8838068DB9139Eb71',
+      vaultRouter: '0xb99b2F8f3d121f2B491Cc61b84689a5638E106B4',
+      vaultRouterProxy: '0x3AE68Fa5cF690ECa79fDc59b2f6B1c3eE05a3118',
     },
   },
   [NetworkEnum.ARBITRUM]: {

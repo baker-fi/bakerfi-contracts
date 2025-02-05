@@ -15,9 +15,10 @@ import { MathLibrary } from "../libraries/MathLibrary.sol";
 import { VaultSettings } from "./VaultSettings.sol";
 import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import { ADMIN_ROLE, VAULT_MANAGER_ROLE, PAUSER_ROLE } from "./Constants.sol";
+import { IERC20MetadataUpgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol";
+import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-/**
- * @title BakerFi Vault Base 🧑‍🍳
+/* @title BakerFi Vault Base 🧑‍🍳
  *
  * @author Chef Kenji <chef.kenji@bakerfi.xyz>
  * @author Chef Kal-EL <chef.kal-el@bakerfi.xyz>
@@ -26,13 +27,25 @@ import { ADMIN_ROLE, VAULT_MANAGER_ROLE, PAUSER_ROLE } from "./Constants.sol";
  * for managing assets, deposits, withdrawals, and rebalancing strategies.
  * It inherits from several OpenZeppelin contracts to ensure security and upgradeability.
  */
+
+contract EmptyAdapter {
+  uint256[100] private _emptySlot;
+}
+
+contract EmptyAdapter2 {
+  uint256[48] private _emptySlot;
+}
+
 abstract contract VaultBase is
-  AccessControlUpgradeable,
+  Initializable,
+  EmptyAdapter,
   PausableUpgradeable,
   ReentrancyGuardUpgradeable,
   ERC20Upgradeable,
   VaultSettings,
+  EmptyAdapter2,
   UseWETH,
+  AccessControlUpgradeable,
   IVault
 {
   using RebaseLibrary for Rebase;
@@ -54,13 +67,20 @@ abstract contract VaultBase is
   error NoAllowance();
 
   uint256 private constant _MINIMUM_SHARE_BALANCE = 1000;
-  uint256 private constant _ONE = 1e18;
 
   /**
    * @dev Modifier to restrict access to whitelisted accounts.
    */
   modifier onlyWhiteListed() {
     if (!isAccountEnabled(msg.sender)) revert NoPermissions();
+    _;
+  }
+
+  /**
+   * @dev Modifier to restrict access to whitelisted accounts.
+   */
+  modifier onlyReceiverWhiteListed(address receiver) {
+    if (!isAccountEnabled(receiver)) revert NoPermissions();
     _;
   }
 
@@ -88,7 +108,7 @@ abstract contract VaultBase is
     string calldata tokenName,
     string calldata tokenSymbol,
     address weth
-  ) internal {
+  ) internal onlyInitializing {
     __ERC20_init(tokenName, tokenSymbol);
     _initUseWETH(weth);
     if (initialOwner == address(0)) revert InvalidOwner();
@@ -97,6 +117,27 @@ abstract contract VaultBase is
     _setupRole(ADMIN_ROLE, initialOwner);
     _setupRole(VAULT_MANAGER_ROLE, initialOwner);
     _setupRole(PAUSER_ROLE, initialOwner);
+  }
+
+  /**
+   * @dev Returns the decimals of the share asset.
+   * @return The decimals of the asset.
+   */
+  function decimals()
+    public
+    view
+    override(ERC20Upgradeable, IERC20MetadataUpgradeable)
+    returns (uint8)
+  {
+    return ERC20Upgradeable(_asset()).decimals();
+  }
+
+  /**
+   * @dev Returns the decimals of the share asset.
+   * @return The decimals of the asset.
+   */
+  function _ONE() private view returns (uint256) {
+    return 10 ** decimals();
   }
 
   /**
@@ -155,8 +196,12 @@ abstract contract VaultBase is
    * @dev Returns the maximum number of shares that can be minted.
    * @return maxShares The maximum number of shares.
    */
-  function maxMint(address) external pure override returns (uint256 maxShares) {
-    return type(uint256).max;
+  function maxMint(address receiver) external view override returns (uint256 maxShares) {
+    uint256 maxAssets = _maxDepositFor(receiver);
+    maxShares = this.convertToShares(maxAssets);
+    maxAssets == 0 || maxAssets == type(uint256).max
+      ? maxAssets
+      : _convertToShares(maxAssets, false);
   }
 
   /**
@@ -165,7 +210,7 @@ abstract contract VaultBase is
    * @return assets The amount of assets corresponding to the shares.
    */
   function previewMint(uint256 shares) external view override returns (uint256 assets) {
-    assets = this.convertToAssets(shares);
+    assets = _convertToAssets(shares, true);
   }
 
   /**
@@ -177,7 +222,14 @@ abstract contract VaultBase is
   function mint(
     uint256 shares,
     address receiver
-  ) external override nonReentrant whenNotPaused onlyWhiteListed returns (uint256 assets) {
+  )
+    external
+    override
+    nonReentrant
+    whenNotPaused
+    onlyReceiverWhiteListed(receiver)
+    returns (uint256 assets)
+  {
     if (shares == 0) revert InvalidAmount();
     assets = this.convertToAssets(shares);
     IERC20Upgradeable(_asset()).safeTransferFrom(msg.sender, address(this), assets);
@@ -188,8 +240,8 @@ abstract contract VaultBase is
    * @dev Returns the maximum amount of assets that can be deposited.
    * @return maxAssets The maximum amount of assets.
    */
-  function maxDeposit(address) external pure override returns (uint256 maxAssets) {
-    return type(uint256).max;
+  function maxDeposit(address receiver) external view override returns (uint256 maxAssets) {
+    return _maxDepositFor(receiver);
   }
 
   /**
@@ -208,7 +260,14 @@ abstract contract VaultBase is
    */
   function depositNative(
     address receiver
-  ) external payable nonReentrant whenNotPaused onlyWhiteListed returns (uint256 shares) {
+  )
+    external
+    payable
+    nonReentrant
+    whenNotPaused
+    onlyReceiverWhiteListed(receiver)
+    returns (uint256 shares)
+  {
     if (msg.value == 0) revert InvalidAmount();
     if (_asset() != wETHA()) revert InvalidAsset();
     //  Wrap ETH
@@ -225,10 +284,50 @@ abstract contract VaultBase is
   function deposit(
     uint256 assets,
     address receiver
-  ) external override nonReentrant whenNotPaused onlyWhiteListed returns (uint256 shares) {
+  )
+    external
+    override
+    nonReentrant
+    whenNotPaused
+    onlyReceiverWhiteListed(receiver)
+    returns (uint256 shares)
+  {
     if (assets == 0) revert InvalidAmount();
     IERC20Upgradeable(_asset()).safeTransferFrom(msg.sender, address(this), assets);
     return _depositInternal(assets, receiver);
+  }
+
+  /**
+   * @dev Returns the maximum amount of assets that can be deposited for a given receiver.
+   * @param receiver The address of the receiver.
+   * @return maxAssets The maximum amount of assets that can be deposited.
+   */
+  /**
+   * @dev Calculates the maximum amount of assets that can be deposited for a given receiver.
+   *
+   * This function first retrieves the maximum deposit limit set for the vault.
+   * It then calculates the current value of assets held by the receiver in terms of the vault's token.
+   *
+   * The steps are as follows:
+   * 1. Retrieve the maximum deposit limit using the `getMaxDeposit()` function.
+   * 2. Calculate the total value of assets held by the receiver by multiplying their share balance
+   *    (obtained from `balanceOf(receiver)`) by a constant `_ONE`, and then dividing by the
+   *    current token-to-asset exchange rate (obtained from `tokenPerAsset()`).
+   * 3. If the maximum deposit limit is greater than zero, check if the current value of assets held
+   *    by the receiver exceeds this limit. If it does, return 0, indicating no additional deposits
+   *    can be made. Otherwise, return the difference between the maximum deposit limit and the
+   *    current value of assets held by the receiver.
+   * 4. If the maximum deposit limit is zero, return the maximum possible value for a uint256,
+   *    indicating that there is no limit on deposits.
+   */
+  function _maxDepositFor(address receiver) internal view returns (uint256) {
+    uint256 maxDepositLocal = getMaxDeposit();
+    uint256 depositInAssets = _convertToAssets(balanceOf(receiver), false);
+    if (paused()) return 0;
+    if (maxDepositLocal > 0) {
+      return depositInAssets > maxDepositLocal ? 0 : maxDepositLocal - depositInAssets;
+    }
+    return type(uint256).max;
   }
 
   /**
@@ -248,13 +347,9 @@ abstract contract VaultBase is
       revert InvalidAssetsState();
     }
 
-    // Check if deposit exceeds the maximum allowed per wallet
-    uint256 maxDepositLocal = getMaxDeposit();
-    if (maxDepositLocal > 0) {
-      uint256 depositInAssets = (balanceOf(msg.sender) * _ONE) / tokenPerAsset();
-      uint256 newBalance = assets + depositInAssets;
-      if (newBalance > maxDepositLocal) revert MaxDepositReached();
-    }
+    uint256 maxDepositForReceiver = _maxDepositFor(receiver);
+    // Check if deposit exceeds the maximum allowed per the receiver
+    if (maxDepositForReceiver == 0 || assets > maxDepositForReceiver) revert MaxDepositReached();
 
     uint256 deployedAmount = _deploy(assets);
 
@@ -279,6 +374,7 @@ abstract contract VaultBase is
    * @return maxAssets The maximum amount of assets that can be withdrawn.
    */
   function maxWithdraw(address shareHolder) external view override returns (uint256 maxAssets) {
+    if (paused()) return 0;
     maxAssets = this.convertToAssets(balanceOf(shareHolder));
   }
 
@@ -288,7 +384,8 @@ abstract contract VaultBase is
    * @return shares The number of shares corresponding to the assets.
    */
   function previewWithdraw(uint256 assets) external view override returns (uint256 shares) {
-    shares = this.convertToShares(assets);
+    uint256 fee = assets.mulDivUp(getWithdrawalFee(), PERCENTAGE_PRECISION);
+    shares = _convertToShares(assets - fee, true);
   }
 
   /**
@@ -338,6 +435,7 @@ abstract contract VaultBase is
    * @return maxShares The maximum number of shares that can be redeemed.
    */
   function maxRedeem(address shareHolder) external view override returns (uint256 maxShares) {
+    if (paused()) return 0;
     maxShares = balanceOf(shareHolder);
   }
 
@@ -347,7 +445,9 @@ abstract contract VaultBase is
    * @return assets The amount of assets corresponding to the shares.
    */
   function previewRedeem(uint256 shares) external view override returns (uint256 assets) {
-    assets = this.convertToAssets(shares);
+    assets = _convertToAssets(shares, true);
+    uint256 fee = assets.mulDivUp(getWithdrawalFee(), PERCENTAGE_PRECISION);
+    assets -= fee;
   }
 
   /**
@@ -443,8 +543,17 @@ abstract contract VaultBase is
    * @return shares The calculated number of shares.
    */
   function convertToShares(uint256 assets) external view override returns (uint256 shares) {
+    return _convertToShares(assets, false);
+  }
+
+  /**
+   * @dev Internal function to convert assets to shares.
+   * @param assets The amount of assets to be converted to shares.
+   * @return shares The calculated number of shares.
+   */
+  function _convertToShares(uint256 assets, bool roundUp) internal view returns (uint256 shares) {
     Rebase memory total = Rebase(totalAssets(), totalSupply());
-    shares = total.toBase(assets, false);
+    shares = total.toBase(assets, roundUp);
   }
 
   /**
@@ -453,8 +562,12 @@ abstract contract VaultBase is
    * @return assets The calculated amount of assets.
    */
   function convertToAssets(uint256 shares) external view override returns (uint256 assets) {
+    return _convertToAssets(shares, false);
+  }
+
+  function _convertToAssets(uint256 shares, bool roundUp) internal view returns (uint256 assets) {
     Rebase memory total = Rebase(totalAssets(), totalSupply());
-    assets = total.toElastic(shares, false);
+    assets = total.toElastic(shares, roundUp);
   }
 
   /**
@@ -473,10 +586,10 @@ abstract contract VaultBase is
     uint256 totalAssetsValue = totalAssets();
 
     if (totalSupply() == 0 || totalAssetsValue == 0) {
-      return _ONE;
+      return _ONE();
     }
 
-    return (totalSupply() * _ONE) / totalAssetsValue;
+    return (totalAssetsValue * _ONE()) / totalSupply();
   }
 
   /**
@@ -494,6 +607,75 @@ abstract contract VaultBase is
    */
   function unpause() external onlyRole(PAUSER_ROLE) {
     _unpause();
+  }
+
+  /**
+   * @dev Enables or disables an account in the whitelist.
+   *
+   * This function can only be called by the owner and is used to enable or disable an account
+   * in the whitelist. Emits an {AccountWhiteList} event upon successful update.
+   *
+   * @param account The address of the account to be enabled or disabled.
+   * @param enabled A boolean indicating whether the account should be enabled (true) or disabled (false) in the whitelist.
+   *
+   * Requirements:
+   * - The caller must be the owner of the contract.
+   */
+  function enableAccount(address account, bool enabled) external onlyRole(ADMIN_ROLE) {
+    _enableAccount(account, enabled);
+  }
+  /**
+   * @dev Sets the performance fee percentage.
+   *
+   * This function can only be called by the owner and is used to update the performance fee percentage.
+   * Emits a {PerformanceFeeChanged} event upon successful update.
+   *
+   * @param fee The new performance fee percentage to be set.
+   *
+   * Requirements:
+   * - The caller must be the owner of the contract.
+   * - The new performance fee percentage must be a valid percentage value.
+   */
+  function setPerformanceFee(uint256 fee) external onlyRole(ADMIN_ROLE) {
+    _harvestAndMintFees();
+    _setPerformanceFee(fee);
+  }
+  /**
+   * @dev Sets the withdrawal fee percentage.
+   *
+   * This function can only be called by the owner and is used to update the withdrawal fee percentage.
+   * Emits a {WithdrawalFeeChanged} event upon successful update.
+   *
+   * @param fee The new withdrawal fee percentage to be set.
+   *
+   * Requirements:
+   * - The caller must be the owner of the contract.
+   * - The new withdrawal fee percentage must be a valid percentage value.
+   */
+  function setWithdrawalFee(uint256 fee) external onlyRole(ADMIN_ROLE) {
+    _setWithdrawalFee(fee);
+  }
+  /**
+   * @dev Sets the fee receiver address.
+   *
+   * This function can only be called by the owner and is used to update the fee receiver address.
+   * Emits a {FeeReceiverChanged} event upon successful update.
+   *
+   * @param receiver The new fee receiver address to be set.
+   *
+   * Requirements:
+   * - The caller must be the owner of the contract.
+   * - The new fee receiver address must not be the zero address.
+   */
+  function setFeeReceiver(address receiver) external onlyRole(ADMIN_ROLE) {
+    _setFeeReceiver(receiver);
+  }
+  /**
+   * @notice Sets the maximum deposit allowed in ETH.
+   * @param value The maximum deposit value to be set in ETH.
+   */
+  function setMaxDeposit(uint256 value) external onlyRole(ADMIN_ROLE) {
+    _setMaxDeposit(value);
   }
 
   /**

@@ -9,7 +9,6 @@ import { IMorpho, MarketParams, Id } from "@morpho-org/morpho-blue/src/interface
 import { MarketParamsLib } from "@morpho-org/morpho-blue/src/libraries/MarketParamsLib.sol";
 import { MorphoLib } from "@morpho-org/morpho-blue/src/libraries/periphery/MorphoLib.sol";
 import { MorphoBalancesLib } from "@morpho-org/morpho-blue/src/libraries/periphery/MorphoBalancesLib.sol";
-import { SYSTEM_DECIMALS } from "../../core/Constants.sol";
 import { MathLibrary } from "../../libraries/MathLibrary.sol";
 import { SharesMathLib } from "@morpho-org/morpho-blue/src/libraries/SharesMathLib.sol";
 
@@ -107,6 +106,35 @@ contract StrategyLeverageMorphoBlue is Initializable, StrategyLeverage {
   }
 
   /**
+   * @dev Initializes the strategy with the specified parameters.
+   * @param initialOwner The address of the initial owner of the strategy.
+   * @param initialGovernor The address of the initial governor of the strategy.
+   * @param flashLender The address of the flash lender.
+   * @param collateralToken The address of the collateral token.
+   * @param debtToken The address of the debt token.
+   * @param oracle The address of the oracle.
+   *
+   * This initializer function allows the migration from v1.3.0 to v4.0.0
+   */
+  function initializeV4(
+    address initialOwner,
+    address initialGovernor,
+    address flashLender,
+    address collateralToken,
+    address debtToken,
+    address oracle
+  ) public reinitializer(4) {
+    _initializeStrategyLeverage(
+      initialOwner,
+      initialGovernor,
+      collateralToken,
+      debtToken,
+      oracle,
+      flashLender
+    );
+  }
+
+  /**
    * @notice Retrieves the current collateral and debt balances.
    * @return collateralBalance The current collateral balance of the strategy.
    * @return debtBalance The current debt balance of the strategy.
@@ -120,16 +148,8 @@ contract StrategyLeverageMorphoBlue is Initializable, StrategyLeverage {
     returns (uint256 collateralBalance, uint256 debtBalance)
   {
     Id marketId = _marketParams.id();
-
-    uint256 totalSupplyAssets = _morpho.collateral(marketId, address(this));
-    // !Important this returns the round up quantity
-    uint256 totalBorrowAssets = _morpho.expectedBorrowAssets(_marketParams, address(this));
-
-    uint8 debtDecimals = ERC20(_marketParams.loanToken).decimals();
-    uint8 collateralDecimals = ERC20(_marketParams.collateralToken).decimals();
-
-    debtBalance = totalBorrowAssets.toDecimals(debtDecimals, SYSTEM_DECIMALS);
-    collateralBalance = totalSupplyAssets.toDecimals(collateralDecimals, SYSTEM_DECIMALS);
+    collateralBalance = _morpho.collateral(marketId, address(this));
+    debtBalance = _morpho.expectedBorrowAssets(_marketParams, address(this));
   }
 
   /**

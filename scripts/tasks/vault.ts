@@ -34,7 +34,7 @@ task('vault:assets', "Prints an account's share balance")
   .setAction(async ({ strategy }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
-    const spinner = ora(`Geeting Vault Assets`).start();
+    const spinner = ora(`Geeting Vault Assets from ${networkConfig[strategy]?.vaultProxy}`).start();
     try {
       let app = await getClient(ethers);
       const balance = await app?.call(
@@ -102,6 +102,7 @@ task('vault:deposit', 'Deposit ETH on the vault')
   .setAction(async ({ strategy, account, amount }, { ethers, network }) => {
     const networkName = network.name;
     const networkConfig = DeployConfig[networkName];
+    const vault = networkConfig[strategy]?.vaultProxy;
     const spinner = ora(`Depositing ${account} ${amount}`).start();
     try {
       let app = await getClient(ethers);
@@ -115,7 +116,7 @@ task('vault:deposit', 'Deposit ETH on the vault')
           chainId: network.config.chainId,
         },
       );
-      spinner.succeed(`Deposited ${account} ${amount} ETH 🧑‍🍳`);
+      spinner.succeed(`Deposited ${account} ${amount} ETH on ${vault} 🧑‍🍳`);
     } catch (e) {
       console.log(e);
       spinner.fail('Failed 💥');

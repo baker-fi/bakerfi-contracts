@@ -11,7 +11,6 @@ import { ISwapHandler } from "../interfaces/core/ISwapHandler.sol";
 import { UseTokenActions } from "./hooks/UseTokenActions.sol";
 import { Commands } from "./router/Commands.sol";
 import { MultiCommand } from "./MultiCommand.sol";
-import { UsePermitTransfers } from "./hooks/UsePermitTransfers.sol";
 import { IERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol";
 
 /**
@@ -32,17 +31,8 @@ import { IERC20Permit } from "@openzeppelin/contracts/token/ERC20/extensions/IER
  * - Token transfers.
  * - ERC4626 vaults operations
  */
-contract VaultRouter is
-  UseUnifiedSwapper,
-  UseTokenActions,
-  UsePermitTransfers,
-  UseIERC4626,
-  UseWETH,
-  MultiCommand
-{
-  /// @notice Mapping of approved swap tokens
-  mapping(IERC20 => bool) private _approvedSwapTokens;
-
+contract VaultRouter is UseUnifiedSwapper, UseTokenActions, UseIERC4626, UseWETH, MultiCommand {
+  error NotAuthorized();
   /// @custom:oz-upgrades-unsafe-allow constructor
   constructor() {
     _disableInitializers();
@@ -88,6 +78,7 @@ contract VaultRouter is
     uint256[] memory callStack
   ) internal override returns (bool success, bytes memory output) {
     success = true;
+
     // Extract the action ID from the lowest 32 bits using bitwise AND with mask
     uint32 actionToExecute = uint32(action & Commands.THIRTY_TWO_BITS_MASK);
 
@@ -103,7 +94,7 @@ contract VaultRouter is
       actionToExecute == Commands.V2_UNISWAP_SWAP
     ) {
       output = _handleSwap(data, callStack, inputMapping, outputMapping);
-    } else if (action == Commands.PULL_TOKEN) {
+    } else if (actionToExecute == Commands.PULL_TOKEN) {
       output = _handlePullToken(data, callStack, inputMapping);
     } else if (actionToExecute == Commands.PULL_TOKEN_FROM) {
       output = _handlePullTokenFrom(data, callStack, inputMapping);
@@ -113,12 +104,12 @@ contract VaultRouter is
       output = _handlePushTokenFrom(data, callStack, inputMapping);
     } else if (actionToExecute == Commands.SWEEP_TOKENS) {
       output = _handleSweepTokens(data, callStack, outputMapping);
+    } else if (actionToExecute == Commands.SWEEP_NATIVE) {
+      output = _handleSweepNative(data, callStack, outputMapping);
     } else if (actionToExecute == Commands.WRAP_ETH) {
       output = _handleWrapETH(data, callStack, inputMapping);
     } else if (actionToExecute == Commands.UNWRAP_ETH) {
       output = _handleUnwrapETH(data, callStack, inputMapping);
-    } else if (actionToExecute == Commands.PULL_TOKEN_WITH_PERMIT) {
-      output = _handlePullTokenWithPermit(data, callStack, inputMapping);
     } else if (actionToExecute == Commands.ERC4626_VAULT_DEPOSIT) {
       output = _handleVaultDeposit(data, callStack, inputMapping, outputMapping);
     } else if (actionToExecute == Commands.ERC4626_VAULT_MINT) {
@@ -203,6 +194,8 @@ contract VaultRouter is
       from := calldataload(add(data.offset, 0x20))
       amount := calldataload(add(data.offset, 0x40))
     }
+    if (from != msg.sender) revert NotAuthorized();
+
     amount = Commands.pullInputParam(callStack, amount, inputMapping, 1);
     pullTokenFrom(token, from, amount);
     return "";
@@ -253,6 +246,8 @@ contract VaultRouter is
       to := calldataload(add(data.offset, 0x40))
       amount := calldataload(add(data.offset, 0x60))
     }
+    if (from != msg.sender) revert NotAuthorized();
+
     amount = Commands.pullInputParam(callStack, amount, inputMapping, 1);
     pushTokenFrom(token, from, to, amount);
     return "";
@@ -279,6 +274,28 @@ contract VaultRouter is
     Commands.pushOutputParam(callStack, sweptAmount, outputMapping, 1);
     return abi.encodePacked(sweptAmount);
   }
+
+  /**
+   * @notice Handles the sweep tokens command.
+   * @param data The encoded sweep tokens parameters.
+   * @param callStack The call stack.
+   * @param outputMapping The output mapping.
+   * @return output The encoded output values.
+   */
+  function _handleSweepNative(
+    bytes calldata data,
+    uint256[] memory callStack,
+    uint32 outputMapping
+  ) private returns (bytes memory) {
+    address to;
+    assembly {
+      to := calldataload(data.offset)
+    }
+    uint256 sweptAmount = sweepNative(to);
+    Commands.pushOutputParam(callStack, sweptAmount, outputMapping, 1);
+    return abi.encodePacked(sweptAmount);
+  }
+
   /**
    * @notice Handles the wrap ETH command.
    * @param data The encoded wrap ETH parameters.
@@ -319,38 +336,7 @@ contract VaultRouter is
     unwrapETH(amount);
     return "";
   }
-  /**
-   * @notice Handles the pull token with permit command.
-   * @param data The encoded pull token with permit parameters.
-   * @param callStack The call stack.
-   * @param inputMapping The input mapping.
-   * @return output The encoded output values.
-   */
-  function _handlePullTokenWithPermit(
-    bytes calldata data,
-    uint256[] memory callStack,
-    uint32 inputMapping
-  ) private returns (bytes memory) {
-    IERC20Permit token;
-    uint256 amount;
-    address owner;
-    uint256 deadline;
-    uint8 v;
-    bytes32 r;
-    bytes32 s;
-    assembly {
-      token := calldataload(data.offset)
-      amount := calldataload(add(data.offset, 0x20))
-      owner := calldataload(add(data.offset, 0x40))
-      deadline := calldataload(add(data.offset, 0x60))
-      v := calldataload(add(data.offset, 0x80))
-      r := calldataload(add(data.offset, 0xa0))
-      s := calldataload(add(data.offset, 0xc0))
-    }
-    amount = Commands.pullInputParam(callStack, amount, inputMapping, 1);
-    pullTokensWithPermit(token, amount, owner, deadline, v, r, s);
-    return "";
-  }
+
   /**
    * @notice Handles the deposit to vault command.
    * @param data The encoded deposit to vault parameters.
@@ -368,13 +354,15 @@ contract VaultRouter is
     IERC4626 vault;
     uint256 assets;
     address receiver;
+    uint256 minShares;
     assembly {
       vault := calldataload(data.offset)
       assets := calldataload(add(data.offset, 0x20))
       receiver := calldataload(add(data.offset, 0x40))
+      minShares := calldataload(add(data.offset, 0x60))
     }
     assets = Commands.pullInputParam(callStack, assets, inputMapping, 1);
-    uint256 shares = depositVault(vault, assets, receiver);
+    uint256 shares = depositVault(vault, assets, receiver, minShares);
     Commands.pushOutputParam(callStack, shares, outputMapping, 1);
     return abi.encodePacked(shares);
   }
@@ -395,13 +383,15 @@ contract VaultRouter is
     IERC4626 vault;
     uint256 shares;
     address receiver;
+    uint256 maxAssets;
     assembly {
       vault := calldataload(data.offset)
       shares := calldataload(add(data.offset, 0x20))
       receiver := calldataload(add(data.offset, 0x40))
+      maxAssets := calldataload(add(data.offset, 0x60))
     }
     shares = Commands.pullInputParam(callStack, shares, inputMapping, 1);
-    uint256 assets = mintVault(vault, shares, receiver);
+    uint256 assets = mintVault(vault, shares, receiver, maxAssets);
     Commands.pushOutputParam(callStack, assets, outputMapping, 1);
     return abi.encodePacked(assets);
   }
@@ -422,15 +412,16 @@ contract VaultRouter is
     IERC4626 vault;
     uint256 shares;
     address receiver;
-    address owner;
+    address owner = msg.sender;
+    uint256 minAssets;
     assembly {
       vault := calldataload(data.offset)
       shares := calldataload(add(data.offset, 0x20))
       receiver := calldataload(add(data.offset, 0x40))
-      owner := calldataload(add(data.offset, 0x60))
+      minAssets := calldataload(add(data.offset, 0x60))
     }
     shares = Commands.pullInputParam(callStack, shares, inputMapping, 1);
-    uint256 assets = redeemVault(vault, shares, receiver, owner);
+    uint256 assets = redeemVault(vault, shares, receiver, owner, minAssets);
     Commands.pushOutputParam(callStack, assets, outputMapping, 1);
     return abi.encodePacked(assets);
   }
@@ -451,15 +442,16 @@ contract VaultRouter is
     IERC4626 vault;
     uint256 assets;
     address receiver;
-    address owner;
+    address owner = msg.sender;
+    uint256 maxShares;
     assembly {
       vault := calldataload(data.offset)
       assets := calldataload(add(data.offset, 0x20))
       receiver := calldataload(add(data.offset, 0x40))
-      owner := calldataload(add(data.offset, 0x60))
+      maxShares := calldataload(add(data.offset, 0x60))
     }
     assets = Commands.pullInputParam(callStack, assets, inputMapping, 1);
-    uint256 shares = withdrawVault(vault, assets, receiver, owner);
+    uint256 shares = withdrawVault(vault, assets, receiver, owner, maxShares);
     Commands.pushOutputParam(callStack, shares, outputMapping, 1);
     return abi.encodePacked(shares);
   }

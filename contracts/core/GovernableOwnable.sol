@@ -25,7 +25,7 @@ contract GovernableOwnable is OwnableUpgradeable {
   function _initializeGovernableOwnable(
     address initialOwner,
     address initialGovernor
-  ) internal initializer {
+  ) internal onlyInitializing {
     _transferOwnership(initialOwner);
     _transferGovernorship(initialGovernor);
   }

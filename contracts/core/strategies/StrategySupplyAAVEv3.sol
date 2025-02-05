@@ -3,7 +3,6 @@ pragma solidity ^0.8.24;
 
 import { IPoolV3 } from "../../interfaces/aave/v3/IPoolV3.sol";
 import { DataTypes } from "../../interfaces/aave/v3/DataTypes.sol";
-import { SYSTEM_DECIMALS } from "../../core/Constants.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { MathLibrary } from "../../libraries/MathLibrary.sol";
@@ -60,10 +59,6 @@ contract StrategySupplyAAVEv3 is StrategySupplyBase {
    */
   function _getBalance() internal view virtual override returns (uint256) {
     DataTypes.ReserveData memory reserve = (_aavev3.getReserveData(_asset));
-    uint8 reserveDecimals = ERC20(reserve.aTokenAddress).decimals();
-    uint256 reserveBalance = ERC20(reserve.aTokenAddress).balanceOf(address(this));
-
-    reserveBalance = reserveBalance.toDecimals(reserveDecimals, SYSTEM_DECIMALS);
-    return reserveBalance;
+    return ERC20(reserve.aTokenAddress).balanceOf(address(this));
   }
 }

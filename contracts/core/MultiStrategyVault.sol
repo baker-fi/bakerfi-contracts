@@ -155,7 +155,7 @@ contract MultiStrategyVault is VaultBase, MultiStrategy {
     assets = MultiStrategy._totalAssets(); // Calls the totalAssets function from MultiStrategy to get the total assets
   }
 
-  function _asset() internal view virtual override returns (address) {
+  function _asset() internal view virtual override(VaultBase, MultiStrategy) returns (address) {
     return _strategyAsset;
   }
 
@@ -177,7 +177,14 @@ contract MultiStrategyVault is VaultBase, MultiStrategy {
    */
   function rebalance(
     IVault.RebalanceCommand[] calldata commands
-  ) external override nonReentrant onlyRole(VAULT_MANAGER_ROLE) returns (bool success) {
+  )
+    external
+    override
+    nonReentrant
+    onlyRole(VAULT_MANAGER_ROLE)
+    whenNotPaused
+    returns (bool success)
+  {
     success = true;
     uint256 numCommands = commands.length;
     for (uint256 i = 0; i < numCommands; ) {
@@ -191,12 +198,39 @@ contract MultiStrategyVault is VaultBase, MultiStrategy {
         _rebalanceStrategies(indexes, deltas);
       } else if (commands[i].action == CHANGE_WEIGHTS) {
         uint16[] memory weights = abi.decode(commands[i].data, (uint16[]));
-        setWeights(weights);
+        _setWeights(weights);
       }
       unchecked {
         i++;
       }
     }
+  }
+  /**
+   * @notice Sets the weights of the strategies.
+   * @param iweights The new weights to set.
+   * @dev Reverts if the weights array length is not equal to the strategies array length.
+   */
+
+  function setWeights(uint16[] memory iweights) external onlyRole(VAULT_MANAGER_ROLE) {
+    _setWeights(iweights);
+  }
+  /**
+   * @notice Removes a strategy from the MultiStrategy contract.
+   * @param index The index of the strategy to remove.
+   * @dev Reverts if the index is out of bounds. The last strategy is moved to the removed index.
+   * This function also handles the undeployment of assets from the strategy being removed and
+   * rebalances the remaining strategies.
+   */
+  function removeStrategy(uint256 index) external onlyRole(VAULT_MANAGER_ROLE) {
+    _removeStrategy(index);
+  }
+  /**
+   * @notice Adds a new strategy to the MultiStrategy contract.
+   * @param strategy The StrategyParams containing the strategy and its weight.
+   * @dev Reverts if the strategy address is zero or if the weight is zero.
+   */
+  function addStrategy(IStrategy strategy) external onlyRole(VAULT_MANAGER_ROLE) {
+    _addStrategy(strategy);
   }
 
   uint256[50] private __gap;

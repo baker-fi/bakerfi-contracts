@@ -16,7 +16,7 @@ import { AddressUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/Ad
 import { StrategyLeverageSettings } from "./StrategyLeverageSettings.sol";
 import { MathLibrary } from "../../libraries/MathLibrary.sol";
 import { EmptySlot } from "../EmptySlot.sol";
-
+import { ERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 /**
  * @title Base Recursive Staking Strategy
  *
@@ -109,7 +109,7 @@ abstract contract StrategyLeverage is
   address internal _collateralToken;
   // Debt IERC20 Token address used on this
   address internal _debtToken;
-  // Oracle used to get the price of the collateral and debt
+  // Oracle used to get the price of the collateralToken/debt: Example WSETH/ETH, ETH/USDC
   IOracle private _oracle;
   // Two Empty Slots to keep the storage layout consistent
   uint256[1] internal _emptySlots;
@@ -160,6 +160,18 @@ abstract contract StrategyLeverage is
     if (_debtToken == address(0)) revert InvalidDebtToken();
 
     if (address(_oracle) == address(0)) revert InvalidOracle();
+  }
+
+  /**
+   * @dev Internal function to upgrade from v1.1.0 to v4.0.0
+   *
+   * Set the deployed assets and reset the pending amount and flash loan args hash
+   * @param deployedAssets The amount of assets deployed in the strategy
+   */
+  function _upgradeFromV1(uint256 deployedAssets) internal {
+    _deployedAssets = deployedAssets;
+    _pendingAmount = 0;
+    _flashLoanArgsHash = 0;
   }
 
   /**
@@ -744,6 +756,10 @@ abstract contract StrategyLeverage is
       _oracle.getPrecision(),
       roundUp
     );
+    amountOut = amountOut.toDecimals(
+      ERC20Upgradeable(_collateralToken).decimals(),
+      ERC20Upgradeable(_debtToken).decimals()
+    );
   }
 
   /**
@@ -763,6 +779,10 @@ abstract contract StrategyLeverage is
       _oracle.getPrecision(),
       _oracle.getSafeLatestPrice(priceOptions).price,
       roundUp
+    );
+    amountOut = amountOut.toDecimals(
+      ERC20Upgradeable(_debtToken).decimals(),
+      ERC20Upgradeable(_collateralToken).decimals()
     );
   }
 
@@ -873,11 +893,11 @@ abstract contract StrategyLeverage is
     revert InvalidOwner();
   }
 
-  function getCollateralOracle() public view returns (address oracle) {
+  function getOracle() public view returns (address oracle) {
     oracle = address(_oracle);
   }
 
-  function setDebtOracle(IOracle oracle) public onlyGovernor {
+  function setOracle(IOracle oracle) public onlyGovernor {
     _oracle = oracle;
   }
 

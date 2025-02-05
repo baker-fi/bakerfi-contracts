@@ -18,18 +18,21 @@ export type FeedNameEnumType =
 export type BakerDeployConfig = {
   proxyAdmin?: string;
   serviceRegistry: string;
-  flashLender: string;
-  collateralOracle: string;
-  debtOracle: string;
-  strategy: string;
+  flashLender?: string;
+  oracle?: string;
+  collateralOracle?: string;
+  debtOracle?: string;
+  strategy?: string;
   strategyProxy?: string;
   vault: string;
   vaultProxy?: string;
-  settings: string;
+  settings?: string;
   settingsProxy?: string;
   bkr?: string;
   wstETHUSDOracleFeedId?: string;
   ethUSDOracleFeedId?: string;
+  vaultRouter?: string;
+  vaultRouterProxy?: string;
 };
 
 export const pythFeeds = {
@@ -79,13 +82,15 @@ export enum StrategyImplementation {
   AAVE_V3_WSTETH_ETH_LIDO = 'AAVEv3 Lido wstETH/ETH',
   MORPHO_BLUE_WSTETH_ETH = 'Morpho Blue wstETH/ETH',
   MORPHO_BLUE_SUPPLY_WSTETH_ETH = 'Morpho Blue Supply wstETH/ETH',
+  FIFTY_FIFTY_ETH = '50/50 Park ETH',
 }
 
 export type StrategyImplementationType =
   | StrategyImplementation.AAVE_V3_WSTETH_ETH
   | StrategyImplementation.MORPHO_BLUE_WSTETH_ETH
   | StrategyImplementation.AAVE_V3_WSTETH_ETH_LIDO
-  | StrategyImplementation.MORPHO_BLUE_SUPPLY_WSTETH_ETH;
+  | StrategyImplementation.MORPHO_BLUE_SUPPLY_WSTETH_ETH
+  | StrategyImplementation.FIFTY_FIFTY_ETH;
 
 export type MarketBase<T extends string, U extends Record<string, any> = {}> = {
   sharesName: string;

@@ -2,7 +2,6 @@
 pragma solidity ^0.8.24;
 
 import { StrategyLeverage } from "./StrategyLeverage.sol";
-import { SYSTEM_DECIMALS } from "../../core/Constants.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -40,7 +39,17 @@ contract StrategyLeverageAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
   constructor() {
     _disableInitializers();
   }
-
+  /**
+   * @dev Initializes the strategy with the specified parameters.
+   * @param initialOwner The address of the initial owner of the strategy.
+   * @param initialGovernor The address of the initial governor of the strategy.
+   * @param collateralToken The address of the collateral token.
+   * @param debtToken The address of the debt token.
+   * @param oracle The address of the oracle.
+   * @param flashLender The address of the flash lender.
+   * @param aaveV3Pool The address of the AAVE v3 pool.
+   * @param eModeCategory The eMode category.
+   */
   // solhint-disable no-empty-blocks
   function initialize(
     address initialOwner,
@@ -66,9 +75,50 @@ contract StrategyLeverageAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
   }
 
   /**
+   * @dev Initializes the strategy with the specified parameters.
+   * @param initialOwner The address of the initial owner of the strategy.
+   * @param initialGovernor The address of the initial governor of the strategy.
+   * @param flashLender The address of the flash lender.
+   * @param collateralToken The address of the collateral token.
+   * @param debtToken The address of the debt token.
+   * @param oracle The address of the oracle.
+   * @param aaveV3Pool The address of the AAVE v3 pool.
+   *
+   * This initializer function allows the migration from v1.1.1, v1.3.0 to v4.0.0
+   */
+  function initializeV4(
+    address initialOwner,
+    address initialGovernor,
+    address flashLender,
+    address collateralToken,
+    address debtToken,
+    address oracle,
+    address aaveV3Pool,
+    uint8 fromVersion
+  ) public reinitializer(4) {
+    uint256 deployedAssets;
+    uint DEPLOYED_ASSETS_SLOT = 163;
+    assembly {
+      deployedAssets := sload(DEPLOYED_ASSETS_SLOT)
+    }
+    _initializeStrategyLeverage(
+      initialOwner,
+      initialGovernor,
+      collateralToken,
+      debtToken,
+      oracle,
+      flashLender
+    );
+    _initUseAAVEv3(aaveV3Pool);
+    if (fromVersion == 1) {
+      _upgradeFromV1(deployedAssets);
+    }
+  }
+
+  /**
    * Get the Current Position on AAVE v3 Money Market
    *
-   * @return collateralBalance The Collateral Balance Amount
+   * @return collateralBalance The Collateral Balance Amount with the native decimals
    * @return debtBalance The Debt Token Balance Amount
    *
    * @dev !Important: No Conversion to USD Done
@@ -83,11 +133,7 @@ contract StrategyLeverageAAVEv3 is Initializable, StrategyLeverage, UseAAVEv3 {
     DataTypes.ReserveData memory debtReserve = (aaveV3().getReserveData(_debtToken));
     DataTypes.ReserveData memory collateralReserve = (aaveV3().getReserveData(_collateralToken));
     debtBalance = ERC20(debtReserve.variableDebtTokenAddress).balanceOf(address(this));
-    uint8 debtDecimals = ERC20(debtReserve.variableDebtTokenAddress).decimals();
-    uint8 collateralDecimals = ERC20(collateralReserve.aTokenAddress).decimals();
     collateralBalance = ERC20(collateralReserve.aTokenAddress).balanceOf(address(this));
-    debtBalance = debtBalance.toDecimals(debtDecimals, SYSTEM_DECIMALS);
-    collateralBalance = collateralBalance.toDecimals(collateralDecimals, SYSTEM_DECIMALS);
   }
 
   /**
