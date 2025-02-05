@@ -637,6 +637,7 @@ abstract contract VaultBase is
    * - The new performance fee percentage must be a valid percentage value.
    */
   function setPerformanceFee(uint256 fee) external onlyRole(ADMIN_ROLE) {
+    _harvestAndMintFees();
     _setPerformanceFee(fee);
   }
   /**
