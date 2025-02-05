@@ -140,6 +140,11 @@
     ],
     "errors": [
       {
+        "name": "InvalidDeltas",
+        "signature": "InvalidDeltas()",
+        "selector": "0x7925479e"
+      },
+      {
         "name": "InvalidDeltasLength",
         "signature": "InvalidDeltasLength()",
         "selector": "0x156e7182"
@@ -529,6 +534,11 @@
         "name": "InvalidAssetsState",
         "signature": "InvalidAssetsState()",
         "selector": "0x6ccb80a3"
+      },
+      {
+        "name": "InvalidDeltas",
+        "signature": "InvalidDeltas()",
+        "selector": "0x7925479e"
       },
       {
         "name": "InvalidDeltasLength",
@@ -1725,6 +1735,11 @@
         "selector": "0xca879b3c"
       },
       {
+        "name": "NotAuthorized",
+        "signature": "NotAuthorized()",
+        "selector": "0xea8e4eb5"
+      },
+      {
         "name": "NotEnoughAllowance",
         "signature": "NotEnoughAllowance()",
         "selector": "0x4fd3af07"
@@ -1740,9 +1755,9 @@
         "selector": "0x273f1b0e"
       },
       {
-        "name": "SwapFailed",
-        "signature": "SwapFailed()",
-        "selector": "0x81ceff30"
+        "name": "SlippageTooHigh",
+        "signature": "SlippageTooHigh()",
+        "selector": "0x850c6f76"
       },
       {
         "name": "SwapFailed",
@@ -1758,6 +1773,16 @@
         "name": "SwapFailed",
         "signature": "SwapFailed()",
         "selector": "0x81ceff30"
+      },
+      {
+        "name": "SwapFailed",
+        "signature": "SwapFailed()",
+        "selector": "0x81ceff30"
+      },
+      {
+        "name": "SweepFailed",
+        "signature": "SweepFailed()",
+        "selector": "0x9eec2ff8"
       }
     ]
   },
@@ -3287,6 +3312,11 @@
         "name": "InvalidVaultAddress",
         "signature": "InvalidVaultAddress()",
         "selector": "0x03061201"
+      },
+      {
+        "name": "SlippageTooHigh",
+        "signature": "SlippageTooHigh()",
+        "selector": "0x850c6f76"
       }
     ]
   },
@@ -3371,6 +3401,11 @@
         "name": "NotEnoughAllowance",
         "signature": "NotEnoughAllowance()",
         "selector": "0x4fd3af07"
+      },
+      {
+        "name": "SweepFailed",
+        "signature": "SweepFailed()",
+        "selector": "0x9eec2ff8"
       }
     ]
   },
@@ -3487,11 +3522,6 @@
         "selector": "0x43003f11"
       },
       {
-        "name": "PULL_TOKEN_WITH_PERMIT",
-        "signature": "PULL_TOKEN_WITH_PERMIT()",
-        "selector": "0x7518fcb2"
-      },
-      {
         "name": "PUSH_TOKEN",
         "signature": "PUSH_TOKEN()",
         "selector": "0x83f7828e"
@@ -3505,6 +3535,11 @@
         "name": "SEND_NATIVE",
         "signature": "SEND_NATIVE()",
         "selector": "0xba23dd58"
+      },
+      {
+        "name": "SWEEP_NATIVE",
+        "signature": "SWEEP_NATIVE()",
+        "selector": "0xa94e275f"
       },
       {
         "name": "SWEEP_TOKENS",
@@ -3665,6 +3700,11 @@
         "selector": "0x06202020"
       },
       {
+        "name": "OverflowDetected",
+        "signature": "OverflowDetected()",
+        "selector": "0xf1075a7a"
+      },
+      {
         "name": "SlippageExceeded",
         "signature": "SlippageExceeded()",
         "selector": "0x8199f5f3"
@@ -3799,6 +3839,11 @@
         "name": "InvalidOutputToken",
         "signature": "InvalidOutputToken()",
         "selector": "0x06202020"
+      },
+      {
+        "name": "OverflowDetected",
+        "signature": "OverflowDetected()",
+        "selector": "0xf1075a7a"
       },
       {
         "name": "SlippageExceeded",
@@ -4195,6 +4240,11 @@
         "name": "NoCollateralMarginToScale",
         "signature": "NoCollateralMarginToScale()",
         "selector": "0x37563485"
+      },
+      {
+        "name": "OverflowDetected",
+        "signature": "OverflowDetected()",
+        "selector": "0xf1075a7a"
       },
       {
         "name": "PriceOutdated",
@@ -5458,11 +5508,6 @@
         "selector": "0xf4d678b8"
       },
       {
-        "name": "OverflowDetected",
-        "signature": "OverflowDetected()",
-        "selector": "0xf1075a7a"
-      },
-      {
         "name": "WithdrawalValueMismatch",
         "signature": "WithdrawalValueMismatch()",
         "selector": "0x56ce51b8"
@@ -5701,6 +5746,11 @@
         "selector": "0xf4d678b8"
       },
       {
+        "name": "InvalidAsset",
+        "signature": "InvalidAsset()",
+        "selector": "0xc891add2"
+      },
+      {
         "name": "InvalidMorphoBlueContract",
         "signature": "InvalidMorphoBlueContract()",
         "selector": "0x6b37287f"
@@ -5800,6 +5850,11 @@
         "name": "InvalidConfiguration",
         "signature": "InvalidConfiguration()",
         "selector": "0xc52a9bd3"
+      },
+      {
+        "name": "OverflowDetected",
+        "signature": "OverflowDetected()",
+        "selector": "0xf1075a7a"
       },
       {
         "name": "SlippageExceeded",
@@ -5921,6 +5976,11 @@
         "name": "InvalidV2RouterContract",
         "signature": "InvalidV2RouterContract()",
         "selector": "0x42881e2f"
+      },
+      {
+        "name": "OverflowDetected",
+        "signature": "OverflowDetected()",
+        "selector": "0xf1075a7a"
       },
       {
         "name": "SlippageExceeded",
@@ -6067,6 +6127,11 @@
         "name": "InvalidUniRouterContract",
         "signature": "InvalidUniRouterContract()",
         "selector": "0xcf29a968"
+      },
+      {
+        "name": "OverflowDetected",
+        "signature": "OverflowDetected()",
+        "selector": "0xf1075a7a"
       },
       {
         "name": "SlippageExceeded",
