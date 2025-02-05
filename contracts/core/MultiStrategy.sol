@@ -4,8 +4,6 @@ pragma solidity ^0.8.24;
 import { IStrategy } from "../interfaces/core/IStrategy.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { AccessControlUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import { VAULT_MANAGER_ROLE } from "./Constants.sol";
 import { ReentrancyGuardUpgradeable } from "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
 /**
@@ -295,8 +293,8 @@ abstract contract MultiStrategy is Initializable, ReentrancyGuardUpgradeable {
     IStrategy strategyToRemove = _strategies[index];
     // Retrieve the total assets managed by the strategy to be removed
     uint256 strategyAssets = strategyToRemove.totalAssets();
-    // Remove the approval to move assets for the strategy from the vault
-    IERC20(strategyToRemove.asset()).approve(address(strategyToRemove), 0);
+    // Remove the approval to move assets for the strategy from the vault, USDT does not support 0 allowance
+    IERC20(strategyToRemove.asset()).approve(address(strategyToRemove), 1);
     // Update the total weight and mark the weight of the removed strategy as zero
     _totalWeight -= _weights[index];
     _weights[index] = 0;

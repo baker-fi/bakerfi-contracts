@@ -91,9 +91,9 @@ abstract contract UseUnifiedSwapper is ISwapHandler, GovernableOwnable {
     bytes32 key = _key(tokenIn, tokenOut);
     // Check if the route is authorized
     if (_routes[key].provider == SwapProvider.NONE) revert RouteNotAuthorized();
-    // Set the allowance to 0
-    if (!IERC20(tokenIn).approve(_routes[key].router, 0)) revert FailedToApproveAllowance();
-    if (!IERC20(tokenOut).approve(_routes[key].router, 0)) revert FailedToApproveAllowance();
+    // Set the allowance to a very small amount, USDT does not support 0 allowance
+    if (!IERC20(tokenIn).approve(_routes[key].router, 1)) revert FailedToApproveAllowance();
+    if (!IERC20(tokenOut).approve(_routes[key].router, 1)) revert FailedToApproveAllowance();
     // Set the route information to none
     _routes[key].provider = SwapProvider.NONE;
   }

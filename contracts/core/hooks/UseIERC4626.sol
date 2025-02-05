@@ -39,7 +39,8 @@ abstract contract UseIERC4626 is GovernableOwnable {
 
   function unapproveTokenForVault(IERC4626 vault, IERC20 token) public onlyGovernor {
     _approvedVaults[vault][token] = false;
-    if (!IERC20(token).approve(address(vault), 0)) revert FailedToApproveAllowanceForVault();
+    // Set the allowance to a very small amount, USDT does not support 0 allowance
+    if (!IERC20(token).approve(address(vault), 1)) revert FailedToApproveAllowanceForVault();
   }
 
   /**
